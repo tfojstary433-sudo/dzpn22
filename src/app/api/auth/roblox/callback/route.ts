@@ -1,0 +1,61 @@
+import { NextResponse } from 'next/server';
+
+const CLIENT_ID = '8976718339232083701';
+const CLIENT_SECRET = 'RBX-9Q7xxduyr0SyvmSDQWOIy7Hq3uol7UdKyH_ObQ5rthuf4aZnGbzdCnd_ik83XXvY';
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get('code');
+
+  // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
+  const host = request.headers.get('host') || new URL(request.url).host;
+  const protocol = request.headers.get('x-forwarded-proto') || (new URL(request.url).protocol.replace(':', ''));
+  const origin = `${protocol}://${host}`;
+
+  // Upewniamy się, że redirectUri jest identyczny z tym wysłanym z frontendu
+  const redirectUri = `${origin.replace(/\/$/, "")}/robloxcallback`;
+
+  if (!code) {
+    return NextResponse.json({ error: 'No code provided' }, { status: 400 });
+  }
+
+  try {
+    // Exchange code for token
+    const authHeader = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
+    const tokenResponse = await fetch('https://apis.roblox.com/oauth/v1/token', {
+      method: 'POST',
+      body: new URLSearchParams({
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${authHeader}`
+      },
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (tokenData.error) {
+      console.error('Roblox token error:', tokenData);
+      return NextResponse.json({ error: tokenData.error_description || 'Failed to exchange code' }, { status: 400 });
+    }
+
+    // Get user info
+    const userResponse = await fetch('https://apis.roblox.com/oauth/v1/userinfo', {
+      headers: {
+        Authorization: `Bearer ${tokenData.access_token}`,
+      },
+    });
+
+    const userData = await userResponse.json();
+
+    return NextResponse.json({
+        robloxId: userData.sub,
+        robloxUsername: userData.preferred_username || userData.name
+    });
+  } catch (error) {
+    console.error('Roblox Auth error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

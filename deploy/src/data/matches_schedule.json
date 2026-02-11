@@ -1,0 +1,5 @@
+[
+  { "id": "m1", "homeTeamId": "UNI", "awayTeamId": "LGD", "status": "upcoming" },
+  { "id": "m2", "homeTeamId": "ZAG", "awayTeamId": "LPO", "status": "upcoming" },
+  { "id": "m3", "homeTeamId": "ARK", "awayTeamId": "LEG", "status": "upcoming" }
+]

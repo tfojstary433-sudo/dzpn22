@@ -1,0 +1,8 @@
+Remove-Item : Parameter cannot be processed because the parameter name 'f' is ambiguous. Possible matches include: -Fil
+ter -Force.
+At line:1 char:54
++ $PSDefaultParameterValues['*:Encoding'] = 'utf8'; rm -f c:\Users\paky ...
++                                                      ~~
+    + CategoryInfo          : InvalidArgument: (:) [Remove-Item], ParameterBindingException
+    + FullyQualifiedErrorId : AmbiguousParameter,Microsoft.PowerShell.Commands.RemoveItemCommand
+ 

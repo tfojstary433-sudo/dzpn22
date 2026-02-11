@@ -1,0 +1,25 @@
+[
+  {
+    "matchId": "test-match",
+    "date": "26.01.2026",
+    "homeTeam": "Unknown",
+    "awayTeam": "Unknown",
+    "homeScore": 0,
+    "awayScore": 0,
+    "league": "LL",
+    "lineup": [
+      {
+        "userId": "12345",
+        "username": "TestPlayer",
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "rating": 0,
+        "minutes": 0,
+        "number": 10,
+        "position": "FW"
+      }
+    ]
+  }
+]

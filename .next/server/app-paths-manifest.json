@@ -1,0 +1,4 @@
+{
+  "/api/matches/route": "app/api/matches/route.js",
+  "/api/matches/[uuid]/route": "app/api/matches/[uuid]/route.js"
+}

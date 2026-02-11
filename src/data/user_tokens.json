@@ -1,0 +1,119 @@
+{
+  "users": {
+    "1198260479706021961": {
+      "balance": 1990,
+      "bonusBalance": 390,
+      "items": {}
+    }
+  },
+  "purchases": [
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 80,
+        "bonus": 20
+      },
+      "timestamp": "2026-01-22T13:55:52.418Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 200,
+        "bonus": 100
+      },
+      "timestamp": "2026-01-22T13:56:58.525Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 50,
+        "bonus": 10
+      },
+      "timestamp": "2026-01-22T13:57:02.342Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 400,
+        "bonus": 0
+      },
+      "timestamp": "2026-01-22T13:57:09.658Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 50,
+        "bonus": 10
+      },
+      "timestamp": "2026-01-22T21:53:06.430Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 200,
+        "bonus": 100
+      },
+      "timestamp": "2026-01-22T21:53:57.641Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 200,
+        "bonus": 100
+      },
+      "timestamp": "2026-01-22T21:56:59.262Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 50,
+        "bonus": 10
+      },
+      "timestamp": "2026-01-22T21:57:48.815Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 300,
+        "bonus": 0
+      },
+      "timestamp": "2026-01-22T21:59:13.469Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 80,
+        "bonus": 20
+      },
+      "timestamp": "2026-01-22T21:59:22.377Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 80,
+        "bonus": 20
+      },
+      "timestamp": "2026-01-22T22:01:17.144Z"
+    },
+    {
+      "userId": "1198260479706021961",
+      "type": "token_purchase",
+      "amount": {
+        "regular": 300,
+        "bonus": 0
+      },
+      "timestamp": "2026-01-22T22:01:24.349Z"
+    }
+  ]
+}
