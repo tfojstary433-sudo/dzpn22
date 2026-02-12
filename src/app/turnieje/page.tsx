@@ -1254,7 +1254,7 @@ function TurniejeContent() {
                         </thead>
                         <tbody className="divide-y divide-white/[0.02]">
                           {topScorers.length > 0 ? (
-                            topScorers.map((player: any, idx) => (
+                            topScorers.map((player: any, idx: number) => (
                               <tr key={idx} className="hover:bg-white/[0.02] transition-colors group">
                                 <td className="py-5 px-8">
                                   <span className={`text-lg font-black italic ${idx === 0 ? 'text-[#00ccff]' : 'text-white/20'}`}>
