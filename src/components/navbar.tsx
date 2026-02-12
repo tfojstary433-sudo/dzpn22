@@ -212,7 +212,7 @@ export function Navbar() {
             <Link href="/" className="py-2 group relative">
               <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-colors duration-300 blur-xl" />
               <Image
-                src="https://i.ibb.co/TB027G07/czarnepff-1.png"
+                src="https://i.ibb.co/BHdnmcMj/LOGO-PFF.png"
                 alt="PFF Logo"
                 width={200}
                 height={80}
@@ -304,7 +304,7 @@ export function Navbar() {
                                       alt={result.club} 
                                       className="w-full h-full object-contain brightness-125" 
                                       onError={(e) => {
-                                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+                                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/BHdnmcMj/LOGO-PFF.png';
                                       }}
                                     />
                                   </div>

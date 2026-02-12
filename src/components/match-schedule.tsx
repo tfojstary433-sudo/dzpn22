@@ -23,7 +23,7 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: teamName || 'TBD',
     shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
     color: '#3b82f6'
   };
 }
@@ -504,7 +504,7 @@ export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
               <div className="relative group">
                 <div className="absolute -inset-8 bg-blue-500/10 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
                 <Image
-                  src="https://i.ibb.co/TB027G07/czarnepff-1.png"
+                  src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png"
                   alt="PFF"
                   width={200}
                   height={100}

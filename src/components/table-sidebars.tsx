@@ -24,9 +24,9 @@ function getTeamLogo(teamId: string): string {
     'ZAG': 'https://i.ibb.co/7xBP97MW/dvyf-Zx2g-Ykwr8-Dur.png',
     'LEC_0': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', // Lechia Gdańsk
     'LEC_3': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', // Lechia Gdańsk
-    'LEC_1': 'https://i.ibb.co/TB027G07/czarnepff-1.png' // Placeholder
+    'LEC_1': 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png' // Placeholder
   };
-  return teamLogos[teamId] || 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+  return teamLogos[teamId] || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
 }
 
 export const RecentResultsSidebar = memo(function RecentResultsSidebar() {

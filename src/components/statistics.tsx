@@ -43,7 +43,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
                       alt={item.name} 
                       className="w-full h-full object-contain drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]" 
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
                       }}
                     />
                   </div>
@@ -64,7 +64,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
                         alt={item.teamName} 
                         className="w-full h-full object-contain brightness-125" 
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+                          (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
                         }}
                       />
                     </div>

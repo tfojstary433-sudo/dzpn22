@@ -592,7 +592,7 @@ Z kolei Wisła Kraków stawia na młode talenty, podpisując kontrakty z obiecuj
     id: 3,
     category: 'WYWIAD',
     title: 'Prezes PFF: "Naszym celem jest stworzenie najbardziej profesjonalnej ligi w Roblox"',
-    image: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    image: 'https://i.ibb.co/BHdnmcMj/LOGO-PFF.png',
     description: 'Ekskluzywny wywiad z szefem Polskiej Federacji Futbolu o planach na rozwój, nowych systemach meczowych i współpracy ze społecznością.',
     content: `W szczerej rozmowie z naszą redakcją, Prezes PFF opowiedział o wizji rozwoju federacji na najbliższe lata. "Chcemy, aby PFF było kojarzone z jakością i profesjonalizmem. Wprowadzamy nowe systemy anty-cheatowe, szkolimy sędziów i dbamy o oprawę graficzną każdego spotkania" – mówi Prezes.
 
@@ -657,7 +657,7 @@ export const sneakPeeks: SneakPeak[] = [
   {
     id: 3,
     title: 'Przeciek nowego interfejsu',
-    image: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    image: 'https://i.ibb.co/BHdnmcMj/LOGO-PFF.png',
     type: 'image',
     date: '2026-01-09',
   }

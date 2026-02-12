@@ -27,7 +27,7 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: teamName,
     shortName: teamName.substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
     color: '#3b82f6'
   };
 }

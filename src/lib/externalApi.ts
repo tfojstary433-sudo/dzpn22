@@ -62,7 +62,7 @@ export async function fetchExternalLeagueTable(): Promise<Standing[]> {
         id: item.team?.id || `ext${index}`,
         name: item.team?.name || item.name || 'Unknown Team',
         shortName: item.team?.shortName || item.shortName || item.name?.substring(0, 3) || 'UNK',
-        logo: item.team?.logo || item.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+        logo: item.team?.logo || item.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       },
       played: item.played || item.matches || 0,
       won: item.won || 0,

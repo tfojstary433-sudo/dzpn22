@@ -21,7 +21,7 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: 'TBD',
     shortName: 'TBD',
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
     color: '#3b82f6'
   };
 
@@ -44,7 +44,7 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: teamName || 'TBD',
     shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
     color: '#3b82f6'
   };
 }
@@ -403,7 +403,7 @@ export function ScheduleTableOverlay({
                                 height={36}
                                 className="relative z-10"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+                                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
                                 }}
                               />
                             </div>
@@ -436,7 +436,7 @@ export function ScheduleTableOverlay({
                                 height={36}
                                 className="relative z-10"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+                                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
                                 }}
                               />
                             </div>

@@ -58,8 +58,8 @@ export default function TransferyPage() {
                       position: mapPositionToPolish(player.position || match.position || '---'),
                       from: fromTeam?.name || lastTeamName,
                       to: toTeam?.name || currentTeamName,
-                      fromLogo: fromTeam?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
-                      toLogo: toTeam?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+                      fromLogo: fromTeam?.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
+                      toLogo: toTeam?.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
                       robloxUsername: player.name,
                       date: match.playedAt ? new Date(match.playedAt).toLocaleDateString('pl-PL') : '---',
                       timestamp: new Date(match.playedAt).getTime()

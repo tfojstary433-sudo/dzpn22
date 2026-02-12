@@ -171,8 +171,8 @@ export default function KlubPage() {
       return {
         id: friendlyMatch.uuid || friendlyMatch.matchUuid,
         date: date.toISOString(),
-        homeTeam: teams.find(t => t.name === friendlyMatch.teamA) || { name: friendlyMatch.teamA, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png' },
-        awayTeam: teams.find(t => t.name === friendlyMatch.teamB) || { name: friendlyMatch.teamB, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png' },
+        homeTeam: teams.find(t => t.name === friendlyMatch.teamA) || { name: friendlyMatch.teamA, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png' },
+        awayTeam: teams.find(t => t.name === friendlyMatch.teamB) || { name: friendlyMatch.teamB, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png' },
         type: 'friendly'
       };
     }
@@ -719,7 +719,7 @@ export default function KlubPage() {
                     </h3>
                     <div className="flex items-center gap-2">
                       <img 
-                        src="https://i.ibb.co/v4m6pM8r/obraz-2026-02-11-140652877.png" 
+                        src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
                         alt="PFF Tournament" 
                         className="h-10 object-contain"
                       />
@@ -766,7 +766,7 @@ export default function KlubPage() {
                 <div className="flex items-center justify-between mb-6 px-2">
                   <div className="flex items-center gap-4">
                     <img 
-                      src="https://i.ibb.co/ksb3b2Bs/obraz-2026-01-29-190552532.png" 
+                      src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
                       alt="7u7 Ekstraklasa" 
                       className="h-16 w-auto opacity-90"
                     />
@@ -802,7 +802,7 @@ export default function KlubPage() {
                   
                   {/* PFF Logo Watermark - Centered in circle */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.25] pointer-events-none z-0">
-                    <img src="https://i.ibb.co/fVGvzTZX/image.png" alt="" className="w-28 h-28 object-contain" />
+                    <img src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" alt="" className="w-28 h-28 object-contain" />
                   </div>
                   
                   {/* Players from last match - 5x7 grid */}
@@ -852,7 +852,7 @@ export default function KlubPage() {
           <div className="max-w-4xl mx-auto bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] p-6 md:p-8 overflow-hidden shadow-2xl">
             <div className="flex flex-col items-center mb-6">
               <img 
-                src="https://i.ibb.co/ksb3b2Bs/obraz-2026-01-29-190552532.png" 
+                src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
                 alt="7u7 Ekstraklasa" 
                 className="h-10 md:h-12 w-auto mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] opacity-90"
               />
@@ -1032,7 +1032,7 @@ export default function KlubPage() {
                         status: m.status,
                         type: 'match',
                         league: 'Ekstraklasa',
-                        leagueLogo: 'https://i.ibb.co/v4m6pM8r/obraz-2026-02-11-140652877.png'
+                        leagueLogo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
                       })),
                     ...(Array.isArray(apiFixtures) ? apiFixtures : [])
                       .filter(f => f?.teamA === team?.name || f?.teamB === team?.name)
@@ -1046,7 +1046,7 @@ export default function KlubPage() {
                         status: f.status,
                         type: 'fixture',
                         league: 'Ekstraklasa',
-                        leagueLogo: 'https://i.ibb.co/v4m6pM8r/obraz-2026-02-11-140652877.png'
+                        leagueLogo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
                       })),
                     ...(Array.isArray(friendlyMatches) ? friendlyMatches : [])
                       .filter(f => f.teamA === team.name || f.teamB === team.name)
@@ -1071,7 +1071,7 @@ export default function KlubPage() {
                           status: f.status,
                           type: 'friendly',
                           league: 'Mecze Towarzyskie 2026',
-                          leagueLogo: 'https://i.ibb.co/v4m6pM8r/obraz-2026-02-11-140652877.png'
+                          leagueLogo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
                         };
                       })
                   ];

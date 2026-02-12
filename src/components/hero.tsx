@@ -107,7 +107,7 @@ const getTeamFromName = (teamName: string) => {
     id: 'UNK',
     name: teamName,
     shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
     color: '#3b82f6'
   };
 };
@@ -248,7 +248,7 @@ export function Hero({
             Brak zaplanowanych meczów w najbliższym czasie
           </p>
         </div>
-        <div className="absolute inset-0 bg-[url('https://i.ibb.co/TB027G07/czarnepff-1.png')] bg-center bg-no-repeat opacity-5 scale-150 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png')] bg-center bg-no-repeat opacity-5 scale-150 pointer-events-none" />
       </div>
     );
   }
@@ -452,7 +452,7 @@ export function Hero({
                       {/* Home team logo */}
                       <div className="relative group flex-shrink-0 w-24 md:w-32 lg:w-40 flex flex-col items-center justify-center">
                         <Image
-                          src={displayData.homeTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
+                          src={displayData.homeTeam.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'}
                           alt={displayData.homeTeam.name}
                           width={140}
                           height={140}
@@ -509,7 +509,7 @@ export function Hero({
                       <div className="relative group flex-shrink-0 w-24 md:w-32 lg:w-40 flex flex-col items-center justify-center">
                         {/* Team color glow removed */}
                         <Image
-                          src={displayData.awayTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
+                          src={displayData.awayTeam.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'}
                           alt={displayData.awayTeam.name}
                           width={140}
                           height={140}

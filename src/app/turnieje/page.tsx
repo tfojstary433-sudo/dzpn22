@@ -84,7 +84,7 @@ function TurniejeContent() {
           return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
             id: name,
             name: name,
-            logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+            logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
           };
         };
 
@@ -148,13 +148,13 @@ function TurniejeContent() {
       const homeTeam = teams.find(t => t.name.toLowerCase() === cleanName(homeParticipant?.name)) || {
         id: homeParticipant?.id.toString(),
         name: homeParticipant?.name || 'TBD',
-        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       };
 
       const awayTeam = teams.find(t => t.name.toLowerCase() === cleanName(awayParticipant?.name)) || {
         id: awayParticipant?.id.toString(),
         name: awayParticipant?.name || 'TBD',
-        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       };
 
       const matchDate = m.underway_at || m.scheduled_start_time || m.created_at;
@@ -226,7 +226,7 @@ function TurniejeContent() {
         const localTeam = teams.find(team => team.name.toLowerCase() === teamName.toLowerCase()) || {
           id: teamName,
           name: teamName,
-          logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+          logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
         };
         return {
           ...p,
@@ -246,7 +246,7 @@ function TurniejeContent() {
           const localTeam = teams.find(team => team.name.toLowerCase() === teamName.toLowerCase()) || {
             id: teamName,
             name: teamName,
-            logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+            logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
           };
 
           t.players.forEach((p: any) => {
@@ -267,7 +267,7 @@ function TurniejeContent() {
       return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
         id: name,
         name: name,
-        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       };
     };
 
@@ -341,7 +341,7 @@ function TurniejeContent() {
         return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
           id: name,
           name: name,
-          logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+          logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
         };
       };
 
@@ -397,7 +397,7 @@ function TurniejeContent() {
           const localTeam = teams.find(team => team.name.toLowerCase() === teamName.toLowerCase()) || {
             id: teamName,
             name: teamName,
-            logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+            logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
           };
 
           const gid = g.name.toUpperCase().includes('GRUPA A') || g.name.toUpperCase().includes('GROUP A') ? 'A' : 
@@ -428,7 +428,7 @@ function TurniejeContent() {
         const localTeam = teams.find(team => team.name.toLowerCase() === t.name.toLowerCase()) || {
           id: t.name,
           name: t.name,
-          logo: t.logoUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+          logo: t.logoUrl || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
         };
 
         const gid = t.group === '1' || t.group === 1 || t.group === 'A' ? 'A' : (t.group === '2' || t.group === 2 || t.group === 'B' ? 'B' : t.group);
@@ -454,7 +454,7 @@ function TurniejeContent() {
         const localTeam = teams.find(team => team.name.toLowerCase() === t.name.toLowerCase()) || {
           id: t.id?.toString() || t.name,
           name: t.name,
-          logo: t.logoUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+          logo: t.logoUrl || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
         };
 
         return {
@@ -483,7 +483,7 @@ function TurniejeContent() {
       const localTeam = teams.find(t => t.name.toLowerCase() === cleanName(p.name)) || {
         id: p.id.toString(),
         name: p.name,
-        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       };
 
       const gid = p.group_id === 'A' || p.group_id === 1 || p.group_id === '1' ? 'A' : (p.group_id === 'B' || p.group_id === 2 || p.group_id === '2' ? 'B' : p.group_id);

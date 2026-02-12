@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   title: "PFF Roblox - Oficjalna Strona Federacji",
   description: "Oficjalna strona Federacji PFF Roblox",
   icons: {
-    icon: "https://i.ibb.co/TB027G07/czarnepff-1.png",
-    apple: "https://i.ibb.co/TB027G07/czarnepff-1.png",
+    icon: "https://i.ibb.co/BHdnmcMj/LOGO-PFF.png",
+    apple: "https://i.ibb.co/BHdnmcMj/LOGO-PFF.png",
   },
 };
 

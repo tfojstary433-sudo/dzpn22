@@ -32,7 +32,7 @@ function getConsistentTeamLogo(teamId: string, teamName?: string): string {
   // Use mapping or direct ID
   const shortName = TEAM_ID_MAPPING[teamId] || teamId;
   const team = teams.find(t => t.id === shortName || t.shortName === shortName);
-  return team?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+  return team?.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
 }
 
 function getConsistentTeamColor(teamId: string, teamName?: string): string {

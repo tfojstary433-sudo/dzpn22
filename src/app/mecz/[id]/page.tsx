@@ -368,7 +368,7 @@ export default function MatchDetail() {
         normalizeTeamName(t.id) === normalizeTeamName(apiTeamA)
       );
       if (found) return found;
-      return { name: apiData?.match?.teamA, shortName: apiData?.match?.teamA, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
+      return { name: apiData?.match?.teamA, shortName: apiData?.match?.teamA, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
     }
     if (preMatchInfo) {
       const teamA = preMatchInfo.teamA || preMatchInfo.homeTeam || preMatchInfo.home;
@@ -379,9 +379,9 @@ export default function MatchDetail() {
         normalizeTeamName(t.id) === normalizeTeamName(teamAName)
       );
       if (found) return found;
-      return { name: teamAName, shortName: teamAName, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
+      return { name: teamAName, shortName: teamAName, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
     }
-    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
+    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
   };
 
   const getAwayTeam = () => {
@@ -394,7 +394,7 @@ export default function MatchDetail() {
         normalizeTeamName(t.id) === normalizeTeamName(apiTeamB)
       );
       if (found) return found;
-      return { name: apiData?.match?.teamB, shortName: apiData?.match?.teamB, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
+      return { name: apiData?.match?.teamB, shortName: apiData?.match?.teamB, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
     }
     if (preMatchInfo) {
       const teamB = preMatchInfo.teamB || preMatchInfo.awayTeam || preMatchInfo.away;
@@ -405,9 +405,9 @@ export default function MatchDetail() {
         normalizeTeamName(t.id) === normalizeTeamName(teamBName)
       );
       if (found) return found;
-      return { name: teamBName, shortName: teamBName, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
+      return { name: teamBName, shortName: teamBName, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
     }
-    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
+    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
   };
 
   const homeTeam = getHomeTeam();
@@ -1425,7 +1425,7 @@ export default function MatchDetail() {
                               {/* Center Circle */}
                               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
                                 <img 
-                                  src="https://i.ibb.co/TB027G07/czarnepff-1.png" 
+                                  src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
                                   alt="" 
                                   className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
                                 />
