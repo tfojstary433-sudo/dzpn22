@@ -88,7 +88,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
   );
 };
 
-export function Statistics() {
+export function Statistics({ isInTab = false }: { isInTab?: boolean } = {}) {
   const { topScorers, standings } = useMatchStats();
   const [activeType, setActiveType] = useState<'gracze' | 'druzyny'>('gracze');
   const [mounted, setMounted] = useState(false);
@@ -173,7 +173,7 @@ export function Statistics() {
     value: t.points
   }));
 
-  return (
+  const content = (
     <div className="w-full max-w-7xl mx-auto py-12 px-4 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-400/10 blur-[150px] pointer-events-none -z-10" />
@@ -209,6 +209,16 @@ export function Statistics() {
         </div>
       </div>
     </div>
+  );
+
+  if (isInTab) {
+    return <div className="">{content}</div>;
+  }
+
+  return (
+    <section id="statystyki" className="py-16">
+      {content}
+    </section>
   );
 }
 

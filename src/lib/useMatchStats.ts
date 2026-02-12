@@ -277,7 +277,8 @@ export function useMatchStats() {
             homeTeamId: teamA,
             awayTeamId: teamB,
             scorers: m.scorers || [],
-            finished: true
+            finished: true,
+            timestamp: m.date || m.createdAt || new Date().toISOString()
           };
 
           [teamA, teamB].forEach(tId => {
