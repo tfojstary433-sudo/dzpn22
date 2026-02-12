@@ -660,7 +660,7 @@ export default function MatchDetail() {
     fetchMatchData(true);
     const interval = setInterval(() => fetchMatchData(false), 5000);
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, match, preMatchInfo, apiData?.match?.status, apiData?.match?.isActive]);
 
   useEffect(() => {
     if (preMatchInfo) {

@@ -98,12 +98,12 @@ export function Statistics() {
   }, []);
 
   const players = useMemo(() => {
-    return []; // Zmiana na życzenie: wyzerowanie statystyk graczy
-  }, [topScorers]);
+    return [] as any[]; // Zmiana na życzenie: wyzerowanie statystyk graczy
+  }, []);
 
   const teamStats = useMemo(() => {
-    return []; // Zmiana na życzenie: wyzerowanie statystyk drużyn
-  }, [standings]);
+    return [] as any[]; // Zmiana na życzenie: wyzerowanie statystyk drużyn
+  }, []);
 
   if (!mounted) return null;
 
