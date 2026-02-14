@@ -566,7 +566,10 @@ export function Navbar() {
                 <button
                   onClick={() => {
                     const clientId = "8976718339232083701";
-                    const origin = window.location.origin.replace(/\/$/, "");
+                    // Wymuszamy adres bez www, aby zawsze zgadzał się z tym co jest w Roblox Creator Hub
+                    const origin = window.location.origin.includes('localhost') 
+                      ? window.location.origin.replace(/\/$/, "") 
+                      : 'https://pff24.pl';
                     const redirectUri = encodeURIComponent(origin + "/robloxcallback");
                     window.location.href = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile`;
                   }}
