@@ -40,6 +40,10 @@ export function Navbar() {
     
     if (savedUser) {
       const userData = JSON.parse(savedUser);
+      // Ensure robloxId is part of the user state if available
+      if (!userData.robloxId && robloxId) {
+        userData.robloxId = robloxId;
+      }
       setUser(userData);
 
       const roles = userData.discordRoles || userData.roles || [];

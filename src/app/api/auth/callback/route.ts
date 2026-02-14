@@ -107,6 +107,23 @@ export async function GET(request: Request) {
     });
 
     const userData = await userResponse.json();
+    
+    // Jeśli robloxId nie ma w state, spróbujmy go wyciągnąć z zapisanego profilu lub innych źródeł
+    if (!robloxId) {
+      console.log('Roblox ID not in state, checking Firebase for existing link...');
+      try {
+        const verifiedSnap = await db?.ref('VerifiedPlayers').once('value');
+        const allVerified = verifiedSnap?.val() || {};
+        const entry = Object.entries(allVerified).find(([_, data]: [any, any]) => data.discordId === userData.id);
+        if (entry) {
+          robloxId = entry[0];
+          console.log('Found Roblox ID in Firebase:', robloxId);
+        }
+      } catch (e) {
+        console.error('Error searching for Roblox ID:', e);
+      }
+    }
+
     userData.robloxId = robloxId; // Include robloxId in response
 
     // Firebase Sync: VerifiedPlayers (independent of guild membership)
