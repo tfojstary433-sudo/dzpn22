@@ -180,10 +180,11 @@ export async function GET(request: Request) {
                   if (matchingClubRole) {
                     const clubId = clubsData[matchingClubRole];
                     console.log('Syncing club:', clubId, 'for:', robloxId);
-                    await db.ref('users_clubs').child(robloxId).set(clubId);
+                    // Wymuszamy robloxId jako string dla Firebase
+                    await db.ref('users_clubs').child(String(robloxId)).set(clubId);
                   } else {
                     console.log('No club role found, removing from users_clubs for:', robloxId);
-                    await db.ref('users_clubs').child(robloxId).remove();
+                    await db.ref('users_clubs').child(String(robloxId)).remove();
                   }
 
                   // 3. Sync admin role
@@ -195,10 +196,10 @@ export async function GET(request: Request) {
                   if (matchingAdminRoleName) {
                     const adminRange = adminsData[matchingAdminRoleName];
                     console.log('Syncing admin range:', adminRange, 'for:', robloxId);
-                    await db.ref('Admins').child(robloxId).set(adminRange);
+                    await db.ref('Admins').child(String(robloxId)).set(adminRange);
                   } else {
                     console.log('No admin role found, removing from Admins for:', robloxId);
-                    await db.ref('Admins').child(robloxId).remove();
+                    await db.ref('Admins').child(String(robloxId)).remove();
                   }
                 } catch (firebaseError) {
                   console.error('Firebase role sync error:', firebaseError);
