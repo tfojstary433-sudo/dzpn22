@@ -32,7 +32,7 @@ function getConsistentTeamLogo(teamId: string, teamName?: string): string {
   // Use mapping or direct ID
   const shortName = TEAM_ID_MAPPING[teamId] || teamId;
   const team = teams.find(t => t.id === shortName || t.shortName === shortName);
-  return team?.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
+  return team?.logo || 'https://i.ibb.co/zgFJ7yt/obraz-2026-02-14-195348653.png';
 }
 
 function getConsistentTeamColor(teamId: string, teamName?: string): string {
@@ -187,6 +187,24 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
   const content = (
     <>
       <div className={`w-full mx-auto ${compact ? 'space-y-1.5' : 'space-y-3'}`}>
+        {/* Header - only if not compact or if we want labels */}
+        <div className={`flex items-center gap-5 ${compact ? 'px-3 py-1' : 'px-6 py-2'} text-gray-400 font-bold text-xs uppercase tracking-wider`}>
+          <div className={`${compact ? 'w-8' : 'w-12'} text-center`}>#</div>
+          <div className="flex-1">Drużyna</div>
+          <div className="flex items-center gap-2 md:gap-4 text-center mr-2">
+            <div className="w-8">M</div>
+            {!compact && (
+              <>
+                <div className="w-8 hidden sm:block">Z</div>
+                <div className="w-8 hidden sm:block">R</div>
+                <div className="w-8 hidden sm:block">P</div>
+                <div className="w-12 hidden md:block">Gole</div>
+              </>
+            )}
+            <div className="w-10 text-white">Pkt</div>
+          </div>
+        </div>
+
         {standings.map((standing, index) => {
           let gradientColor = '#3b82f6';
           if (standing.position === 1) {
@@ -218,10 +236,10 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
                   isHighlighted
                   ? 'border-blue-500 bg-blue-600/30 shadow-[0_0_25px_rgba(59,130,246,0.3)]' 
                   : 'border-white/5 bg-black/40'
-                } ${compact ? 'py-2' : 'py-5'} backdrop-blur-md hover:bg-black/60`}
+                } ${compact ? 'py-2' : 'py-3'} backdrop-blur-md hover:bg-black/60`}
               >
                 <div className={`relative z-10 ${compact ? 'px-3' : 'px-6'} flex items-center gap-5`}>
-                  <div className={`flex items-center justify-center ${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-full font-black ${compact ? 'text-sm' : 'text-xl'} shrink-0 ${
+                  <div className={`flex items-center justify-center ${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-full font-black ${compact ? 'text-xs' : 'text-xl'} shrink-0 ${
                     standing.position === 1 ? 'bg-yellow-500/80 text-white' :
                     standing.position === 2 ? 'bg-gray-400/80 text-white' :
                     standing.position === 3 ? 'bg-orange-700/80 text-white' :
@@ -238,16 +256,29 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
                         <Image
                           src={standing.team.logo}
                           alt={standing.team.name}
-                          width={compact ? 32 : 56}
-                          height={compact ? 32 : 56}
+                          width={compact ? 32 : 44}
+                          height={compact ? 32 : 44}
                           className="relative z-10"
                         />
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className={`font-black text-white ${compact ? 'text-lg' : 'text-2xl'} uppercase tracking-tight truncate`}>
+                        <h3 className={`font-black text-white ${compact ? 'text-[10px] sm:text-sm' : 'text-lg'} uppercase tracking-tight truncate`}>
                           {standing.team.name}
                         </h3>
+                      </div>
+
+                      <div className={`flex items-center gap-2 md:gap-4 text-center font-bold ${compact ? 'text-xs' : 'text-sm'} shrink-0 mr-2`}>
+                        <div className="w-8 text-white/70">{standing.played}</div>
+                        {!compact && (
+                          <>
+                            <div className="w-8 text-green-400/70 hidden sm:block">{standing.won}</div>
+                            <div className="w-8 text-yellow-400/70 hidden sm:block">{standing.drawn}</div>
+                            <div className="w-8 text-red-400/70 hidden sm:block">{standing.lost}</div>
+                            <div className="w-12 text-white/50 hidden md:block">{standing.goalsFor}:{standing.goalsAgainst}</div>
+                          </>
+                        )}
+                        <div className={`w-10 ${compact ? 'text-sm' : 'text-xl'} font-black text-white`}>{standing.points}</div>
                       </div>
                     </>
                   ) : (

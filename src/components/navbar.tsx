@@ -519,8 +519,7 @@ export function Navbar() {
                           <button
                             onClick={() => {
                               const clientId = "1448788697653973082";
-                              const origin = window.location.origin.replace(/\/$/, "");
-                              const redirectUri = encodeURIComponent(origin + "/callback");
+                              const redirectUri = encodeURIComponent("https://pff24.pl/callback");
                               const robloxId = user?.robloxId || localStorage.getItem('roblox_id') || "";
                               window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord:${robloxId}`;
                             }}
@@ -569,7 +568,7 @@ export function Navbar() {
                     const clientId = "8976718339232083701";
                     const origin = window.location.origin.replace(/\/$/, "");
                     const redirectUri = encodeURIComponent(origin + "/robloxcallback");
-                    window.location.href = `https://authorize.roblox.com/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile&state=roblox&step=accountConfirm`;
+                    window.location.href = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile`;
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-white/10 border border-white/10 text-white font-black text-sm rounded-xl transition-colors shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                 >

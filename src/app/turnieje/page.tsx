@@ -21,6 +21,12 @@ function TurniejeContent() {
   const [knockoutData, setKnockoutData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  const remapTeamName = (name: string) => {
+    if (!name) return name;
+    if (name === 'Chojniczanka Chojnice') return 'Raków Częstochowa';
+    return name;
+  };
+
   useEffect(() => {
     const fetchTeams = async () => {
       if (activeTournament === 'towarzyskie') {
@@ -81,9 +87,10 @@ function TurniejeContent() {
     if (challongeData.fixtures && Array.isArray(challongeData.fixtures)) {
       const mappedMatches = challongeData.fixtures.map((m: any) => {
         const mapTeam = (name: string) => {
-          return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
-            id: name,
-            name: name,
+          const remappedName = remapTeamName(name);
+          return teams.find(t => t.name.toLowerCase() === remappedName.toLowerCase()) || {
+            id: remappedName,
+            name: remappedName,
             logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
           };
         };
@@ -143,17 +150,19 @@ function TurniejeContent() {
       const homeParticipant = challongeData.participants.find((p: any) => p.id === m.player1_id);
       const awayParticipant = challongeData.participants.find((p: any) => p.id === m.player2_id);
 
-      const cleanName = (name: string) => name ? name.split('[')[0].trim().toLowerCase() : '';
+      const cleanName = (name: string) => name ? name.split('[')[0].trim() : '';
 
-      const homeTeam = teams.find(t => t.name.toLowerCase() === cleanName(homeParticipant?.name)) || {
+      const homeRemapped = remapTeamName(cleanName(homeParticipant?.name));
+      const homeTeam = teams.find(t => t.name.toLowerCase() === homeRemapped.toLowerCase()) || {
         id: homeParticipant?.id.toString(),
-        name: homeParticipant?.name || 'TBD',
+        name: homeRemapped || 'TBD',
         logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       };
 
-      const awayTeam = teams.find(t => t.name.toLowerCase() === cleanName(awayParticipant?.name)) || {
+      const awayRemapped = remapTeamName(cleanName(awayParticipant?.name));
+      const awayTeam = teams.find(t => t.name.toLowerCase() === awayRemapped.toLowerCase()) || {
         id: awayParticipant?.id.toString(),
-        name: awayParticipant?.name || 'TBD',
+        name: awayRemapped || 'TBD',
         logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
       };
 

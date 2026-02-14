@@ -211,7 +211,7 @@ export function ScheduleTableOverlay({
         setLiveMatches(liveData);
       } catch (error) {
         console.error('Błąd pobierania meczów na żywo:', error);
-        setLiveMatches([]);
+        // Don't clear liveMatches on error to prevent flickering
       } finally {
         setLoadingLive(false);
       }

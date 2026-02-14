@@ -51,7 +51,7 @@
   },
   {
     "position": 11,
-    "team": { "id": "CHO", "name": "Chojniczanka Chojnice", "shortName": "Chojniczanka", "logo": "" },
+    "team": { "id": "RAK", "name": "Raków Częstochowa", "shortName": "Raków", "logo": "" },
     "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "goalDifference": 0, "points": 0
   },
   {

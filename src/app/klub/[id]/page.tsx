@@ -171,8 +171,8 @@ export default function KlubPage() {
       return {
         id: friendlyMatch.uuid || friendlyMatch.matchUuid,
         date: date.toISOString(),
-        homeTeam: teams.find(t => t.name === friendlyMatch.teamA) || { name: friendlyMatch.teamA, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png' },
-        awayTeam: teams.find(t => t.name === friendlyMatch.teamB) || { name: friendlyMatch.teamB, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png' },
+        homeTeam: teams.find(t => t.name === friendlyMatch.teamA) || { name: friendlyMatch.teamA, logo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png' },
+        awayTeam: teams.find(t => t.name === friendlyMatch.teamB) || { name: friendlyMatch.teamB, logo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png' },
         type: 'friendly'
       };
     }
@@ -717,13 +717,13 @@ export default function KlubPage() {
                       <Calendar className="w-5 h-5 text-blue-500" />
                       Następny mecz
                     </h3>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
-                        alt="PFF Tournament" 
-                        className="h-10 object-contain"
-                      />
-                    </div>
+                <div className="flex items-center gap-2">
+                  <img 
+                    src={nextMatch?.type === 'friendly' ? "https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png" : "https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png"} 
+                    alt="PFF Tournament" 
+                    className="h-10 object-contain"
+                  />
+                </div>
                   </div>
                   
                   {nextMatch ? (
@@ -766,7 +766,7 @@ export default function KlubPage() {
                 <div className="flex items-center justify-between mb-6 px-2">
                   <div className="flex items-center gap-4">
                     <img 
-                      src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
+                      src="https://i.ibb.co/zgFJ7yt/obraz-2026-02-14-195348653.png" 
                       alt="7u7 Ekstraklasa" 
                       className="h-16 w-auto opacity-90"
                     />
@@ -802,7 +802,7 @@ export default function KlubPage() {
                   
                   {/* PFF Logo Watermark - Centered in circle */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.25] pointer-events-none z-0">
-                    <img src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" alt="" className="w-28 h-28 object-contain" />
+                    <img src="https://i.ibb.co/tMkjssPP/LOGO-PFF.png" alt="" className="w-28 h-28 object-contain" />
                   </div>
                   
                   {/* Players from last match - 5x7 grid */}
@@ -852,14 +852,14 @@ export default function KlubPage() {
           <div className="max-w-4xl mx-auto bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] p-6 md:p-8 overflow-hidden shadow-2xl">
             <div className="flex flex-col items-center mb-6">
               <img 
-                src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
+                src="https://i.ibb.co/zgFJ7yt/obraz-2026-02-14-195348653.png" 
                 alt="7u7 Ekstraklasa" 
                 className="h-10 md:h-12 w-auto mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] opacity-90"
               />
               <div className="w-16 h-1 bg-gradient-to-r from-transparent via-blue-600 to-transparent mb-4" />
             </div>
             <div className="w-full">
-              <LeagueTable isInTab={true} compact={true} highlightId={id} />
+              <LeagueTable isInTab={true} compact={false} highlightId={id} />
             </div>
           </div>
         )}
@@ -1018,8 +1018,43 @@ export default function KlubPage() {
 
               <div className="space-y-2">
                 {(() => {
+                  const fixturesArray = Array.isArray(apiFixtures) ? apiFixtures : [];
+                  const friendlyArray = Array.isArray(friendlyMatches) ? friendlyMatches : [];
+                  
+                  // Helper to parse date
+                  const parseMatchDate = (d: any) => {
+                    if (d && typeof d === 'string' && d.includes('.')) {
+                      const [datePart, timePart] = d.split(' ');
+                      const [day, month, year] = datePart.split('.').map(Number);
+                      const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
+                      return new Date(year, month - 1, day, hours, minutes);
+                    }
+                    return new Date(d || Date.now());
+                  };
+
+                  const matchDateMap = new Map();
+                  [...fixturesArray, ...friendlyArray].forEach(f => {
+                    if (f.uuid || f.id || f.matchUuid) {
+                      matchDateMap.set(f.uuid || f.id || f.matchUuid, parseMatchDate(f.date));
+                    }
+                  });
+
                   // Merge matches (finished), fixtures (upcoming) and friendly matches
                   const rawCombinedMatches = [
+                    ...fixturesArray
+                      .filter(f => f?.teamA === team?.name || f?.teamB === team?.name)
+                      .map(f => ({
+                        id: f.uuid || f.id,
+                        homeTeamName: f.teamA,
+                        awayTeamName: f.teamB,
+                        homeScore: f.scoreA,
+                        awayScore: f.scoreB,
+                        date: parseMatchDate(f.date),
+                        status: f.status,
+                        type: 'fixture',
+                        league: 'Ekstraklasa',
+                        leagueLogo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png'
+                      })),
                     ...(Array.isArray(apiMatches) ? apiMatches : [])
                       .filter(m => m.teamA === team.name || m.teamB === team.name)
                       .map(m => ({
@@ -1028,52 +1063,26 @@ export default function KlubPage() {
                         awayTeamName: m.teamB,
                         homeScore: m.scoreA,
                         awayScore: m.scoreB,
-                        date: new Date(m.createdAt),
+                        date: matchDateMap.get(m.uuid || m.id) || new Date(m.createdAt),
                         status: m.status,
                         type: 'match',
                         league: 'Ekstraklasa',
-                        leagueLogo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+                        leagueLogo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png'
                       })),
-                    ...(Array.isArray(apiFixtures) ? apiFixtures : [])
-                      .filter(f => f?.teamA === team?.name || f?.teamB === team?.name)
+                    ...friendlyArray
+                      .filter(f => f.teamA === team.name || f.teamB === team.name)
                       .map(f => ({
-                        id: f.id,
+                        id: f.uuid || f.matchUuid || f.id,
                         homeTeamName: f.teamA,
                         awayTeamName: f.teamB,
                         homeScore: f.scoreA,
                         awayScore: f.scoreB,
-                        date: new Date(f.date),
+                        date: parseMatchDate(f.date),
                         status: f.status,
-                        type: 'fixture',
-                        league: 'Ekstraklasa',
-                        leagueLogo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
-                      })),
-                    ...(Array.isArray(friendlyMatches) ? friendlyMatches : [])
-                      .filter(f => f.teamA === team.name || f.teamB === team.name)
-                      .map(f => {
-                        let matchDate;
-                        if (f.date && f.date.includes('.')) {
-                          const [datePart, timePart] = f.date.split(' ');
-                          const [day, month, year] = datePart.split('.').map(Number);
-                          const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
-                          matchDate = new Date(year, month - 1, day, hours, minutes);
-                        } else {
-                          matchDate = new Date(f.date || Date.now());
-                        }
-                        
-                        return {
-                          id: f.matchUuid || f.uuid || f.id,
-                          homeTeamName: f.teamA,
-                          awayTeamName: f.teamB,
-                          homeScore: f.scoreA,
-                          awayScore: f.scoreB,
-                          date: matchDate,
-                          status: f.status,
-                          type: 'friendly',
-                          league: 'Mecze Towarzyskie 2026',
-                          leagueLogo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
-                        };
-                      })
+                        type: 'friendly',
+                        league: 'Mecze Towarzyskie 2026',
+                        leagueLogo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png'
+                      }))
                   ];
 
                   // Deduplicate by ID

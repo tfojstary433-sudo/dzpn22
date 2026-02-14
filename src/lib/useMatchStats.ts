@@ -338,11 +338,15 @@ export function useMatchStats() {
           goalDifference: s.goalsFor - s.goalsAgainst
         })).sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
 
-        setStandings(calculatedStandings);
-        localStorage.setItem('standings', JSON.stringify(calculatedStandings));
+        if (calculatedStandings.length > 0) {
+          setStandings(calculatedStandings);
+          localStorage.setItem('standings', JSON.stringify(calculatedStandings));
+        }
         
-        setFinishedMatches(finishedMap);
-        localStorage.setItem('matchStats', JSON.stringify(finishedMap));
+        if (Object.keys(finishedMap).length > 0) {
+          setFinishedMatches(finishedMap);
+          localStorage.setItem('matchStats', JSON.stringify(finishedMap));
+        }
       }
     } catch (error) {
       console.error('Error fetching statistics:', error);

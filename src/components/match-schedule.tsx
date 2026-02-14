@@ -76,10 +76,25 @@ interface MatchCardProps {
   };
 }
 
+function parseMatchDate(d: any) {
+  if (!d) return new Date();
+  if (d instanceof Date) return d;
+  if (typeof d === 'string' && d.includes('.')) {
+    const parts = d.split(' ');
+    const datePart = parts[0];
+    const timePart = parts[1] || '00:00';
+    const [day, month, year] = datePart.split('.').map(Number);
+    const [hours, minutes] = timePart.split(':').map(Number);
+    return new Date(year, month - 1, day, hours, minutes);
+  }
+  return new Date(d);
+}
+
 function MatchCard({ match, isLive = false, isFinished = false, liveData, finishedData }: MatchCardProps) {
   const formatTime = (dateString: string) => {
     if (!dateString) return '--:--';
-    const date = new Date(dateString);
+    const date = parseMatchDate(dateString);
+    if (isNaN(date.getTime())) return '--:--';
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',

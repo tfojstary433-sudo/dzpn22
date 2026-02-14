@@ -89,9 +89,12 @@ export function LiveMatch() {
               headers: { 'Accept': 'application/json' },
               cache: 'no-store'
           });
-          const details: ApiMatchDetails = await detailRes.json();
-          setLiveMatch(details);
-        } else {
+          if (detailRes.ok) {
+            const details: ApiMatchDetails = await detailRes.json();
+            setLiveMatch(details);
+          }
+        } else if (matches.length > 0 || response.ok) {
+          // Only clear if we actually got a valid response and no active match was found
           setLiveMatch(null);
         }
       } catch (error) {

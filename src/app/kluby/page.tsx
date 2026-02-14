@@ -19,7 +19,7 @@ export default function KlubyPage() {
     'Sokół Olsztyn',
     'Grom Nowy Staw',
     'Motor Lublin',
-    'Chojniczanka Chojnice',
+    'Raków Częstochowa',
     'Jagiellonia Białystok',
     'Wisła Płock',
     'Górnik Zabrze',

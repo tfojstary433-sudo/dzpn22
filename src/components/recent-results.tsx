@@ -17,7 +17,7 @@ function getTeamFromName(teamName: string) {
     'Motor Lublin': { id: '9', name: 'Motor Lublin', shortName: 'MOT', logo: 'https://i.ibb.co/bgRJrvnj/Motor-Lublin-S-A-Oficjalny-Herb.png', color: '#facc15' },
     'Pogoń Szczecin': { id: '10', name: 'Pogoń Szczecin', shortName: 'POG', logo: 'https://ext.same-assets.com/1250577607/3079565559.png', color: '#1e3a8a' },
     'Olimpia Elbląg': { id: '8', name: 'Olimpia Elbląg', shortName: 'OLI', logo: 'https://i.ibb.co/RGsNqf6G/olimpia-elblag.png', color: '#00ccff' },
-    'Chojniczanka Chojnice': { id: '11', name: 'Chojniczanka Chojnice', shortName: 'CHO', logo: 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png', color: '#3b82f6' },
+    'Raków Częstochowa': { id: '11', name: 'Raków Częstochowa', shortName: 'RAK', logo: 'https://i.ibb.co/b5q4tsmh/obraz-2026-02-13-230749363.png', color: '#dc2626' },
     'Grom Nowy Staw': { id: '6', name: 'Grom Nowy Staw', shortName: 'GRO', logo: 'https://i.ibb.co/V0rcs98Q/obraz-2026-01-04-213027745-removebg-preview-4.png', color: '#15803d' },
     'Sokół Olsztyn': { id: '14', name: 'Sokół Olsztyn', shortName: 'SOK', logo: 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png', color: '#00ccff' },
     'Unia Skierniewice': { id: '7', name: 'Unia Skierniewice', shortName: 'UNI', logo: 'https://i.ibb.co/Vp3YY8FY/unia-logo-300x300.png', color: '#facc15' }

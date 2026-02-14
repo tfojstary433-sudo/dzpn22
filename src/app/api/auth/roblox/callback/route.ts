@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-const CLIENT_ID = '8976718339232083701';
-const CLIENT_SECRET = 'RBX-9Q7xxduyr0SyvmSDQWOIy7Hq3uol7UdKyH_ObQ5rthuf4aZnGbzdCnd_ik83XXvY';
+const CLIENT_ID = process.env.ROBLOX_CLIENT_ID || '8976718339232083701';
+const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET || 'RBX-9Q7xxduyr0SyvmSDQWOIy71nItoqZJc3z1jNpuHSBitQCy3zb3XY6mSlB9zSbVpD';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
@@ -11,8 +11,11 @@ export async function GET(request: Request) {
   const protocol = request.headers.get('x-forwarded-proto') || (new URL(request.url).protocol.replace(':', ''));
   const origin = `${protocol}://${host}`;
 
-  // Upewniamy się, że redirectUri jest identyczny z tym wysłanym z frontendu
-  const redirectUri = `${origin.replace(/\/$/, "")}/robloxcallback`;
+  // Upewniamy się, że redirectUri jest identyczny z tym zarejestrowanym w Roblox
+  const isLocalhost = host.includes('localhost');
+  const redirectUri = isLocalhost 
+    ? `http://${host}/robloxcallback` 
+    : 'https://pff24.pl/robloxcallback';
 
   if (!code) {
     return NextResponse.json({ error: 'No code provided' }, { status: 400 });
@@ -20,25 +23,36 @@ export async function GET(request: Request) {
 
   try {
     // Exchange code for token
-    const authHeader = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
+    // Używamy najbardziej rygorystycznej metody autoryzacji (Basic Auth)
+    const credentials = `${CLIENT_ID.trim()}:${CLIENT_SECRET.trim()}`;
+    const authHeader = `Basic ${Buffer.from(credentials).toString('base64')}`;
+    
     const tokenResponse = await fetch('https://apis.roblox.com/oauth/v1/token', {
       method: 'POST',
-      body: new URLSearchParams({
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-      }),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authHeader}`
+        'Authorization': authHeader,
+        'Accept': 'application/json',
       },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: redirectUri,
+      }),
     });
 
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
       console.error('Roblox token error:', tokenData);
-      return NextResponse.json({ error: tokenData.error_description || 'Failed to exchange code' }, { status: 400 });
+      // Zwracamy czytelny błąd dla użytkownika
+      return NextResponse.json({ 
+        error: `Błąd Robloxa: ${tokenData.error_description || tokenData.error}`,
+        debug: {
+          error: tokenData.error,
+          description: tokenData.error_description
+        }
+      }, { status: 400 });
     }
 
     // Get user info

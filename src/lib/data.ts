@@ -271,12 +271,12 @@ export const teams: Team[] = [
     stadium: 'Stadion Miejski w Elblągu'
   },
   {
-    id: 'CHO',
-    name: 'Chojniczanka Chojnice',
-    shortName: 'Chojniczanka',
-    logo: 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png',
+    id: 'RAK',
+    name: 'Raków Częstochowa',
+    shortName: 'Raków',
+    logo: 'https://i.ibb.co/b5q4tsmh/obraz-2026-02-13-230749363.png',
     color: '#dc2626',
-    stadium: 'Stadion Miejski w Chojnicach'
+    stadium: 'Miejski Stadion Piłkarski Raków'
   },
   {
     id: 'JAG',
@@ -337,7 +337,7 @@ export const clubToFirebaseKey: { [key: string]: string } = {
   'GRO': 'Club 11', // Grom Nowy Staw
   'MOT': 'Club 12', // Motor Lublin
   'OLI': 'Club 13', // Olimpia Elbląg
-  'CHO': 'Club 14', // Chojniczanka Chojnice
+  'RAK': 'Club 14', // Raków Częstochowa
   'JAG': 'Club 15', // Jagiellonia Białystok
   'WPL': 'Club 16', // Wisła Płock
   'GÓR': 'Club 17', // Górnik Zabrze

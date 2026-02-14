@@ -354,6 +354,7 @@ export default function MatchDetail() {
   const [preMatchInfo, setPreMatchInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasFetchedOnce, setHasFetchedOnce] = useState(!!match);
   const hasAutoSwitched = useRef(false);
 
   const allTeams = [...teams, ...extraTeams];
@@ -552,7 +553,8 @@ export default function MatchDetail() {
           }
           
           if (found) {
-            setPreMatchInfo({
+            setPreMatchInfo((prev: any) => ({
+              ...(prev || {}),
               ...found,
               homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
               awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
@@ -560,7 +562,7 @@ export default function MatchDetail() {
               awayScore: found.scoreB,
               stadium: found.stadium || 'Ośrodek Treningowy PFF',
               category: 'MECZE TOWARZYSKIE'
-            });
+            }));
           }
         }
 
@@ -649,6 +651,10 @@ export default function MatchDetail() {
         if (!loaded && !preMatchInfo && !match) {
           throw new Error('Nie udało się znaleźć danych meczu');
         }
+        
+        if (loaded || preMatchInfo || match) {
+          setHasFetchedOnce(true);
+        }
       } catch (err: any) {
         console.error('Error fetching match data:', err);
         if (isInitial) setError(err.message || 'Nie udało się pobrać danych meczu');
@@ -660,10 +666,11 @@ export default function MatchDetail() {
     fetchMatchData(true);
     const interval = setInterval(() => fetchMatchData(false), 5000);
     return () => clearInterval(interval);
-  }, [id, match, preMatchInfo, apiData?.match?.status, apiData?.match?.isActive]);
+  }, [id]); // Only re-run when ID changes
 
   useEffect(() => {
     if (preMatchInfo) {
+      setHasFetchedOnce(true);
       const matchDate = new Date(preMatchInfo.date).getTime();
       const now = new Date().getTime();
       const isPast = matchDate < now - (2 * 60 * 60 * 1000); // More than 2 hours ago
@@ -685,15 +692,22 @@ export default function MatchDetail() {
   }, [preMatchInfo, isMatchActive]);
 
   useEffect(() => {
-    if (apiData) {
+    if (apiData?.match) {
       const status = apiData?.match?.status?.toLowerCase();
-      const isActive = apiData?.match?.isActive || status === 'active' || status === 'live';
+      const isActive = apiData?.match?.isActive || status === 'active' || status === 'live' || status === 'in_progress';
       const isFinished = status === 'finished' || status === 'played' || status === 'ft';
 
-      setIsMatchActive(isActive);
+      if (isActive) {
+        setIsMatchActive(true);
+      }
+      
       if (isFinished) {
         setIsMatchFinished(true);
+        setIsMatchActive(false);
       }
+      
+      // If we have a match object from API, we definitely have data
+      setHasFetchedOnce(true);
     }
   }, [apiData]);
 
@@ -780,7 +794,7 @@ export default function MatchDetail() {
     }
   }, [apiData, calculatedScore, homeTeam, awayTeam, isHomeTeam, isAwayTeam]);
 
-  if (loading && !match) {
+  if (loading && !hasFetchedOnce && !match) {
     return (
       <div className="flex flex-col">
         <Navbar />
@@ -812,16 +826,32 @@ export default function MatchDetail() {
     );
   }
 
+  const parseMatchDate = (d: any) => {
+    if (!d) return new Date();
+    if (d instanceof Date) return d;
+    if (typeof d === 'string' && d.includes('.')) {
+      const parts = d.split(' ');
+      const datePart = parts[0];
+      const timePart = parts[1] || '00:00';
+      const [day, month, year] = datePart.split('.').map(Number);
+      const [hours, minutes] = timePart.split(':').map(Number);
+      return new Date(year, month - 1, day, hours, minutes);
+    }
+    return new Date(d);
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'DATA NIEZNANA';
-    const date = new Date(dateString);
+    const date = parseMatchDate(dateString);
+    if (isNaN(date.getTime())) return 'DATA NIEPRAWIDŁOWA';
     const days = ['NIEDZIELA', 'PONIEDZIAŁEK', 'WTOREK', 'ŚRODA', 'CZWARTEK', 'PIĄTEK', 'SOBOTA'];
     return `${days[date.getDay()]}, ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
   };
 
   const formatTime = (dateString?: string) => {
     if (!dateString) return '--:--';
-    const date = new Date(dateString);
+    const date = parseMatchDate(dateString);
+    if (isNaN(date.getTime())) return '--:--';
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',
@@ -845,15 +875,15 @@ export default function MatchDetail() {
     : (finishedMatchData?.scorers ? buildEventsFromFinished(finishedMatchData.scorers) : null);
 
   const scoreA = apiData?.match 
-    ? (apiData?.match?.scoreA ?? calculatedScore?.scoreA ?? 0)
+    ? (Math.max(apiData?.match?.scoreA || 0, calculatedScore?.scoreA || 0, preMatchInfo?.scoreA || 0, preMatchInfo?.homeScore || 0))
     : (isMatchFinished && preMatchInfo?.scoreA !== undefined) 
       ? preMatchInfo.scoreA 
-      : (finishedMatchData?.homeScore ?? preMatchInfo?.scoreA ?? preMatchInfo?.homeScore ?? match?.homeScore ?? 0);
+      : (Math.max(finishedMatchData?.homeScore || 0, preMatchInfo?.scoreA || 0, preMatchInfo?.homeScore || 0, match?.homeScore || 0));
   const scoreB = apiData?.match
-    ? (apiData?.match?.scoreB ?? calculatedScore?.scoreB ?? 0)
+    ? (Math.max(apiData?.match?.scoreB || 0, calculatedScore?.scoreB || 0, preMatchInfo?.scoreB || 0, preMatchInfo?.awayScore || 0))
     : (isMatchFinished && preMatchInfo?.scoreB !== undefined)
       ? preMatchInfo.scoreB
-      : (finishedMatchData?.awayScore ?? preMatchInfo?.scoreB ?? preMatchInfo?.awayScore ?? match?.awayScore ?? 0);
+      : (Math.max(finishedMatchData?.awayScore || 0, preMatchInfo?.scoreB || 0, preMatchInfo?.awayScore || 0, match?.awayScore || 0));
 
   const hasScore = scoreA > 0 || scoreB > 0 || isMatchActive || isMatchFinished;
 
@@ -1425,7 +1455,7 @@ export default function MatchDetail() {
                               {/* Center Circle */}
                               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
                                 <img 
-                                  src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png" 
+                                  src="https://i.ibb.co/tMkjssPP/LOGO-PFF.png" 
                                   alt="" 
                                   className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
                                 />
