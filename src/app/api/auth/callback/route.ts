@@ -175,15 +175,18 @@ export async function GET(request: Request) {
 
               if (robloxId && db) {
                 try {
-                  // 2. Save club role
+                  // 2. Sync club role
                   const matchingClubRole = roles.find((roleId: string) => clubsData[roleId]);
                   if (matchingClubRole) {
                     const clubId = clubsData[matchingClubRole];
                     console.log('Syncing club:', clubId, 'for:', robloxId);
                     await db.ref('users_clubs').child(robloxId).set(clubId);
+                  } else {
+                    console.log('No club role found, removing from users_clubs for:', robloxId);
+                    await db.ref('users_clubs').child(robloxId).remove();
                   }
 
-                  // 3. Save admin role
+                  // 3. Sync admin role
                   const userRoleNames = guildRoles
                     .filter((r: any) => roles.includes(r.id))
                     .map((r: any) => r.name);
@@ -193,6 +196,9 @@ export async function GET(request: Request) {
                     const adminRange = adminsData[matchingAdminRoleName];
                     console.log('Syncing admin range:', adminRange, 'for:', robloxId);
                     await db.ref('Admins').child(robloxId).set(adminRange);
+                  } else {
+                    console.log('No admin role found, removing from Admins for:', robloxId);
+                    await db.ref('Admins').child(robloxId).remove();
                   }
                 } catch (firebaseError) {
                   console.error('Firebase role sync error:', firebaseError);
