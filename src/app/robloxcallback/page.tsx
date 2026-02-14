@@ -15,9 +15,18 @@ export default function RobloxCallbackPage() {
 
     if (code) {
       const apiPath = state === 'discord' ? '/api/auth/callback' : '/api/auth/roblox/callback';
+      console.log('Fetching from:', apiPath, 'with code:', code.slice(0, 5) + '...');
+      
       fetch(`${apiPath}?code=${code}`)
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || 'Błąd serwera podczas autoryzacji.');
+          }
+          return data;
+        })
         .then((data) => {
+          console.log('Auth success data:', data);
           // Remove code from URL to prevent reuse on refresh
           window.history.replaceState({}, '', '/robloxcallback');
 
