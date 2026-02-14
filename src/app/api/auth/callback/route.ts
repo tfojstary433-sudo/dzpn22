@@ -66,10 +66,10 @@ export async function GET(request: Request) {
   
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;
-  const protocol = request.headers.get('x-forwarded-proto') || (new URL(request.url).protocol.replace(':', ''));
-  const origin = `${protocol}://${host}`;
-  
-  const redirectUri = `${origin.replace(/\/$/, "")}/callback`;
+  const isLocalhost = host.includes('localhost');
+  const redirectUri = isLocalhost 
+    ? `http://${host}/callback` 
+    : 'https://pff24.pl/callback';
 
   if (!code) {
     return NextResponse.json({ error: 'No code provided' }, { status: 400 });
