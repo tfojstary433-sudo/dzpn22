@@ -55,7 +55,13 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const state = searchParams.get('state') || '';
   
-  console.log('Callback received. State:', state);
+  // Pobieramy IP użytkownika (lepsze wykrywanie)
+  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                   request.headers.get('x-real-ip') || 
+                   '127.0.0.1';
+  const ipKey = clientIp.trim().replace(/\./g, '_').replace(/:/g, '_');
+
+  console.log('Callback received. State:', state, 'IP:', clientIp);
 
   // Extract robloxId from state if provided (state=discord:ROBLOX_ID)
   let robloxId = '';
@@ -110,6 +116,24 @@ export async function GET(request: Request) {
     });
 
     const userData = await userResponse.json();
+    const discordId = userData.id;
+
+    // Sprawdzenie multikont po IP dla Discorda
+    if (db) {
+      const discordIpRef = db.ref('IP_Mappings_Discord').child(ipKey);
+      const snapshot = await discordIpRef.once('value');
+      const existingDiscordId = snapshot.val();
+
+      if (existingDiscordId && String(existingDiscordId) !== String(discordId)) {
+        console.warn(`Blokada multikonta Discord: IP ${clientIp} jest już przypisane do Discord ID ${existingDiscordId}. Próba użycia konta ${discordId}.`);
+        return NextResponse.json({ 
+          error: 'To IP jest już powiązane z innym kontem Discord. Nie możesz używać multikont.' 
+        }, { status: 403 });
+      }
+
+      // Zapisujemy/Aktualizujemy mapowanie IP -> Discord ID
+      await discordIpRef.set(discordId);
+    }
     
     // Jeśli robloxId nie ma w state, spróbujmy go wyciągnąć z zapisanego profilu lub innych źródeł
     if (!robloxId) {

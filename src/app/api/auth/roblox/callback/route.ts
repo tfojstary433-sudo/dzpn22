@@ -30,10 +30,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
 
-  // Pobieramy IP użytkownika
-  const forwardHeader = request.headers.get('x-forwarded-for');
-  const ip = forwardHeader ? forwardHeader.split(',')[0].trim() : '127.0.0.1';
-  const ipKey = ip.replace(/\./g, '_').replace(/:/g, '_'); // Bezpieczny klucz dla Firebase
+  // Pobieramy IP użytkownika (lepsze wykrywanie)
+  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                   request.headers.get('x-real-ip') || 
+                   '127.0.0.1';
+  const ipKey = clientIp.trim().replace(/\./g, '_').replace(/:/g, '_');
 
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;
