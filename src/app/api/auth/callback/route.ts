@@ -104,6 +104,7 @@ export async function GET(request: Request) {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
       },
+      cache: 'no-store'
     });
 
     const userData = await userResponse.json();
