@@ -248,45 +248,71 @@ const calculateSmartPositions = (starters: Array<{name: string; id?: string; pos
     return true;
   });
 
-  // Group players by position (handling both English and Polish abbreviations)
+  // Group players by position
   uniqueStarters.forEach(p => {
     const pos = (p.position || '').toUpperCase().trim();
     if (pos.includes('GK') || pos === 'BR' || pos === 'BRAMKARZ' || pos === 'B') {
       positionGroups.GK.push(p);
     } else if (pos.includes('DEF') || pos.includes('CB') || pos.includes('LB') || pos.includes('RB') || pos === 'ŚO' || pos === 'LO' || pos === 'PO' || pos === 'LWB' || pos === 'RWB' || pos === 'O') {
       positionGroups.DEF.push(p);
-    } else if (pos.includes('MID') || pos === 'CM' || pos === 'CDM' || pos === 'CAM' || pos === 'LM' || pos === 'RM' || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || pos === 'LP' || pos === 'P') {
+    } else if (pos.includes('MID') || pos.includes('CM') || pos.includes('CDM') || pos.includes('CAM') || pos.includes('LM') || pos.includes('RM') || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || pos === 'LP' || pos === 'P') {
       positionGroups.MID.push(p);
     } else {
       positionGroups.ATT.push(p);
     }
   });
   
-  // Set X positions based on side to ensure they stay on their half
-  // Home: 5-45%, Away: 55-95%
+  // X positions for 4-3-3
   const xPositions: Record<string, number> = side === 'home' ? {
     GK: 8,
     DEF: 20,
-    MID: 35,
-    ATT: 46
+    MID: 34,
+    ATT: 45
   } : {
     GK: 92,
     DEF: 80,
-    MID: 65,
-    ATT: 54
+    MID: 66,
+    ATT: 55
   };
   
+  // Helper for centered Y positions (fixed for 4-3-3 layout)
+  const getYPositions = (posType: string, count: number): string[] => {
+    if (posType === 'GK') return ['50%'];
+    
+    const getCentered = (c: number) => {
+      if (c === 1) return ['50%'];
+      if (c === 2) return ['30%', '70%'];
+      if (c === 3) return ['20%', '50%', '80%'];
+      if (c === 4) return ['15%', '38%', '62%', '85%'];
+      return Array.from({length: c}, (_, i) => `${10 + (i * (80/(c-1)))}%`);
+    };
+
+    return getCentered(count);
+  };
+
   const result: Record<string, PlayerPosition> = {};
+  const color = side === 'home' ? 'blue-600' : 'red-600';
   
   Object.entries(positionGroups).forEach(([posType, players]) => {
     if (players.length === 0) return;
     
     const xBase = xPositions[posType];
-    const positions = getHalfPitchPositions(posType, players.length, xBase, side);
+    const yCoords = getYPositions(posType, players.length);
     
     players.forEach((player, idx) => {
-      if (positions[idx]) {
-        result[player.name] = positions[idx];
+      if (yCoords[idx]) {
+        result[player.name] = {
+          x: `${xBase}%`,
+          y: yCoords[idx],
+          color
+        };
+      } else {
+        // Fallback for extra players in same line
+        result[player.name] = {
+          x: `${xBase}%`,
+          y: `${10 + (idx * 10)}%`,
+          color
+        };
       }
     });
   });
@@ -1394,7 +1420,7 @@ export default function MatchDetail() {
                             </div>
                             <div>
                               <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
-                              <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">{apiData?.match?.lineupA?.formation || 'N/A'}</p>
+                              <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja 4-3-3</p>
                             </div>
                           </div>
 
@@ -1541,7 +1567,7 @@ export default function MatchDetail() {
                             </div>
                             <div className="lg:text-right">
                               <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
-                              <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">{apiData?.match?.lineupB?.formation || 'N/A'}</p>
+                              <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja 4-3-3</p>
                             </div>
                           </div>
 

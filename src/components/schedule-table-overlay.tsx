@@ -674,6 +674,73 @@ export function ScheduleTableOverlay({
           <LeagueTable isInTab={true} compact={true} />
         </div>
       )}
+
+      {activeTab === 'live' && (
+        <div className="bg-transparent text-white max-h-[600px] overflow-y-auto scrollbar-hide">
+          {loadingLive && liveMatches.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-[10px] font-black uppercase text-white/20 tracking-widest">Szukanie meczów na żywo...</p>
+            </div>
+          ) : liveMatches.length > 0 ? (
+            <div className="divide-y divide-white/5 bg-transparent">
+              {liveMatches.map((match) => (
+                <Link href={`/mecz/${match.id}`} key={match.id} className="block group">
+                  <div className="px-4 py-2 bg-red-500/10 text-red-400 text-[9px] font-black tracking-widest uppercase flex items-center justify-between border-b border-white/5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                      NA ŻYWO • {match.period}
+                    </div>
+                    <span className="font-black tabular-nums">{match.timer}</span>
+                  </div>
+                  <div className="relative px-4 py-8 bg-transparent hover:bg-white/5 transition-all cursor-pointer">
+                    <div className="relative z-10 flex items-center justify-between gap-4">
+                      {/* Home Team */}
+                      <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2.5 group-hover:scale-110 transition-transform">
+                          <img src={match.homeTeam.logo} alt="" className="w-full h-full object-contain" />
+                        </div>
+                        <span className="text-[10px] font-black text-white uppercase text-center truncate w-full">
+                          {match.homeTeam.shortName || match.homeTeam.name}
+                        </span>
+                      </div>
+                      
+                      {/* Score */}
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl font-black text-white tracking-tighter">{match.homeTeam.score}</span>
+                          <span className="text-xl font-black text-white/20">:</span>
+                          <span className="text-3xl font-black text-white tracking-tighter">{match.awayTeam.score}</span>
+                        </div>
+                        <div className="px-2 py-0.5 bg-red-500/20 rounded border border-red-500/20">
+                          <span className="text-[8px] font-black text-red-400 uppercase tracking-widest animate-pulse">LIVE</span>
+                        </div>
+                      </div>
+                      
+                      {/* Away Team */}
+                      <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2.5 group-hover:scale-110 transition-transform">
+                          <img src={match.awayTeam.logo} alt="" className="w-full h-full object-contain" />
+                        </div>
+                        <span className="text-[10px] font-black text-white uppercase text-center truncate w-full">
+                          {match.awayTeam.shortName || match.awayTeam.name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-32 opacity-20">
+              <div className="w-16 h-16 rounded-full border-2 border-white/20 flex items-center justify-center mb-6">
+                <div className="w-2 h-2 bg-white rounded-full" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-center px-10 leading-relaxed">Aktualnie nie są rozgrywane żadne mecze</p>
+            </div>
+          )}
+        </div>
+      )}
       </div>
     </div>
   );

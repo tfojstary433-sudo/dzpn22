@@ -100,6 +100,18 @@ export function Navbar() {
     }
   }, [logoutCountdown]);
 
+  useEffect(() => {
+    // Pre-fetch history data on mount for faster search
+    if (!historyDataRef.current) {
+      fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) historyDataRef.current = data;
+        })
+        .catch(() => null);
+    }
+  }, []);
+
   // Search functionality with debounce and parallel fetching
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -129,23 +141,10 @@ export function Navbar() {
           });
         });
 
-        // Search players and fetch history in parallel if needed
+        // Search players
         try {
-          const searchPromise = fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
+          const playerResponse = await fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
           
-          let historyPromise = Promise.resolve(null);
-          if (!historyDataRef.current) {
-            historyPromise = fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json')
-              .then(res => res.ok ? res.json() : null)
-              .catch(() => null);
-          }
-
-          const [playerResponse, historyData] = await Promise.all([searchPromise, historyPromise]);
-          
-          if (historyData) {
-            historyDataRef.current = historyData;
-          }
-
           if (playerResponse.ok) {
             const players = await playerResponse.json();
             const cachedHistory = historyDataRef.current;
@@ -202,7 +201,7 @@ export function Navbar() {
       };
 
       fetchSearchResults();
-    }, 300);
+    }, 150); // Reduced debounce time for snappier feel
 
     return () => clearTimeout(timer);
   }, [searchQuery]);

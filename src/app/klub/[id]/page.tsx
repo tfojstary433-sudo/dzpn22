@@ -52,6 +52,15 @@ export default function KlubPage() {
   const [activeTab, setActiveTab] = useState('przegląd');
   const [players, setPlayers] = useState<ClubPlayer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const [history, setHistory] = useState<any>(null);
   const [apiFixtures, setApiFixtures] = useState<any[]>([]);
   const [apiMatches, setApiMatches] = useState<any[]>([]);
@@ -60,10 +69,12 @@ export default function KlubPage() {
 
   // Get filtered players
   const filteredPlayers = useMemo(() => {
+    if (!debouncedSearchQuery) return players;
+    const query = debouncedSearchQuery.toLowerCase();
     return players.filter(p => 
-      p.username.toLowerCase().includes(searchQuery.toLowerCase())
+      p.username.toLowerCase().includes(query)
     );
-  }, [players, searchQuery]);
+  }, [players, debouncedSearchQuery]);
   const [playerNumbers, setPlayerNumbers] = useState<Record<string, number>>({});
   const [loadingPlayers, setLoadingPlayers] = useState(false);
 
@@ -187,13 +198,6 @@ export default function KlubPage() {
     if (!team) return null;
 
     const getPositionsForLineup = (starters: any[]) => {
-      const positionGroups: Record<string, any[]> = {
-        GK: [],
-        DEF: [],
-        MID: [],
-        ATT: []
-      };
-
       const seen = new Set();
       const uniqueStarters = starters.filter(p => {
         const id = p.id || p.robloxId || p.userId || p.name || p.playerName;
@@ -202,7 +206,14 @@ export default function KlubPage() {
         return true;
       });
 
-      // Group players by position (handling both English and Polish abbreviations)
+      // Group players by position
+      const positionGroups: Record<string, any[]> = {
+        GK: [],
+        DEF: [],
+        MID: [],
+        ATT: []
+      };
+
       uniqueStarters.forEach(p => {
         const pos = (p.position || '').toUpperCase().trim();
         if (pos.includes('GK') || pos === 'BR' || pos === 'BRAMKARZ' || pos === 'B') {
@@ -216,40 +227,61 @@ export default function KlubPage() {
         }
       });
 
-      // Vertical pitch: GK at Bottom (7), ATT at Top (1)
-      const rowMapping: Record<string, number> = {
-        GK: 7,
-        DEF: 5,
-        MID: 3,
-        ATT: 1
-      };
-
       const result: any[] = [];
       
-      Object.entries(positionGroups).forEach(([group, players]) => {
-        if (players.length === 0) return;
-        
-        const row = rowMapping[group];
-        const count = players.length;
-        
-        players.forEach((p, i) => {
-          let col = 3; 
-          if (count === 1) col = 3;
-          else if (count === 2) col = i === 0 ? 2 : 4;
-          else if (count === 3) col = i === 0 ? 1 : (i === 1 ? 3 : 5);
-          else if (count === 4) col = i === 0 ? 1 : (i === 1 ? 2 : (i === 2 ? 4 : 5));
-          else if (count === 5) col = i + 1;
-          else {
-            col = ((i % 5) + 1);
-          }
+      const getCols = (count: number, rowType: 'DEF' | 'MID' | 'ATT') => {
+        if (rowType === 'DEF') {
+          if (count === 1) return [3];
+          if (count === 2) return [2, 4];
+          if (count === 3) return [2, 3, 4];
+          return [1, 2, 4, 5];
+        }
+        // MID and ATT use [2, 3, 4] base
+        if (count === 1) return [3];
+        if (count === 2) return [2, 4];
+        return [2, 3, 4];
+      };
 
-          result.push({
-            name: p.name || p.playerName,
-            id: p.id || p.robloxId,
-            position: p.position,
-            number: p.number,
-            coords: { col, row: row + Math.floor(i / 5) }
-          });
+      // Force 4-3-3 Layout
+      // GK: Row 7, Col 3
+      if (positionGroups.GK.length > 0) {
+        result.push({
+          ...positionGroups.GK[0],
+          name: positionGroups.GK[0].name || positionGroups.GK[0].playerName,
+          coords: { col: 3, row: 7 }
+        });
+      }
+
+      // DEF: Row 5
+      const defs = positionGroups.DEF.slice(0, 4);
+      const defCols = getCols(defs.length, 'DEF');
+      defs.forEach((p, i) => {
+        result.push({
+          ...p,
+          name: p.name || p.playerName,
+          coords: { col: defCols[i], row: 5 }
+        });
+      });
+
+      // MID: Row 3
+      const mids = positionGroups.MID.slice(0, 3);
+      const midCols = getCols(mids.length, 'MID');
+      mids.forEach((p, i) => {
+        result.push({
+          ...p,
+          name: p.name || p.playerName,
+          coords: { col: midCols[i], row: 3 }
+        });
+      });
+
+      // ATT: Row 1
+      const atts = positionGroups.ATT.slice(0, 3);
+      const attCols = getCols(atts.length, 'ATT');
+      atts.forEach((p, i) => {
+        result.push({
+          ...p,
+          name: p.name || p.playerName,
+          coords: { col: attCols[i], row: 1 }
         });
       });
 
@@ -392,7 +424,7 @@ export default function KlubPage() {
           transfers.push({
             playerName: player.name,
             type: 'IN',
-            fromTeam: prevMatch?.playerTeam || 'Wolny agent',
+            fromTeam: prevMatch?.playerTeam || 'Wolny Agent',
             date: matchDate,
             timestamp: new Date(matchDate).getTime(),
             position: currentMatch.position
@@ -1389,6 +1421,8 @@ export default function KlubPage() {
                             <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-2.5 shadow-lg group-hover:border-blue-500/30 transition-colors">
                               {targetTeam?.logo ? (
                                 <img src={targetTeam.logo} alt="" className="w-full h-full object-contain" />
+                              ) : targetTeamName === 'Wolny Agent' ? (
+                                <img src="https://www.fifacm.com/content/media/imgs/fifa21/teams/256/l111592.png" alt="" className="w-full h-full object-contain" />
                               ) : (
                                 <Users className="w-6 h-6 text-white/10" />
                               )}

@@ -672,6 +672,8 @@ export default function GraczPage() {
                           <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform group-hover:scale-110">
                             {clubData?.logo ? (
                               <img src={clubData.logo} alt="" className="w-8 h-8 object-contain" />
+                            ) : player.currentClub === 'Wolny Agent' ? (
+                              <img src="https://www.fifacm.com/content/media/imgs/fifa21/teams/256/l111592.png" alt="" className="w-8 h-8 object-contain" />
                             ) : (
                               <ShieldCheck className="w-6 h-6 text-white/20" />
                             )}
@@ -1330,6 +1332,8 @@ function CareerItem({ item, isNational }: { item: any; isNational?: boolean }) {
             <img src={`https://flagcdn.com/w80/${(item.country || 'PL').toLowerCase()}.png`} className="w-full h-full object-cover" />
           ) : item.logo ? (
             <img src={item.logo} className="w-8 h-8 object-contain" />
+          ) : item.name === 'Wolny Agent' ? (
+            <img src="https://www.fifacm.com/content/media/imgs/fifa21/teams/256/l111592.png" className="w-8 h-8 object-contain" />
           ) : (
             <div className="w-8 h-8 bg-white/5 rounded-full border border-white/10" />
           )}

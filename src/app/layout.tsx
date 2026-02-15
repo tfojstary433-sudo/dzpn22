@@ -51,6 +51,9 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning className="antialiased min-h-screen font-inter">
+        <div className="bg-red-600 text-white text-center py-2 px-4 font-black uppercase tracking-widest text-xs sticky top-0 z-[200]">
+          Sklep podczas prac technicznych
+        </div>
         <SecurityProvider>
           <ClientBody>{children}</ClientBody>
         </SecurityProvider>

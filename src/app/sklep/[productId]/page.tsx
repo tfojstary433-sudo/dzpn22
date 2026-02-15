@@ -92,6 +92,34 @@ const productDetails: { [key: string]: any } = {
 };
 
 export default function ProductDetailPage() {
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center p-4">
+      <Navbar />
+      <div className="max-w-2xl w-full bg-white/5 border border-white/10 rounded-[40px] p-12 text-center space-y-8 backdrop-blur-xl">
+        <div className="w-24 h-24 bg-red-600/20 border border-red-500/30 rounded-full flex items-center justify-center mx-auto">
+          <svg className="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-5xl font-black uppercase italic tracking-tighter">SKLEP TYMCZASOWO ZABLOKOWANY</h1>
+          <p className="text-white/40 font-medium text-lg leading-relaxed">
+            Przepraszamy, ale sklep jest obecnie niedostępny z powodu prac technicznych. 
+            Zapraszamy ponownie wkrótce!
+          </p>
+        </div>
+        <button 
+          onClick={() => window.history.back()}
+          className="px-8 py-4 bg-white text-black rounded-2xl font-black uppercase italic tracking-widest text-sm hover:bg-white/90 transition-all"
+        >
+          Wróć do strony głównej
+        </button>
+      </div>
+      <div className="mt-12">
+        <Footer />
+      </div>
+    </div>
+  );
   const router = useRouter();
   const params = useParams();
   const productId = params?.productId as string;
