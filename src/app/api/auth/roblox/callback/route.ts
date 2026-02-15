@@ -42,11 +42,15 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
 
-  // Pobieramy IP użytkownika (lepsze wykrywanie)
+  // WYMUSZONE LOGOWANIE IP DO DEBUGOWANIA
   const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                    request.headers.get('x-real-ip') || 
                    '127.0.0.1';
   const ipKey = clientIp.trim().replace(/\./g, '_').replace(/:/g, '_');
+  
+  console.log('--- DEBUG AUTH START ---');
+  console.log('Detected IP:', clientIp);
+  console.log('Firebase DB initialized:', !!db);
 
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;
