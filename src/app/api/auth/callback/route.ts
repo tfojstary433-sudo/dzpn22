@@ -61,6 +61,8 @@ export async function GET(request: Request) {
   let robloxId = '';
   if (state.startsWith('discord:')) {
     robloxId = state.split(':')[1];
+    // Zabezpieczenie przed "undefined" jako stringiem
+    if (robloxId === 'undefined' || robloxId === 'null') robloxId = '';
     console.log('Extracted Roblox ID:', robloxId);
   }
   
@@ -113,40 +115,43 @@ export async function GET(request: Request) {
     if (!robloxId) {
       console.log('Roblox ID not in state, checking Firebase for existing link...');
       try {
-        const verifiedSnap = await db?.ref('VerifiedPlayers').once('value');
-        const allVerified = verifiedSnap?.val() || {};
+        if (!db) throw new Error('Baza danych Firebase nie została zainicjalizowana. Sprawdź serviceaccount.json.');
+        
+        const verifiedSnap = await db.ref('VerifiedPlayers').once('value');
+        const allVerified = verifiedSnap.val() || {};
         const entry = Object.entries(allVerified).find(([_, data]: [any, any]) => data.discordId === userData.id);
         if (entry) {
           robloxId = entry[0];
           console.log('Found Roblox ID in Firebase:', robloxId);
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error('Error searching for Roblox ID:', e);
+        return NextResponse.json({ error: `Błąd połączenia z Firebase: ${e.message}` }, { status: 500 });
       }
+    }
+
+    if (!robloxId) {
+       console.error('ROBLOX ID NOT FOUND after all checks');
+       return NextResponse.json({ error: 'Nie odnaleziono Twojego konta Roblox. Zaloguj się najpierw przez Roblox na stronie.' }, { status: 400 });
     }
 
     userData.robloxId = robloxId; // Include robloxId in response
 
     // Firebase Sync: VerifiedPlayers (independent of guild membership)
-    let syncSuccess = false;
-    if (robloxId && db) {
-      try {
-        console.log('Syncing VerifiedPlayers for:', robloxId);
-        await db.ref('VerifiedPlayers').child(String(robloxId)).set({
-          discordId: userData.id,
-          discordUser: userData.discriminator && userData.discriminator !== '0' 
-            ? `${userData.username}#${userData.discriminator}`
-            : userData.username
-        });
-        console.log('VerifiedPlayers synced');
-        syncSuccess = true;
-      } catch (firebaseError) {
-        console.error('Firebase VerifiedPlayers sync error:', firebaseError);
-        return NextResponse.json({ error: 'Błąd połączenia z bazą danych (VerifiedPlayers). Spróbuj ponownie.' }, { status: 500 });
-      }
-    } else if (!robloxId) {
-       console.error('ROBLOX ID NOT FOUND during Discord callback');
-       return NextResponse.json({ error: 'Nie odnaleziono Twojego konta Roblox. Zaloguj się najpierw przez Roblox.' }, { status: 400 });
+    try {
+      if (!db) throw new Error('Firebase DB not initialized');
+      
+      console.log('Syncing VerifiedPlayers for:', robloxId);
+      await db.ref('VerifiedPlayers').child(String(robloxId)).set({
+        discordId: userData.id,
+        discordUser: userData.discriminator && userData.discriminator !== '0' 
+          ? `${userData.username}#${userData.discriminator}`
+          : userData.username
+      });
+      console.log('VerifiedPlayers synced');
+    } catch (firebaseError: any) {
+      console.error('Firebase VerifiedPlayers sync error:', firebaseError);
+      return NextResponse.json({ error: `Błąd zapisu w bazie danych: ${firebaseError.message}` }, { status: 500 });
     }
 
     // Get member info for roles and further sync
@@ -180,15 +185,20 @@ export async function GET(request: Request) {
 
               if (robloxId && db) {
                 try {
+                  const robloxIdStr = String(robloxId);
+                  
                   // 2. Sync club role
-                  const matchingClubRole = roles.find((roleId: string) => clubsData[roleId]);
+                  const matchingClubRole = roles
+                    .map((roleId: string) => guildRoles.find((r: any) => r.id === roleId))
+                    .find((roleObj: any) => roleObj && clubsData[roleObj.id]);
+
                   if (matchingClubRole) {
-                    const clubId = clubsData[matchingClubRole];
-                    console.log('Syncing club:', clubId, 'for:', robloxId);
-                    await db.ref('users_clubs').child(String(robloxId)).set(clubId);
+                    const clubId = clubsData[matchingClubRole.id];
+                    console.log('Syncing club:', clubId, 'for:', robloxIdStr);
+                    await db.ref('users_clubs').child(robloxIdStr).set(clubId);
                   } else {
-                    console.log('No club role found, removing from users_clubs for:', robloxId);
-                    await db.ref('users_clubs').child(String(robloxId)).remove();
+                    console.log('No club role found, removing from users_clubs for:', robloxIdStr);
+                    await db.ref('users_clubs').child(robloxIdStr).remove();
                   }
 
                   // 3. Sync admin role
@@ -199,15 +209,15 @@ export async function GET(request: Request) {
                   const matchingAdminRoleName = userRoleNames.find((name: string) => adminsData[name]);
                   if (matchingAdminRoleName) {
                     const adminRange = adminsData[matchingAdminRoleName];
-                    console.log('Syncing admin range:', adminRange, 'for:', robloxId);
-                    await db.ref('Admins').child(String(robloxId)).set(adminRange);
+                    console.log('Syncing admin range:', adminRange, 'for:', robloxIdStr);
+                    await db.ref('Admins').child(robloxIdStr).set(adminRange);
                   } else {
-                    console.log('No admin role found, removing from Admins for:', robloxId);
-                    await db.ref('Admins').child(String(robloxId)).remove();
+                    console.log('No admin role found, removing from Admins for:', robloxIdStr);
+                    await db.ref('Admins').child(robloxIdStr).remove();
                   }
-                } catch (firebaseError) {
+                } catch (firebaseError: any) {
                   console.error('Firebase role sync error:', firebaseError);
-                  return NextResponse.json({ error: 'Błąd podczas nadawania rangi w bazie danych.' }, { status: 500 });
+                  return NextResponse.json({ error: `Błąd podczas nadawania rangi: ${firebaseError.message}` }, { status: 500 });
                 }
               }
             }
