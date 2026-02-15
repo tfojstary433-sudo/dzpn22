@@ -60,7 +60,7 @@ export default function RobloxCallbackPage() {
         })
         .catch((err) => {
           console.error('Callback error:', err);
-          setError('Wystąpił błąd podczas logowania.');
+          setError(err.message || 'Wystąpił błąd podczas logowania.');
           // Remove code from URL even on error
           window.history.replaceState({}, '', '/robloxcallback');
         });

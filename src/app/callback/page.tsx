@@ -17,7 +17,13 @@ export default function CallbackPage() {
       const isDiscord = state === 'discord' || state?.startsWith('discord:');
       const apiPath = isDiscord ? '/api/auth/callback' : '/api/auth/roblox/callback';
       fetch(`${apiPath}?code=${code}&state=${state || ''}`)
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || 'Błąd serwera podczas autoryzacji.');
+          }
+          return data;
+        })
         .then((data) => {
           // Remove code from URL to prevent reuse on refresh
           window.history.replaceState({}, '', '/callback');
@@ -72,7 +78,7 @@ export default function CallbackPage() {
         })
         .catch((err) => {
           console.error('Callback error:', err);
-          setError('Wystąpił błąd podczas logowania.');
+          setError(err.message || 'Wystąpił błąd podczas logowania.');
           // Remove code from URL even on error
           window.history.replaceState({}, '', '/callback');
         });
