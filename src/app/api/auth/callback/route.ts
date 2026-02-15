@@ -186,18 +186,19 @@ export async function GET(request: Request) {
               if (robloxId && db) {
                 try {
                   const robloxIdStr = String(robloxId);
+                  console.log('Starting sync for RobloxID:', robloxIdStr);
+                  console.log('User roles from Discord:', roles);
                   
-                  // 2. Sync club role
-                  const matchingClubRole = roles
-                    .map((roleId: string) => guildRoles.find((r: any) => r.id === roleId))
-                    .find((roleObj: any) => roleObj && clubsData[roleObj.id]);
-
-                  if (matchingClubRole) {
-                    const clubId = clubsData[matchingClubRole.id];
-                    console.log('Syncing club:', clubId, 'for:', robloxIdStr);
+                  // 2. Sync club role - direct matching by ID
+                  const matchingClubRoleId = roles.find((id: string) => clubsData[id]);
+                  
+                  if (matchingClubRoleId) {
+                    const clubId = clubsData[matchingClubRoleId];
+                    console.log('MATCH FOUND! RoleID:', matchingClubRoleId, '-> Club:', clubId);
                     await db.ref('users_clubs').child(robloxIdStr).set(clubId);
+                    console.log('Successfully saved to users_clubs');
                   } else {
-                    console.log('No club role found, removing from users_clubs for:', robloxIdStr);
+                    console.log('No matching club role found in clubs.json for this user.');
                     await db.ref('users_clubs').child(robloxIdStr).remove();
                   }
 
@@ -206,18 +207,21 @@ export async function GET(request: Request) {
                     .filter((r: any) => roles.includes(r.id))
                     .map((r: any) => r.name);
                   
+                  console.log('User role names:', userRoleNames);
                   const matchingAdminRoleName = userRoleNames.find((name: string) => adminsData[name]);
+                  
                   if (matchingAdminRoleName) {
                     const adminRange = adminsData[matchingAdminRoleName];
-                    console.log('Syncing admin range:', adminRange, 'for:', robloxIdStr);
+                    console.log('ADMIN MATCH! Name:', matchingAdminRoleName, '-> Range:', adminRange);
                     await db.ref('Admins').child(robloxIdStr).set(adminRange);
+                    console.log('Successfully saved to Admins');
                   } else {
-                    console.log('No admin role found, removing from Admins for:', robloxIdStr);
+                    console.log('No admin role found for this user.');
                     await db.ref('Admins').child(robloxIdStr).remove();
                   }
                 } catch (firebaseError: any) {
-                  console.error('Firebase role sync error:', firebaseError);
-                  return NextResponse.json({ error: `Błąd podczas nadawania rangi: ${firebaseError.message}` }, { status: 500 });
+                  console.error('CRITICAL Firebase sync error:', firebaseError);
+                  return NextResponse.json({ error: `Błąd synchronizacji: ${firebaseError.message}` }, { status: 500 });
                 }
               }
             }
