@@ -102,7 +102,7 @@ export async function GET(request: Request) {
       const existingRobloxId = snapshot.val();
 
       if (existingRobloxId && String(existingRobloxId) !== String(robloxId)) {
-        console.warn(`Blokada multikonta: IP ${ip} jest już przypisane do Roblox ID ${existingRobloxId}. Próba logowania z ${robloxId}.`);
+        console.warn(`Blokada multikonta: IP ${clientIp} jest już przypisane do Roblox ID ${existingRobloxId}. Próba logowania z ${robloxId}.`);
         return NextResponse.json({ 
           error: 'Wykryto próbę logowania z multikonta. Twoje IP jest już powiązane z innym kontem Roblox.' 
         }, { status: 403 });
