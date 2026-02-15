@@ -506,14 +506,22 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-              <p className="text-gray-500 text-lg">Aktualnie nie odbywają się żadne mecze</p>
-              <button 
-                onClick={() => setActiveMainTab('terminarz')}
-                className="mt-4 text-blue-600 font-semibold hover:underline"
-              >
-                Zobacz terminarz →
-              </button>
+            <div className="text-center py-24 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 group-hover:scale-110 transition-transform duration-500">
+                  <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-white/40 text-xl font-medium tracking-tight mb-8">Aktualnie nie odbywają się żadne mecze</p>
+                <button 
+                  onClick={() => setActiveMainTab('terminarz')}
+                  className="px-8 py-3 bg-white text-black font-black rounded-xl hover:bg-[#00ccff] hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl"
+                >
+                  ZOBACZ TERMINARZ
+                </button>
+              </div>
             </div>
           )}
         </div>

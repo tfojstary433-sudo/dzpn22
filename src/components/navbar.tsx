@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -21,6 +21,7 @@ export function Navbar() {
    const [searchQuery, setSearchQuery] = useState('');
    const [searchResults, setSearchResults] = useState<any[]>([]);
    const [searchOpen, setSearchOpen] = useState(false);
+   const historyDataRef = useRef<any>(null);
    const [showEmail, setShowEmail] = useState(false);
    const pathname = usePathname();
    const router = useRouter();
@@ -99,99 +100,111 @@ export function Navbar() {
     }
   }, [logoutCountdown]);
 
-  // Search functionality
+  // Search functionality with debounce and parallel fetching
   useEffect(() => {
-    if (searchQuery.length < 2) {
-      setSearchResults([]);
-      setSearchOpen(false);
-      return;
-    }
-
-    const fetchSearchResults = async () => {
-      const results: any[] = [];
-
-      // Search teams
-      const matchingTeams = teams.filter(team =>
-        team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        team.shortName?.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 3);
-
-      matchingTeams.forEach(team => {
-        results.push({
-          type: 'team',
-          id: team.id,
-          name: team.name,
-          logo: team.logo,
-          color: team.color || '#ffffff',
-          href: `/klub/${team.id}`
-        });
-      });
-
-      // Search players
-      try {
-        const playerResponse = await fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
-        if (playerResponse.ok) {
-          const players = await playerResponse.json();
-          
-          // Fetch history to find the latest club for each player
-          const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json').catch(() => null);
-          const historyData = historyRes && historyRes.ok ? await historyRes.json() : null;
-
-          players.forEach((player: any) => {
-            // Deduplicate: check if player already exists in results
-            if (results.some(r => r.type === 'player' && r.name === player.username)) return;
-
-            let clubId = player.clubId || player.clubName;
-            
-            // Try to find the latest club from history if available
-            if (historyData && historyData.players && historyData.players[player.userId]) {
-              const hPlayer = historyData.players[player.userId];
-              const matches = hPlayer.matches || (hPlayer.matchHistory ? Object.values(hPlayer.matchHistory) : []);
-              if (matches.length > 0) {
-                const sortedMatches = [...matches].sort((a: any, b: any) => {
-                  const dateA = new Date(a.date || a.timestamp || 0).getTime();
-                  const dateB = new Date(b.date || b.timestamp || 0).getTime();
-                  return dateB - dateA;
-                });
-                clubId = sortedMatches[0].playerTeam || sortedMatches[0].teamId || clubId;
-              }
-            }
-
-            const isReferee = clubId === 'REFEREE' || clubId === 'SED' || 
-                             String(player.clubName).toUpperCase() === 'REFEREE' || 
-                             String(clubId).toUpperCase() === 'KOLEGIUM SĘDZIOWSKIE' ||
-                             String(clubId).toUpperCase().includes('SĘDZIA');
-            
-            const resolvedClubName = isReferee ? 'Sędzia PFF' : getTeamName(clubId);
-            const resolvedClubLogo = isReferee ? null : getTeamLogo(clubId, resolvedClubName);
-            const resolvedClubColor = isReferee ? '#ef4444' : getTeamColor(clubId, resolvedClubName);
-            const isFreeAgent = !isReferee && (!clubId || clubId === '---' || resolvedClubName === clubId || resolvedClubName === 'Nieznany Klub');
-
-            results.push({
-              type: 'player',
-              id: player.userId,
-              name: player.username,
-              club: isFreeAgent ? 'FREE Agent' : resolvedClubName,
-              clubLogo: resolvedClubLogo,
-              clubColor: resolvedClubColor,
-              isFreeAgent: isFreeAgent,
-              isReferee: isReferee,
-              avatarUrl: player.avatarUrl,
-              href: `/gracz/${player.username}`
-            });
-          });
-        }
-      } catch (error) {
-        console.error('Error searching players:', error);
+    const timer = setTimeout(() => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        setSearchOpen(false);
+        return;
       }
 
-      // Remove duplicates by type and name (to be safer if IDs vary)
-      const uniqueResults = Array.from(new Map(results.map(item => [`${item.type}-${item.name}`, item])).values());
-      setSearchResults(uniqueResults);
-      setSearchOpen(uniqueResults.length > 0);
-    };
+      const fetchSearchResults = async () => {
+        const results: any[] = [];
 
-    fetchSearchResults();
+        // Search teams locally (very fast)
+        const matchingTeams = teams.filter(team =>
+          team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          team.shortName?.toLowerCase().includes(searchQuery.toLowerCase())
+        ).slice(0, 3);
+
+        matchingTeams.forEach(team => {
+          results.push({
+            type: 'team',
+            id: team.id,
+            name: team.name,
+            logo: team.logo,
+            color: team.color || '#ffffff',
+            href: `/klub/${team.id}`
+          });
+        });
+
+        // Search players and fetch history in parallel if needed
+        try {
+          const searchPromise = fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
+          
+          let historyPromise = Promise.resolve(null);
+          if (!historyDataRef.current) {
+            historyPromise = fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json')
+              .then(res => res.ok ? res.json() : null)
+              .catch(() => null);
+          }
+
+          const [playerResponse, historyData] = await Promise.all([searchPromise, historyPromise]);
+          
+          if (historyData) {
+            historyDataRef.current = historyData;
+          }
+
+          if (playerResponse.ok) {
+            const players = await playerResponse.json();
+            const cachedHistory = historyDataRef.current;
+
+            players.forEach((player: any) => {
+              if (results.some(r => r.type === 'player' && r.name === player.username)) return;
+
+              let clubId = player.clubId || player.clubName;
+              
+              if (cachedHistory && cachedHistory.players && cachedHistory.players[player.userId]) {
+                const hPlayer = cachedHistory.players[player.userId];
+                const matches = hPlayer.matches || (hPlayer.matchHistory ? Object.values(hPlayer.matchHistory) : []);
+                if (matches.length > 0) {
+                  const sortedMatches = [...matches].sort((a: any, b: any) => {
+                    const dateA = new Date(a.date || a.timestamp || 0).getTime();
+                    const dateB = new Date(b.date || b.timestamp || 0).getTime();
+                    return dateB - dateA;
+                  });
+                  clubId = sortedMatches[0].playerTeam || sortedMatches[0].teamId || clubId;
+                }
+              }
+
+              const isReferee = clubId === 'REFEREE' || clubId === 'SED' || 
+                               String(player.clubName).toUpperCase() === 'REFEREE' || 
+                               String(clubId).toUpperCase() === 'KOLEGIUM SĘDZIOWSKIE' ||
+                               String(clubId).toUpperCase().includes('SĘDZIA');
+              
+              const resolvedClubName = isReferee ? 'Sędzia PFF' : getTeamName(clubId);
+              const resolvedClubLogo = isReferee ? null : getTeamLogo(clubId, resolvedClubName);
+              const resolvedClubColor = isReferee ? '#ef4444' : getTeamColor(clubId, resolvedClubName);
+              const isFreeAgent = !isReferee && (!clubId || clubId === '---' || resolvedClubName === clubId || resolvedClubName === 'Nieznany Klub');
+
+              results.push({
+                type: 'player',
+                id: player.userId,
+                name: player.username,
+                club: isFreeAgent ? 'FREE Agent' : resolvedClubName,
+                clubLogo: resolvedClubLogo,
+                clubColor: resolvedClubColor,
+                isFreeAgent: isFreeAgent,
+                isReferee: isReferee,
+                avatarUrl: player.avatarUrl,
+                href: `/gracz/${player.username}`
+              });
+            });
+          }
+        } catch (error) {
+          console.error('Error searching players:', error);
+        }
+
+        const uniqueResults = Array.from(new Map(results.map(item => [`${item.type}-${item.name}`, item])).values()).slice(0, 10);
+        setSearchResults(uniqueResults);
+        setSearchOpen(uniqueResults.length > 0);
+      };
+
+      fetchSearchResults();
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   const navLinks = [
