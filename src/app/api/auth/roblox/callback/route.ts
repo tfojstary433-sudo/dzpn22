@@ -7,13 +7,25 @@ import fs from 'fs';
 function initFirebase() {
   if (!admin.apps.length) {
     try {
-      const serviceAccountPath = path.join(process.cwd(), 'serviceaccount.json');
-      if (fs.existsSync(serviceAccountPath)) {
-        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      // Metoda 1: Zmienna środowiskowa (zalecana na Vercel)
+      const serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
+      
+      if (serviceAccountVar) {
+        const serviceAccount = JSON.parse(serviceAccountVar);
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
           databaseURL: 'https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/'
         });
+      } else {
+        // Metoda 2: Plik (lokalnie)
+        const serviceAccountPath = path.join(process.cwd(), 'serviceaccount.json');
+        if (fs.existsSync(serviceAccountPath)) {
+          const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: 'https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/'
+          });
+        }
       }
     } catch (e) {
       console.error('Firebase init error:', e);
@@ -95,28 +107,27 @@ export async function GET(request: Request) {
     const userData = await userResponse.json();
     const robloxId = userData.sub;
 
-    console.log(`[IP CHECK] detected: ${clientIp}, key: ${ipKey}, robloxId: ${robloxId}`);
-
-    // Sprawdzenie multikont po IP
-    if (db) {
-      const ipRef = db.ref('IP_Mappings').child(ipKey);
-      const snapshot = await ipRef.once('value');
-      const existingRobloxId = snapshot.val();
-
-      console.log(`[IP CHECK] Firebase record for this IP: ${existingRobloxId}`);
-
-      if (existingRobloxId && String(existingRobloxId) !== String(robloxId)) {
-        console.warn(`[BLOCK] IP ${clientIp} already linked to Roblox ${existingRobloxId}. Blocked ${robloxId}.`);
-        return NextResponse.json({ 
-          error: 'Wykryto próbę logowania z multikonta. Twoje IP jest już powiązane z innym kontem Roblox.' 
-        }, { status: 403 });
-      }
-
-      await ipRef.set(robloxId);
-      console.log(`[IP CHECK] Successfully mapped IP ${clientIp} to ${robloxId}`);
-    } else {
-      console.error('[IP CHECK] CRITICAL: Firebase not initialized! Blocking check bypassed.');
+    // Bezwzględne sprawdzenie multikont po IP
+    if (!db) {
+      console.error('[CRITICAL] Firebase not initialized in Roblox callback!');
+      return NextResponse.json({ 
+        error: 'Błąd systemowy: Brak połączenia z bazą weryfikacji IP. Spróbuj ponownie później.' 
+      }, { status: 500 });
     }
+
+    const ipRef = db.ref('IP_Mappings').child(ipKey);
+    const snapshot = await ipRef.once('value');
+    const existingRobloxId = snapshot.val();
+
+    if (existingRobloxId && String(existingRobloxId) !== String(robloxId)) {
+      console.warn(`[BLOCK] IP ${clientIp} is already linked to Roblox ${existingRobloxId}. User tried to use ${robloxId}.`);
+      return NextResponse.json({ 
+        error: 'To IP jest już przypisane do innego konta Roblox. Nie możesz używać multikont na tej stronie.' 
+      }, { status: 403 });
+    }
+
+    // Zapisujemy powiązanie IP -> Roblox ID
+    await ipRef.set(robloxId);
 
     return NextResponse.json({
         robloxId: robloxId,

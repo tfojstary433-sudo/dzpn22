@@ -7,17 +7,27 @@ import fs from 'fs';
 function initFirebase() {
   if (!admin.apps.length) {
     try {
-      const serviceAccountPath = path.join(process.cwd(), 'serviceaccount.json');
-      console.log('Checking for service account at:', serviceAccountPath);
-      if (fs.existsSync(serviceAccountPath)) {
-        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      // Metoda 1: Zmienna środowiskowa (zalecana na Vercel)
+      const serviceAccountVar = process.env.FIREBASE_SERVICE_ACCOUNT;
+      
+      if (serviceAccountVar) {
+        const serviceAccount = JSON.parse(serviceAccountVar);
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
           databaseURL: 'https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/'
         });
-        console.log('Firebase initialized successfully');
+        console.log('Firebase initialized from ENV');
       } else {
-        console.error('Service account file NOT FOUND at:', serviceAccountPath);
+        // Metoda 2: Plik (lokalnie)
+        const serviceAccountPath = path.join(process.cwd(), 'serviceaccount.json');
+        if (fs.existsSync(serviceAccountPath)) {
+          const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: 'https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/'
+          });
+          console.log('Firebase initialized from FILE');
+        }
       }
     } catch (e) {
       console.error('Firebase init error:', e);
@@ -118,28 +128,27 @@ export async function GET(request: Request) {
     const userData = await userResponse.json();
     const discordId = userData.id;
 
-    console.log(`[DISCORD IP CHECK] detected: ${clientIp}, key: ${ipKey}, discordId: ${discordId}`);
-
-    // Sprawdzenie multikont po IP dla Discorda
-    if (db) {
-      const discordIpRef = db.ref('IP_Mappings_Discord').child(ipKey);
-      const snapshot = await discordIpRef.once('value');
-      const existingDiscordId = snapshot.val();
-
-      console.log(`[DISCORD IP CHECK] Firebase record for this IP: ${existingDiscordId}`);
-
-      if (existingDiscordId && String(existingDiscordId) !== String(discordId)) {
-        console.warn(`[BLOCK DISCORD] IP ${clientIp} already linked to Discord ${existingDiscordId}. Blocked ${discordId}.`);
-        return NextResponse.json({ 
-          error: 'To IP jest już powiązane z innym kontem Discord. Nie możesz używać multikont.' 
-        }, { status: 403 });
-      }
-
-      await discordIpRef.set(discordId);
-      console.log(`[DISCORD IP CHECK] Successfully mapped IP ${clientIp} to ${discordId}`);
-    } else {
-      console.error('[DISCORD IP CHECK] CRITICAL: Firebase not initialized!');
+    // Bezwzględne sprawdzenie multikont po IP dla Discorda
+    if (!db) {
+      console.error('[CRITICAL] Firebase not initialized in Discord callback!');
+      return NextResponse.json({ 
+        error: 'Błąd systemowy: Brak połączenia z bazą weryfikacji IP.' 
+      }, { status: 500 });
     }
+
+    const discordIpRef = db.ref('IP_Mappings_Discord').child(ipKey);
+    const snapshot = await discordIpRef.once('value');
+    const existingDiscordId = snapshot.val();
+
+    if (existingDiscordId && String(existingDiscordId) !== String(discordId)) {
+      console.warn(`[BLOCK DISCORD] IP ${clientIp} already linked to Discord ${existingDiscordId}. Blocked ${discordId}.`);
+      return NextResponse.json({ 
+        error: 'To IP jest już powiązane z innym kontem Discord. Nie możesz używać multikont na tej stronie.' 
+      }, { status: 403 });
+    }
+
+    // Zapisujemy powiązanie IP -> Discord ID
+    await discordIpRef.set(discordId);
     
     // Jeśli robloxId nie ma w state, spróbujmy go wyciągnąć z zapisanego profilu lub innych źródeł
     if (!robloxId) {
