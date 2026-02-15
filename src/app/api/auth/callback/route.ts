@@ -128,19 +128,25 @@ export async function GET(request: Request) {
     userData.robloxId = robloxId; // Include robloxId in response
 
     // Firebase Sync: VerifiedPlayers (independent of guild membership)
+    let syncSuccess = false;
     if (robloxId && db) {
       try {
         console.log('Syncing VerifiedPlayers for:', robloxId);
-        await db.ref('VerifiedPlayers').child(robloxId).set({
+        await db.ref('VerifiedPlayers').child(String(robloxId)).set({
           discordId: userData.id,
           discordUser: userData.discriminator && userData.discriminator !== '0' 
             ? `${userData.username}#${userData.discriminator}`
             : userData.username
         });
         console.log('VerifiedPlayers synced');
+        syncSuccess = true;
       } catch (firebaseError) {
         console.error('Firebase VerifiedPlayers sync error:', firebaseError);
+        return NextResponse.json({ error: 'Błąd połączenia z bazą danych (VerifiedPlayers). Spróbuj ponownie.' }, { status: 500 });
       }
+    } else if (!robloxId) {
+       console.error('ROBLOX ID NOT FOUND during Discord callback');
+       return NextResponse.json({ error: 'Nie odnaleziono Twojego konta Roblox. Zaloguj się najpierw przez Roblox.' }, { status: 400 });
     }
 
     // Get member info for roles and further sync
@@ -155,9 +161,8 @@ export async function GET(request: Request) {
         const memberData = await memberResponse.json();
         const roles = memberData.roles || [];
         userData.discordRoles = roles;
-        userData.discordRoleNames = {}; // To store mapping of roleId -> roleName
+        userData.discordRoleNames = {}; 
 
-        // Fetch all guild roles to get names
         if (BOT_TOKEN) {
           try {
             const rolesResponse = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/roles`, {
@@ -167,7 +172,6 @@ export async function GET(request: Request) {
             if (rolesResponse.ok) {
               const guildRoles = await rolesResponse.json();
               
-              // Create mapping for user's roles
               guildRoles.forEach((r: any) => {
                 if (roles.includes(r.id)) {
                   userData.discordRoleNames[r.id] = r.name;
@@ -181,7 +185,6 @@ export async function GET(request: Request) {
                   if (matchingClubRole) {
                     const clubId = clubsData[matchingClubRole];
                     console.log('Syncing club:', clubId, 'for:', robloxId);
-                    // Wymuszamy robloxId jako string dla Firebase
                     await db.ref('users_clubs').child(String(robloxId)).set(clubId);
                   } else {
                     console.log('No club role found, removing from users_clubs for:', robloxId);
@@ -204,6 +207,7 @@ export async function GET(request: Request) {
                   }
                 } catch (firebaseError) {
                   console.error('Firebase role sync error:', firebaseError);
+                  return NextResponse.json({ error: 'Błąd podczas nadawania rangi w bazie danych.' }, { status: 500 });
                 }
               }
             }
@@ -211,8 +215,6 @@ export async function GET(request: Request) {
             console.error('Role name fetch error:', e);
           }
         }
-      } else {
-        console.warn('Could not fetch guild member info, status:', memberResponse.status);
       }
     } catch (roleError) {
       console.error('Error fetching guild roles:', roleError);
