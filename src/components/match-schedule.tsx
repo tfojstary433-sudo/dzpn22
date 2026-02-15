@@ -252,13 +252,22 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
 
   useEffect(() => {
     const fetchLive = async () => {
+      setLoadingLive(true);
       try {
         const response = await fetch('/api/matches');
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
         const data: ApiMatch[] = await response.json();
-        const activeMatches = data.filter((m: ApiMatch) => m.status === 'active' || m.isActive);
+        
+        // Bardziej elastyczne sprawdzanie aktywnych meczów
+        const activeMatches = data.filter((m: ApiMatch) => 
+          m.isActive === true || 
+          m.status === 'active' || 
+          m.status === 'live' || 
+          m.status === 'playing' ||
+          (m.timer && m.timer !== '0:00' && m.status !== 'finished')
+        );
 
         if (activeMatches.length > 0) {
           const mappedMatches = activeMatches.map((apiMatch: ApiMatch) => {
