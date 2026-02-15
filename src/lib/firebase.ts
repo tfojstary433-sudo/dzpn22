@@ -40,7 +40,9 @@ export async function getPlayerStats(userId: string): Promise<PlayerFirebaseStat
 
 export async function getAllUserClubs(): Promise<Record<string, string>> {
   try {
-    const response = await fetch(`${FIREBASE_BASE_URL}/users_clubs.json`);
+    const response = await fetch(`${FIREBASE_BASE_URL}/users_clubs.json`, {
+      next: { revalidate: 300 } // Cache for 5 minutes
+    });
     if (!response.ok) return {};
     return await response.json() || {};
   } catch (error) {
@@ -51,7 +53,9 @@ export async function getAllUserClubs(): Promise<Record<string, string>> {
 
 export async function getAllPlayerStats(): Promise<Record<string, PlayerFirebaseStats>> {
   try {
-    const response = await fetch(`${FIREBASE_BASE_URL}/player_stats.json`);
+    const response = await fetch(`${FIREBASE_BASE_URL}/player_stats.json`, {
+      next: { revalidate: 300 } // Cache for 5 minutes
+    });
     if (!response.ok) return {};
     return await response.json() || {};
   } catch (error) {

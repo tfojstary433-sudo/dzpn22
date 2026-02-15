@@ -2,6 +2,19 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const admin = require('firebase-admin');
+
+// Inicjalizacja Firebase Admin
+const serviceAccount = require('./serviceaccount.json');
+
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app"
+    });
+}
+
+const db = admin.database();
 
 const app = express();
 
@@ -22,10 +35,54 @@ const readData = (filename) => {
     }
 };
 
+// Synchronizacja z Firebase (Backup)
+const syncToFirebase = async (filename, data) => {
+    try {
+        const key = filename.replace('.json', '');
+        await db.ref(`backup/${key}`).set(data);
+        console.log(`[BACKUP] Zsynchronizowano ${filename} z Firebase`);
+    } catch (error) {
+        console.error(`[BACKUP] Błąd synchronizacji ${filename}:`, error.message);
+    }
+};
+
 const saveData = (filename, data) => {
     const filePath = path.join(DATA_DIR, filename);
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    // Backup do Firebase przy każdym zapisie
+    syncToFirebase(filename, data);
 };
+
+// Przywracanie danych z Firebase przy starcie
+const restoreFromFirebase = async () => {
+    console.log('[SYSTEM] Przywracanie danych z Firebase...');
+    const files = [
+        'league_table.json',
+        'player_statistics.json',
+        'matches_history.json',
+        'match_details.json',
+        'matches_schedule.json',
+        'lineups.json'
+    ];
+
+    for (const filename of files) {
+        try {
+            const key = filename.replace('.json', '');
+            const snapshot = await db.ref(`backup/${key}`).once('value');
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const filePath = path.join(DATA_DIR, filename);
+                fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+                console.log(`[RESTORE] Przywrócono ${filename} z Firebase`);
+            }
+        } catch (error) {
+            console.error(`[RESTORE] Błąd przywracania ${filename}:`, error.message);
+        }
+    }
+};
+
+// Uruchom przywracanie przy starcie
+restoreFromFirebase().catch(console.error);
 
 // Konfiguracja CORS - zezwól na wszystko
 app.use(cors({

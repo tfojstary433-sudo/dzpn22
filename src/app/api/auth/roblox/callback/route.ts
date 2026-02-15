@@ -49,9 +49,17 @@ export async function GET(request: Request) {
                    '127.0.0.1';
   const ipKey = clientIp.trim().replace(/\./g, '_').replace(/:/g, '_');
   
-  console.log('--- STRICT AUTH DEBUG ---');
+  console.log('--- STRICT AUTH DEBUG V2 ---');
   console.log('Detected Client IP:', clientIp);
-  console.log('Firebase DB Status:', !!db ? 'CONNECTED' : 'NOT INITIALIZED');
+  
+  if (!db) {
+    console.error('FIREBASE_CONNECTION_FAILED: Check your Vercel Environment Variables!');
+    return NextResponse.json({ 
+      error: '[PFF Blocker] Błąd krytyczny: Brak połączenia z bazą weryfikacji. Upewnij się, że FIREBASE_SERVICE_ACCOUNT jest ustawione w Vercel.' 
+    }, { status: 500 });
+  }
+  
+  console.log('Firebase DB Status: CONNECTED');
 
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;

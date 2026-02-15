@@ -46,7 +46,7 @@ interface ClubPlayer {
 export default function KlubPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = decodeURIComponent(params.id as string);
   const team = useMemo(() => teams.find(t => t.id === id), [id]);
   
   const [activeTab, setActiveTab] = useState('przegląd');

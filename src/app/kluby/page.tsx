@@ -33,28 +33,45 @@ export default function KlubyPage() {
   const [playerCounts, setPlayerCounts] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Fetch player counts for all teams
     const fetchPlayerCounts = async () => {
-      const counts: { [key: string]: number } = {};
-
+      // Use a sequential loop with a small delay to avoid overwhelming the server/Firebase
       for (const team of filteredTeams) {
+        if (!isMounted) break;
+        
         try {
-          const response = await fetch(`/api/club/players/${team.id}`);
-          if (!response.ok) continue;
+          const response = await fetch(`/api/club/players/${encodeURIComponent(team.id)}`);
+          if (!response.ok) {
+            if (isMounted) {
+              setPlayerCounts(prev => ({ ...prev, [team.id]: 0 }));
+            }
+            continue;
+          }
           const data = await response.json();
-          counts[team.id] = data.players ? data.players.length : 0;
+          if (isMounted) {
+            setPlayerCounts(prev => ({ ...prev, [team.id]: data.players ? data.players.length : 0 }));
+          }
         } catch (error) {
           console.error('Error fetching players for', team.id, ':', error);
-          counts[team.id] = 0;
+          if (isMounted) {
+            setPlayerCounts(prev => ({ ...prev, [team.id]: 0 }));
+          }
         }
+        
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
-
-      setPlayerCounts(prev => ({ ...prev, ...counts }));
     };
 
     if (filteredTeams.length > 0) {
       fetchPlayerCounts();
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [filteredTeams]);
 
   return (

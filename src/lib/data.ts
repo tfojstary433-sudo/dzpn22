@@ -295,10 +295,10 @@ export const teams: Team[] = [
     stadium: 'Stadion im. Kazimierza Górskiego'
   },
   { 
-    id: 'GÓR', 
+    id: 'GOR', 
     name: 'Górnik Zabrze', 
     shortName: 'Górnik', 
-    logo: 'https://i.ibb.co/v653fphq/GORNIK-ZABRZE-1.png',
+    logo: 'https://i.ibb.co/JbKwtPG/obraz-2026-02-15-150938056-removebg-preview-1.png',
     color: '#dc2626',
     stadium: 'Stadion im. Ernesta Pohla'
   },
@@ -329,19 +329,17 @@ export const clubToFirebaseKey: { [key: string]: string } = {
   'LEG': 'Club 3', // Legia Warszawa
   'LPO': 'Club 4', // Lech Poznań
   'LGD': 'Club 5', // Lechia Gdańsk
-  'UNI': 'Club 6', // Unia Skierniewice
+  'WID': 'Club 6', // Widzew Łódź
   'POG': 'Club 7', // Pogoń Szczecin
   'ZAG': 'Club 8', // Zagłębie Lubin
   'SOK': 'Club 9', // Sokół Olsztyn
   'WIS': 'Club 10', // Wisła Kraków
   'GRO': 'Club 11', // Grom Nowy Staw
-  'MOT': 'Club 12', // Motor Lublin
-  'OLI': 'Club 13', // Olimpia Elbląg
+  'GOR': 'Club 12', // Górnik Zabrze
+  'MOT': 'Club 13', // Motor Lublin
   'RAK': 'Club 14', // Raków Częstochowa
   'JAG': 'Club 15', // Jagiellonia Białystok
   'WPL': 'Club 16', // Wisła Płock
-  'GÓR': 'Club 17', // Górnik Zabrze
-  'WID': 'Club 18', // Widzew Łódź
   'SED': 'Referee', // Sędziowie
   'MED': 'Media'     // Media
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Maximize2, Minimize2 } from 'lucide-react';
@@ -235,19 +235,48 @@ export function ScheduleTableOverlay({
           const fixturesData = Array.isArray(data) ? data : (data.fixtures || []);
           console.log('Fixtures array length:', fixturesData.length);
           if (Array.isArray(fixturesData) && fixturesData.length > 0) {
+            // Get unique dates sorted chronologically
+            const uniqueDates = [...new Set(fixturesData.map(f => f.date ? f.date.split(' ')[0] : ''))]
+              .filter(d => d !== '')
+              .sort((a, b) => {
+                const [da, ma, ya] = a.split('.').map(Number);
+                const [db, mb, yb] = b.split('.').map(Number);
+                return new Date(ya, ma-1, da).getTime() - new Date(yb, mb-1, db).getTime();
+              });
+
             // Map API data to expected format
-            const mappedFixtures = fixturesData.map(fixture => ({
-              id: fixture.matchUuid || fixture.id.toString(),
-              round: fixture.round,
-              date: fixture.date,
-              homeTeam: getTeamFromName(fixture.teamA),
-              awayTeam: getTeamFromName(fixture.teamB),
-              homeScore: fixture.scoreA,
-              awayScore: fixture.scoreB,
-              stadium: "Stadion",
-              category: "Liga",
-              status: ((fixture.status === 'played' || fixture.status === 'finished' || fixture.isFinished || (fixture.scoreA > 0 || fixture.scoreB > 0)) ? 'finished' : 'upcoming') as 'finished' | 'upcoming'
-            }));
+            const mappedFixtures = fixturesData.map(fixture => {
+              const datePart = fixture.date ? fixture.date.split(' ')[0] : '';
+              const dateIndex = uniqueDates.indexOf(datePart);
+              
+              // Every 3 unique dates constitute one round (as per user: "3 dni jedna kolejka")
+              // One round = 3 match days
+              let calculatedRound = 1;
+              if (dateIndex !== -1) {
+                calculatedRound = Math.floor(dateIndex / 3) + 1;
+              }
+              
+              return {
+                id: fixture.matchUuid || (fixture.id ? fixture.id.toString() : Math.random().toString()),
+                round: calculatedRound.toString(),
+                date: fixture.date,
+                homeTeam: getTeamFromName(fixture.teamA),
+                awayTeam: getTeamFromName(fixture.teamB),
+                homeScore: fixture.scoreA,
+                awayScore: fixture.scoreB,
+                stadium: fixture.group || "Stadion",
+                category: fixture.stage || "Mecz",
+                status: ((fixture.status === 'played' || fixture.status === 'finished' || fixture.isFinished || (fixture.scoreA !== null && fixture.scoreB !== null)) ? 'finished' : 'upcoming') as 'finished' | 'upcoming'
+              };
+            });
+            
+            // Sort fixtures by date
+            mappedFixtures.sort((a, b) => {
+              const dateA = safeParseDate(a.date).getTime();
+              const dateB = safeParseDate(b.date).getTime();
+              return dateA - dateB;
+            });
+
             console.log('Mapped fixtures:', mappedFixtures.slice(0, 3));
             setFixtures(mappedFixtures);
           } else {
@@ -269,12 +298,67 @@ export function ScheduleTableOverlay({
     fetchFixtures();
   }, []);
 
-  const allRounds = fixtures.length > 0 ? [...new Set(fixtures.map(m => m.round || m.matchday || 1))].sort((a, b) => Number(a) - Number(b)) : [1];
-  const currentRound = allRounds[roundIndex] || 1;
-  const roundMatches = fixtures.filter(m => (m.round || m.matchday || 1) === currentRound);
+  const allRounds = useMemo(() => fixtures.length > 0 
+    ? [...new Set(fixtures.map(m => m.round))].sort((a, b) => {
+        const numA = parseInt(a) || 0;
+        const numB = parseInt(b) || 0;
+        return numA - numB;
+      }) 
+    : ['1'], [fixtures]);
+  
+  const currentRound = useMemo(() => allRounds[roundIndex] || '1', [allRounds, roundIndex]);
+  const roundMatches = useMemo(() => fixtures.filter(m => m.round === currentRound), [fixtures, currentRound]);
+
+  // Auto-select current round only once on initial load
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  
+  useEffect(() => {
+    if (fixtures.length > 0 && allRounds.length > 0 && !hasAutoSelected) {
+      // Find the first round that has upcoming matches
+      const firstUpcomingMatch = fixtures.find(m => m.status === 'upcoming');
+      if (firstUpcomingMatch) {
+        const upcomingRound = firstUpcomingMatch.round;
+        const index = allRounds.indexOf(upcomingRound);
+        if (index !== -1) {
+          setRoundIndex(index);
+        }
+      } else {
+        // If all are finished, show the last round
+        setRoundIndex(allRounds.length - 1);
+      }
+      setHasAutoSelected(true);
+    }
+  }, [fixtures, allRounds, hasAutoSelected]);
+
+  const safeParseDate = (dateString: string) => {
+    if (!dateString) return new Date();
+    
+    // If it's already a ISO string or something new Date() likes
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) return date;
+    
+    // Try parsing DD.MM.YYYY HH:mm or DD.MM.YYYY
+    try {
+      const parts = dateString.split(/[\s,.:]+/);
+      if (parts.length >= 3) {
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1;
+        const year = parseInt(parts[2]);
+        const hour = parts[3] ? parseInt(parts[3]) : 0;
+        const minute = parts[4] ? parseInt(parts[4]) : 0;
+        const d = new Date(year, month, day, hour, minute);
+        if (!isNaN(d.getTime())) return d;
+      }
+    } catch (e) {}
+    
+    return new Date();
+  };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    if (dateString && dateString.includes('.') && !dateString.includes('-') && !dateString.includes('T')) {
+      return dateString.split(' ')[0];
+    }
+    const date = safeParseDate(dateString);
     return date.toLocaleDateString('pl-PL', {
       day: '2-digit',
       month: '2-digit',
@@ -283,7 +367,13 @@ export function ScheduleTableOverlay({
   };
 
   const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
+    if (!dateString) return '--:--';
+    // If it's in format DD.MM.YYYY HH:mm, just extract HH:mm
+    const parts = dateString.split(' ');
+    if (parts.length >= 2 && parts[1].includes(':')) {
+      return parts[1];
+    }
+    const date = safeParseDate(dateString);
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',
@@ -470,8 +560,9 @@ export function ScheduleTableOverlay({
               ←
             </button>
             <div className="flex flex-col items-center">
-              <span className="text-[10px] font-black text-white/40 tracking-[0.2em] mb-0.5 uppercase">EKSTRAKLASA</span>
-              <span className="font-black text-lg tracking-tighter">{currentRound}. KOLEJKA</span>
+              <span className="font-black text-lg tracking-tighter uppercase">
+                {currentRound}. KOLEJKA
+              </span>
             </div>
             <button
               onClick={() => setRoundIndex(Math.min(allRounds.length - 1, roundIndex + 1))}
