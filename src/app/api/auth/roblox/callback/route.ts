@@ -1,10 +1,39 @@
 import { NextResponse } from 'next/server';
+import admin from 'firebase-admin';
+import path from 'path';
+import fs from 'fs';
+
+// Initialize Firebase Admin
+function initFirebase() {
+  if (!admin.apps.length) {
+    try {
+      const serviceAccountPath = path.join(process.cwd(), 'serviceaccount.json');
+      if (fs.existsSync(serviceAccountPath)) {
+        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+          databaseURL: 'https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/'
+        });
+      }
+    } catch (e) {
+      console.error('Firebase init error:', e);
+    }
+  }
+  return admin.apps.length ? admin.database() : null;
+}
 
 const CLIENT_ID = process.env.ROBLOX_CLIENT_ID || '8976718339232083701';
 const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET || 'RBX-9Q7xxduyr0SyvmSDQWOIy71nItoqZJc3z1jNpuHSBitQCy3zb3XY6mSlB9zSbVpD';
+
 export async function GET(request: Request) {
+  const db = initFirebase();
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
+
+  // Pobieramy IP użytkownika
+  const forwardHeader = request.headers.get('x-forwarded-for');
+  const ip = forwardHeader ? forwardHeader.split(',')[0].trim() : '127.0.0.1';
+  const ipKey = ip.replace(/\./g, '_').replace(/:/g, '_'); // Bezpieczny klucz dla Firebase
 
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;
@@ -63,9 +92,27 @@ export async function GET(request: Request) {
     });
 
     const userData = await userResponse.json();
+    const robloxId = userData.sub;
+
+    // Sprawdzenie multikont po IP
+    if (db) {
+      const ipRef = db.ref('IP_Mappings').child(ipKey);
+      const snapshot = await ipRef.once('value');
+      const existingRobloxId = snapshot.val();
+
+      if (existingRobloxId && String(existingRobloxId) !== String(robloxId)) {
+        console.warn(`Blokada multikonta: IP ${ip} jest już przypisane do Roblox ID ${existingRobloxId}. Próba logowania z ${robloxId}.`);
+        return NextResponse.json({ 
+          error: 'Wykryto próbę logowania z multikonta. Twoje IP jest już powiązane z innym kontem Roblox.' 
+        }, { status: 403 });
+      }
+
+      // Zapisujemy/Aktualizujemy mapowanie IP -> Roblox ID
+      await ipRef.set(robloxId);
+    }
 
     return NextResponse.json({
-        robloxId: userData.sub,
+        robloxId: robloxId,
         robloxUsername: userData.preferred_username || userData.name
     });
   } catch (error) {
