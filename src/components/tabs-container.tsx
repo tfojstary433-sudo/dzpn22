@@ -5,21 +5,24 @@ import { MatchSchedule } from "./match-schedule";
 import { LeagueTable } from "./league-table";
 import { Statistics } from "./statistics";
 
-type Tab = "terminarz" | "tabela" | "statystyki";
+type Tab = "terminarz" | "tabela" | "statystyki" | "live";
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: "live", label: "NA ŻYWO" },
   { id: "terminarz", label: "TERMINARZ" },
   { id: "tabela", label: "TABELA" },
   { id: "statystyki", label: "STATYSTYKI" },
 ];
 
 export function TabsContainer() {
-  const [activeTab, setActiveTab] = useState<Tab>("terminarz");
+  const [activeTab, setActiveTab] = useState<Tab>("live");
 
   useEffect(() => {
     const hash = window.location.hash.slice(1) as Tab;
     if (hash && TABS.some(t => t.id === hash)) {
       setActiveTab(hash);
+    } else if (!hash) {
+      setActiveTab("live");
     }
 
     const handleHashChange = () => {
@@ -58,7 +61,8 @@ export function TabsContainer() {
         </div>
 
         <div className="mt-8">
-          {activeTab === "terminarz" && <MatchSchedule isInTab={true} />}
+          {activeTab === "live" && <MatchSchedule isInTab={true} initialTab="live" />}
+          {activeTab === "terminarz" && <MatchSchedule isInTab={true} initialTab="terminarz" />}
           {activeTab === "tabela" && <LeagueTable isInTab={true} />}
           {activeTab === "statystyki" && <Statistics isInTab={true} />}
         </div>

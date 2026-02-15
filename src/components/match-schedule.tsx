@@ -230,8 +230,8 @@ function MatchCard({ match, isLive = false, isFinished = false, liveData, finish
   );
 }
 
-export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
-  const [activeMainTab, setActiveMainTab] = useState<'terminarz' | 'live'>('terminarz');
+export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { isInTab?: boolean; initialTab?: 'terminarz' | 'live' } = {}) {
+  const [activeMainTab, setActiveMainTab] = useState<'terminarz' | 'live'>(initialTab);
   const [liveMatches, setLiveMatches] = useState<LiveMatch[]>([]);
   const [loadingLive, setLoadingLive] = useState(false);
   const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
@@ -279,7 +279,7 @@ export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
               round: 1
             };
           });
-          setLiveMatches([]); // Zmiana na życzenie: wyzerowanie meczów live
+          setLiveMatches(mappedMatches);
         } else {
           setLiveMatches([]);
         }
@@ -319,7 +319,7 @@ export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
               status: ((fixture.status === 'played' || fixture.status === 'finished' || fixture.isFinished || (fixture.homeScore > 0 || fixture.scoreA > 0 || fixture.awayScore > 0 || fixture.scoreB > 0)) ? 'finished' : 'upcoming') as 'finished' | 'upcoming'
             }));
             console.log('Mapped fixtures:', mappedFixtures.slice(0, 3));
-            setFixtures([]); // Zmiana na życzenie: wyzerowanie terminarza
+            setFixtures(mappedFixtures);
           } else {
             console.log('No fixtures data or empty array');
             setFixtures([]);
@@ -327,12 +327,12 @@ export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
         } else {
           console.error('Failed to fetch fixtures, status:', response.status);
           // Fallback to local data
-          setFixtures([]); // Zmiana na życzenie: wyzerowanie terminarza
+          setFixtures([]);
         }
       } catch (error) {
         console.error('Error fetching fixtures:', error);
         // Fallback to local data
-        setFixtures([]); // Zmiana na życzenie: wyzerowanie terminarza
+        setFixtures([]);
       } finally {
         setLoadingFixtures(false);
       }
