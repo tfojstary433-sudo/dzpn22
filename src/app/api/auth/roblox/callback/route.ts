@@ -127,7 +127,7 @@ export async function GET(request: Request) {
     if (existingRobloxId && String(existingRobloxId) !== String(robloxId)) {
       console.warn(`[BLOCK] IP ${clientIp} is already linked to Roblox ${existingRobloxId}. User tried to use ${robloxId}.`);
       return NextResponse.json({ 
-        error: 'To IP jest już przypisane do innego konta Roblox. Nie możesz używać multikont na tej stronie.' 
+        error: '[PFF Blocker] Wykryto multikonto! To IP jest już powiązane z innym kontem Roblox. Połączenie zostało przerwane ⚠️' 
       }, { status: 403 });
     }
 

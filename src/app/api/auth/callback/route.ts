@@ -143,7 +143,7 @@ export async function GET(request: Request) {
     if (existingDiscordId && String(existingDiscordId) !== String(discordId)) {
       console.warn(`[BLOCK DISCORD] IP ${clientIp} already linked to Discord ${existingDiscordId}. Blocked ${discordId}.`);
       return NextResponse.json({ 
-        error: 'To IP jest już powiązane z innym kontem Discord. Nie możesz używać multikont na tej stronie.' 
+        error: '[PFF Blocker] Wykryto multikonto! To IP jest już powiązane z innym kontem Discord. Połączenie zostało przerwane ⚠️' 
       }, { status: 403 });
     }
 
