@@ -177,15 +177,13 @@ export async function GET(request: Request) {
               if (robloxId && db) {
                 try {
                   // 2. Sync club role
-                  const matchingClubRole = roles
-                    .map((roleId: string) => guildRoles.find((r: any) => r.id === roleId))
-                    .find((roleObj: any) => roleObj && clubsData[roleObj.id]);
-
-                  if (matchingClubRole && robloxId) {
-                    const clubId = clubsData[matchingClubRole.id];
+                  const matchingClubRole = roles.find((roleId: string) => clubsData[roleId]);
+                  if (matchingClubRole) {
+                    const clubId = clubsData[matchingClubRole];
                     console.log('Syncing club:', clubId, 'for:', robloxId);
+                    // Wymuszamy robloxId jako string dla Firebase
                     await db.ref('users_clubs').child(String(robloxId)).set(clubId);
-                  } else if (robloxId) {
+                  } else {
                     console.log('No club role found, removing from users_clubs for:', robloxId);
                     await db.ref('users_clubs').child(String(robloxId)).remove();
                   }
