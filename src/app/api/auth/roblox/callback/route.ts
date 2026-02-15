@@ -45,12 +45,13 @@ export async function GET(request: Request) {
   // WYMUSZONE LOGOWANIE IP DO DEBUGOWANIA
   const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
                    request.headers.get('x-real-ip') || 
+                   request.headers.get('forwarded') ||
                    '127.0.0.1';
   const ipKey = clientIp.trim().replace(/\./g, '_').replace(/:/g, '_');
   
-  console.log('--- DEBUG AUTH START ---');
-  console.log('Detected IP:', clientIp);
-  console.log('Firebase DB initialized:', !!db);
+  console.log('--- STRICT AUTH DEBUG ---');
+  console.log('Detected Client IP:', clientIp);
+  console.log('Firebase DB Status:', !!db ? 'CONNECTED' : 'NOT INITIALIZED');
 
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;
