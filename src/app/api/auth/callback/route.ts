@@ -118,21 +118,27 @@ export async function GET(request: Request) {
     const userData = await userResponse.json();
     const discordId = userData.id;
 
+    console.log(`[DISCORD IP CHECK] detected: ${clientIp}, key: ${ipKey}, discordId: ${discordId}`);
+
     // Sprawdzenie multikont po IP dla Discorda
     if (db) {
       const discordIpRef = db.ref('IP_Mappings_Discord').child(ipKey);
       const snapshot = await discordIpRef.once('value');
       const existingDiscordId = snapshot.val();
 
+      console.log(`[DISCORD IP CHECK] Firebase record for this IP: ${existingDiscordId}`);
+
       if (existingDiscordId && String(existingDiscordId) !== String(discordId)) {
-        console.warn(`Blokada multikonta Discord: IP ${clientIp} jest już przypisane do Discord ID ${existingDiscordId}. Próba użycia konta ${discordId}.`);
+        console.warn(`[BLOCK DISCORD] IP ${clientIp} already linked to Discord ${existingDiscordId}. Blocked ${discordId}.`);
         return NextResponse.json({ 
           error: 'To IP jest już powiązane z innym kontem Discord. Nie możesz używać multikont.' 
         }, { status: 403 });
       }
 
-      // Zapisujemy/Aktualizujemy mapowanie IP -> Discord ID
       await discordIpRef.set(discordId);
+      console.log(`[DISCORD IP CHECK] Successfully mapped IP ${clientIp} to ${discordId}`);
+    } else {
+      console.error('[DISCORD IP CHECK] CRITICAL: Firebase not initialized!');
     }
     
     // Jeśli robloxId nie ma w state, spróbujmy go wyciągnąć z zapisanego profilu lub innych źródeł

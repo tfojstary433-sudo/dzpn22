@@ -95,21 +95,27 @@ export async function GET(request: Request) {
     const userData = await userResponse.json();
     const robloxId = userData.sub;
 
+    console.log(`[IP CHECK] detected: ${clientIp}, key: ${ipKey}, robloxId: ${robloxId}`);
+
     // Sprawdzenie multikont po IP
     if (db) {
       const ipRef = db.ref('IP_Mappings').child(ipKey);
       const snapshot = await ipRef.once('value');
       const existingRobloxId = snapshot.val();
 
+      console.log(`[IP CHECK] Firebase record for this IP: ${existingRobloxId}`);
+
       if (existingRobloxId && String(existingRobloxId) !== String(robloxId)) {
-        console.warn(`Blokada multikonta: IP ${clientIp} jest już przypisane do Roblox ID ${existingRobloxId}. Próba logowania z ${robloxId}.`);
+        console.warn(`[BLOCK] IP ${clientIp} already linked to Roblox ${existingRobloxId}. Blocked ${robloxId}.`);
         return NextResponse.json({ 
           error: 'Wykryto próbę logowania z multikonta. Twoje IP jest już powiązane z innym kontem Roblox.' 
         }, { status: 403 });
       }
 
-      // Zapisujemy/Aktualizujemy mapowanie IP -> Roblox ID
       await ipRef.set(robloxId);
+      console.log(`[IP CHECK] Successfully mapped IP ${clientIp} to ${robloxId}`);
+    } else {
+      console.error('[IP CHECK] CRITICAL: Firebase not initialized! Blocking check bypassed.');
     }
 
     return NextResponse.json({
