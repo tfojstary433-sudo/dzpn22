@@ -90,7 +90,10 @@ export function CompactMatchCountdown({ isMinimized = false }: { isMinimized?: b
         const apiMatches = await response.json();
         
         if (Array.isArray(apiMatches)) {
-          const hasActive = apiMatches.some((m: any) => m.isActive || m.status === 'active');
+          const hasActive = apiMatches.some((m: any) => 
+            m.isActive === true || 
+            (['active', 'live', 'playing'].includes(m.status) && m.status !== 'scheduled' && m.status !== 'finished')
+          );
           setHasLiveMatch(hasActive);
         } else {
           setHasLiveMatch(false);

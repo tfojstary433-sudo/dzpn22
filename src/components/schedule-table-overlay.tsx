@@ -148,7 +148,10 @@ export function ScheduleTableOverlay({
         const apiMatchesList = Array.isArray(apiMatches) ? apiMatches : [];
         
         for (const apiMatch of apiMatchesList) {
-          if (apiMatch.isActive || apiMatch.status === 'active') {
+          const isActuallyActive = apiMatch.isActive === true || 
+            (['active', 'live', 'playing'].includes(apiMatch.status) && apiMatch.status !== 'scheduled' && apiMatch.status !== 'finished');
+
+          if (isActuallyActive) {
             const matchInSchedule = fixtures.find(m => {
               const ta = normalize(apiMatch.teamA);
               const tb = normalize(apiMatch.teamB);

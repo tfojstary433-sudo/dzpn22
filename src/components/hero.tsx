@@ -133,7 +133,10 @@ export function Hero({
         const matchesData = await liveResponse.json();
 
         const apiMatches = Array.isArray(matchesData) ? matchesData : [];
-        const active = apiMatches.find((m: ApiMatch) => m.isActive || m.status === 'active');
+        const active = apiMatches.find((m: ApiMatch) => 
+          m.isActive === true || 
+          (['active', 'live', 'playing'].includes(m.status) && m.status !== 'scheduled' && m.status !== 'finished')
+        );
         
         if (active) {
           try {

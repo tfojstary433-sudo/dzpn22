@@ -79,7 +79,7 @@ export function LiveMatch() {
         }
 
         // Find active match that matches our schedule
-        const active = matches.find(m => (m.isActive || m.status === 'active') && scheduledMatches.some(sm =>
+        const active = matches.find(m => (m.isActive === true || (['active', 'live', 'playing'].includes(m.status) && m.status !== 'scheduled' && m.status !== 'finished')) && scheduledMatches.some(sm =>
           (sm.homeTeam.name === m.teamA || sm.homeTeam.shortName === m.teamA) &&
           (sm.awayTeam.name === m.teamB || sm.awayTeam.shortName === m.teamB)
         ));

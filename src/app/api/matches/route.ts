@@ -15,7 +15,7 @@ export async function GET() {
         if (list.length > 0) {
           const mapped = list.map((m: any) => ({
             uuid: m.uuid || m.id || 'unknown',
-            isActive: m.isActive === true || m.status === 'active' || m.status === 'live' || m.status === 'playing' || (m.timer && m.timer !== '0:00' && m.status !== 'finished'),
+            isActive: m.isActive === true || m.status === 'active' || m.status === 'live' || m.status === 'playing' || (m.timer && m.timer !== '0:00' && m.timer !== '00:00' && m.status !== 'finished' && m.status !== 'scheduled'),
             status: m.status || (m.isActive ? 'active' : 'unknown'),
             teamA: m.teamA || m.homeTeam || 'Team A',
             teamB: m.teamB || m.awayTeam || 'Team B',
@@ -39,7 +39,7 @@ export async function GET() {
         if (m && (m.isActive || m.status === 'active')) {
           const formatted = [{
             uuid: m.uuid || m.id || 'live-match-1',
-            isActive: m.isActive === true || m.status === 'active' || m.status === 'live' || m.status === 'playing' || (m.timer && m.timer !== '0:00' && m.status !== 'finished'),
+            isActive: m.isActive === true || m.status === 'active' || m.status === 'live' || m.status === 'playing' || (m.timer && m.timer !== '0:00' && m.timer !== '00:00' && m.status !== 'finished' && m.status !== 'scheduled'),
             status: m.status || (m.isActive ? 'active' : 'unknown'),
             teamA: m.teamA || m.homeTeam || 'Team A',
             teamB: m.teamB || m.awayTeam || 'Team B',

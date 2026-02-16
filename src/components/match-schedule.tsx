@@ -266,7 +266,7 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
           m.status === 'active' || 
           m.status === 'live' || 
           m.status === 'playing' ||
-          (m.timer && m.timer !== '0:00' && m.status !== 'finished')
+          (m.timer && m.timer !== '0:00' && m.timer !== '00:00' && m.status !== 'finished' && m.status !== 'scheduled')
         );
 
         if (activeMatches.length > 0) {
