@@ -715,7 +715,7 @@ export default function MatchDetail() {
         setIsMatchFinished(true);
       }
     }
-  }, [preMatchInfo, isMatchActive]);
+  }, [preMatchInfo, isMatchActive, id, match]);
 
   useEffect(() => {
     if (apiData?.match) {
@@ -735,7 +735,7 @@ export default function MatchDetail() {
       // If we have a match object from API, we definitely have data
       setHasFetchedOnce(true);
     }
-  }, [apiData]);
+  }, [apiData, isMatchActive]);
 
   useEffect(() => {
     if (isMatchFinished && !hasAutoSwitched.current) {

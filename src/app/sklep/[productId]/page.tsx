@@ -371,12 +371,12 @@ export default function ProductDetailPage() {
 
                 {message && (
                   <div className={`mb-8 p-6 rounded-2xl border animate-in fade-in slide-in-from-top-4 duration-500 ${
-                    message.type === 'success' 
+                    message?.type === 'success' 
                     ? 'bg-green-500/10 border-green-500/30 text-green-400' 
                     : 'bg-red-500/10 border-red-500/30 text-red-400'
                   }`}>
                     <p className="font-bold flex items-center gap-2">
-                      {message.type === 'success' ? '✓' : '✕'} {message.text}
+                      {message?.type === 'success' ? '✓' : '✕'} {message?.text}
                     </p>
                   </div>
                 )}
