@@ -692,7 +692,7 @@ export default function MatchDetail() {
     fetchMatchData(true);
     const interval = setInterval(() => fetchMatchData(false), 5000);
     return () => clearInterval(interval);
-  }, [id]); // Only re-run when ID changes
+  }, [id, apiData?.match?.isActive, apiData?.match?.status, match, preMatchInfo]); // Only re-run when ID or match status changes
 
   useEffect(() => {
     if (preMatchInfo) {

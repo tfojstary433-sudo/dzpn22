@@ -564,8 +564,8 @@ export default function SklepPage() {
         <>
           {/* Message alert */}
           {message && (
-            <div className={`mx-4 mt-4 p-4 rounded-2xl border ${message.type === 'success' ? 'bg-green-500/10 border-green-500/50 text-green-400' : 'bg-red-500/10 border-red-500/50 text-red-400'}`}>
-              {message.text}
+            <div className={`mx-4 mt-4 p-4 rounded-2xl border ${message?.type === 'success' ? 'bg-green-500/10 border-green-500/50 text-green-400' : 'bg-red-500/10 border-red-500/50 text-red-400'}`}>
+              {message?.text}
             </div>
           )}
 
