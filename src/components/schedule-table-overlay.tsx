@@ -384,7 +384,7 @@ export function ScheduleTableOverlay({
   };
 
   return (
-    <div className={`fixed right-4 top-1/2 -translate-y-1/2 w-96 z-50 transition-all duration-300 ${isMinimized ? 'translate-x-[340px]' : 'translate-x-0'}`}>
+    <div className={`fixed right-4 top-1/2 -translate-y-1/2 w-96 z-50 transition-all duration-300 hidden lg:block ${isMinimized ? 'translate-x-[340px]' : 'translate-x-0'}`}>
       {/* Toggle Button */}
       <button
         onClick={() => setIsMinimized(!isMinimized)}
