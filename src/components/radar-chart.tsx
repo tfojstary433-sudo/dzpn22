@@ -103,7 +103,7 @@ export function RadarChart({ stats, color = '#ff0000' }: RadarChartProps) {
           const { x, y } = getLabelPoint(angle);
           
           // Adjust text anchor based on position
-          let textAnchor = "middle";
+          let textAnchor: "start" | "middle" | "end" = "middle";
           if (x < center - 20) textAnchor = "end";
           if (x > center + 20) textAnchor = "start";
 
