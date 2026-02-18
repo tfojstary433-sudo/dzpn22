@@ -1803,212 +1803,223 @@ export default function MatchDetail() {
                 {/* Tab Content for non-active matches */}
                 {activeTab === 'składy' && (
                   <div className="w-full mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    {(apiData?.match?.lineupA?.starters?.length || apiData?.match?.lineupB?.starters?.length) ? (
-                      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                        {/* Home Team Column */}
-                        <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-2 lg:order-1">
-                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-                                <img src={homeTeam.logo} alt="" className="w-8 h-8 object-contain opacity-60" />
-                              </div>
-                              <div>
-                                <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
-                                <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {apiData?.match?.lineupA?.formation || '4-3-3'}</p>
-                              </div>
-                            </div>
+                    {(() => {
+                      const mData = apiData?.match || apiData || preMatchInfo;
+                      const lineupA = mData?.lineupA;
+                      const lineupB = mData?.lineupB;
+                      const hasLineups = (lineupA?.starters?.length > 0 || lineupB?.starters?.length > 0);
 
-                            <div className="space-y-4">
-                              {apiData?.match?.lineupA ? (
-                                <>
-                                  <div>
-                                    <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
-                                    <div className="space-y-2">
-                                      {apiData?.match?.lineupA?.starters?.map((p, idx) => (
-                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
-                                          <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                            <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                                          </div>
-                                          <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors">{p.name}</span>
-                                          {p.position && <span className="text-[8px] font-black text-white/10 ml-auto uppercase">{p.position}</span>}
-                                        </div>
-                                      ))}
-                                    </div>
+                      if (hasLineups) {
+                        return (
+                          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+                            {/* Home Team Column */}
+                            <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-2 lg:order-1">
+                              <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
+                                <div className="flex items-center gap-4 mb-6">
+                                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+                                    <img src={homeTeam.logo} alt="" className="w-8 h-8 object-contain opacity-60" />
                                   </div>
+                                  <div>
+                                    <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
+                                    <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {lineupA?.formation || '4-3-3'}</p>
+                                  </div>
+                                </div>
 
-                                  {apiData?.match?.lineupA?.bench && apiData?.match?.lineupA?.bench.length > 0 && (
-                                    <div className="pt-4 border-t border-white/10">
-                                      <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
-                                      <div className="space-y-2">
-                                        {apiData?.match?.lineupA?.bench.map((p, idx) => (
-                                          <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
-                                            <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                              <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
+                                <div className="space-y-4">
+                                  {lineupA && lineupA.starters?.length > 0 ? (
+                                    <>
+                                      <div>
+                                        <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
+                                        <div className="space-y-2">
+                                          {lineupA.starters.map((p: any, idx: number) => (
+                                            <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
+                                              <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                                <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
+                                              </div>
+                                              <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors">{p.name}</span>
+                                              {p.position && <span className="text-[8px] font-black text-white/10 ml-auto uppercase">{p.position}</span>}
                                             </div>
-                                            <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors">{p.name}</span>
-                                          </div>
-                                        ))}
+                                          ))}
+                                        </div>
                                       </div>
+
+                                      {lineupA.bench && lineupA.bench.length > 0 && (
+                                        <div className="pt-4 border-t border-white/10">
+                                          <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
+                                          <div className="space-y-2">
+                                            {lineupA.bench.map((p: any, idx: number) => (
+                                              <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
+                                                <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                                  <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
+                                                </div>
+                                                <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors">{p.name}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
+                                      <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
                                     </div>
                                   )}
-                                </>
-                              ) : (
-                                <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
-                                  <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Pitch Column */}
-                        <div className="w-full lg:flex-1 order-1 lg:order-2">
-                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl relative overflow-hidden h-full">
-                            <h3 className="text-white/60 text-2xl font-black text-center mb-8 tracking-[0.2em] uppercase relative z-10">BOISKO</h3>
-                            
-                            <div className="relative aspect-[3/2] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
-                              <div className="absolute inset-0 bg-[#0a101f]/40">
-                                {/* Field Markings */}
-                                <div className="absolute inset-0 border-2 border-white/10"></div>
-                                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white/10"></div>
-                                
-                                {/* Center Circle */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
-                                  <img 
-                                    src="https://i.ibb.co/pBJgbXxn/image.png" 
-                                    alt="" 
-                                    className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
-                                  />
-                                </div>
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                                
-                                <div className="absolute top-1/2 left-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-l-0"></div>
-                                <div className="absolute top-1/2 left-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-l-0"></div>
-                                
-                                <div className="absolute top-1/2 right-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-r-0"></div>
-                                <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-r-0"></div>
-                                
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
-                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
-                                
-                                <div className="absolute top-1/2 left-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-                                <div className="absolute top-1/2 right-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-                                
-                                <svg className="absolute top-3 left-3 w-3 h-3" viewBox="0 0 10 10">
-                                  <path d="M 0 10 Q 0 0 10 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                </svg>
-                                <svg className="absolute top-3 right-3 w-3 h-3" viewBox="0 0 10 10">
-                                  <path d="M 10 10 Q 10 0 0 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                </svg>
-                                <svg className="absolute bottom-3 left-3 w-3 h-3" viewBox="0 0 10 10">
-                                  <path d="M 0 0 Q 0 10 10 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                </svg>
-                                <svg className="absolute bottom-3 right-3 w-3 h-3" viewBox="0 0 10 10">
-                                  <path d="M 10 0 Q 10 10 0 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                </svg>
-
-                                {/* Players on Field */}
-                                <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
-                                  <div className="relative w-full h-full">
-                                    {(() => {
-                                      const homePositions = calculateSmartPositions(apiData?.match?.lineupA?.starters || [], 'home', apiData?.match?.lineupA?.formation);
-                                      const awayPositions = calculateSmartPositions(apiData?.match?.lineupB?.starters || [], 'away', apiData?.match?.lineupB?.formation);
-                                      
-                                      return [
-                                        ...(apiData?.match?.lineupA?.starters || []).map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
-                                        ...(apiData?.match?.lineupB?.starters || []).map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
-                                      ].map((player, idx) => {
-                                        if (!player.pos) return null;
-                                        return (
-                                          <Link 
-                                            key={`${player.team}-${player.name}`} 
-                                            href={`/gracz/${player.name}`}
-                                            className="absolute flex flex-col items-center group cursor-pointer"
-                                            style={{ 
-                                              left: player.pos.x, 
-                                              top: player.pos.y,
-                                              transform: 'translate(-50%, -50%)',
-                                              zIndex: 20
-                                            }}
-                                          >
-                                            <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-white shadow-lg overflow-hidden transition-transform group-hover:scale-125 bg-gray-900`}>
-                                              <RobloxAvatar username={player.name} className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
-                                              {player.name.split(' ').pop()}
-                                            </div>
-                                          </Link>
-                                        );
-                                      });
-                                    })()}
-                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
 
-                        {/* Away Team Column */}
-                        <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-3 lg:order-3">
-                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
-                            <div className="flex items-center gap-4 mb-6 lg:flex-row-reverse">
-                              <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center shadow-lg">
-                                <img src={awayTeam.logo} alt="" className="w-8 h-8 object-contain" />
-                              </div>
-                              <div className="lg:text-right">
-                                <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
-                                <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {apiData?.match?.lineupB?.formation || '4-3-3'}</p>
-                              </div>
-                            </div>
-
-                            <div className="space-y-4">
-                              {apiData?.match?.lineupB ? (
-                                <>
-                                  <div>
-                                    <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
-                                    <div className="space-y-2">
-                                      {apiData?.match?.lineupB?.starters?.map((p, idx) => (
-                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
-                                          <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
-                                            <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                                          </div>
-                                          <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors text-right">{p.name}</span>
-                                          {p.position && <span className="text-[8px] font-black text-white/10 mr-auto uppercase">{p.position}</span>}
-                                        </div>
-                                      ))}
+                            {/* Pitch Column */}
+                            <div className="w-full lg:flex-1 order-1 lg:order-2">
+                              <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl relative overflow-hidden h-full">
+                                <h3 className="text-white/60 text-2xl font-black text-center mb-8 tracking-[0.2em] uppercase relative z-10">BOISKO</h3>
+                                
+                                <div className="relative aspect-[3/2] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                                  <div className="absolute inset-0 bg-[#0a101f]/40">
+                                    {/* Field Markings */}
+                                    <div className="absolute inset-0 border-2 border-white/10"></div>
+                                    <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white/10"></div>
+                                    
+                                    {/* Center Circle */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
+                                      <img 
+                                        src="https://i.ibb.co/pBJgbXxn/image.png" 
+                                        alt="" 
+                                        className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
+                                      />
                                     </div>
-                                  </div>
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                                    
+                                    <div className="absolute top-1/2 left-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-l-0"></div>
+                                    <div className="absolute top-1/2 left-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-l-0"></div>
+                                    
+                                    <div className="absolute top-1/2 right-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-r-0"></div>
+                                    <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-r-0"></div>
+                                    
+                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
+                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
+                                    
+                                    <div className="absolute top-1/2 left-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
+                                    <div className="absolute top-1/2 right-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
+                                    
+                                    <svg className="absolute top-3 left-3 w-3 h-3" viewBox="0 0 10 10">
+                                      <path d="M 0 10 Q 0 0 10 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                    </svg>
+                                    <svg className="absolute top-3 right-3 w-3 h-3" viewBox="0 0 10 10">
+                                      <path d="M 10 10 Q 10 0 0 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                    </svg>
+                                    <svg className="absolute bottom-3 left-3 w-3 h-3" viewBox="0 0 10 10">
+                                      <path d="M 0 0 Q 0 10 10 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                    </svg>
+                                    <svg className="absolute bottom-3 right-3 w-3 h-3" viewBox="0 0 10 10">
+                                      <path d="M 10 0 Q 10 10 0 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                    </svg>
 
-                                  {apiData?.match?.lineupB?.bench && apiData?.match?.lineupB?.bench.length > 0 && (
-                                    <div className="pt-4 border-t border-white/5">
-                                      <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
-                                      <div className="space-y-2">
-                                        {apiData?.match?.lineupB?.bench.map((p, idx) => (
-                                          <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
-                                            <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                              <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
-                                            </div>
-                                            <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors text-right">{p.name}</span>
-                                          </div>
-                                        ))}
+                                    {/* Players on Field */}
+                                    <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
+                                      <div className="relative w-full h-full">
+                                        {(() => {
+                                          const homePositions = calculateSmartPositions(lineupA?.starters || [], 'home', lineupA?.formation);
+                                          const awayPositions = calculateSmartPositions(lineupB?.starters || [], 'away', lineupB?.formation);
+                                          
+                                          return [
+                                            ...(lineupA?.starters || []).map((p: any) => ({ ...p, team: 'home', pos: homePositions[p.name] })),
+                                            ...(lineupB?.starters || []).map((p: any) => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
+                                          ].map((player, idx) => {
+                                            if (!player.pos) return null;
+                                            return (
+                                              <Link 
+                                                key={`${player.team}-${player.name}`} 
+                                                href={`/gracz/${player.name}`}
+                                                className="absolute flex flex-col items-center group cursor-pointer"
+                                                style={{ 
+                                                  left: player.pos.x, 
+                                                  top: player.pos.y,
+                                                  transform: 'translate(-50%, -50%)',
+                                                  zIndex: 20
+                                                }}
+                                              >
+                                                <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-white shadow-lg overflow-hidden transition-transform group-hover:scale-125 bg-gray-900`}>
+                                                  <RobloxAvatar username={player.name} className="w-full h-full object-cover" />
+                                                </div>
+                                                <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
+                                                  {player.name.split(' ').pop()}
+                                                </div>
+                                              </Link>
+                                            );
+                                          });
+                                        })()}
                                       </div>
                                     </div>
-                                  )}
-                                </>
-                              ) : (
-                                <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
-                                  <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
+                                  </div>
                                 </div>
-                              )}
+                              </div>
+                            </div>
+
+                            {/* Away Team Column */}
+                            <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-3 lg:order-3">
+                              <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
+                                <div className="flex items-center gap-4 mb-6 lg:flex-row-reverse">
+                                  <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center shadow-lg">
+                                    <img src={awayTeam.logo} alt="" className="w-8 h-8 object-contain" />
+                                  </div>
+                                  <div className="lg:text-right">
+                                    <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
+                                    <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {lineupB?.formation || '4-3-3'}</p>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                  {lineupB && lineupB.starters?.length > 0 ? (
+                                    <>
+                                      <div>
+                                        <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
+                                        <div className="space-y-2">
+                                          {lineupB.starters.map((p: any, idx: number) => (
+                                            <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
+                                              <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
+                                                <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
+                                              </div>
+                                              <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors text-right">{p.name}</span>
+                                              {p.position && <span className="text-[8px] font-black text-white/10 mr-auto uppercase">{p.position}</span>}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+
+                                      {lineupB.bench && lineupB.bench.length > 0 && (
+                                        <div className="pt-4 border-t border-white/5">
+                                          <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
+                                          <div className="space-y-2">
+                                            {lineupB.bench.map((p: any, idx: number) => (
+                                              <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
+                                                <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                                  <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
+                                                </div>
+                                                <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors text-right">{p.name}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
+                                      <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 w-full max-w-4xl mx-auto text-center">
-                        <p className="text-white/30 italic">Składy zostaną ogłoszone przed rozpoczęciem meczu</p>
-                      </div>
-                    )}
+                        );
+                      } else {
+                        return (
+                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 w-full max-w-4xl mx-auto text-center">
+                            <p className="text-white/30 italic">Składy zostaną ogłoszone przed rozpoczęciem meczu</p>
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
                 )}
               </div>
