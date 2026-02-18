@@ -253,26 +253,34 @@ const calculateSmartPositions = (starters: Array<{name: string; id?: string; pos
     const pos = (p.position || '').toUpperCase().trim();
     if (pos.includes('GK') || pos === 'BR' || pos === 'BRAMKARZ' || pos === 'B') {
       positionGroups.GK.push(p);
-    } else if (pos.includes('DEF') || pos.includes('CB') || pos.includes('LB') || pos.includes('RB') || pos === 'ŚO' || pos === 'LO' || pos === 'PO' || pos === 'LWB' || pos === 'RWB' || pos === 'O') {
+    } else if (
+      pos.includes('DEF') || pos.includes('CB') || pos.includes('LB') || pos.includes('RB') || 
+      pos === 'ŚO' || pos === 'LO' || pos === 'PO' || pos === 'LWB' || pos === 'RWB' || 
+      pos === 'O' || pos === 'OB' || pos === 'OBRONA' || pos === 'SO'
+    ) {
       positionGroups.DEF.push(p);
-    } else if (pos.includes('MID') || pos.includes('CM') || pos.includes('CDM') || pos.includes('CAM') || pos.includes('LM') || pos.includes('RM') || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || pos === 'LP' || pos === 'P') {
+    } else if (
+      pos.includes('MID') || pos.includes('CM') || pos.includes('CDM') || pos.includes('CAM') || 
+      pos.includes('LM') || pos.includes('RM') || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || 
+      pos === 'LP' || pos === 'P' || pos === 'POMOC' || pos === 'SP' || pos === 'SPD'
+    ) {
       positionGroups.MID.push(p);
     } else {
       positionGroups.ATT.push(p);
     }
   });
   
-  // X positions for 4-3-3
+  // X positions for a full pitch view
   const xPositions: Record<string, number> = side === 'home' ? {
     GK: 8,
-    DEF: 20,
-    MID: 34,
-    ATT: 45
+    DEF: 22,
+    MID: 38,
+    ATT: 48
   } : {
     GK: 92,
-    DEF: 80,
-    MID: 66,
-    ATT: 55
+    DEF: 78,
+    MID: 62,
+    ATT: 52
   };
   
   // Helper for centered Y positions (fixed for 4-3-3 layout)
