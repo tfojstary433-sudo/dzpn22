@@ -678,14 +678,14 @@ export default function MatchDetail() {
     } finally {
       if (isInitial) setLoading(false);
     }
-  }, [id, match]);
+  }, [id]);
 
   useEffect(() => {
     loadFinished();
     fetchMatchData(true);
     const interval = setInterval(() => fetchMatchData(false), 5000);
     return () => clearInterval(interval);
-  }, [id, match, fetchMatchData, loadFinished]);
+  }, [id, fetchMatchData, loadFinished]);
 
   useEffect(() => {
     if (preMatchInfo) {
@@ -1911,17 +1911,18 @@ export default function MatchDetail() {
                                 <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
                                   <div className="relative w-full h-full">
                                     {(() => {
-                                      const homePositions = calculateSmartPositions(apiData?.match?.lineupA?.starters, 'home', apiData?.match?.lineupA?.formation);
-                                      const awayPositions = calculateSmartPositions(apiData?.match?.lineupB?.starters, 'away', apiData?.match?.lineupB?.formation);
+                                      const homePositions = calculateSmartPositions(apiData?.match?.lineupA?.starters || [], 'home', apiData?.match?.lineupA?.formation);
+                                      const awayPositions = calculateSmartPositions(apiData?.match?.lineupB?.starters || [], 'away', apiData?.match?.lineupB?.formation);
                                       
                                       return [
-                                        ...apiData?.match?.lineupA?.starters.map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
-                                        ...apiData?.match?.lineupB?.starters.map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
+                                        ...(apiData?.match?.lineupA?.starters || []).map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
+                                        ...(apiData?.match?.lineupB?.starters || []).map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
                                       ].map((player, idx) => {
                                         if (!player.pos) return null;
                                         return (
-                                          <div 
+                                          <Link 
                                             key={`${player.team}-${player.name}`} 
+                                            href={`/gracz/${player.name}`}
                                             className="absolute flex flex-col items-center group cursor-pointer"
                                             style={{ 
                                               left: player.pos.x, 
@@ -1936,7 +1937,7 @@ export default function MatchDetail() {
                                             <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
                                               {player.name.split(' ').pop()}
                                             </div>
-                                          </div>
+                                          </Link>
                                         );
                                       });
                                     })()}

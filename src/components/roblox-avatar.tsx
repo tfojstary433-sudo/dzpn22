@@ -42,7 +42,7 @@ export const RobloxAvatar = memo(function RobloxAvatar({ username, className, st
     };
 
     fetchAvatar();
-  }, [trimmedUsername]);
+  }, [trimmedUsername, username]);
 
   if (!avatarUrl) {
     return <div className={`${className} bg-gray-800 animate-pulse rounded-full`} style={style} />;
