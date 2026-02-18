@@ -565,11 +565,6 @@ export default function GraczPage() {
     return club === 'REFEREE' || club === 'SED' || club === 'KOLEGIUM SĘDZIOWSKIE' || club.includes('SĘDZIA');
   }, [player]);
 
-  const getRatingColor = (rating: number) => {
-    if (rating >= 8.0) return 'text-blue-400 border-blue-500/40 bg-blue-500/10 shadow-blue-500/20';
-    if (rating >= 6.0) return 'text-green-400 border-green-500/40 bg-green-500/10 shadow-green-500/20';
-    return 'text-red-400 border-red-500/40 bg-red-500/10 shadow-red-500/20';
-  };
 
   if (loading) return (
     <div className="min-h-screen bg-transparent backdrop-blur-xl flex items-center justify-center">
