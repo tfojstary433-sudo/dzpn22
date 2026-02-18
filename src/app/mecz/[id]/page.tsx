@@ -508,191 +508,184 @@ export default function MatchDetail() {
   const [isMatchActive, setIsMatchActive] = useState(false);
   const [finishedMatchData, setFinishedMatchData] = useState<any>(null);
 
-  useEffect(() => {
-    // Load finished matches from localStorage
-    const loadFinished = () => {
-      const stored = localStorage.getItem('finishedMatches');
-      if (stored) {
-        const finished = JSON.parse(stored);
-        setFinishedMatches(finished);
-        const status = apiData?.match?.status?.toLowerCase();
-        setIsMatchFinished(finished[id] || match?.status === 'finished' || status === 'finished' || status === 'played' || status === 'ft' || false);
-        setIsMatchActive(apiData?.match?.isActive || status === 'active' || status === 'live' || false);
+  const loadFinished = useCallback(() => {
+    const stored = localStorage.getItem('finishedMatches');
+    if (stored) {
+      const finished = JSON.parse(stored);
+      setFinishedMatches(finished);
+      const status = apiData?.match?.status?.toLowerCase();
+      setIsMatchFinished(finished[id] || match?.status === 'finished' || status === 'finished' || status === 'played' || status === 'ft' || false);
+      setIsMatchActive(apiData?.match?.isActive || status === 'active' || status === 'live' || false);
 
-        // Load match result data for finished matches
-        if (finished[id] || match?.status === 'finished') {
-          const matchStats = localStorage.getItem('matchStats');
-          if (matchStats) {
-            const stats = JSON.parse(matchStats);
-            setFinishedMatchData(stats[id] || null);
-          }
+      // Load match result data for finished matches
+      if (finished[id] || match?.status === 'finished') {
+        const matchStats = localStorage.getItem('matchStats');
+        if (matchStats) {
+          const stats = JSON.parse(matchStats);
+          setFinishedMatchData(stats[id] || null);
         }
-      } else {
-        setIsMatchFinished(false);
-        setIsMatchActive(false);
       }
-    };
-    loadFinished();
+    } else {
+      setIsMatchFinished(false);
+      setIsMatchActive(false);
+    }
+  }, [id, match, apiData?.match?.status, apiData?.match?.isActive]);
 
-    const fetchMatchData = async (isInitial = false) => {
-      if (isInitial) setLoading(true);
-      setError(null);
-      try {
-        let loaded = false;
+  const fetchMatchData = useCallback(async (isInitial = false) => {
+    if (isInitial) setLoading(true);
+    setError(null);
+    try {
+      let loaded = false;
 
-        // Parallel fetch for initial data to speed up
-        const [tournamentRes, scheduleRes, matchesListRes, tableRes] = await Promise.all([
-          fetch(`${REPLIT_API_BASE_URL}/api/tournament/1.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-          fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-          fetch(`${REPLIT_API_BASE_URL}/api/matches`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-          fetch(`${REPLIT_API_BASE_URL}/api/tournament/1/table.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null)
-        ]);
+      // Parallel fetch for initial data to speed up
+      const [tournamentRes, scheduleRes, matchesListRes, tableRes] = await Promise.all([
+        fetch(`${REPLIT_API_BASE_URL}/api/tournament/1.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
+        fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
+        fetch(`${REPLIT_API_BASE_URL}/api/matches`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
+        fetch(`${REPLIT_API_BASE_URL}/api/tournament/1/table.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null)
+      ]);
 
-        if (tableRes && tableRes.ok) {
-          const tableData = await tableRes.json();
-          setTableData(tableData);
+      if (tableRes && tableRes.ok) {
+        const tableData = await tableRes.json();
+        setTableData(tableData);
+      }
+
+      if (matchesListRes && matchesListRes.ok) {
+        const list = await matchesListRes.json();
+        const found = (Array.isArray(list) ? list : []).find((m: any) => m.uuid === id || m.id?.toString() === id);
+        if (found) {
+          setPreMatchInfo((prev: any) => ({
+            ...prev,
+            ...found,
+            homeScore: found.scoreA,
+            awayScore: found.scoreB
+          }));
         }
+      }
 
-        if (matchesListRes && matchesListRes.ok) {
-          const list = await matchesListRes.json();
-          const found = (Array.isArray(list) ? list : []).find((m: any) => m.uuid === id || m.id?.toString() === id);
-          if (found) {
-            setPreMatchInfo((prev: any) => ({
-              ...prev,
-              ...found,
-              homeScore: found.scoreA,
-              awayScore: found.scoreB
-            }));
-          }
-        }
-
-        if (tournamentRes && tournamentRes.ok) {
-          const data = await tournamentRes.json();
-          const fixtures = data.fixtures || [];
-          
-          // Prioritize matchUuid for precise matching
-          let found = fixtures.find((m: any) => m.matchUuid === id || m.uuid === id);
-          
-          // Fallback to id only if no uuid match found
-          if (!found && isNumeric(id)) {
-            found = fixtures.find((m: any) => m.id?.toString() === id);
-          }
-          
-          if (found) {
-            setPreMatchInfo((prev: any) => ({
-              ...(prev || {}),
-              ...found,
-              homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
-              awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
-              homeScore: found.scoreA,
-              awayScore: found.scoreB,
-              stadium: found.stadium || 'Ośrodek Treningowy PFF',
-              category: 'MECZE TOWARZYSKIE'
-            }));
-          }
-        }
-
-        if (scheduleRes && scheduleRes.ok) {
-          const data = await scheduleRes.json();
-          const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
-          
-          // Prioritize matchUuid
-          let found = list.find((m: any) => m.matchUuid === id || m.uuid === id);
-          
-          // Fallback to id only if no uuid match found
-          if (!found && isNumeric(id)) {
-            found = list.find((m: any) => m.id?.toString() === id);
-          }
-          
-          if (found) {
-            setPreMatchInfo((prev: any) => ({ ...prev, ...found }));
-          }
-        }
-
-        // Try Replit details
-        if (isUuid(id)) {
-          try {
-            const replitRes = await fetch(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-            if (replitRes.ok) {
-              const replitData = await replitRes.json();
-              setApiData(replitData);
-              loaded = true;
-            }
-          } catch {}
-        }
-
-        // Local API / Firebase fallback
-        if (!loaded) {
-          try {
-            const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-            if (response.ok) {
-              const data = await response.json();
-              setApiData(data);
-              loaded = true;
-            }
-          } catch {}
-        }
-
-        // Try players-history.json as a definitive score source for finished matches
-        try {
-          const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
-          if (historyRes.ok) {
-            const historyData = await historyRes.json();
-            if (historyData.players) {
-              let historyMatch = null;
-              for (const p of Object.values(historyData.players) as any[]) {
-                const m = p.matches?.find((match: any) => match.matchUuid === id || match.id?.toString() === id);
-                if (m) {
-                  historyMatch = m;
-                  break;
-                }
-              }
-
-              if (historyMatch) {
-                // If we found it in history, it means it's finished and we have scores
-                const hScoreA = historyMatch.scoreA;
-                const hScoreB = historyMatch.scoreB;
-
-                setPreMatchInfo((prev: any) => ({
-                  ...(prev || {}),
-                  scoreA: hScoreA,
-                  scoreB: hScoreB,
-                  homeScore: hScoreA,
-                  awayScore: hScoreB,
-                  status: 'finished',
-                  teamA: historyMatch.teamA,
-                  teamB: historyMatch.teamB
-                }));
-                
-                if (!loaded) {
-                  setIsMatchFinished(true);
-                }
-              }
-            }
-          }
-        } catch (e) {
-          console.error('History score fetch failed:', e);
-        }
-
-        if (!loaded && !preMatchInfo && !match) {
-          throw new Error('Nie udało się znaleźć danych meczu');
+      if (tournamentRes && tournamentRes.ok) {
+        const data = await tournamentRes.json();
+        const fixtures = data.fixtures || [];
+        
+        // Prioritize matchUuid for precise matching
+        let found = fixtures.find((m: any) => m.matchUuid === id || m.uuid === id);
+        
+        // Fallback to id only if no uuid match found
+        if (!found && isNumeric(id)) {
+          found = fixtures.find((m: any) => m.id?.toString() === id);
         }
         
-        if (loaded || preMatchInfo || match) {
-          setHasFetchedOnce(true);
+        if (found) {
+          setPreMatchInfo((prev: any) => ({
+            ...(prev || {}),
+            ...found,
+            homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
+            awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
+            homeScore: found.scoreA,
+            awayScore: found.scoreB,
+            stadium: found.stadium || 'Ośrodek Treningowy PFF',
+            category: 'MECZE TOWARZYSKIE'
+          }));
         }
-      } catch (err: any) {
-        console.error('Error fetching match data:', err);
-        if (isInitial) setError(err.message || 'Nie udało się pobrać danych meczu');
-      } finally {
-        if (isInitial) setLoading(false);
       }
-    };
 
+      if (scheduleRes && scheduleRes.ok) {
+        const data = await scheduleRes.json();
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
+        
+        // Prioritize matchUuid
+        let found = list.find((m: any) => m.matchUuid === id || m.uuid === id);
+        
+        // Fallback to id only if no uuid match found
+        if (!found && isNumeric(id)) {
+          found = list.find((m: any) => m.id?.toString() === id);
+        }
+        
+        if (found) {
+          setPreMatchInfo((prev: any) => ({ ...prev, ...found }));
+        }
+      }
+
+      // Try Replit details
+      if (isUuid(id)) {
+        try {
+          const replitRes = await fetch(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+          if (replitRes.ok) {
+            const replitData = await replitRes.json();
+            setApiData(replitData);
+            loaded = true;
+          }
+        } catch {}
+      }
+
+      // Local API / Firebase fallback
+      if (!loaded) {
+        try {
+          const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+          if (response.ok) {
+            const data = await response.json();
+            setApiData(data);
+            loaded = true;
+          }
+        } catch {}
+      }
+
+      // Try players-history.json as a definitive score source for finished matches
+      try {
+        const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
+        if (historyRes.ok) {
+          const historyData = await historyRes.json();
+          if (historyData.players) {
+            let historyMatch = null;
+            for (const p of Object.values(historyData.players) as any[]) {
+              const m = p.matches?.find((match: any) => match.matchUuid === id || match.id?.toString() === id);
+              if (m) {
+                historyMatch = m;
+                break;
+              }
+            }
+
+            if (historyMatch) {
+              // If we found it in history, it means it's finished and we have scores
+              const hScoreA = historyMatch.scoreA;
+              const hScoreB = historyMatch.scoreB;
+
+              setPreMatchInfo((prev: any) => ({
+                ...(prev || {}),
+                scoreA: hScoreA,
+                scoreB: hScoreB,
+                homeScore: hScoreA,
+                awayScore: hScoreB,
+                status: 'finished',
+                teamA: historyMatch.teamA,
+                teamB: historyMatch.teamB
+              }));
+              
+              if (!loaded) {
+                setIsMatchFinished(true);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error('History score fetch failed:', e);
+      }
+
+      setHasFetchedOnce(true);
+    } catch (err: any) {
+      console.error('Error fetching match data:', err);
+      if (isInitial) setError(err.message || 'Nie udało się pobrać danych meczu');
+    } finally {
+      if (isInitial) setLoading(false);
+    }
+  }, [id, match]);
+
+  useEffect(() => {
+    loadFinished();
     fetchMatchData(true);
     const interval = setInterval(() => fetchMatchData(false), 5000);
     return () => clearInterval(interval);
-  }, [id, apiData?.match?.isActive, apiData?.match?.status, match, preMatchInfo]); // Only re-run when ID or match status changes
+  }, [id, match, fetchMatchData, loadFinished]);
 
   useEffect(() => {
     if (preMatchInfo) {
@@ -1527,8 +1520,9 @@ export default function MatchDetail() {
                                     ].map((player, idx) => {
                                       if (!player.pos) return null;
                                       return (
-                                        <div 
+                                        <Link 
                                           key={`${player.team}-${player.name}`} 
+                                          href={`/gracz/${player.name}`}
                                           className="absolute flex flex-col items-center group cursor-pointer"
                                           style={{ 
                                             left: player.pos.x, 
@@ -1543,7 +1537,7 @@ export default function MatchDetail() {
                                           <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
                                             {player.name.split(' ').pop()}
                                           </div>
-                                        </div>
+                                        </Link>
                                       );
                                     });
                                   })()}

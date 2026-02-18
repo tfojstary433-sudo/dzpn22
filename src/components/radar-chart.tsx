@@ -6,6 +6,7 @@ interface RadarChartProps {
   stats: {
     label: string;
     value: number; // 0 to 100
+    percentage?: number;
   }[];
   color?: string;
 }
@@ -18,14 +19,24 @@ export function RadarChart({ stats, color = '#ff0000' }: RadarChartProps) {
 
   const getPoint = (value: number, angle: number) => {
     const r = (value / 100) * radius;
-    const x = center + r * Math.cos(angle - Math.PI / 2);
-    const y = center + r * Math.sin(angle - Math.PI / 2);
+    const startAngle = -Math.PI / 2;
+    const x = center + r * Math.cos(angle + startAngle);
+    const y = center + r * Math.sin(angle + startAngle);
     return { x, y };
   };
 
   const getAxisPoint = (angle: number) => {
-    const x = center + radius * Math.cos(angle - Math.PI / 2);
-    const y = center + radius * Math.sin(angle - Math.PI / 2);
+    const startAngle = -Math.PI / 2;
+    const x = center + radius * Math.cos(angle + startAngle);
+    const y = center + radius * Math.sin(angle + startAngle);
+    return { x, y };
+  };
+
+  const getLabelPoint = (angle: number) => {
+    const labelRadius = radius + 65;
+    const startAngle = -Math.PI / 2;
+    const x = center + labelRadius * Math.cos(angle + startAngle);
+    const y = center + labelRadius * Math.sin(angle + startAngle);
     return { x, y };
   };
 
@@ -37,7 +48,7 @@ export function RadarChart({ stats, color = '#ff0000' }: RadarChartProps) {
     .join(' ');
 
   return (
-    <div className="relative w-full aspect-square max-w-[300px] mx-auto">
+    <div className="relative w-full aspect-square max-w-[500px] mx-auto">
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible">
         {/* Background polygons (grid) */}
         {[0.2, 0.4, 0.6, 0.8, 1.0].map((scale) => (
@@ -46,8 +57,9 @@ export function RadarChart({ stats, color = '#ff0000' }: RadarChartProps) {
             points={stats
               .map((_, i) => {
                 const angle = i * angleStep;
-                const x = center + radius * scale * Math.cos(angle - Math.PI / 2);
-                const y = center + radius * scale * Math.sin(angle - Math.PI / 2);
+                const startAngle = -Math.PI / 2;
+                const x = center + radius * scale * Math.cos(angle + startAngle);
+                const y = center + radius * scale * Math.sin(angle + startAngle);
                 return `${x},${y}`;
               })
               .join(' ')}
@@ -55,6 +67,7 @@ export function RadarChart({ stats, color = '#ff0000' }: RadarChartProps) {
             stroke="white"
             strokeOpacity="0.1"
             strokeWidth="1"
+            strokeDasharray={scale === 1 ? "0" : "2 2"}
           />
         ))}
 
@@ -85,29 +98,41 @@ export function RadarChart({ stats, color = '#ff0000' }: RadarChartProps) {
         />
 
         {/* Labels */}
-        {stats.map((s, i) => {
+        {stats.map((stat, i) => {
           const angle = i * angleStep;
-          const labelDist = radius + 35;
-          const x = center + labelDist * Math.cos(angle - Math.PI / 2);
-          const y = center + labelDist * Math.sin(angle - Math.PI / 2);
+          const { x, y } = getLabelPoint(angle);
+          
+          // Adjust text anchor based on position
+          let textAnchor = "middle";
+          if (x < center - 20) textAnchor = "end";
+          if (x > center + 20) textAnchor = "start";
+
+          const displayValue = stat.percentage !== undefined ? stat.percentage : Math.round(stat.value);
 
           return (
             <g key={i}>
               <text
                 x={x}
-                y={y - 10}
-                textAnchor="middle"
-                className="fill-white font-black italic text-[11px]"
+                y={y - 8}
+                fill="white"
+                fillOpacity="0.4"
+                fontSize="10"
+                fontWeight="900"
+                textAnchor={textAnchor}
+                className="uppercase italic tracking-widest"
               >
-                {s.value}%
+                {stat.label}
               </text>
               <text
                 x={x}
-                y={y + 5}
-                textAnchor="middle"
-                className="fill-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic"
+                y={y + 12}
+                fill="white"
+                fontSize="16"
+                fontWeight="900"
+                textAnchor={textAnchor}
+                className="italic"
               >
-                {s.label}
+                {displayValue}%
               </text>
             </g>
           );

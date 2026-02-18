@@ -36,7 +36,7 @@ import {
   Bell,
   Trophy
 } from 'lucide-react';
-import { calculateMarketValue, calculateMatchRating, mapPositionToPolish } from '@/lib/utils';
+import { calculateMarketValue, calculateMatchRating, mapPositionToPolish, getRatingColor } from '@/lib/utils';
 
 interface PlayerStats {
   userId: string;
@@ -52,6 +52,8 @@ interface PlayerStats {
   } | null;
   formRatings?: number[];
   lastMatchNumber?: number;
+  discordUser?: string;
+  discordId?: string;
   verified?: boolean;
   country?: string;
   stats: {
@@ -180,6 +182,8 @@ export default function GraczPage() {
               currentClub: currentClub,
               position: latestMatch?.position || '---',
               value: 0,
+              lastMatchNumber: latestMatch?.number,
+              discordUser: p.discordUser,
               country: p.country || 'PL',
               verified: true,
               previousClubs: Array.from(new Set(p.matches.map((m: any) => m.playerTeam))),
@@ -249,6 +253,24 @@ export default function GraczPage() {
             };
             
             setPlayer(mappedPlayer);
+            
+            // Fetch extra info from API
+            try {
+              const res = await fetch(`/api/players/${encodeURIComponent(decodedUsername)}`);
+              if (res.ok) {
+                const apiData = await res.json();
+                if (apiData) {
+                  setPlayer(prev => prev ? { 
+                    ...prev, 
+                    discordUser: apiData.discordUser || prev.discordUser,
+                    discordId: apiData.discordId || prev.discordId,
+                    lastMatchNumber: apiData.lastMatchNumber || prev.lastMatchNumber 
+                  } : null);
+                }
+              }
+            } catch (e) {
+              console.error('Extra info fetch failed:', e);
+            }
           }
         }
 
@@ -543,6 +565,12 @@ export default function GraczPage() {
     return club === 'REFEREE' || club === 'SED' || club === 'KOLEGIUM SĘDZIOWSKIE' || club.includes('SĘDZIA');
   }, [player]);
 
+  const getRatingColor = (rating: number) => {
+    if (rating >= 8.0) return 'text-blue-400 border-blue-500/40 bg-blue-500/10 shadow-blue-500/20';
+    if (rating >= 6.0) return 'text-green-400 border-green-500/40 bg-green-500/10 shadow-green-500/20';
+    return 'text-red-400 border-red-500/40 bg-red-500/10 shadow-red-500/20';
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-transparent backdrop-blur-xl flex items-center justify-center">
       <div className="w-12 h-12 border-4 border-white/5 border-t-white rounded-full animate-spin" />
@@ -562,12 +590,12 @@ export default function GraczPage() {
   const clubColor = isReferee ? '#ef4444' : (clubData?.color || '#ffffff');
 
   const radarStats = [
-    { label: 'Gole', value: Math.min(100, (extraStats.goals / 10) * 100) },
-    { label: 'Asysty', value: Math.min(100, (extraStats.assists / 8) * 100) },
-    { label: 'Mecze', value: Math.min(100, (extraStats.matchesCount / 20) * 100) },
-    { label: 'Rating', value: (extraStats.avgRating / 10) * 100 },
-    { label: 'Dyscyplina', value: 100 - (extraStats.yellowCards * 10) },
-    { label: 'Minuty', value: Math.min(100, (extraStats.minutes / 1800) * 100) },
+    { label: 'Bramki', value: Math.min(100, (extraStats.goals / (extraStats.matchesCount || 1) / 2) * 100), percentage: Math.min(100, Math.round((extraStats.goals / (extraStats.matchesCount || 1) / 2) * 100)) },
+    { label: 'Asysty', value: Math.min(100, (extraStats.assists / (extraStats.matchesCount || 1) / 1.5) * 100), percentage: Math.min(100, Math.round((extraStats.assists / (extraStats.matchesCount || 1) / 1.5) * 100)) },
+    { label: 'Mecze', value: Math.min(100, (extraStats.matchesCount / 20) * 100), percentage: Math.min(100, Math.round((extraStats.matchesCount / 20) * 100)) },
+    { label: 'Ocena', value: Math.min(100, (extraStats.avgRating / 10) * 100), percentage: Math.min(100, Math.round((extraStats.avgRating / 10) * 100)) },
+    { label: 'Kartki', value: Math.min(100, ((extraStats.yellowCards + extraStats.redCards * 2) / (extraStats.matchesCount || 1)) * 100), percentage: Math.round(((extraStats.yellowCards + extraStats.redCards * 2) / (extraStats.matchesCount || 1)) * 100) },
+    { label: 'Minuty', value: Math.min(100, (extraStats.minutes / (extraStats.matchesCount * 40 || 40)) * 100), percentage: Math.min(100, Math.round((extraStats.minutes / (extraStats.matchesCount * 40 || 40)) * 100)) },
   ];
 
   return (
@@ -707,6 +735,42 @@ export default function GraczPage() {
                             </p>
                           </div>
                         </div>
+
+                        {player.lastMatchNumber && (
+                          <>
+                            <div className="w-px h-12 bg-white/5 hidden md:block" />
+                            <div className="flex items-center gap-4 group">
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform group-hover:scale-110">
+                                <span className="text-xl font-black italic text-white/40">#</span>
+                              </div>
+                              <div className="text-left">
+                                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Numer</p>
+                                <p className="text-lg font-black italic uppercase tracking-tight group-hover:text-white transition-colors">
+                                  {player.lastMatchNumber}
+                                </p>
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {player.discordUser && (
+                          <>
+                            <div className="w-px h-12 bg-white/5 hidden md:block" />
+                            <div className="flex items-center gap-4 group">
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform group-hover:scale-110">
+                                <svg className="w-6 h-6 text-white/20 group-hover:text-white/40 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                                </svg>
+                              </div>
+                              <div className="text-left">
+                                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Discord</p>
+                                <p className="text-lg font-black italic uppercase tracking-tight group-hover:text-white transition-colors">
+                                  {player.discordUser}
+                                </p>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -783,7 +847,7 @@ export default function GraczPage() {
               )}
 
               {/* Middle Column: Main Stats */}
-              <div className={`${activeTab === 'przegląd' ? 'lg:col-span-6' : 'lg:col-span-9'} space-y-8`}>
+              <div className={`${activeTab === 'przegląd' ? 'lg:col-span-5' : 'lg:col-span-8'} space-y-8`}>
                 {activeTab === 'przegląd' && (
                   <>
                     <div className="bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[40px] p-10 border border-white/5 shadow-2xl relative overflow-hidden group">
@@ -848,12 +912,6 @@ export default function GraczPage() {
                           <div className="text-center">
                             <p className="text-2xl font-black italic mb-1">{extraStats.minutes}</p>
                             <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Rozegrane minuty</p>
-                          </div>
-                          <div className="text-center">
-                            <div className="inline-block px-3 py-1 bg-orange-500/20 border border-orange-500/30 rounded-lg mb-1">
-                              <p className="text-xl font-black italic text-orange-500">{extraStats.avgRating.toFixed(2).replace('.', ',')}</p>
-                            </div>
-                            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest block">Ocena</p>
                           </div>
                           <div className="text-center">
                             <div className="flex items-center justify-center gap-2 mb-1">
@@ -1060,20 +1118,20 @@ export default function GraczPage() {
                          });
 
                          return matchesToDisplay.slice(0, 8).map((match: any, i: number) => (
-                           <div key={i} className={`group flex items-center py-2 px-6 hover:bg-white/[0.03] rounded-2xl transition-all border border-transparent hover:border-white/10 ${match.wasExcluded ? 'opacity-40' : ''}`}>
-                              <div className="w-40 h-28 rounded-xl border border-white/10 flex items-center justify-center mr-6 bg-white/5 overflow-hidden p-1.5 shadow-lg group-hover:scale-105 transition-transform">
+                           <div key={i} className={`group flex items-center py-3 px-8 hover:bg-white/[0.03] rounded-3xl transition-all border border-transparent hover:border-white/10 ${match.wasExcluded ? 'opacity-40' : ''}`}>
+                              <div className="w-32 h-24 rounded-2xl border border-white/10 flex items-center justify-center mr-8 bg-white/5 overflow-hidden p-1.5 shadow-lg group-hover:scale-105 transition-transform">
                                  <img src={selectedTournament === 'Ekstraklasa' ? "https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png" : "https://i.ibb.co/vWZWXTC/obraz-2026-02-04-222253347-removebg-preview-1.png"} className="w-full h-full object-contain brightness-110" alt="" />
                               </div>
                               
-                              <div className="w-36">
-                                 <p className="text-[13px] font-black uppercase italic tracking-[0.2em] text-white/30 group-hover:text-white/60 transition-colors">
+                              <div className="w-28">
+                                 <p className="text-[12px] font-black uppercase italic tracking-[0.2em] text-white/30 group-hover:text-white/60 transition-colors">
                                    {new Date(match.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}
                                  </p>
                               </div>
 
-                              <div className="flex items-center gap-10 flex-1">
-                                 <div className="flex items-center gap-5 min-w-[260px]">
-                                    <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center p-2 border border-white/10 shadow-inner group-hover:border-white/20 transition-all">
+                              <div className="flex items-center gap-6 flex-1">
+                                 <div className="flex items-center gap-4 min-w-[200px]">
+                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center p-2 border border-white/10 shadow-inner group-hover:border-white/20 transition-all">
                                        <img 
                                           src={[...teams, ...extraTeams].find(t => 
                                             t.name === match.opponent || 
@@ -1085,27 +1143,27 @@ export default function GraczPage() {
                                        />
                                     </div>
                                     <div className="flex flex-col">
-                                      <span className="text-xl font-black italic uppercase tracking-tighter truncate max-w-[200px]">
+                                      <span className="text-lg font-black italic uppercase tracking-tighter truncate max-w-[150px]">
                                          {match.opponent}
                                       </span>
-                                      <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Przeciwnik</span>
+                                      <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Przeciwnik</span>
                                     </div>
                                  </div>
 
-                                 <div className="flex items-center gap-10 min-w-[140px] justify-center bg-white/5 py-2 px-6 rounded-2xl border border-white/5">
-                                    <span className={`text-lg font-black uppercase italic w-6 text-center drop-shadow-[0_0_8px_currentColor] ${match.result === 'W' ? 'text-green-500' : match.result === 'L' ? 'text-red-500' : 'text-white/40'}`}>
+                                 <div className="flex items-center gap-6 flex-1 justify-center bg-white/5 py-2 px-4 rounded-2xl border border-white/5 mx-4 max-w-[140px]">
+                                    <span className={`text-md font-black uppercase italic w-6 text-center drop-shadow-[0_0_8px_currentColor] ${match.result === 'W' ? 'text-green-500' : match.result === 'L' ? 'text-red-500' : 'text-white/40'}`}>
                                        {match.result || '-'}
                                     </span>
-                                    <span className="text-2xl font-black italic tabular-nums tracking-tighter text-white/90">
+                                    <span className="text-xl font-black italic tabular-nums tracking-tighter text-white/90">
                                        {match.homeScore} : {match.awayScore}
                                     </span>
                                   </div>
                               </div>
 
-                              <div className="flex items-center gap-8 pl-8 pr-2">
-                                 <p className="w-10 text-center text-xl font-black italic">{match.minutes}</p>
-                                 <p className="w-8 text-center text-xl font-black italic text-white/40 group-hover:text-white transition-colors drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{match.goals}</p>
-                                 <p className="w-8 text-center text-xl font-black italic text-white/40 group-hover:text-white transition-colors">{match.assists}</p>
+                              <div className="flex items-center gap-6 pl-4 pr-2 shrink-0">
+                                 <p className="w-8 text-center text-lg font-black italic">{match.minutes}</p>
+                                 <p className="w-8 text-center text-lg font-black italic text-white/40 group-hover:text-white transition-colors drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{match.goals}</p>
+                                 <p className="w-8 text-center text-lg font-black italic text-white/40 group-hover:text-white transition-colors">{match.assists}</p>
                                  <div className="w-6 flex justify-center">
                                    {match.yellowCards > 0 && <div className="w-3 h-4 bg-yellow-400 rounded-sm shadow-[0_0_10px_rgba(250,204,21,0.4)]" />}
                                  </div>
@@ -1113,11 +1171,11 @@ export default function GraczPage() {
                                    {match.redCards > 0 && <div className="w-3 h-4 bg-red-500 rounded-sm shadow-[0_0_10px_rgba(239,68,68,0.4)]" />}
                                  </div>
                                  
-                                 <div className={`w-16 h-12 rounded-2xl flex items-center justify-center border-2 font-black italic text-lg shadow-xl transition-all ${
+                                 <div className={`w-14 h-10 rounded-xl flex items-center justify-center border-2 font-black italic text-md shadow-xl transition-all shrink-0 ${
                                    match.wasExcluded 
                                      ? 'bg-red-500/10 border-red-500/40 text-red-500 shadow-red-500/10'
                                      : match.rating 
-                                       ? 'bg-orange-500/10 border-orange-500/40 text-orange-500 shadow-orange-500/10 group-hover:bg-orange-500 group-hover:text-black group-hover:shadow-orange-500/20' 
+                                       ? getRatingColor(match.rating, playerPosition) + ' group-hover:scale-110' 
                                        : 'bg-white/5 border-white/10 text-white/20'
                                  }`}>
                                     {match.wasExcluded ? 'WYK' : (match.rating ? match.rating.toFixed(1).replace('.', ',') : '-')}
@@ -1217,7 +1275,7 @@ export default function GraczPage() {
                 )}
               </div>
 
-              <div className="lg:col-span-3 space-y-8">
+              <div className="lg:col-span-4 space-y-8">
                 <div className="bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[40px] p-10 border border-white/5 shadow-2xl relative overflow-hidden group">
                   <div className="flex items-center gap-4 pb-6 border-b border-white/5 mb-10">
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-500">
@@ -1255,33 +1313,44 @@ export default function GraczPage() {
                 </div>
 
                 {extraStats.matchesCount > 0 && (
-                  <>
-
-                    <div className="bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[40px] p-10 border border-white/5 shadow-2xl group">
-                      <div className="flex items-center justify-between pb-6 border-b border-white/5 mb-10">
-                        <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
-                          <Star className="w-6 h-6 text-blue-500" />
-                          Statystyki Sezonu
-                        </h3>
-                        <HelpCircle className="w-5 h-5 text-white/10 hover:text-white/40 cursor-help" />
-                      </div>
-                      <div className="relative aspect-square group-hover:scale-105 transition-transform duration-700">
-                        <RadarChart stats={radarStats} color={clubColor} />
-                      </div>
-                      <div className="mt-8 grid grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Mocne strony</p>
-                            <p className="text-xs font-black italic uppercase text-blue-400">Wykończenie</p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Styl gry</p>
-                            <p className="text-xs font-black italic uppercase text-white/60">Skrzydłowy</p>
-                        </div>
-                      </div>
+                  <div className="bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[40px] p-10 border border-white/5 shadow-2xl group">
+                    <div className="flex items-center justify-between pb-6 border-b border-white/5 mb-10">
+                      <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
+                        <Star className="w-6 h-6 text-blue-500" />
+                        Statystyki Sezonu
+                      </h3>
+                      <HelpCircle className="w-5 h-5 text-white/10 hover:text-white/40 cursor-help" />
                     </div>
+                    <div className="relative aspect-square py-12 group-hover:scale-105 transition-transform duration-700">
+                      <RadarChart stats={radarStats} color={clubColor} />
+                    </div>
+                  </div>
+                )}
 
-
-                  </>
+                {player.discordId && (
+                  <div className="bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[40px] p-8 border border-white/5 shadow-2xl group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#5865F2]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    <div className="relative z-10 flex items-center gap-6">
+                       <div className="w-20 h-20 rounded-full border-4 border-[#5865F2]/20 p-1 group-hover:border-[#5865F2]/40 transition-all duration-500 shrink-0">
+                         <img 
+                           src={`https://cdn.discordapp.com/avatars/${player.discordId}/${player.discordId}.png`}
+                           alt=""
+                           className="w-full h-full rounded-full object-cover shadow-2xl"
+                           onError={(e) => {
+                             (e.target as HTMLImageElement).src = "https://cdn.discordapp.com/embed/avatars/0.png";
+                           }}
+                         />
+                       </div>
+                       <div className="flex-1 space-y-2">
+                         <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">Profil Discord</p>
+                         <h4 className="text-2xl font-black italic uppercase text-white group-hover:text-[#5865F2] transition-colors truncate">{player.discordUser}</h4>
+                         <div className="flex items-center gap-2 px-3 py-1 bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-lg w-fit">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                            <span className="text-[8px] font-black uppercase tracking-widest text-[#5865F2]">Połączone konto</span>
+                         </div>
+                       </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

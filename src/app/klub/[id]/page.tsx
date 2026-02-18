@@ -135,6 +135,16 @@ export default function KlubPage() {
   // Get team form (last 5 matches)
   const teamForm = useMemo(() => {
     if (!team) return [];
+    
+    // Find numeric ID from mapping if our current id is short name
+    const TEAM_ID_MAPPING: Record<string, string> = {
+      'ZAW': '1', 'ARK': '2', 'LEG': '3', 'LPO': '4', 'LGD': '5',
+      'WID': '6', 'POG': '7', 'ZAG': '8', 'SOK': '9', 'WIS': '10',
+      'GRO': '11', 'GOR': '12', 'MOT': '13', 'RAK': '14', 'JAG': '15',
+      'WPL': '16'
+    };
+    const numericId = TEAM_ID_MAPPING[id] || id;
+
     const n = (s: string) => normalizeTeamName(s);
     const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
 
@@ -180,7 +190,14 @@ export default function KlubPage() {
           
           const ta = n(m.teamA);
           const tb = n(m.teamB);
-          const isOurTeam = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+          
+          // Strict matching for team name or ID
+          const isOurTeam = teamKeys.some(key => key === ta || key === tb) || 
+                          String(m.homeTeamId) === String(numericId) || 
+                          String(m.awayTeamId) === String(numericId) ||
+                          String(m.teamAId) === String(numericId) || 
+                          String(m.teamBId) === String(numericId);
+                          
           if (!isOurTeam) return false;
 
           const uuid = m.uuid || m.id;
@@ -206,7 +223,9 @@ export default function KlubPage() {
         .map(m => {
           const uuid = m.uuid || m.id;
           const ta = n(m.teamA);
-          const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
+          const isTeamA = teamKeys.some(key => key === ta) || 
+                         String(m.homeTeamId) === String(numericId) || 
+                         String(m.teamAId) === String(numericId);
           
           const rScore = realScores[uuid];
           let scoreA = m.scoreA ?? 0;
@@ -276,7 +295,11 @@ export default function KlubPage() {
           if (f.status !== 'upcoming' && f.status !== 'scheduled') return false;
           const ta = n(f.homeTeam?.name || f.teamA || '');
           const tb = n(f.awayTeam?.name || f.teamB || '');
-          return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+          
+          return teamKeys.some(key => key === ta || key === tb) || 
+                 f.homeTeam?.id === id || f.awayTeam?.id === id ||
+                 f.homeTeamId === id || f.awayTeamId === id ||
+                 f.teamAId === id || f.teamBId === id;
         })
         .sort((a, b) => parseMatchDate(a.date).getTime() - parseMatchDate(b.date).getTime())[0]
       : null;
@@ -300,7 +323,8 @@ export default function KlubPage() {
           if (f.status !== 'scheduled' && f.status !== 'upcoming') return false;
           const ta = n(f.teamA || '');
           const tb = n(f.teamB || '');
-          return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+          return teamKeys.some(key => key === ta || key === tb) ||
+                 f.teamAId === id || f.teamBId === id;
         })
         .sort((a, b) => parseMatchDate(a.date).getTime() - parseMatchDate(b.date).getTime())[0]
       : null;
@@ -1258,6 +1282,12 @@ export default function KlubPage() {
 
               <div className="space-y-2">
                 {(() => {
+                  const TEAM_ID_MAPPING: Record<string, string> = {
+                    'ZAW': '1', 'ARK': '2', 'LEG': '3', 'LPO': '4', 'LGD': '5',
+                    'WID': '6', 'POG': '7', 'ZAG': '8', 'SOK': '9', 'WIS': '10',
+                    'GRO': '11', 'GOR': '12', 'MOT': '13', 'RAK': '14', 'JAG': '15',
+                    'WPL': '16'
+                  };
                   const n = (s: string) => normalizeTeamName(s);
                   const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
 
@@ -1288,12 +1318,21 @@ export default function KlubPage() {
                       .filter(f => {
                         const ta = n(f?.teamA || '');
                         const tb = n(f?.teamB || '');
-                        return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+                        const numericId = (TEAM_ID_MAPPING as any)[id] || id;
+                        return teamKeys.some(key => key === ta || key === tb) ||
+                               String(f.homeTeam?.id) === String(numericId) || 
+                               String(f.awayTeam?.id) === String(numericId) ||
+                               String(f.homeTeamId) === String(numericId) || 
+                               String(f.awayTeamId) === String(numericId) ||
+                               String(f.teamAId) === String(numericId) || 
+                               String(f.teamBId) === String(numericId);
                       })
                       .map(f => ({
                         id: f.uuid || f.id,
                         homeTeamName: f.teamA,
                         awayTeamName: f.teamB,
+                        homeTeamId: f.homeTeam?.id || f.homeTeamId || f.teamAId,
+                        awayTeamId: f.awayTeam?.id || f.awayTeamId || f.teamBId,
                         homeScore: f.scoreA,
                         awayScore: f.scoreB,
                         date: parseMatchDate(f.date),
@@ -1306,12 +1345,19 @@ export default function KlubPage() {
                       .filter(m => {
                         const ta = n(m.teamA || '');
                         const tb = n(m.teamB || '');
-                        return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+                        const numericId = (TEAM_ID_MAPPING as any)[id] || id;
+                        return teamKeys.some(key => key === ta || key === tb) ||
+                               String(m.homeTeamId) === String(numericId) || 
+                               String(m.awayTeamId) === String(numericId) ||
+                               String(m.teamAId) === String(numericId) || 
+                               String(m.teamBId) === String(numericId);
                       })
                       .map(m => ({
                         id: m.uuid || m.id,
                         homeTeamName: m.teamA,
                         awayTeamName: m.teamB,
+                        homeTeamId: m.homeTeamId || m.teamAId,
+                        awayTeamId: m.awayTeamId || m.teamBId,
                         homeScore: m.scoreA,
                         awayScore: m.scoreB,
                         date: matchDateMap.get(m.uuid || m.id) || new Date(m.createdAt),
@@ -1324,12 +1370,17 @@ export default function KlubPage() {
                       .filter(f => {
                         const ta = n(f.teamA || '');
                         const tb = n(f.teamB || '');
-                        return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+                        const numericId = (TEAM_ID_MAPPING as any)[id] || id;
+                        return teamKeys.some(key => key === ta || key === tb) ||
+                               String(f.teamAId) === String(numericId) || 
+                               String(f.teamBId) === String(numericId);
                       })
                       .map(f => ({
                         id: f.uuid || f.matchUuid || f.id,
                         homeTeamName: f.teamA,
                         awayTeamName: f.teamB,
+                        homeTeamId: f.teamAId,
+                        awayTeamId: f.teamBId,
                         homeScore: f.scoreA,
                         awayScore: f.scoreB,
                         date: parseMatchDate(f.date),
@@ -1365,7 +1416,7 @@ export default function KlubPage() {
                     let resultColor = 'bg-green-500/90 shadow-[0_0_40px_rgba(34,197,94,0.3)]';
                     if (isFinished) {
                       const ta = n(match.homeTeamName);
-                      const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
+                      const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta)) || match.homeTeamId === id;
                       const scoreA = match.homeScore || 0;
                       const scoreB = match.awayScore || 0;
                       
@@ -1387,8 +1438,8 @@ export default function KlubPage() {
 
                     const ta = n(match.homeTeamName);
                     const tb = n(match.awayTeamName);
-                    const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
-                    const isTeamB = teamKeys.some(key => key === tb || tb.includes(key) || key.includes(tb));
+                    const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta)) || match.homeTeamId === id;
+                    const isTeamB = teamKeys.some(key => key === tb || tb.includes(key) || key.includes(tb)) || match.awayTeamId === id;
 
                     return (
                       <Link 

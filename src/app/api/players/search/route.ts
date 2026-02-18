@@ -183,7 +183,7 @@ async function fetchAllPlayers(): Promise<any[]> {
       }
     }
 
-    // 3. Fetch from players-history.json to get country and additional info
+    // 3. Fetch from players-history.json and add missing players
     try {
       const historyResponse = await fetchWithTimeout(API_ENDPOINTS.PLAYERS_HISTORY, { timeout: 3000 });
       if (historyResponse.ok) {
@@ -193,10 +193,31 @@ async function fetchAllPlayers(): Promise<any[]> {
             const username = p.name;
             if (username) {
               const lowerName = username.toLowerCase();
-              const player = playerMap.get(lowerName) || playerMap.get(pId);
-              
-              if (player) {
-                if (p.country) player.country = p.country;
+              if (!playerMap.has(lowerName) && !playerMap.has(pId)) {
+                // Add player from history if not already in map
+                const latestMatch = p.matches && p.matches.length > 0 ? 
+                  [...p.matches].sort((a: any, b: any) => new Date(b.playedAt).getTime() - new Date(a.playedAt).getTime())[0] : null;
+                
+                const team = latestMatch ? teams.find(t => t.name === latestMatch.playerTeam) : null;
+
+                playerMap.set(lowerName, {
+                  userId: pId,
+                  username,
+                  clubId: team?.id || latestMatch?.playerTeam || '---',
+                  clubName: team?.name || latestMatch?.playerTeam || '---',
+                  position: latestMatch?.position || '---',
+                  avatarUrl: null,
+                  verified: true,
+                  country: p.country,
+                  stats: { 
+                    goals: p.matches?.reduce((acc: number, m: any) => acc + (m.goals?.length || 0), 0) || 0,
+                    assists: 0,
+                    matches: p.matches?.length || 0
+                  }
+                });
+              } else {
+                const player = playerMap.get(lowerName) || playerMap.get(pId);
+                if (player && p.country) player.country = p.country;
               }
             }
           });
@@ -273,11 +294,15 @@ export async function GET(request: NextRequest) {
 
     const allPlayers = await fetchAllPlayers();
     console.log('Total players fetched:', allPlayers.length);
+    
     const filteredPlayers = allPlayers
-      .filter(player =>
-        player.username.toLowerCase().includes(query.toLowerCase())
-      )
-      .slice(0, 10); // Increase limit to 10 results for better UX
+      .filter(player => {
+        const username = player.username || '';
+        const lowerQuery = query.toLowerCase();
+        return username.toLowerCase().includes(lowerQuery) || 
+               (player.userId && player.userId.toLowerCase() === lowerQuery);
+      })
+      .slice(0, 10);
 
     return NextResponse.json(filteredPlayers);
   } catch (error) {

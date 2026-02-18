@@ -167,6 +167,22 @@ export async function getMatchHistory(): Promise<any[]> {
   }
 }
 
+export async function getVerifiedPlayer(userId: string): Promise<{ discordId: string; discordUser: string } | null> {
+  try {
+    const response = await fetch(`${FIREBASE_BASE_URL}/VerifiedPlayers/${userId}.json`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data) return null;
+    return {
+      discordId: data.discordId,
+      discordUser: data.discordUser
+    };
+  } catch (error) {
+    console.error('Error fetching verified player from Firebase:', error);
+    return null;
+  }
+}
+
 export interface NewsArticle {
   id: string | number;
   category: string;
