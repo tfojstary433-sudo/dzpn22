@@ -729,51 +729,72 @@ function TurniejeContent() {
               </div>
 
               <div className="container mx-auto px-4 -mt-10 relative z-20 mb-12">
-                <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2 max-w-2xl mx-auto">
-                  <button 
-                    onClick={() => setFriendlyTab('schedule')}
-                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
-                      friendlyTab === 'schedule' 
-                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                        : 'text-white/60 hover:text-white hover:bg-white/5'
-                    }`}
+                <div className="flex flex-col items-center gap-8">
+                  {/* Regulations Link */}
+                  <a 
+                    href="https://docs.google.com/document/d/1BK0a8qGGglGxiC2txm33zwkcZuAvFXd1o98To3UZzTc/edit?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center gap-4 px-6 py-3 bg-black/60 backdrop-blur-xl border border-[#00ccff]/20 hover:border-[#00ccff]/50 rounded-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,204,255,0.1)]"
                   >
-                    Mecze
-                  </button>
-                  <button 
-                    onClick={() => setFriendlyTab('knockout')}
-                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
-                      friendlyTab === 'knockout' 
-                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                        : 'text-white/60 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    Drabinka
-                  </button>
-                  <button 
-                    onClick={() => setFriendlyTab('table')}
-                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
-                      friendlyTab === 'table' 
-                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                        : 'text-white/60 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    Tabela
-                  </button>
-                  <button 
-                    onClick={() => setFriendlyTab('scorers')}
-                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
-                      friendlyTab === 'scorers' 
-                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                        : 'text-white/60 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    Strzelcy
-                  </button>
+                    <div className="w-10 h-10 rounded-xl bg-[#00ccff]/10 flex items-center justify-center text-[#00ccff] group-hover:bg-[#00ccff]/20 transition-all">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[#00ccff] text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Oficjalny Dokument</span>
+                      <span className="text-white font-bold tracking-tight">Regulamin Rozgrywek</span>
+                    </div>
+                    <div className="ml-2 w-8 h-8 rounded-lg flex items-center justify-center text-white/20 group-hover:text-[#00ccff] group-hover:translate-x-1 transition-all">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </div>
+                  </a>
+
+                  <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2 max-w-2xl mx-auto overflow-x-auto scrollbar-hide">
+                    <button 
+                      onClick={() => setFriendlyTab('schedule')}
+                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
+                        friendlyTab === 'schedule' 
+                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      Mecze
+                    </button>
+                    <button 
+                      onClick={() => setFriendlyTab('knockout')}
+                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
+                        friendlyTab === 'knockout' 
+                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      Drabinka
+                    </button>
+                    <button 
+                      onClick={() => setFriendlyTab('table')}
+                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
+                        friendlyTab === 'table' 
+                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      Tabela
+                    </button>
+                    <button 
+                      onClick={() => setFriendlyTab('scorers')}
+                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
+                        friendlyTab === 'scorers' 
+                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      Strzelcy
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4">
                 {friendlyTab === 'schedule' ? (
                   <>
                     {/* Featured Next Match */}

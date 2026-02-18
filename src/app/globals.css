@@ -86,14 +86,13 @@
     background-size: cover;
   }
   
-  /* Zastosuj League Gothic dla wszystkich pogrubionych tekstów */
+  /* Zastosuj Inter dla wszystkich tekstów */
   .font-black,
   .font-extrabold,
   .font-bold,
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-league-gothic), sans-serif;
-    letter-spacing: 0.025em;
-    font-style: normal !important;
+    font-family: var(--font-inter), sans-serif;
+    letter-spacing: -0.01em;
   }
   
   /* Usuń kursywę wszędzie */

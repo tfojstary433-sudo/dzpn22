@@ -52,7 +52,7 @@ export default {
         }
       },
       fontFamily: {
-        league: ['var(--font-league-gothic)', 'sans-serif'],
+        league: ['var(--font-inter)', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
         sans: ['var(--font-geist-sans)', 'sans-serif'],
       },

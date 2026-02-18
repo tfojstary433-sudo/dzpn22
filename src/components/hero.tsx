@@ -333,7 +333,7 @@ export function Hero({
       {/* Background decorations removed for transparency */}
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col 2xl:grid 2xl:grid-cols-[300px_1fr_300px] items-center gap-8 2xl:gap-12">
+        <div className="flex flex-col 2xl:grid 2xl:grid-cols-[theme(spacing.72)_1fr_theme(spacing.72)] items-center justify-items-center gap-8 2xl:gap-12">
           
           {/* Left Sidebar - Hidden on mobile/tablet */}
           <div className="hidden 2xl:block w-72 space-y-6 animate-in fade-in slide-in-from-left duration-1000">
@@ -356,7 +356,7 @@ export function Hero({
           </div>
 
           {/* Center Content */}
-          <div className="flex-1 w-full max-w-5xl flex flex-col items-center">
+          <div className="flex-1 w-full max-w-5xl flex flex-col items-center mx-auto">
             {/* Logo with broadcast style frame */}
             <div className="mb-8 flex flex-col items-center relative group w-full max-w-[800px]">
               {/* Background Glows removed */}
@@ -593,7 +593,7 @@ export function Hero({
             </div>
           </div>
 
-
+          <div className="hidden 2xl:block w-72" />
         </div>
 
         {/* Club logos bar */}

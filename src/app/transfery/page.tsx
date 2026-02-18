@@ -37,6 +37,10 @@ export default function TransferyPage() {
 
           if (data.players) {
             Object.entries(data.players).forEach(([userId, player]: [string, any]) => {
+              // Skip players named "BRAK" or with empty names
+              const playerName = player.name || player.username || '';
+              if (!playerName || playerName.toUpperCase() === 'BRAK') return;
+
               if (player.matches && player.matches.length > 0) {
                 // Sort matches by date ascending
                 const sortedMatches = [...player.matches].sort((a: any, b: any) => 

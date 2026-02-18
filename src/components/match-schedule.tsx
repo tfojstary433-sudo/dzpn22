@@ -527,50 +527,41 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
         </div>
       ) : (
         <>
-          <div className="mb-20 relative pt-10 pb-6">
-            {/* Ambient Background Glows */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-            
-            <div className="flex flex-col items-center justify-center gap-6 relative z-10">
-              <div className="relative group">
-                <div className="absolute -inset-8 bg-blue-500/10 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
-                <Image
-                  src="https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png"
-                  alt="PFF"
-                  width={200}
-                  height={100}
-                  className="brightness-0 invert opacity-40 h-24 md:h-28 w-auto relative z-10 grayscale hover:grayscale-0 transition-all duration-700"
-                />
-              </div>
+          {roundMatches.length > 0 && (
+            <div className="mb-20 relative pt-10 pb-6">
+              {/* Ambient Background Glows */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+              
+              <div className="flex flex-col items-center justify-center gap-6 relative z-10">
+                <div className="flex flex-col items-center relative">
+                  {/* Decorative Line with Glow */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="h-[2px] w-8 bg-gradient-to-r from-transparent to-[#00ccff]" />
+                    <div className="w-1.5 h-1.5 bg-[#00ccff] rounded-full shadow-[0_0_10px_#00ccff]" />
+                    <div className="h-[2px] w-8 bg-gradient-to-l from-transparent to-[#00ccff]" />
+                  </div>
 
-              <div className="flex flex-col items-center relative">
-                {/* Decorative Line with Glow */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-[2px] w-8 bg-gradient-to-r from-transparent to-[#00ccff]" />
-                  <div className="w-1.5 h-1.5 bg-[#00ccff] rounded-full shadow-[0_0_10px_#00ccff]" />
-                  <div className="h-[2px] w-8 bg-gradient-to-l from-transparent to-[#00ccff]" />
-                </div>
+                  <div className="relative px-12 py-4 bg-white/[0.02] backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl">
+                    <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase flex items-baseline gap-4">
+                      <span className="text-[#00ccff] drop-shadow-[0_0_25px_rgba(0,204,255,0.4)]">{selectedRound}</span>
+                      <span className="text-3xl md:text-4xl opacity-90 tracking-widest font-black italic">KOLEJKA</span>
+                    </h3>
+                    
+                    {/* Glass corner accents */}
+                    <div className="absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-[#00ccff]/30 rounded-tl-lg" />
+                    <div className="absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-[#00ccff]/30 rounded-br-lg" />
+                  </div>
 
-                <div className="relative px-12 py-4 bg-white/[0.02] backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl">
-                  <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase flex items-baseline gap-4">
-                    <span className="text-[#00ccff] drop-shadow-[0_0_25px_rgba(0,204,255,0.4)]">{selectedRound}</span>
-                    <span className="text-3xl md:text-4xl opacity-90 tracking-widest font-black italic">KOLEJKA</span>
-                  </h3>
-                  
-                  {/* Glass corner accents */}
-                  <div className="absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-[#00ccff]/30 rounded-tl-lg" />
-                  <div className="absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-[#00ccff]/30 rounded-br-lg" />
-                </div>
-
-                <div className="mt-4 flex items-center gap-2">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.5em]">Sezon 2025/26</span>
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.5em]">Sezon 2025/26</span>
+                  </div>
                 </div>
               </div>
+
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
             </div>
-
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-          </div>
+          )}
           
           <div className="space-y-4">
             {/* Finished Matches */}

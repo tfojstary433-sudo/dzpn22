@@ -175,7 +175,7 @@ export function Navbar() {
               const resolvedClubName = isReferee ? 'Sędzia PFF' : getTeamName(clubId);
               const resolvedClubLogo = isReferee ? null : getTeamLogo(clubId, resolvedClubName);
               const resolvedClubColor = isReferee ? '#ef4444' : getTeamColor(clubId, resolvedClubName);
-              const isFreeAgent = !isReferee && (!clubId || clubId === '---' || resolvedClubName === clubId || resolvedClubName === 'Nieznany Klub');
+              const isFreeAgent = !isReferee && (!clubId || clubId === '---' || clubId === 'FA' || clubId === 'FREE AGENT' || resolvedClubName === 'Nieznany Klub');
 
               results.push({
                 type: 'player',
@@ -223,22 +223,18 @@ export function Navbar() {
     <div className={`w-full sticky top-0 z-50 transition-all duration-500 ${scrolled ? 'bg-transparent backdrop-blur-xl border-b border-white/5 shadow-2xl' : 'bg-transparent'}`}>
       {/* Main Navigation */}
       <div className={`transition-all duration-500 ${scrolled ? 'py-1' : 'py-2'}`}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="py-2 group relative">
-              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-colors duration-300 blur-xl" />
-              <Image
-                src="https://i.ibb.co/BHdnmcMj/LOGO-PFF.png"
+        <div className="w-full max-w-[1700px] mx-auto px-8">
+          <div className="flex items-center justify-between gap-8 h-full">
+            <Link href="/" className="flex items-center shrink-0 z-50">
+              <img
+                src="https://i.ibb.co/pBJgbXxn/image.png"
                 alt="PFF Logo"
-                width={200}
-                height={80}
-                className={`w-auto brightness-0 invert opacity-90 group-hover:opacity-100 transition-all duration-300 ${scrolled ? 'h-16' : 'h-20'}`}
-                suppressHydrationWarning={true}
+                className={`w-auto object-contain transition-all duration-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] relative -top-[2px] ${scrolled ? 'h-12 md:h-14' : 'h-14 md:h-16'}`}
               />
             </Link>
 
             {/* Search Bar */}
-            <div className="hidden md:block relative">
+            <div className="hidden md:block relative shrink-0">
               <div className="relative">
                 <input
                   type="text"
@@ -320,7 +316,7 @@ export function Navbar() {
                                       alt={result.club} 
                                       className="w-full h-full object-contain brightness-125" 
                                       onError={(e) => {
-                                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/BHdnmcMj/LOGO-PFF.png';
+                                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/pBJgbXxn/image.png';
                                       }}
                                     />
                                   </div>

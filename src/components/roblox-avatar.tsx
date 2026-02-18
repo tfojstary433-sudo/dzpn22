@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 
 interface RobloxAvatarProps {
   username: string;
@@ -10,22 +10,23 @@ interface RobloxAvatarProps {
 
 const avatarCache = new Map<string, string>();
 
-export function RobloxAvatar({ username, className, style }: RobloxAvatarProps) {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(avatarCache.get(username.trim()) || null);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+export const RobloxAvatar = memo(function RobloxAvatar({ username, className, style }: RobloxAvatarProps) {
+  const trimmedUsername = username?.trim() || '';
+  const cachedUrl = avatarCache.get(trimmedUsername);
+  
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(cachedUrl || null);
+  const [isImageLoaded, setIsImageLoaded] = useState(!!cachedUrl);
 
   useEffect(() => {
-    if (!username) return;
+    if (!trimmedUsername) return;
+
+    if (avatarCache.has(trimmedUsername)) {
+      const url = avatarCache.get(trimmedUsername)!;
+      setAvatarUrl(url);
+      return;
+    }
 
     const fetchAvatar = async () => {
-      const trimmedUsername = username.trim();
-      if (!trimmedUsername) return;
-      
-      if (avatarCache.has(trimmedUsername)) {
-        setAvatarUrl(avatarCache.get(trimmedUsername)!);
-        return;
-      }
-      
       try {
         const response = await fetch(`/api/roblox/avatar?username=${encodeURIComponent(trimmedUsername)}`, {
           headers: { 'Accept': 'application/json' }
@@ -41,7 +42,7 @@ export function RobloxAvatar({ username, className, style }: RobloxAvatarProps) 
     };
 
     fetchAvatar();
-  }, [username]);
+  }, [trimmedUsername]);
 
   if (!avatarUrl) {
     return <div className={`${className} bg-gray-800 animate-pulse rounded-full`} style={style} />;
@@ -59,4 +60,4 @@ export function RobloxAvatar({ username, className, style }: RobloxAvatarProps) 
       }}
     />
   );
-}
+});

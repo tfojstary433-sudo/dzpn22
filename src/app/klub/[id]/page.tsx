@@ -43,6 +43,14 @@ interface ClubPlayer {
   };
 }
 
+const normalizeTeamName = (name: string) =>
+  (name || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '')
+    .trim();
+
 export default function KlubPage() {
   const params = useParams();
   const router = useRouter();
@@ -81,20 +89,137 @@ export default function KlubPage() {
   // Get team stats from standings
   const teamStats = useMemo(() => standings.find(s => s.team.id === id), [id]);
   
+  const parseMatchDate = (dateStr: string | undefined): Date => {
+    if (!dateStr || dateStr === 'TBD' || dateStr === 'N/A') return new Date(0);
+    
+    const s = dateStr.trim();
+    
+    // Handle DD.MM.YYYY format (with optional time)
+    if (s.includes('.')) {
+      const parts = s.split(/\s+/);
+      const d = parts[0];
+      const t = parts[1] || '00:00';
+      const dParts = d.split('.');
+      if (dParts.length === 3) {
+        const day = parseInt(dParts[0], 10);
+        const mon = parseInt(dParts[1], 10);
+        const yr = parseInt(dParts[2], 10);
+        const tParts = t.split(':');
+        const h = parseInt(tParts[0], 10) || 0;
+        const m = parseInt(tParts[1], 10) || 0;
+        const date = new Date(yr, mon - 1, day, h, m);
+        if (!isNaN(date.getTime())) return date;
+      }
+    }
+    
+    // Handle ISO or other standard formats
+    const date = new Date(s);
+    if (!isNaN(date.getTime())) return date;
+
+    // Fallback for YYYY-MM-DD HH:MM
+    const match = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[\sT](\d{2}):(\d{2}))?/);
+    if (match) {
+      const d = new Date(
+        parseInt(match[1], 10),
+        parseInt(match[2], 10) - 1,
+        parseInt(match[3], 10),
+        parseInt(match[4], 10) || 0,
+        parseInt(match[5], 10) || 0
+      );
+      if (!isNaN(d.getTime())) return d;
+    }
+    
+    return new Date(0);
+  };
+
   // Get team form (last 5 matches)
   const teamForm = useMemo(() => {
     if (!team) return [];
+    const n = (s: string) => normalizeTeamName(s);
+    const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
+
+    // Create a map of real scores from fixtures and history to fix incorrect API data
+    const realScores: Record<string, { scoreA: number; scoreB: number }> = {};
+    
+    // First from apiFixtures (often more accurate than apiMatches)
+    if (Array.isArray(apiFixtures)) {
+      apiFixtures.forEach(f => {
+        if (f.status === 'played' || f.status === 'finished') {
+          const uuid = f.uuid || f.matchUuid || f.id;
+          if (uuid && (f.scoreA !== null || f.scoreB !== null)) {
+            realScores[uuid] = { 
+              scoreA: f.scoreA ?? 0, 
+              scoreB: f.scoreB ?? 0 
+            };
+          }
+        }
+      });
+    }
+
+    // Then from history (as fallback or addition)
+    if (history && history.players) {
+      Object.values(history.players).forEach((player: any) => {
+        if (player.matches) {
+          player.matches.forEach((m: any) => {
+            const uuid = m.matchUuid || m.uuid;
+            if (uuid && (m.scoreA > 0 || m.scoreB > 0)) {
+              // Store if not exists or if higher total score found
+              if (!realScores[uuid] || (m.scoreA + m.scoreB > realScores[uuid].scoreA + realScores[uuid].scoreB)) {
+                realScores[uuid] = { scoreA: m.scoreA, scoreB: m.scoreB };
+              }
+            }
+          });
+        }
+      });
+    }
+
     if (Array.isArray(apiMatches) && apiMatches.length > 0) {
       return apiMatches
-        .filter(m => m.status === 'finished' && (m.teamA === team.name || m.teamB === team.name))
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .filter(m => {
+          if (m.status !== 'finished' && m.status !== 'played') return false;
+          
+          const ta = n(m.teamA);
+          const tb = n(m.teamB);
+          const isOurTeam = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+          if (!isOurTeam) return false;
+
+          const uuid = m.uuid || m.id;
+          const rScore = realScores[uuid];
+
+          // If it's 0-0 in apiMatches but we have a score in realScores, it's a valid match
+          if (m.scoreA === 0 && m.scoreB === 0) {
+            if (rScore && (rScore.scoreA > 0 || rScore.scoreB > 0)) return true;
+            // Also allow if it has lineups (might really be 0-0)
+            if (m.lineupA?.starters?.length || m.lineupB?.starters?.length || m.lineups?.A?.starters?.length || m.lineups?.B?.starters?.length) return true;
+            
+            // Special case: if it's in apiFixtures as 'played', we should probably show it even if 0-0
+            const fixture = Array.isArray(apiFixtures) && apiFixtures.find(f => (f.uuid || f.matchUuid || f.id) === uuid);
+            if (fixture && fixture.status === 'played') return true;
+
+            return false;
+          }
+          
+          return true;
+        })
+        .sort((a, b) => parseMatchDate(b.createdAt || b.date).getTime() - parseMatchDate(a.createdAt || a.date).getTime())
         .slice(0, 5)
         .map(m => {
-          const isTeamA = m.teamA === team.name;
-          const scoreA = m.scoreA ?? 0;
-          const scoreB = m.scoreB ?? 0;
+          const uuid = m.uuid || m.id;
+          const ta = n(m.teamA);
+          const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
+          
+          const rScore = realScores[uuid];
+          let scoreA = m.scoreA ?? 0;
+          let scoreB = m.scoreB ?? 0;
+          
+          // Override if realScores has data and API is 0-0 or doesn't match
+          if (rScore && (scoreA === 0 && scoreB === 0)) {
+            scoreA = rScore.scoreA;
+            scoreB = rScore.scoreB;
+          }
+
           const opponentName = isTeamA ? m.teamB : m.teamA;
-          const opponent = teams.find(t => t.name === opponentName) || { name: opponentName, logo: '' };
+          const opponent = teams.find(t => n(t.name) === n(opponentName) || n(t.shortName) === n(opponentName) || n(t.id) === n(opponentName)) || { name: opponentName, logo: '' };
           
           let res: 'W' | 'L' | 'D';
           if (scoreA === scoreB) res = 'D';
@@ -115,7 +240,7 @@ export default function KlubPage() {
     
     return allMatches
       .filter(m => m.status === 'finished' && (m.homeTeam?.id === id || m.awayTeam?.id === id))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => parseMatchDate(b.date).getTime() - parseMatchDate(a.date).getTime())
       .slice(0, 5)
       .map(m => {
         const isHome = m.homeTeam?.id === id;
@@ -136,61 +261,73 @@ export default function KlubPage() {
         };
       })
       .reverse();
-  }, [id, apiFixtures, apiMatches, team]);
+  }, [id, apiFixtures, apiMatches, team, history]);
 
   // Get next match
   const nextMatch = useMemo(() => {
-    // Priority: API fixtures
+    if (!team) return null;
+    const n = (s: string) => normalizeTeamName(s);
+    const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
+
+    // Priority 1: API fixtures
     const apiMatch = Array.isArray(apiFixtures)
       ? apiFixtures
-        .filter(f => f.status === 'upcoming' && (f.homeTeam?.id === id || f.awayTeam?.id === id))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
+        .filter(f => {
+          if (f.status !== 'upcoming' && f.status !== 'scheduled') return false;
+          const ta = n(f.homeTeam?.name || f.teamA || '');
+          const tb = n(f.awayTeam?.name || f.teamB || '');
+          return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+        })
+        .sort((a, b) => parseMatchDate(a.date).getTime() - parseMatchDate(b.date).getTime())[0]
       : null;
     
-    if (apiMatch) return apiMatch;
+    if (apiMatch) {
+      const ht = apiMatch.homeTeam || teams.find(t => n(t.name) === n(apiMatch.teamA) || n(t.shortName) === n(apiMatch.teamA) || n(t.id) === n(apiMatch.teamA)) || { name: apiMatch.teamA || 'Nieznany', logo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png' };
+      const at = apiMatch.awayTeam || teams.find(t => n(t.name) === n(apiMatch.teamB) || n(t.shortName) === n(apiMatch.teamB) || n(t.id) === n(apiMatch.teamB)) || { name: apiMatch.teamB || 'Nieznany', logo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png' };
+      
+      return {
+        ...apiMatch,
+        date: apiMatch.date === 'TBD' ? 'TBD' : parseMatchDate(apiMatch.date).toISOString(),
+        homeTeam: ht,
+        awayTeam: at
+      };
+    }
 
     // Friendly matches
     const friendlyMatch = Array.isArray(friendlyMatches)
       ? friendlyMatches
-        .filter(f => (f.status === 'scheduled' || f.status === 'upcoming') && (f.teamA === team?.name || f.teamB === team?.name))
-        .sort((a, b) => {
-          const dateA = a.date.includes('.') ? 
-            (() => {
-              const [d, t] = a.date.split(' ');
-              const [day, mon, yr] = d.split('.').map(Number);
-              const [h, m] = (t || '00:00').split(':').map(Number);
-              return new Date(yr, mon - 1, day, h, m).getTime();
-            })() : new Date(a.date).getTime();
-          const dateB = b.date.includes('.') ? 
-            (() => {
-              const [d, t] = b.date.split(' ');
-              const [day, mon, yr] = d.split('.').map(Number);
-              const [h, m] = (t || '00:00').split(':').map(Number);
-              return new Date(yr, mon - 1, day, h, m).getTime();
-            })() : new Date(b.date).getTime();
-          return dateA - dateB;
-        })[0]
+        .filter(f => {
+          if (f.status !== 'scheduled' && f.status !== 'upcoming') return false;
+          const ta = n(f.teamA || '');
+          const tb = n(f.teamB || '');
+          return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+        })
+        .sort((a, b) => parseMatchDate(a.date).getTime() - parseMatchDate(b.date).getTime())[0]
       : null;
 
     if (friendlyMatch) {
       // Map friendly match to standard format for the widget
-      const [d, t] = friendlyMatch.date.split(' ');
-      const [day, mon, yr] = d.split('.').map(Number);
-      const [h, m] = (t || '00:00').split(':').map(Number);
-      const date = new Date(yr, mon - 1, day, h, m);
-
       return {
         id: friendlyMatch.uuid || friendlyMatch.matchUuid,
-        date: date.toISOString(),
+        date: friendlyMatch.date === 'TBD' ? 'TBD' : parseMatchDate(friendlyMatch.date).toISOString(),
         homeTeam: teams.find(t => t.name === friendlyMatch.teamA) || { name: friendlyMatch.teamA, logo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png' },
         awayTeam: teams.find(t => t.name === friendlyMatch.teamB) || { name: friendlyMatch.teamB, logo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png' },
         type: 'friendly'
       };
     }
 
-    return matches
+    const finalMatch = matches
       .filter(m => m.status === 'upcoming' && (m.homeTeam?.id === id || m.awayTeam?.id === id))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+      .sort((a, b) => parseMatchDate(a.date).getTime() - parseMatchDate(b.date).getTime())[0];
+
+    if (finalMatch) {
+      return {
+        ...finalMatch,
+        date: finalMatch.date === 'TBD' ? 'TBD' : parseMatchDate(finalMatch.date).toISOString()
+      };
+    }
+
+    return null;
   }, [id, apiFixtures, friendlyMatches, team]);
 
   // Get last lineup
@@ -216,11 +353,11 @@ export default function KlubPage() {
 
       uniqueStarters.forEach(p => {
         const pos = (p.position || '').toUpperCase().trim();
-        if (pos.includes('GK') || pos === 'BR' || pos === 'BRAMKARZ' || pos === 'B') {
+        if (pos.includes('GK') || pos === 'BR' || pos === 'BRAMKARZ' || pos === 'B' || pos.includes('BRAM')) {
           positionGroups.GK.push(p);
-        } else if (pos.includes('DEF') || pos.includes('CB') || pos.includes('LB') || pos.includes('RB') || pos === 'ŚO' || pos === 'LO' || pos === 'PO' || pos === 'LWB' || pos === 'RWB' || pos === 'O') {
+        } else if (pos.includes('DEF') || pos.includes('CB') || pos.includes('LB') || pos.includes('RB') || pos === 'ŚO' || pos === 'LO' || pos === 'PO' || pos === 'LWB' || pos === 'RWB' || pos === 'O' || pos === 'OB' || pos === 'OBRONA' || pos === 'SO' || pos.includes('OBRO')) {
           positionGroups.DEF.push(p);
-        } else if (pos.includes('MID') || pos === 'CM' || pos === 'CDM' || pos === 'CAM' || pos === 'LM' || pos === 'RM' || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || pos === 'LP' || pos === 'P') {
+        } else if (pos.includes('MID') || pos === 'CM' || pos === 'CDM' || pos === 'CAM' || pos === 'LM' || pos === 'RM' || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || pos === 'LP' || pos === 'P' || pos === 'POMÓC' || pos === 'POMOC' || pos === 'SPD' || pos.includes('POMO')) {
           positionGroups.MID.push(p);
         } else {
           positionGroups.ATT.push(p);
@@ -290,17 +427,31 @@ export default function KlubPage() {
 
     // Priority 1: apiMatches (Latest league match)
     if (Array.isArray(apiMatches) && apiMatches.length > 0) {
-      const teamMatches = apiMatches
-        .filter(m => m.status === 'finished' && (m.teamA === team.name || m.teamB === team.name))
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const n = (s: string) => normalizeTeamName(s);
+      const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
 
-      if (teamMatches.length > 0) {
-        const lastMatch = teamMatches[0];
-        const isTeamA = lastMatch.teamA === team.name;
-        const lineup = isTeamA ? lastMatch.lineupA : lastMatch.lineupB;
+      const teamMatches = apiMatches
+        .filter(m => {
+          if (m.status !== 'finished' && m.status !== 'live' && m.status !== 'in_progress' && m.status !== 'played') return false;
+          const ta = n(m.teamA);
+          const tb = n(m.teamB);
+          return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+        })
+        .sort((a, b) => {
+          const timeA = parseMatchDate(a.createdAt || a.date || 0).getTime();
+          const timeB = parseMatchDate(b.createdAt || b.date || 0).getTime();
+          if (timeB !== timeA) return timeB - timeA;
+          return (b.uuid || b.id || '').localeCompare(a.uuid || a.id || '');
+        });
+
+      for (const match of teamMatches) {
+        const ta = n(match.teamA);
+        const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
+        const lineup = isTeamA ? (match.lineupA || match.lineups?.A) : (match.lineupB || match.lineups?.B);
         
-        if (lineup?.starters) {
-          return getPositionsForLineup(lineup.starters);
+        if (lineup?.starters && lineup.starters.length > 0) {
+          const lineupPlayers = getPositionsForLineup(lineup.starters);
+          if (lineupPlayers.length > 0) return lineupPlayers;
         }
       }
     }
@@ -309,32 +460,53 @@ export default function KlubPage() {
     if (!history || !history.players) return null;
     
     // Find all matches for this team
-    const teamMatches: any[] = [];
+    const historicalTeamMatches: any[] = [];
+    const n = (s: string) => normalizeTeamName(s);
+    const teamKeys = team ? [n(team.name), n(team.shortName), n(team.id)].filter(Boolean) : [];
+
     Object.values(history.players).forEach((player: any) => {
-      player.matches.forEach((m: any) => {
-        if (m.playerTeam === team.name) {
-          teamMatches.push({
-            ...m,
-            playerName: player.name,
-            robloxId: player.robloxId
-          });
-        }
-      });
+      if (player.matches) {
+        player.matches.forEach((m: any) => {
+          const pt = n(m.playerTeam);
+          if (teamKeys.some(key => key === pt || pt.includes(key) || key.includes(pt))) {
+            historicalTeamMatches.push({
+              ...m,
+              playerName: player.name,
+              robloxId: player.robloxId
+            });
+          }
+        });
+      }
     });
 
-    if (teamMatches.length === 0) return null;
+    if (historicalTeamMatches.length === 0) return null;
 
-    // Find the latest match date
-    const latestMatch = teamMatches.sort((a, b) => 
-      new Date(b.playedAt || b.date).getTime() - new Date(a.playedAt || a.date).getTime()
-    )[0];
+    // Group by matchUuid
+    const matchesByUuid: Record<string, any[]> = {};
+    historicalTeamMatches.forEach(m => {
+      const uuid = m.matchUuid || m.uuid;
+      if (uuid) {
+        if (!matchesByUuid[uuid]) matchesByUuid[uuid] = [];
+        matchesByUuid[uuid].push(m);
+      }
+    });
 
-    // Get all starters for this specific match
-    const starters = teamMatches.filter(m => 
-      m.matchUuid === latestMatch.matchUuid && m.role === 'starter'
-    );
+    // Sort match UUIDs by date
+    const sortedMatchUuuids = Object.keys(matchesByUuid).sort((a, b) => {
+      const dateA = parseMatchDate(matchesByUuid[a][0].playedAt || matchesByUuid[a][0].date).getTime();
+      const dateB = parseMatchDate(matchesByUuid[b][0].playedAt || matchesByUuid[b][0].date).getTime();
+      return dateB - dateA;
+    });
 
-    return getPositionsForLineup(starters);
+    for (const uuid of sortedMatchUuuids) {
+      const matchPlayers = matchesByUuid[uuid].filter(m => m.role === 'starter');
+      if (matchPlayers.length > 0) {
+        const result = getPositionsForLineup(matchPlayers);
+        if (result.length > 0) return result;
+      }
+    }
+
+    return null;
   }, [team, history, apiMatches]);
 
   // Get aggregated stats for the club
@@ -353,6 +525,9 @@ export default function KlubPage() {
     // Get current squad player names for filtering
     const currentSquadNames = new Set(players.map(p => p.username));
 
+    const n = (s: string) => normalizeTeamName(s);
+    const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
+
     Object.values(history.players).forEach((player: any) => {
       // Only include players currently in the club
       if (currentSquadNames.size > 0 && !currentSquadNames.has(player.name)) {
@@ -360,7 +535,8 @@ export default function KlubPage() {
       }
 
       player.matches.forEach((m: any) => {
-        if (m.playerTeam === team.name) {
+        const pt = n(m.playerTeam);
+        if (teamKeys.some(key => key === pt || pt.includes(key) || key.includes(pt))) {
           if (!statsMap[player.name]) {
             statsMap[player.name] = { 
               name: player.name, 
@@ -408,9 +584,12 @@ export default function KlubPage() {
       position?: string
     }> = [];
 
+    const n = (s: string) => normalizeTeamName(s);
+    const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
+
     Object.values(history.players).forEach((player: any) => {
-      const playerMatches = [...player.matches].sort((a, b) => 
-        new Date(a.playedAt || a.date).getTime() - new Date(b.playedAt || b.date).getTime()
+      const playerMatches = [...(player.matches || [])].sort((a, b) => 
+        parseMatchDate(a.playedAt || a.date).getTime() - parseMatchDate(b.playedAt || b.date).getTime()
       );
 
       for (let i = 0; i < playerMatches.length; i++) {
@@ -419,26 +598,33 @@ export default function KlubPage() {
 
         const matchDate = currentMatch.playedAt || currentMatch.date;
 
+        const cpt = n(currentMatch.playerTeam);
+        const isCurrentTeamMatch = teamKeys.some(key => key === cpt || cpt.includes(key) || key.includes(cpt));
+        
+        const ppt = prevMatch ? n(prevMatch.playerTeam) : '';
+        const isPrevTeamMatch = prevMatch ? teamKeys.some(key => key === ppt || ppt.includes(key) || key.includes(ppt)) : false;
+
         // Joined the club
-        if (currentMatch.playerTeam === team.name && (!prevMatch || prevMatch.playerTeam !== team.name)) {
+        if (isCurrentTeamMatch && (!prevMatch || !isPrevTeamMatch)) {
           transfers.push({
             playerName: player.name,
             type: 'IN',
             fromTeam: prevMatch?.playerTeam || 'Wolny Agent',
             date: matchDate,
-            timestamp: new Date(matchDate).getTime(),
+            timestamp: parseMatchDate(matchDate).getTime(),
             position: currentMatch.position
           });
         }
 
         // Left the club
-        if (prevMatch && prevMatch.playerTeam === team.name && currentMatch.playerTeam !== team.name) {
+        if (prevMatch && isPrevTeamMatch && !isCurrentTeamMatch) {
           transfers.push({
             playerName: player.name,
             type: 'OUT',
+            fromTeam: team.name,
             toTeam: currentMatch.playerTeam,
             date: matchDate,
-            timestamp: new Date(matchDate).getTime(),
+            timestamp: parseMatchDate(matchDate).getTime(),
             position: prevMatch.position
           });
         }
@@ -498,33 +684,51 @@ export default function KlubPage() {
     }
     fetchFriendlyMatches();
 
-    fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/matches')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setApiMatches(data);
-          const numbers: Record<string, number> = {};
-          data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).forEach(match => {
-            const processLineup = (lineup: any) => {
-              if (lineup?.starters) {
-                lineup.starters.forEach((p: any) => {
-                  if (p.id) numbers[p.id.toString()] = p.number;
-                });
-              }
-              if (lineup?.bench) {
-                lineup.bench.forEach((p: any) => {
-                  if (p.id) numbers[p.id.toString()] = p.number;
-                });
-              }
-            };
-            processLineup(match.lineupA);
-            processLineup(match.lineupB);
-          });
-          setPlayerNumbers(numbers);
-        }
-      })
-      .catch(err => console.error('Error fetching match numbers:', err));
-  }, []);
+    const fetchAllData = () => {
+      fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/matches')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setApiMatches(data);
+            const numbers: Record<string, number> = {};
+            const n = (s: string) => normalizeTeamName(s);
+            const teamKeys = team ? [n(team.name), n(team.shortName), n(team.id)].filter(Boolean) : [];
+
+            data.sort((a, b) => parseMatchDate(a.createdAt || a.date || 0).getTime() - parseMatchDate(b.createdAt || b.date || 0).getTime()).forEach(match => {
+              const processLineup = (lineup: any, isTargetTeam: boolean) => {
+                if (!isTargetTeam) return;
+                if (lineup?.starters) {
+                  lineup.starters.forEach((p: any) => {
+                    const pid = p.id || p.userId || p.robloxId;
+                    if (pid) numbers[pid.toString()] = p.number;
+                  });
+                }
+                if (lineup?.bench) {
+                  lineup.bench.forEach((p: any) => {
+                    const pid = p.id || p.userId || p.robloxId;
+                    if (pid) numbers[pid.toString()] = p.number;
+                  });
+                }
+              };
+
+              const ta = n(match.teamA);
+              const tb = n(match.teamB);
+              const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
+              const isTeamB = teamKeys.some(key => key === tb || tb.includes(key) || key.includes(tb));
+
+              processLineup(match.lineupA || match.lineups?.A, isTeamA);
+              processLineup(match.lineupB || match.lineups?.B, isTeamB);
+            });
+            setPlayerNumbers(numbers);
+          }
+        })
+        .catch(err => console.error('Error fetching match numbers:', err));
+    };
+
+    fetchAllData();
+    const interval = setInterval(fetchAllData, 10000); // Refresh every 10 seconds to keep live info fresh
+    return () => clearInterval(interval);
+  }, [team]);
 
   useEffect(() => {
     if ((activeTab === 'skład' || activeTab === 'statystyki') && players.length === 0 && !loadingPlayers && team) {
@@ -533,7 +737,11 @@ export default function KlubPage() {
         .then(res => res.json())
         .then(data => {
           if (data.players && Array.isArray(data.players)) {
-            setPlayers(data.players);
+            // Filter out players named "BRAK"
+            const filteredData = data.players.filter((p: any) => 
+              p.username && p.username.toUpperCase() !== 'BRAK'
+            );
+            setPlayers(filteredData);
           }
           setLoadingPlayers(false);
         })
@@ -770,10 +978,10 @@ export default function KlubPage() {
                       
                       <div className="text-center">
                         <div className="text-2xl font-black mb-1 group-hover/match:text-blue-400 transition-colors">
-                          {new Date(nextMatch.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+                          {nextMatch.date === 'TBD' ? 'TBD' : new Date(nextMatch.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                         <div className="text-[10px] font-bold text-gray-500 uppercase">
-                          {new Date(nextMatch.date).toLocaleDateString('pl-PL') === new Date().toLocaleDateString('pl-PL') ? 'Dzisiaj' : new Date(nextMatch.date).toLocaleDateString('pl-PL')}
+                          {nextMatch.date === 'TBD' ? 'DO USTALENIA' : (new Date(nextMatch.date).toLocaleDateString('pl-PL') === new Date().toLocaleDateString('pl-PL') ? 'Dzisiaj' : new Date(nextMatch.date).toLocaleDateString('pl-PL'))}
                         </div>
                         <div className="mt-2 text-[8px] font-black text-blue-500 opacity-0 group-hover/match:opacity-100 uppercase tracking-tighter transition-opacity">
                           Szczegóły meczu →
@@ -820,7 +1028,7 @@ export default function KlubPage() {
                     <Star className="w-5 h-5 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
                     Statystyki
                   </h3>
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ostatnia 11-tka</span>
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">OSTATNIA 11-TKA</span>
                 </div>
                 
                 {/* Field Visualization - Even longer and more professional */}
@@ -839,7 +1047,7 @@ export default function KlubPage() {
                   
                   {/* Players from last match - 5x7 grid */}
                   <div className="absolute inset-0 p-4 grid grid-cols-5 grid-rows-7 gap-1 z-10">
-                    {lastLineup ? lastLineup.map((player: any, idx: number) => (
+                    {lastLineup && lastLineup.length > 0 ? lastLineup.map((player: any, idx: number) => (
                       <div 
                         key={idx} 
                         className="flex flex-col items-center justify-center transition-all duration-500 hover:scale-110"
@@ -1050,6 +1258,9 @@ export default function KlubPage() {
 
               <div className="space-y-2">
                 {(() => {
+                  const n = (s: string) => normalizeTeamName(s);
+                  const teamKeys = [n(team.name), n(team.shortName), n(team.id)].filter(Boolean);
+
                   const fixturesArray = Array.isArray(apiFixtures) ? apiFixtures : [];
                   const friendlyArray = Array.isArray(friendlyMatches) ? friendlyMatches : [];
                   
@@ -1074,7 +1285,11 @@ export default function KlubPage() {
                   // Merge matches (finished), fixtures (upcoming) and friendly matches
                   const rawCombinedMatches = [
                     ...fixturesArray
-                      .filter(f => f?.teamA === team?.name || f?.teamB === team?.name)
+                      .filter(f => {
+                        const ta = n(f?.teamA || '');
+                        const tb = n(f?.teamB || '');
+                        return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+                      })
                       .map(f => ({
                         id: f.uuid || f.id,
                         homeTeamName: f.teamA,
@@ -1088,7 +1303,11 @@ export default function KlubPage() {
                         leagueLogo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png'
                       })),
                     ...(Array.isArray(apiMatches) ? apiMatches : [])
-                      .filter(m => m.teamA === team.name || m.teamB === team.name)
+                      .filter(m => {
+                        const ta = n(m.teamA || '');
+                        const tb = n(m.teamB || '');
+                        return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+                      })
                       .map(m => ({
                         id: m.uuid || m.id,
                         homeTeamName: m.teamA,
@@ -1102,7 +1321,11 @@ export default function KlubPage() {
                         leagueLogo: 'https://i.ibb.co/6RwzB3Cc/obraz-2026-02-04-222253347-removebg-preview-1.png'
                       })),
                     ...friendlyArray
-                      .filter(f => f.teamA === team.name || f.teamB === team.name)
+                      .filter(f => {
+                        const ta = n(f.teamA || '');
+                        const tb = n(f.teamB || '');
+                        return teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta) || key === tb || tb.includes(key) || key.includes(tb));
+                      })
                       .map(f => ({
                         id: f.uuid || f.matchUuid || f.id,
                         homeTeamName: f.teamA,
@@ -1141,7 +1364,8 @@ export default function KlubPage() {
                     
                     let resultColor = 'bg-green-500/90 shadow-[0_0_40px_rgba(34,197,94,0.3)]';
                     if (isFinished) {
-                      const isTeamA = match.homeTeamName === team.name;
+                      const ta = n(match.homeTeamName);
+                      const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
                       const scoreA = match.homeScore || 0;
                       const scoreB = match.awayScore || 0;
                       
@@ -1158,8 +1382,13 @@ export default function KlubPage() {
                     const dateStr = `${days[match.date.getDay()]}, ${match.date.getDate()} ${months[match.date.getMonth()]}`;
                     const timeStr = match.date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
 
-                    const teamAData = teams.find(t => t.name === match.homeTeamName) || { logo: '', name: match.homeTeamName };
-                    const teamBData = teams.find(t => t.name === match.awayTeamName) || { logo: '', name: match.awayTeamName };
+                    const teamAData = teams.find(t => n(t.name) === n(match.homeTeamName) || n(t.shortName) === n(match.homeTeamName) || n(t.id) === n(match.homeTeamName)) || { logo: '', name: match.homeTeamName };
+                    const teamBData = teams.find(t => n(t.name) === n(match.awayTeamName) || n(t.shortName) === n(match.awayTeamName) || n(t.id) === n(match.awayTeamName)) || { logo: '', name: match.awayTeamName };
+
+                    const ta = n(match.homeTeamName);
+                    const tb = n(match.awayTeamName);
+                    const isTeamA = teamKeys.some(key => key === ta || ta.includes(key) || key.includes(ta));
+                    const isTeamB = teamKeys.some(key => key === tb || tb.includes(key) || key.includes(tb));
 
                     return (
                       <Link 
@@ -1179,7 +1408,7 @@ export default function KlubPage() {
                           <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12">
                             {/* Team A */}
                             <div className="flex items-center gap-4 md:gap-6 flex-1 justify-center md:justify-end order-2 md:order-1">
-                              <span className={`text-lg md:text-2xl font-bold uppercase italic tracking-tighter text-right transition-colors ${match.homeTeamName === team.name ? 'text-blue-400' : 'text-white/90 group-hover:text-white'}`}>
+                              <span className={`text-lg md:text-2xl font-bold uppercase italic tracking-tighter text-right transition-colors ${isTeamA ? 'text-blue-400' : 'text-white/90 group-hover:text-white'}`}>
                                 {match.homeTeamName}
                               </span>
                               <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2 group-hover:scale-110 group-hover:border-blue-500/30 transition-all shadow-2xl backdrop-blur-md">
@@ -1205,7 +1434,7 @@ export default function KlubPage() {
                               <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2 group-hover:scale-110 group-hover:border-blue-500/30 transition-all shadow-2xl backdrop-blur-md">
                                 {teamBData.logo && <img src={teamBData.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />}
                               </div>
-                              <span className={`text-lg md:text-2xl font-bold uppercase italic tracking-tighter text-left transition-colors ${match.awayTeamName === team.name ? 'text-blue-400' : 'text-white/90 group-hover:text-white'}`}>
+                              <span className={`text-lg md:text-2xl font-bold uppercase italic tracking-tighter text-left transition-colors ${isTeamB ? 'text-blue-400' : 'text-white/90 group-hover:text-white'}`}>
                                 {match.awayTeamName}
                               </span>
                             </div>

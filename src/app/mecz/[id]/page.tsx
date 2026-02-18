@@ -1086,7 +1086,7 @@ export default function MatchDetail() {
                 <div className="grid grid-cols-2 gap-12 md:gap-32 mb-20 max-w-5xl mx-auto">
                   <div className="flex flex-col gap-3 items-end">
                     {(finishedMatchData?.scorers || apiData?.events?.goals) && (finishedMatchData?.scorers ? finishedMatchData.scorers.filter((s: any) => s.teamId === homeTeam.id) : apiData?.events?.goals?.filter(g => isHomeTeam(g)) || []).map((goal: any, idx: number) => (
-                      <div key={idx} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
+                      <div key={`${goal.playerName || goal.player}-${goal.minute}`} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
                         <div className="flex flex-col items-end">
                           <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-blue-400 transition-colors">{goal.playerName || goal.player}</span>
                           <span className="text-white/20 text-[9px] font-black uppercase tracking-widest">GOL</span>
@@ -1100,7 +1100,7 @@ export default function MatchDetail() {
 
                   <div className="flex flex-col gap-3 items-start">
                     {(finishedMatchData?.scorers || apiData?.events?.goals) && (finishedMatchData?.scorers ? finishedMatchData.scorers.filter((s: any) => s.teamId === awayTeam.id) : apiData?.events?.goals?.filter(g => isAwayTeam(g)) || []).map((goal: any, idx: number) => (
-                      <div key={idx} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
+                      <div key={`${goal.playerName || goal.player}-${goal.minute}`} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
                         <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-red-400 font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
                           {goal.minute != null ? `${goal.minute}'` : ''}
                         </div>
@@ -1210,11 +1210,11 @@ export default function MatchDetail() {
                     });
                     
                     return [
-                      ...eventsData.goals.map((e) => ({...e, type: 'goal' as const, _id: `goal-${Math.random()}`, original: e})),
-                      ...eventsData.cards.map((e, i) => ({...e, type: e.type, _id: `card-${i}`})),
-                      ...eventsData.substitutions.map((e, i) => ({...e, type: 'substitution' as const, _id: `sub-${i}`})),
-                      ...(eventsData.cancelledGoals || []).map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${i}`})),
-                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${i}`}))
+                      ...eventsData.goals.map((e) => ({...e, type: 'goal' as const, _id: `goal-${e.team}-${e.player}-${e.minute}`, original: e})),
+                      ...eventsData.cards.map((e) => ({...e, type: e.type, _id: `card-${e.team}-${e.player}-${e.minute}-${e.type}`})),
+                      ...eventsData.substitutions.map((e) => ({...e, type: 'substitution' as const, _id: `sub-${e.team}-${e.playerIn}-${e.playerOut}-${e.minute}`})),
+                      ...(eventsData.cancelledGoals || []).map((e) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${e.team}-${e.player}-${e.minute}`})),
+                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${e.team}-${e.player}-${e.minute}`}))
                     ].sort((a, b) => b.minute - a.minute).map((event: any) => {
                       const isHomeEvent = isHomeTeam(event);
                       const isAwayEvent = isAwayTeam(event);
@@ -1431,7 +1431,7 @@ export default function MatchDetail() {
                                   <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
                                   <div className="space-y-2">
                                     {apiData?.match?.lineupA?.starters?.map((p, idx) => (
-                                      <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
+                                      <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
                                         <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
                                           <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
                                         </div>
@@ -1447,7 +1447,7 @@ export default function MatchDetail() {
                                     <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
                                     <div className="space-y-2">
                                       {apiData?.match?.lineupA?.bench.map((p, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
+                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
                                           <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
                                             <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
                                           </div>
@@ -1528,7 +1528,7 @@ export default function MatchDetail() {
                                       if (!player.pos) return null;
                                       return (
                                         <div 
-                                          key={idx} 
+                                          key={`${player.team}-${player.name}`} 
                                           className="absolute flex flex-col items-center group cursor-pointer"
                                           style={{ 
                                             left: player.pos.x, 
@@ -1578,7 +1578,7 @@ export default function MatchDetail() {
                                   <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
                                   <div className="space-y-2">
                                     {apiData?.match?.lineupB?.starters?.map((p, idx) => (
-                                      <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
+                                      <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
                                         <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
                                           <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
                                         </div>
@@ -1594,7 +1594,7 @@ export default function MatchDetail() {
                                     <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
                                     <div className="space-y-2">
                                       {apiData?.match?.lineupB?.bench.map((p, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
+                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
                                           <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
                                             <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
                                           </div>
@@ -1671,17 +1671,8 @@ export default function MatchDetail() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent rounded-[2rem] md:rounded-[4rem]"></div>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 relative z-10">
                   {/* Home Team */}
-                  <div className="flex items-center gap-4 md:gap-6 lg:gap-10 flex-1 justify-center md:justify-end group w-full">
-                    <div className="flex flex-col items-center md:items-end order-2 md:order-1">
-                      <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase tracking-tighter leading-[0.8] md:leading-[0.85] text-center md:text-right transition-transform group-hover:scale-105">
-                        {homeTeam.name.split(' ').map((word: string, i: number) => (
-                          <div key={i} className="whitespace-nowrap">{word}</div>
-                        ))}
-                      </h2>
-                      <span className="text-blue-400/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-3 md:mt-4">GOSPODARZ</span>
-                    </div>
-
-                    <div className="shrink-0 relative order-1 md:order-2">
+                  <div className="flex flex-col items-center gap-4 md:gap-6 flex-1 justify-center md:justify-end group w-full">
+                    <div className="shrink-0 relative">
                       <div className="absolute -inset-6 md:-inset-10 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       {homeTeam.logo && (
                         <Image
@@ -1693,6 +1684,9 @@ export default function MatchDetail() {
                         />
                       )}
                     </div>
+                    <h2 className="text-white text-xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter text-center transition-transform group-hover:scale-105">
+                      {homeTeam.name}
+                    </h2>
                   </div>
 
                   <div className="w-px h-32 md:h-40 bg-white/10 hidden md:block opacity-20 mx-2 lg:mx-4"></div>
@@ -1741,7 +1735,7 @@ export default function MatchDetail() {
                   <div className="w-px h-32 md:h-40 bg-white/10 hidden md:block opacity-20 mx-2 lg:mx-4"></div>
 
                   {/* Away Team */}
-                  <div className="flex items-center gap-4 md:gap-6 lg:gap-10 flex-1 justify-center md:justify-start group w-full">
+                  <div className="flex flex-col items-center gap-4 md:gap-6 flex-1 justify-center md:justify-start group w-full">
                     <div className="shrink-0 relative">
                       <div className="absolute -inset-6 md:-inset-10 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       {awayTeam.logo && (
@@ -1754,15 +1748,9 @@ export default function MatchDetail() {
                         />
                       )}
                     </div>
-
-                    <div className="flex flex-col items-center md:items-start">
-                      <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase tracking-tighter leading-[0.8] md:leading-[0.85] text-center md:text-left transition-transform group-hover:scale-105">
-                        {awayTeam.name.split(' ').map((word: string, i: number) => (
-                          <div key={i} className="whitespace-nowrap">{word}</div>
-                        ))}
-                      </h2>
-                      <span className="text-blue-400/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-3 md:mt-4">GOŚĆ</span>
-                    </div>
+                    <h2 className="text-white text-xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter text-center transition-transform group-hover:scale-105">
+                      {awayTeam.name}
+                    </h2>
                   </div>
                 </div>
 
@@ -1775,10 +1763,7 @@ export default function MatchDetail() {
                         <Image src={homeTeam.logo} alt="" width={40} height={40} className="relative z-10 grayscale brightness-200 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-500" />
                       )}
                     </div>
-                    <div className="hidden lg:flex flex-col">
-                      <span className="text-white text-[10px] font-black uppercase tracking-widest">{homeTeam.shortName || homeTeam.name}</span>
-                      <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">GOSPODARZ</span>
-                    </div>
+
                   </div>
 
                   <div className="flex items-center gap-6 md:gap-12">
@@ -1811,10 +1796,7 @@ export default function MatchDetail() {
                   </div>
 
                   <div className="flex items-center gap-4 group cursor-pointer opacity-20 hover:opacity-100 transition-all duration-500">
-                    <div className="hidden lg:flex flex-col items-end text-right">
-                      <span className="text-white text-[10px] font-black uppercase tracking-widest">{awayTeam.shortName || awayTeam.name}</span>
-                      <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">GOŚĆ</span>
-                    </div>
+
                     <div className="relative">
                       <div className="absolute -inset-2 bg-blue-500/10 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       {awayTeam.logo && (
@@ -1827,13 +1809,211 @@ export default function MatchDetail() {
                 {/* Tab Content for non-active matches */}
                 {activeTab === 'składy' && (
                   <div className="w-full mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                      {/* Reuse the existing lineups logic but adapted for this layout if needed, 
-                          or just show a message if no data */}
+                    {(apiData?.match?.lineupA?.starters?.length || apiData?.match?.lineupB?.starters?.length) ? (
+                      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+                        {/* Home Team Column */}
+                        <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-2 lg:order-1">
+                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+                                <img src={homeTeam.logo} alt="" className="w-8 h-8 object-contain opacity-60" />
+                              </div>
+                              <div>
+                                <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
+                                <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {apiData?.match?.lineupA?.formation || '4-3-3'}</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              {apiData?.match?.lineupA ? (
+                                <>
+                                  <div>
+                                    <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
+                                    <div className="space-y-2">
+                                      {apiData?.match?.lineupA?.starters?.map((p, idx) => (
+                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
+                                          <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                            <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
+                                          </div>
+                                          <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors">{p.name}</span>
+                                          {p.position && <span className="text-[8px] font-black text-white/10 ml-auto uppercase">{p.position}</span>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {apiData?.match?.lineupA?.bench && apiData?.match?.lineupA?.bench.length > 0 && (
+                                    <div className="pt-4 border-t border-white/10">
+                                      <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
+                                      <div className="space-y-2">
+                                        {apiData?.match?.lineupA?.bench.map((p, idx) => (
+                                          <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
+                                            <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                              <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
+                                            </div>
+                                            <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors">{p.name}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
+                                  <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Pitch Column */}
+                        <div className="w-full lg:flex-1 order-1 lg:order-2">
+                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl relative overflow-hidden h-full">
+                            <h3 className="text-white/60 text-2xl font-black text-center mb-8 tracking-[0.2em] uppercase relative z-10">BOISKO</h3>
+                            
+                            <div className="relative aspect-[3/2] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                              <div className="absolute inset-0 bg-[#0a101f]/40">
+                                {/* Field Markings */}
+                                <div className="absolute inset-0 border-2 border-white/10"></div>
+                                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white/10"></div>
+                                
+                                {/* Center Circle */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
+                                  <img 
+                                    src="https://i.ibb.co/pBJgbXxn/image.png" 
+                                    alt="" 
+                                    className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
+                                  />
+                                </div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                                
+                                <div className="absolute top-1/2 left-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-l-0"></div>
+                                <div className="absolute top-1/2 left-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-l-0"></div>
+                                
+                                <div className="absolute top-1/2 right-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-r-0"></div>
+                                <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-r-0"></div>
+                                
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
+                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
+                                
+                                <div className="absolute top-1/2 left-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
+                                <div className="absolute top-1/2 right-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
+                                
+                                <svg className="absolute top-3 left-3 w-3 h-3" viewBox="0 0 10 10">
+                                  <path d="M 0 10 Q 0 0 10 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                </svg>
+                                <svg className="absolute top-3 right-3 w-3 h-3" viewBox="0 0 10 10">
+                                  <path d="M 10 10 Q 10 0 0 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                </svg>
+                                <svg className="absolute bottom-3 left-3 w-3 h-3" viewBox="0 0 10 10">
+                                  <path d="M 0 0 Q 0 10 10 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                </svg>
+                                <svg className="absolute bottom-3 right-3 w-3 h-3" viewBox="0 0 10 10">
+                                  <path d="M 10 0 Q 10 10 0 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
+                                </svg>
+
+                                {/* Players on Field */}
+                                <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
+                                  <div className="relative w-full h-full">
+                                    {(() => {
+                                      const homePositions = calculateSmartPositions(apiData?.match?.lineupA?.starters, 'home', apiData?.match?.lineupA?.formation);
+                                      const awayPositions = calculateSmartPositions(apiData?.match?.lineupB?.starters, 'away', apiData?.match?.lineupB?.formation);
+                                      
+                                      return [
+                                        ...apiData?.match?.lineupA?.starters.map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
+                                        ...apiData?.match?.lineupB?.starters.map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
+                                      ].map((player, idx) => {
+                                        if (!player.pos) return null;
+                                        return (
+                                          <div 
+                                            key={`${player.team}-${player.name}`} 
+                                            className="absolute flex flex-col items-center group cursor-pointer"
+                                            style={{ 
+                                              left: player.pos.x, 
+                                              top: player.pos.y,
+                                              transform: 'translate(-50%, -50%)',
+                                              zIndex: 20
+                                            }}
+                                          >
+                                            <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-white shadow-lg overflow-hidden transition-transform group-hover:scale-125 bg-gray-900`}>
+                                              <RobloxAvatar username={player.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
+                                              {player.name.split(' ').pop()}
+                                            </div>
+                                          </div>
+                                        );
+                                      });
+                                    })()}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Away Team Column */}
+                        <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-3 lg:order-3">
+                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
+                            <div className="flex items-center gap-4 mb-6 lg:flex-row-reverse">
+                              <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center shadow-lg">
+                                <img src={awayTeam.logo} alt="" className="w-8 h-8 object-contain" />
+                              </div>
+                              <div className="lg:text-right">
+                                <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
+                                <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {apiData?.match?.lineupB?.formation || '4-3-3'}</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              {apiData?.match?.lineupB ? (
+                                <>
+                                  <div>
+                                    <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
+                                    <div className="space-y-2">
+                                      {apiData?.match?.lineupB?.starters?.map((p, idx) => (
+                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
+                                          <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
+                                            <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
+                                          </div>
+                                          <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors text-right">{p.name}</span>
+                                          {p.position && <span className="text-[8px] font-black text-white/10 mr-auto uppercase">{p.position}</span>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {apiData?.match?.lineupB?.bench && apiData?.match?.lineupB?.bench.length > 0 && (
+                                    <div className="pt-4 border-t border-white/5">
+                                      <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
+                                      <div className="space-y-2">
+                                        {apiData?.match?.lineupB?.bench.map((p, idx) => (
+                                          <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
+                                            <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                              <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
+                                            </div>
+                                            <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors text-right">{p.name}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
+                                  <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
                       <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 w-full max-w-4xl mx-auto text-center">
                         <p className="text-white/30 italic">Składy zostaną ogłoszone przed rozpoczęciem meczu</p>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>

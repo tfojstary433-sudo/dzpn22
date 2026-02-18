@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, League_Gothic, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import ClientBody from "./ClientBody";
 import Script from "next/script";
@@ -16,11 +16,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const leagueGothic = League_Gothic({
-  variable: "--font-league-gothic",
-  subsets: ["latin"],
-  weight: "400",
-});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,8 +28,8 @@ export const metadata: Metadata = {
   title: "PFF Roblox - Oficjalna Strona Federacji",
   description: "Oficjalna strona Federacji PFF Roblox",
   icons: {
-    icon: "https://i.ibb.co/BHdnmcMj/LOGO-PFF.png",
-    apple: "https://i.ibb.co/BHdnmcMj/LOGO-PFF.png",
+    icon: "https://i.ibb.co/pBJgbXxn/image.png",
+    apple: "https://i.ibb.co/pBJgbXxn/image.png",
   },
 };
 
@@ -44,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${leagueGothic.variable} ${inter.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${inter.variable}`}>
       <head>
         <Script
           crossOrigin="anonymous"
