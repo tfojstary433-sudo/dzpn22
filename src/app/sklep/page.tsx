@@ -185,73 +185,6 @@ function FallingTokens({ isSuccess }: { isSuccess: boolean }) {
 }
 
 export default function SklepPage() {
-  return (
-    <div className="min-h-screen bg-transparent text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <Navbar />
-      
-      {/* Background Style like in Turnieje/Hero */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#000a1a] via-[#000000] to-[#001a2a] opacity-90" />
-        <div 
-          className="absolute inset-0 opacity-10" 
-          style={{
-            backgroundImage: `repeating-linear-gradient(45deg, #00ccff 0, #00ccff 1px, transparent 0, transparent 30px)`,
-          }}
-        />
-        <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 blur-[150px] rounded-full bg-[#00ccff]/10 animate-pulse" />
-        <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 blur-[150px] rounded-full bg-[#00ccff]/10 animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
-
-      {/* Top Right Logo as in user image */}
-      <div className="absolute top-8 right-8 z-10 opacity-40">
-        <Image 
-          src="https://i.ibb.co/pBJgbXxn/image.png" 
-          alt="PFF Logo" 
-          width={120} 
-          height={60} 
-          className="brightness-0 invert h-12 w-auto"
-        />
-      </div>
-
-      <div className="relative z-10 max-w-2xl w-full bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-12 text-center space-y-8 shadow-2xl">
-        <div className="w-24 h-24 bg-[#00ccff]/20 border border-[#00ccff]/30 rounded-full flex items-center justify-center mx-auto animate-float">
-          <svg className="w-12 h-12 text-[#00ccff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        </div>
-        <div className="space-y-4">
-          <h1 className="text-5xl font-black uppercase italic tracking-tighter text-[#00ccff] drop-shadow-[0_0_20px_rgba(0,204,255,0.3)]">
-            SKLEP TYMCZASOWO ZABLOKOWANY
-          </h1>
-          <p className="text-white/60 font-medium text-lg leading-relaxed max-w-md mx-auto">
-            Przepraszamy, ale sklep jest obecnie niedostępny z powodu prac technicznych. 
-            Zapraszamy ponownie wkrótce!
-          </p>
-        </div>
-        <button 
-          onClick={() => window.history.back()}
-          className="group relative px-8 py-4 bg-transparent border border-[#00ccff]/50 text-[#00ccff] rounded-2xl font-black uppercase italic tracking-widest text-sm overflow-hidden transition-all duration-300 hover:text-black"
-        >
-          <div className="absolute inset-0 bg-[#00ccff] translate-y-full group-hover:translate-y-0 transition-transform duration-300 -z-10" />
-          Wróć do strony głównej
-        </button>
-      </div>
-      <div className="mt-12 relative z-10">
-        <Footer />
-      </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-      `}</style>
-    </div>
-  );
-
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [balance, setBalance] = useState({ balance: 0, items: {} });
@@ -284,6 +217,12 @@ export default function SklepPage() {
     const savedCart = localStorage.getItem('pff_cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
+    }
+
+    if (!savedUser) {
+      const clientId = "1448788697653973082";
+      const redirectUri = encodeURIComponent("https://pff24.pl/callback");
+      window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord`;
     }
   }, []);
 
@@ -508,7 +447,6 @@ export default function SklepPage() {
         </div>
       )}
 
-      {/* Header section */}
       <div className="relative py-12">
         <div className="container mx-auto px-4 relative z-10">
           {/* Centered Title Section */}
@@ -579,19 +517,10 @@ export default function SklepPage() {
                   </button>
                 </div>
               ) : (
-                  <button
-                    onClick={() => {
-                      const clientId = "1448788697653973082";
-                      const redirectUri = encodeURIComponent("https://pff24.pl/callback");
-                      window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord`;
-                    }}
-                    className="flex items-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] border border-white/10 px-8 py-4 rounded-2xl font-black uppercase tracking-tight transition-all active:scale-95 shadow-[0_0_20px_rgba(88,101,242,0.2)]"
-                  >
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495a18.2739 18.2739 0 00-5.4877 0 11.7496 11.7496 0 00-.6172-1.2495.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1971.3728.2914a.077.077 0 01-.0066.1277 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.095 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.095 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
-                    </svg>
-                    Zaloguj się przez Discord
-                  </button>
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin"></div>
+                  <p className="mt-4 text-white/40 font-black uppercase tracking-widest text-xs">Logowanie przez Discord...</p>
+                </div>
               )}
             </div>
           </div>

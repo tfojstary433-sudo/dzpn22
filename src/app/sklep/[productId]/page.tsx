@@ -92,70 +92,6 @@ const productDetails: { [key: string]: any } = {
 };
 
 export default function ProductDetailPage() {
-  return (
-    <div className="min-h-screen bg-transparent text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <Navbar />
-      
-      {/* Background Style like in Turnieje/Hero */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#000a1a] via-[#000000] to-[#001a2a] opacity-90" />
-        <div 
-          className="absolute inset-0 opacity-10" 
-          style={{
-            backgroundImage: `repeating-linear-gradient(45deg, #00ccff 0, #00ccff 1px, transparent 0, transparent 30px)`,
-          }}
-        />
-        <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 blur-[150px] rounded-full bg-[#00ccff]/10 animate-pulse" />
-        <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 blur-[150px] rounded-full bg-[#00ccff]/10 animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
-
-      {/* Top Right Logo as in user image */}
-      <div className="absolute top-8 right-8 z-10 opacity-40">
-        <img 
-          src="https://i.ibb.co/pBJgbXxn/image.png" 
-          alt="PFF Logo" 
-          className="brightness-0 invert h-12 w-auto"
-        />
-      </div>
-
-      <div className="relative z-10 max-w-2xl w-full bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-12 text-center space-y-8 shadow-2xl">
-        <div className="w-24 h-24 bg-[#00ccff]/20 border border-[#00ccff]/30 rounded-full flex items-center justify-center mx-auto animate-float">
-          <svg className="w-12 h-12 text-[#00ccff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        </div>
-        <div className="space-y-4">
-          <h1 className="text-5xl font-black uppercase italic tracking-tighter text-[#00ccff] drop-shadow-[0_0_20px_rgba(0,204,255,0.3)]">
-            SKLEP TYMCZASOWO ZABLOKOWANY
-          </h1>
-          <p className="text-white/60 font-medium text-lg leading-relaxed max-w-md mx-auto">
-            Przepraszamy, ale sklep jest obecnie niedostępny z powodu prac technicznych. 
-            Zapraszamy ponownie wkrótce!
-          </p>
-        </div>
-        <button 
-          onClick={() => window.history.back()}
-          className="group relative px-8 py-4 bg-transparent border border-[#00ccff]/50 text-[#00ccff] rounded-2xl font-black uppercase italic tracking-widest text-sm overflow-hidden transition-all duration-300 hover:text-black"
-        >
-          <div className="absolute inset-0 bg-[#00ccff] translate-y-full group-hover:translate-y-0 transition-transform duration-300 -z-10" />
-          Wróć do strony głównej
-        </button>
-      </div>
-      <div className="mt-12 relative z-10">
-        <Footer />
-      </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-      `}</style>
-    </div>
-  );
   const router = useRouter();
   const params = useParams();
   const productId = params?.productId as string;
@@ -182,8 +118,27 @@ export default function ProductDetailPage() {
           setBalance(data.balance || 0);
         })
         .catch(err => console.error('Error fetching tokens:', err));
+    } else {
+      const clientId = "1448788697653973082";
+      const redirectUri = encodeURIComponent("https://pff24.pl/callback");
+      window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord`;
     }
   }, []);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-transparent text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <Navbar />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin mb-6"></div>
+          <h1 className="text-2xl font-black uppercase tracking-widest text-center">
+            Logowanie przez Discord...
+          </h1>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -221,8 +176,41 @@ export default function ProductDetailPage() {
     setMessage(null);
 
     if (isPLN) {
-      setMessage({ type: 'error', text: 'Płatności w PLN wymagają odrębnego systemu płatności' });
-      setLoading(false);
+      if (!user) {
+        setMessage({ type: 'error', text: 'Musisz być zalogowany, aby dokonać zakupu' });
+        setLoading(false);
+        return;
+      }
+
+      fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          customerEmail: user.email,
+          cart: [{
+            id: productId,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            type: 'pln-product',
+            image: product.images[0]
+          }]
+        }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setMessage({ type: 'error', text: data.error || 'Błąd płatności' });
+        }
+      })
+      .catch(err => {
+        console.error('Stripe error:', err);
+        setMessage({ type: 'error', text: 'Błąd połączenia z systemem płatności' });
+      })
+      .finally(() => setLoading(false));
       return;
     }
 

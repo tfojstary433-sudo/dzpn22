@@ -43,6 +43,12 @@ export default function CallbackPage() {
                 avatar: null // Will be handled by RobloxAvatar component
               };
               localStorage.setItem('discord_user', JSON.stringify(userData));
+
+              // AUTOMATIC REDIRECT TO DISCORD AFTER ROBLOX LOGIN
+              const clientId = "1448788697653973082";
+              const redirectUri = encodeURIComponent("https://pff24.pl/callback");
+              window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord:${data.robloxId}`;
+              return;
             } else {
               const existingUserStr = localStorage.getItem('discord_user');
               let userData;
