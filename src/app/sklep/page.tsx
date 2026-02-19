@@ -238,11 +238,6 @@ export default function SklepPage() {
   };
 
   const handleCheckout = async () => {
-    if (!user) {
-      setMessage({ type: 'error', text: 'Musisz być zalogowany, aby dokonać zakupu' });
-      return;
-    }
-
     if (cart.length === 0) return;
 
     setLoading(true);
@@ -257,9 +252,9 @@ export default function SklepPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: user.id || user.discordId || 'anonymous',
+            userId: user?.id || user?.discordId || 'anonymous',
             cart: cart,
-            customerEmail: user.email || undefined,
+            customerEmail: user?.email || undefined,
           }),
         });
 
@@ -279,6 +274,11 @@ export default function SklepPage() {
         setLoading(false);
       }
     } else {
+      if (!user) {
+        setMessage({ type: 'error', text: 'Musisz być zalogowany, aby kupować za Tokeny' });
+        setLoading(false);
+        return;
+      }
       const totalCost = cart.reduce((acc, i) => acc + (i.price * (i.quantity || 1)), 0);
       
       if (balance.balance < totalCost) {
