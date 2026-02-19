@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import admin from 'firebase-admin';
 import path from 'path';
 import fs from 'fs';
+import clubsData from '@/data/clubs.json';
+import adminsData from '@/data/adminroles.json';
 
 // Initialize Firebase Admin
 function initFirebase() {
@@ -36,22 +38,6 @@ function initFirebase() {
   return admin.apps.length ? admin.database() : null;
 }
 
-function getData(fileName: string) {
-  try {
-    const filePath = path.join(process.cwd(), 'src', 'data', fileName);
-    if (fs.existsSync(filePath)) {
-      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      console.log(`Loaded ${fileName} with ${Object.keys(data).length} entries`);
-      return data;
-    } else {
-      console.error(`${fileName} NOT FOUND at:`, filePath);
-    }
-  } catch (e) {
-    console.error(`Error reading ${fileName}:`, e);
-  }
-  return {};
-}
-
 const CLIENT_ID = '1448788697653973082';
 const CLIENT_SECRET = 'CiW1atPyupU5QO1H2Q2iYzw7hjEvarOW';
 const GUILD_ID = '1447302326971793520';
@@ -59,8 +45,6 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 export async function GET(request: Request) {
   const db = initFirebase();
-  const clubsData = getData('clubs.json');
-  const adminsData = getData('adminroles.json');
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const state = searchParams.get('state') || '';
@@ -214,10 +198,10 @@ export async function GET(request: Request) {
             console.log('Starting club sync for RobloxID:', robloxIdStr);
             console.log('User roles from Discord:', roles);
             
-            const matchingClubRoleId = roles.find((id: string) => clubsData[id]);
+            const matchingClubRoleId = roles.find((id: string) => (clubsData as Record<string, string>)[id]);
             
             if (matchingClubRoleId) {
-              const clubId = clubsData[matchingClubRoleId];
+              const clubId = (clubsData as Record<string, string>)[matchingClubRoleId];
               console.log('CLUB MATCH FOUND! RoleID:', matchingClubRoleId, '-> Club:', clubId);
               await db.ref('users_clubs').child(robloxIdStr).set(clubId);
               console.log('Successfully saved to users_clubs');
@@ -255,10 +239,10 @@ export async function GET(request: Request) {
                     .map((r: any) => r.name);
                   
                   console.log('User role names:', userRoleNames);
-                  const matchingAdminRoleName = userRoleNames.find((name: string) => adminsData[name]);
+                  const matchingAdminRoleName = userRoleNames.find((name: string) => (adminsData as Record<string, any>)[name]);
                   
                   if (matchingAdminRoleName) {
-                    const adminRange = adminsData[matchingAdminRoleName];
+                    const adminRange = (adminsData as Record<string, any>)[matchingAdminRoleName];
                     console.log('ADMIN MATCH! Name:', matchingAdminRoleName, '-> Range:', adminRange);
                     await db.ref('Admins').child(robloxIdStr).set(adminRange);
                     console.log('Successfully saved to Admins');
