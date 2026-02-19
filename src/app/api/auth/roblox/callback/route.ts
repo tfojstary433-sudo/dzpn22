@@ -35,7 +35,7 @@ function initFirebase() {
 }
 
 const CLIENT_ID = process.env.ROBLOX_CLIENT_ID || '8976718339232083701';
-const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET || 'RBX-9Q7xxduyr0SyvmSDQWOIy71nItoqZJc3z1jNpuHSBitQCy3zb3XY6mSlB9zSbVpD';
+const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET || 'RBX-9Q7xxduyr0SyvmSDQWOIyyzXTKkHsS6vwt2mhYE3dgWRPcTO2DLwZu99A6Mj5KEm';
 
 export async function GET(request: Request) {
   const db = initFirebase();
