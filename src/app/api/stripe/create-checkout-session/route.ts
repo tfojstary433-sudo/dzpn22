@@ -3,14 +3,17 @@ import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY) {
+    // Sprawdzamy obie możliwe nazwy zmiennych środowiskowych
+    const STRIPE_SK = process.env.STRIPE_SECRET_KEY || process.env.PAYMENT;
+    
+    if (!STRIPE_SK) {
       return NextResponse.json(
-        { error: 'Stripe configuration missing' },
+        { error: 'Stripe configuration missing (Check STRIPE_SECRET_KEY or PAYMENT in Vercel)' },
         { status: 500 }
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(STRIPE_SK, {
       apiVersion: '2025-02-24.acacia' as any
     });
 

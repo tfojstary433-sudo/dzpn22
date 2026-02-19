@@ -124,7 +124,8 @@ const products = [
   },
 ];
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const STRIPE_PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
+const stripePromise = loadStripe(STRIPE_PK);
 
 const normalToken = "https://i.ibb.co/SXJ3TDjY/obraz-2026-01-22-144700123.png";
 const successImages = [
