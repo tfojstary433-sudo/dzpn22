@@ -10,7 +10,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-02-24.acacia' as any
+    });
 
     const { userId, cart, customerEmail } = await request.json();
 
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ['card', 'blik', 'p24'],
       line_items,
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep/sukces?session_id={CHECKOUT_SESSION_ID}&type=cart`,
