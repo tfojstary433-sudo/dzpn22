@@ -21,7 +21,7 @@ const WINDOW = 60 * 1000; // na 1 minutę
 
 export function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
-  const ip = request.ip || request.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
+  const ip = (request as any).ip || request.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
 
   // 1. Ochrona WAF: Blokowanie znanych botów
   if (BLOCKED_USER_AGENTS.some(bot => userAgent.includes(bot))) {
