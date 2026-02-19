@@ -3,6 +3,8 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const admin = require('firebase-admin');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 // Inicjalizacja Firebase Admin
 const serviceAccount = require('./serviceaccount.json');
@@ -17,6 +19,31 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 const app = express();
+
+// Podstawowa ochrona nagłówków (Security Headers)
+app.use(helmet({
+    contentSecurityPolicy: false, // Wyłączamy CSP jeśli strona go nie potrzebuje do działania (np. zewnętrzne skrypty)
+    crossOriginEmbedderPolicy: false
+}));
+
+// Globalny Rate Limit - ochrona przed DDoS na poziomie aplikacji
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minut
+    max: 1000, // Limit 1000 żądań na IP na 15 minut
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Too many requests, please try again later.' }
+});
+app.use(globalLimiter);
+
+// Bardziej restrykcyjny limit dla endpointów modyfikujących (ochrona przed spamem/botami)
+const apiUpdateLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minuta
+    max: 30, // Max 30 żądań na minutę
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Osiągnięto limit żądań. Zwolnij!' }
+});
 
 // Konfiguracja katalogu danych
 const DATA_DIR = path.join(__dirname, 'src', 'data');
@@ -121,7 +148,7 @@ app.get('/api/history', (req, res) => {
     res.json(history);
 });
 
-app.post('/api/match/start', (req, res) => {
+app.post('/api/match/start', apiUpdateLimiter, (req, res) => {
     const { teamA, teamB } = req.body;
     
     matchData = {
@@ -136,7 +163,7 @@ app.post('/api/match/start', (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/api/match/update', (req, res) => {
+app.post('/api/match/update', apiUpdateLimiter, (req, res) => {
     const { teamAScore, teamBScore, timer, period } = req.body;
     
     if (teamAScore !== undefined) matchData.teamA.score = teamAScore;
@@ -149,7 +176,7 @@ app.post('/api/match/update', (req, res) => {
 });
 
 // GŁÓWNY ENDPOINT PRZETWARZANIA MECZU (zgodny z roblox-endmatch.lua)
-app.post('/api/endmatch', (req, res) => {
+app.post('/api/endmatch', apiUpdateLimiter, (req, res) => {
     try {
         const { matchId, homeTeamId, awayTeamId, homeScore, awayScore, scorers, lineups } = req.body;
 

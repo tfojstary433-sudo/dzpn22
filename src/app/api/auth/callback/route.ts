@@ -207,6 +207,29 @@ export async function GET(request: Request) {
         userData.discordRoles = roles;
         userData.discordRoleNames = {}; 
 
+        // 1. Sync club role IMMEDIATELY (no BOT_TOKEN needed as clubs.json is keyed by ID)
+        if (robloxId && db) {
+          try {
+            const robloxIdStr = String(robloxId);
+            console.log('Starting club sync for RobloxID:', robloxIdStr);
+            console.log('User roles from Discord:', roles);
+            
+            const matchingClubRoleId = roles.find((id: string) => clubsData[id]);
+            
+            if (matchingClubRoleId) {
+              const clubId = clubsData[matchingClubRoleId];
+              console.log('CLUB MATCH FOUND! RoleID:', matchingClubRoleId, '-> Club:', clubId);
+              await db.ref('users_clubs').child(robloxIdStr).set(clubId);
+              console.log('Successfully saved to users_clubs');
+            } else {
+              console.log('No matching club role found for this user.');
+              await db.ref('users_clubs').child(robloxIdStr).remove();
+            }
+          } catch (clubError: any) {
+            console.error('Club sync error:', clubError);
+          }
+        }
+
         if (BOT_TOKEN) {
           try {
             const rolesResponse = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/roles`, {
@@ -225,23 +248,8 @@ export async function GET(request: Request) {
               if (robloxId && db) {
                 try {
                   const robloxIdStr = String(robloxId);
-                  console.log('Starting sync for RobloxID:', robloxIdStr);
-                  console.log('User roles from Discord:', roles);
                   
-                  // 2. Sync club role - direct matching by ID
-                  const matchingClubRoleId = roles.find((id: string) => clubsData[id]);
-                  
-                  if (matchingClubRoleId) {
-                    const clubId = clubsData[matchingClubRoleId];
-                    console.log('MATCH FOUND! RoleID:', matchingClubRoleId, '-> Club:', clubId);
-                    await db.ref('users_clubs').child(robloxIdStr).set(clubId);
-                    console.log('Successfully saved to users_clubs');
-                  } else {
-                    console.log('No matching club role found in clubs.json for this user.');
-                    await db.ref('users_clubs').child(robloxIdStr).remove();
-                  }
-
-                  // 3. Sync admin role
+                  // Sync admin role (matching by NAME from adminsData)
                   const userRoleNames = guildRoles
                     .filter((r: any) => roles.includes(r.id))
                     .map((r: any) => r.name);
@@ -259,8 +267,7 @@ export async function GET(request: Request) {
                     await db.ref('Admins').child(robloxIdStr).remove();
                   }
                 } catch (firebaseError: any) {
-                  console.error('CRITICAL Firebase sync error:', firebaseError);
-                  return NextResponse.json({ error: `Błąd synchronizacji: ${firebaseError.message}` }, { status: 500 });
+                  console.error('Firebase Admins sync error:', firebaseError);
                 }
               }
             }
