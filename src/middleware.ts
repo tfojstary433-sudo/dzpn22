@@ -16,7 +16,7 @@ const BLOCKED_USER_AGENTS = [
 // Prosty in-memory rate limiting (uwaga: w środowisku serverless jak Vercel, pamięć jest resetowana)
 // Dla pełnej ochrony zalecane jest użycie Upstash Redis
 const ipCache = new Map<string, { count: number; lastReset: number }>();
-const LIMIT = 60; // 60 żądań
+const LIMIT = 1000; // Zwiększony limit do 1000 żądań na minutę
 const WINDOW = 60 * 1000; // na 1 minutę
 
 export function middleware(request: NextRequest) {

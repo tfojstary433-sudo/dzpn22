@@ -251,20 +251,24 @@ export default function SklepPage() {
 
     if (hasStripeItems) {
       try {
+        console.log('Initiating Stripe checkout...');
         const response = await fetch('/api/stripe/create-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: user.id,
+            userId: user.id || user.discordId || 'anonymous',
             cart: cart,
-            customerEmail: user.email,
+            customerEmail: user.email || undefined,
           }),
         });
 
         const data = await response.json();
+        console.log('Stripe session response:', data);
+        
         if (data.url) {
           window.location.href = data.url;
         } else {
+          console.error('Stripe error data:', data);
           setMessage({ type: 'error', text: data.error || 'Błąd podczas tworzenia płatności' });
         }
       } catch (error) {

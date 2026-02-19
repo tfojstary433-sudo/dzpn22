@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const { userId, cart, customerEmail } = await request.json();
 
-    if (!userId || !cart || !Array.isArray(cart)) {
+    if (!cart || !Array.isArray(cart)) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep/sukces?session_id={CHECKOUT_SESSION_ID}&type=cart`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep`,
       metadata: {
-        userId: userId.toString(),
+        userId: userId ? userId.toString() : 'anonymous',
         regularTokens: totalRegular.toString(),
         bonusTokens: totalBonus.toString(),
         vipDays: totalVipDays.toString(),
