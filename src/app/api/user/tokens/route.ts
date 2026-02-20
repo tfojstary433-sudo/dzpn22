@@ -94,6 +94,39 @@ export async function POST(request: Request) {
         cost: amount,
         timestamp: new Date().toISOString(),
       });
+    } else if (action === 'removeTokens') {
+      const totalTokens = user.balance + user.bonusBalance;
+      if (totalTokens < amount) {
+        return NextResponse.json({ error: 'Not enough tokens' }, { status: 400 });
+      }
+
+      let remaining = amount;
+      if (user.bonusBalance >= remaining) {
+        user.bonusBalance -= remaining;
+        remaining = 0;
+      } else {
+        remaining -= user.bonusBalance;
+        user.bonusBalance = 0;
+        user.balance -= remaining;
+      }
+
+      const { items: itemsList } = body;
+      if (itemsList && Array.isArray(itemsList)) {
+        itemsList.forEach((item: any) => {
+          if (!user.items[item.id]) {
+            user.items[item.id] = 0;
+          }
+          user.items[item.id] += (item.quantity || 1);
+        });
+      }
+
+      data.purchases.push({
+        userId,
+        type: 'cart_purchase',
+        items: itemsList,
+        totalCost: amount,
+        timestamp: new Date().toISOString(),
+      });
     } else if (action === 'grantProducts') {
       const { products } = body;
       if (products && Array.isArray(products)) {
