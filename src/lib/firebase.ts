@@ -283,9 +283,9 @@ export async function getPlayerFriendlyMatches(userId: string): Promise<any[]> {
       
       const playerInMatch = 
         (match.scorers && Array.isArray(match.scorers) && 
-         match.scorers.some((s: any) => s.playerId.toString() === userId)) ||
+         match.scorers.some((s: any) => s.playerId?.toString() === userId)) ||
         (match.extraStats && Array.isArray(match.extraStats) && 
-         match.extraStats.some((s: any) => s.playerId.toString() === userId));
+         match.extraStats.some((s: any) => s.playerId?.toString() === userId));
       
       if (playerInMatch) {
         friendlyMatches.push(match);
@@ -296,7 +296,6 @@ export async function getPlayerFriendlyMatches(userId: string): Promise<any[]> {
       new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime()
     );
   } catch (error) {
-    console.error('Error fetching player friendly matches:', error);
     return [];
   }
 }
@@ -408,20 +407,12 @@ export async function calculatePlayerHistoricalMarketValue(
       return 50000;
     }
 
-    const aggregated = await aggregatePlayerMatchStats(userId, friendlyMatches);
-
-    if (aggregated.totalMatches === 0) {
-      return 50000;
-    }
-
     const { calculatePlayerMarketValue } = await import('./marketValue');
 
     let currentValue = 50000;
     const position = playerPosition || 'MID';
 
     for (const match of friendlyMatches) {
-      if (!match.matchId || !match.matchId.startsWith('tf-')) continue;
-
       let playerGoals = 0;
       let playerAssists = 0;
       let playerYellow = 0;
@@ -433,29 +424,29 @@ export async function calculatePlayerHistoricalMarketValue(
       let matchPosition = position;
 
       if (match.scorers && Array.isArray(match.scorers)) {
-        const scorerEntry = match.scorers.find((s: any) => s.playerId.toString() === userId);
+        const scorerEntry = match.scorers.find((s: any) => s.playerId?.toString() === userId);
         if (scorerEntry) {
           playerGoals = scorerEntry.goals || 0;
           playerAssists = scorerEntry.assists || 0;
           playerTeam = scorerEntry.teamId;
-          playerMinutes = scorerEntry.minutes || 0;
+          playerMinutes = scorerEntry.minutes || 40;
         }
       }
 
       if (match.extraStats && Array.isArray(match.extraStats)) {
-        const extraEntry = match.extraStats.find((s: any) => s.playerId.toString() === userId);
+        const extraEntry = match.extraStats.find((s: any) => s.playerId?.toString() === userId);
         if (extraEntry) {
           playerYellow = extraEntry.yellowCards || 0;
           playerRed = extraEntry.redCards || 0;
           playerCleanSheets = extraEntry.cleanSheets || 0;
           playerConcededGoals = extraEntry.concededGoals || 0;
-          playerMinutes = extraEntry.minutes || playerMinutes;
-          playerTeam = extraEntry.teamId || playerTeam;
-          matchPosition = extraEntry.position || position;
+          if (extraEntry.minutes) playerMinutes = extraEntry.minutes;
+          if (extraEntry.teamId) playerTeam = extraEntry.teamId;
+          if (extraEntry.position) matchPosition = extraEntry.position;
         }
       }
 
-      if (playerMinutes > 0 || playerGoals > 0 || playerYellow > 0 || playerRed > 0) {
+      if (playerMinutes > 0 || playerGoals > 0 || playerYellow > 0 || playerRed > 0 || playerCleanSheets > 0) {
         const matchResult = match.homeScore > match.awayScore 
           ? (playerTeam === match.homeTeamId ? 'win' : 'loss')
           : match.homeScore < match.awayScore
@@ -484,7 +475,6 @@ export async function calculatePlayerHistoricalMarketValue(
 
     return currentValue;
   } catch (error) {
-    console.error('Error calculating historical market value:', error);
     return 50000;
   }
 }

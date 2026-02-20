@@ -54,13 +54,7 @@ export async function POST(request: NextRequest) {
       currentValue,
     });
 
-    console.log(`📊 Market Value Calculation for player ${playerId}:`, {
-      oldValue: currentValue,
-      newValue: calculation.newValue,
-      change: calculation.newValue - currentValue,
-      percentage: ((calculation.newValue - currentValue) / currentValue * 100).toFixed(2) + '%',
-      ...calculation.breakdown,
-    });
+
 
     return NextResponse.json({
       success: true,
@@ -116,12 +110,6 @@ export async function GET(request: NextRequest) {
       undefined,
       undefined
     );
-
-    console.log(`📊 [Market Value] Player ${playerId}:`, {
-      currentValue: stats.value || 50000,
-      historicalValue,
-      usingHistorical: historicalValue !== 50000,
-    });
 
     return NextResponse.json({
       success: true,

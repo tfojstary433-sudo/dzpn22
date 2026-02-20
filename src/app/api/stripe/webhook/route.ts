@@ -20,7 +20,6 @@ function saveTokenData(data: any) {
   try {
     fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error saving token data:', error);
   }
 }
 
@@ -45,7 +44,6 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, sig!, endpointSecret);
     } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
       return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
     }
 
@@ -62,16 +60,6 @@ export async function POST(request: NextRequest) {
         const hasVip = session.metadata?.hasVip === 'true';
         const products = session.metadata?.products?.split(',').filter(p => p) || [];
 
-        console.log('Payment successful:', {
-          userId,
-          regularTokens,
-          bonusTokens,
-          vipDays,
-          hasVip,
-          products,
-          amount: session.amount_total,
-        });
-
         if (userId) {
           const data = readTokenData();
           
@@ -85,8 +73,6 @@ export async function POST(request: NextRequest) {
           if (regularTokens > 0 || bonusTokens > 0) {
             user.balance += regularTokens;
             user.bonusBalance += bonusTokens;
-            console.log(`✅ Added ${regularTokens} regular + ${bonusTokens} bonus tokens to user ${userId}`);
-            console.log(`   New balance: ${user.balance} regular, ${user.bonusBalance} bonus`);
           }
 
           // 2. Handle products (UNBAN, etc.)
@@ -97,7 +83,6 @@ export async function POST(request: NextRequest) {
               }
               user.items[productId] += 1;
             });
-            console.log(`✅ Granted products to user ${userId}:`, products);
           }
 
           // 3. Log the purchase
@@ -119,17 +104,14 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'payment_intent.payment_failed':
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('Payment failed:', paymentIntent.id);
         break;
 
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        break;
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Webhook error:', error);
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }

@@ -19,14 +19,7 @@ export async function POST(request: NextRequest) {
 
     const { userId, cart, customerEmail } = await request.json();
 
-    console.log('📥 Checkout request received:', {
-      userId,
-      cartCount: cart?.length,
-      customerEmail,
-    });
-
     if (!cart || !Array.isArray(cart)) {
-      console.error('❌ Invalid cart:', cart);
       return NextResponse.json(
         { error: 'Missing or invalid cart' },
         { status: 400 }
@@ -34,7 +27,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (cart.length === 0) {
-      console.error('❌ Empty cart');
       return NextResponse.json(
         { error: 'Cart is empty' },
         { status: 400 }
@@ -55,13 +47,6 @@ export async function POST(request: NextRequest) {
       const unitAmount = Math.max(1, Math.round(Number(item.price) * 100));
       const quantity = Number(item.quantity) || 1;
 
-      console.log(`📦 Line item ${idx}:`, {
-        name: item.name,
-        price: item.price,
-        unitAmount,
-        quantity,
-      });
-
       return {
         price_data: {
           currency: 'pln',
@@ -71,8 +56,6 @@ export async function POST(request: NextRequest) {
         quantity,
       };
     });
-
-    console.log('✅ Line items created:', line_items.length);
 
     // Aggregate metadata for fulfillment
     let totalRegular = 0;
@@ -116,14 +99,7 @@ export async function POST(request: NextRequest) {
         customer_email: customerEmail,
       });
 
-      console.log('✅ Stripe session created:', {
-        sessionId: session.id,
-        url: session.url,
-        totalAmount: session.amount_total,
-      });
-
       if (!session.url) {
-        console.error('❌ Session created but no URL returned:', session);
         return NextResponse.json(
           { error: 'Session created but checkout URL not available' },
           { status: 500 }
@@ -135,19 +111,12 @@ export async function POST(request: NextRequest) {
         url: session.url,
       });
     } catch (stripeError: any) {
-      console.error('❌ Stripe API Error:', {
-        message: stripeError.message,
-        code: stripeError.code,
-        statusCode: stripeError.statusCode,
-        type: stripeError.type,
-      });
       return NextResponse.json(
         { error: `Stripe error: ${stripeError.message || 'Unknown error'}` },
         { status: stripeError.statusCode || 500 }
       );
     }
   } catch (error) {
-    console.error('Error creating checkout session:', error);
     return NextResponse.json(
       { error: 'Failed to create checkout session' },
       { status: 500 }

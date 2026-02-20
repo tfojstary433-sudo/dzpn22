@@ -21,13 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing matchId' }, { status: 400 });
     }
 
-    console.log(`\n${'='.repeat(60)}`);
-    console.log(`📊 [ENDMATCH] Processing match: ${matchId}`);
-    console.log(`${'='.repeat(60)}`);
-
     const isFriendlyMatch = matchId.startsWith('tf-');
-    console.log(`🎯 Match type: ${isFriendlyMatch ? '⭐ FRIENDLY (towarzyski) - WARTOŚĆ ZMIENIA SIĘ' : '⚪ OFFICIAL (ligowy) - brak zmian wartości'}`);
-    console.log(`🏠 ${homeTeamId} ${homeScore} : ${awayScore} ${awayTeamId}`);
 
     const matchResult = homeScore > awayScore ? 'win' : homeScore < awayScore ? 'loss' : 'draw';
 
@@ -129,12 +123,6 @@ export async function POST(request: NextRequest) {
 
         newValue = calculation.newValue;
 
-        console.log(`📈 [FRIENDLY] Player ${playerData.name} (${playerId}):`, {
-          oldValue: currentValue,
-          newValue: calculation.newValue,
-          change: calculation.newValue - currentValue,
-        });
-
         marketValueUpdates.push({
           playerId,
           oldValue: currentValue,
@@ -142,8 +130,6 @@ export async function POST(request: NextRequest) {
           change: calculation.newValue - currentValue,
           calculation,
         });
-      } else {
-        console.log(`⚪ [OFFICIAL] Player ${playerData.name} (${playerId}): Wartość pozostaje bez zmian (${currentValue} €)`);
       }
 
       // Update player stats with new value
