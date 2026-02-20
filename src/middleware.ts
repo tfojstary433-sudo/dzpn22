@@ -55,8 +55,6 @@ export function middleware(request: NextRequest) {
   // 3. Dodanie nagłówków bezpieczeństwa
   const response = NextResponse.next();
   
-  // Ochrona przed Clickjacking
-  response.headers.set('X-Frame-Options', 'DENY');
   // Ochrona przed sniffingiem typów MIME
   response.headers.set('X-Content-Type-Options', 'nosniff');
   // Ochrona XSS dla starszych przeglądarek

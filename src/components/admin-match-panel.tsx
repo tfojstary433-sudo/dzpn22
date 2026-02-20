@@ -14,7 +14,20 @@ export function AdminMatchPanel() {
   const [scorerId, setScorerId] = useState('');
   const [scorerTeam, setScorerTeam] = useState('ARK');
   const [scorerGoals, setScorerGoals] = useState(1);
-  const [scorers, setScorers] = useState<Array<{playerName: string; playerId: number; teamId: string; goals: number}>>([]);
+  const [scorerPosition, setScorerPosition] = useState<'ATT' | 'MID' | 'DEF' | 'GK'>('ATT');
+  const [scorerMinutes, setScorerMinutes] = useState(40);
+  const [scorerAccountDays, setScorerAccountDays] = useState(90);
+  const [scorerTransfers, setScorerTransfers] = useState(0);
+  const [scorers, setScorers] = useState<Array<{
+    playerName: string;
+    playerId: number;
+    teamId: string;
+    goals: number;
+    position: 'ATT' | 'MID' | 'DEF' | 'GK';
+    minutes: number;
+    accountAgeDays: number;
+    transferCount: number;
+  }>>([]);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const addScorer = () => {
@@ -31,11 +44,19 @@ export function AdminMatchPanel() {
       playerName: scorerName,
       playerId: Number(scorerId),
       teamId: scorerTeam,
-      goals: scorerGoals
+      goals: scorerGoals,
+      position: scorerPosition,
+      minutes: scorerMinutes,
+      accountAgeDays: scorerAccountDays,
+      transferCount: scorerTransfers
     }]);
     setScorerName('');
     setScorerId('');
     setScorerGoals(1);
+    setScorerPosition('ATT');
+    setScorerMinutes(40);
+    setScorerAccountDays(90);
+    setScorerTransfers(0);
   };
 
   const handleSubmit = async () => {
@@ -61,6 +82,16 @@ export function AdminMatchPanel() {
       scorers
     });
 
+    const playerDetails: Record<string, any> = {};
+    scorers.forEach(s => {
+      playerDetails[s.playerId.toString()] = {
+        position: s.position,
+        minutes: s.minutes,
+        accountAgeDays: s.accountAgeDays,
+        transferCount: s.transferCount
+      };
+    });
+
     const result = await saveMatchResult({
       matchId,
       homeTeamId: match.homeTeam!.id,
@@ -68,9 +99,13 @@ export function AdminMatchPanel() {
       homeScore,
       awayScore,
       scorers: scorers.map(s => ({
-        ...s,
+        playerName: s.playerName,
+        playerId: s.playerId,
+        teamId: s.teamId,
+        goals: s.goals,
         avatarUrl: `https://www.roblox.com/headshot-thumbnail/image?userId=${s.playerId}&width=420&height=420&format=png`
-      }))
+      })),
+      playerDetails
     });
 
     console.log('📊 [Admin Panel] Wynik zapisywania:', result);
@@ -214,6 +249,56 @@ export function AdminMatchPanel() {
                   value={scorerGoals}
                   onChange={(e) => setScorerGoals(Number(e.target.value))}
                   className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1">Pozycja</label>
+                <select
+                  value={scorerPosition}
+                  onChange={(e) => setScorerPosition(e.target.value as 'ATT' | 'MID' | 'DEF' | 'GK')}
+                  className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="ATT">Napastnik (ATT)</option>
+                  <option value="MID">Pomocnik (MID)</option>
+                  <option value="DEF">Obrońca (DEF)</option>
+                  <option value="GK">Bramkarz (GK)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">Minuty</label>
+                <input
+                  type="number"
+                  value={scorerMinutes}
+                  onChange={(e) => setScorerMinutes(Number(e.target.value))}
+                  className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
+                  min="0"
+                  max="90"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1">Wiek konta (dni)</label>
+                <input
+                  type="number"
+                  value={scorerAccountDays}
+                  onChange={(e) => setScorerAccountDays(Number(e.target.value))}
+                  className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">Transfery</label>
+                <input
+                  type="number"
+                  value={scorerTransfers}
+                  onChange={(e) => setScorerTransfers(Number(e.target.value))}
+                  className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
+                  min="0"
                 />
               </div>
             </div>
