@@ -19,14 +19,29 @@ export async function POST(request: NextRequest) {
 
     const { userId, cart, customerEmail } = await request.json();
 
+    console.log('📥 Checkout request received:', {
+      userId,
+      cartCount: cart?.length,
+      customerEmail,
+    });
+
     if (!cart || !Array.isArray(cart)) {
+      console.error('❌ Invalid cart:', cart);
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing or invalid cart' },
         { status: 400 }
       );
     }
 
-    const line_items = cart.map(item => {
+    if (cart.length === 0) {
+      console.error('❌ Empty cart');
+      return NextResponse.json(
+        { error: 'Cart is empty' },
+        { status: 400 }
+      );
+    }
+
+    const line_items = cart.map((item, idx) => {
       const img = item.logo || item.image;
       const product_data: any = {
         name: item.name,
@@ -37,15 +52,27 @@ export async function POST(request: NextRequest) {
         product_data.images = [img];
       }
 
+      const unitAmount = Math.max(1, Math.round(Number(item.price) * 100));
+      const quantity = Number(item.quantity) || 1;
+
+      console.log(`📦 Line item ${idx}:`, {
+        name: item.name,
+        price: item.price,
+        unitAmount,
+        quantity,
+      });
+
       return {
         price_data: {
           currency: 'pln',
           product_data,
-          unit_amount: Math.max(1, Math.round(Number(item.price) * 100)),
+          unit_amount: unitAmount,
         },
-        quantity: Number(item.quantity) || 1,
+        quantity,
       };
     });
+
+    console.log('✅ Line items created:', line_items.length);
 
     // Aggregate metadata for fulfillment
     let totalRegular = 0;
@@ -71,27 +98,54 @@ export async function POST(request: NextRequest) {
     });
 
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'blik', 'p24'],
-      line_items,
-      mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep/sukces?session_id={CHECKOUT_SESSION_ID}&type=cart`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep`,
-      metadata: {
-        userId: userId ? userId.toString() : 'anonymous',
-        regularTokens: totalRegular.toString(),
-        bonusTokens: totalBonus.toString(),
-        vipDays: totalVipDays.toString(),
-        hasVip: hasVip.toString(),
-        products: itemsList.join(','),
-      },
-      customer_email: customerEmail,
-    });
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card', 'blik', 'p24'],
+        line_items,
+        mode: 'payment',
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep/sukces?session_id={CHECKOUT_SESSION_ID}&type=cart`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep`,
+        metadata: {
+          userId: userId ? userId.toString() : 'anonymous',
+          regularTokens: totalRegular.toString(),
+          bonusTokens: totalBonus.toString(),
+          vipDays: totalVipDays.toString(),
+          hasVip: hasVip.toString(),
+          products: itemsList.join(','),
+        },
+        customer_email: customerEmail,
+      });
 
-    return NextResponse.json({
-      sessionId: session.id,
-      url: session.url,
-    });
+      console.log('✅ Stripe session created:', {
+        sessionId: session.id,
+        url: session.url,
+        totalAmount: session.amount_total,
+      });
+
+      if (!session.url) {
+        console.error('❌ Session created but no URL returned:', session);
+        return NextResponse.json(
+          { error: 'Session created but checkout URL not available' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        sessionId: session.id,
+        url: session.url,
+      });
+    } catch (stripeError: any) {
+      console.error('❌ Stripe API Error:', {
+        message: stripeError.message,
+        code: stripeError.code,
+        statusCode: stripeError.statusCode,
+        type: stripeError.type,
+      });
+      return NextResponse.json(
+        { error: `Stripe error: ${stripeError.message || 'Unknown error'}` },
+        { status: stripeError.statusCode || 500 }
+      );
+    }
   } catch (error) {
     console.error('Error creating checkout session:', error);
     return NextResponse.json(

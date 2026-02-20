@@ -255,28 +255,45 @@ export default function SklepPage() {
 
     if (hasStripeItems) {
       try {
-        console.log('Initiating Stripe checkout...');
+        const userId = user?.id || user?.discordId || user?.user_id || 'anonymous';
+        console.log('🔵 Initiating Stripe checkout...', {
+          userId,
+          cartItems: cart.length,
+          user: user,
+        });
+
+        const requestBody = {
+          userId,
+          cart: cart,
+          customerEmail: user?.email || undefined,
+        };
+
+        console.log('📤 Sending request:', requestBody);
+
         const response = await fetch('/api/stripe/create-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user?.id || user?.discordId || 'anonymous',
-            cart: cart,
-            customerEmail: user?.email || undefined,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
+        console.log('📨 Response status:', response.status);
+
+        if (!response.ok) {
+          console.error('❌ API returned error:', response.status, response.statusText);
+        }
+
         const data = await response.json();
-        console.log('Stripe session response:', data);
+        console.log('📥 Stripe session response:', data);
         
         if (data.url) {
+          console.log('✅ Redirecting to Stripe:', data.url);
           window.location.href = data.url;
         } else {
-          console.error('Stripe error data:', data);
+          console.error('❌ Stripe error data:', data);
           setMessage({ type: 'error', text: data.error || 'Błąd podczas tworzenia płatności' });
         }
       } catch (error) {
-        console.error('Checkout error:', error);
+        console.error('❌ Checkout error:', error);
         setMessage({ type: 'error', text: 'Błąd podczas połączenia z serwerem płatności' });
       } finally {
         setLoading(false);
