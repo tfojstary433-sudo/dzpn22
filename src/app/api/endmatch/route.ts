@@ -1,16 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updatePlayerStats, saveMatchResult } from '@/lib/firebase';
+import { updatePlayerStats, saveMatchResult, getPlayerStats } from '@/lib/firebase';
+import { calculatePlayerMarketValue } from '@/lib/marketValue';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { matchId, homeTeamId, awayTeamId, homeScore, awayScore, scorers, extraStats, report } = body;
+    const { 
+      matchId, 
+      homeTeamId, 
+      awayTeamId, 
+      homeScore, 
+      awayScore, 
+      scorers, 
+      extraStats, 
+      report,
+      playerDetails = {} 
+    } = body;
 
     if (!matchId) {
       return NextResponse.json({ success: false, error: 'Missing matchId' }, { status: 400 });
     }
 
-    console.log(`[API] Processing match: ${matchId}`);
+    console.log(`📊 [Endmatch] Processing match: ${matchId}`);
+
+    const matchResult = homeScore > awayScore ? 'win' : homeScore < awayScore ? 'loss' : 'draw';
 
     // 1. Save match result to history
     await saveMatchResult({
@@ -25,40 +38,123 @@ export async function POST(request: NextRequest) {
       status: 'FINISHED'
     });
 
-    // 2. Update player statistics
+    // 2. Update player statistics and market values
     const playerUpdates: Promise<any>[] = [];
+    const marketValueUpdates: any[] = [];
+
+    // Collect all player data
+    const allPlayers = new Map();
 
     // Process scorers
     if (scorers && Array.isArray(scorers)) {
       scorers.forEach((s: any) => {
-        playerUpdates.push(updatePlayerStats(s.playerId.toString(), {
-          goals: s.goals || 0,
-          assists: s.assists || 0,
-          matches: 1,
-          name: s.playerName,
-          teamId: s.teamId
-        }));
+        const playerId = s.playerId.toString();
+        if (!allPlayers.has(playerId)) {
+          allPlayers.set(playerId, {
+            id: playerId,
+            name: s.playerName,
+            teamId: s.teamId,
+            goals: 0,
+            assists: 0,
+            minutes: 0,
+            yellowCards: 0,
+            redCards: 0,
+            cleanSheets: 0,
+            concededGoals: 0,
+            position: playerDetails[playerId]?.position || 'ATT',
+          });
+        }
+        const player = allPlayers.get(playerId);
+        player.goals += s.goals || 0;
+        player.assists += s.assists || 0;
+        player.minutes = playerDetails[playerId]?.minutes || 40;
       });
     }
 
     // Process extra stats (cards, clean sheets)
     if (extraStats && Array.isArray(extraStats)) {
       extraStats.forEach((s: any) => {
-        playerUpdates.push(updatePlayerStats(s.playerId.toString(), {
-          yellowCards: s.yellowCards || 0,
-          redCards: s.redCards || 0,
-          cleanSheets: s.cleanSheets || 0,
-          name: s.playerName,
-          teamId: s.teamId,
-          // If they weren't in scorers, we still count the match
-          matches: scorers?.find((sc: any) => sc.playerId === s.playerId) ? 0 : 1
-        }));
+        const playerId = s.playerId.toString();
+        if (!allPlayers.has(playerId)) {
+          allPlayers.set(playerId, {
+            id: playerId,
+            name: s.playerName,
+            teamId: s.teamId,
+            goals: 0,
+            assists: 0,
+            minutes: playerDetails[playerId]?.minutes || 40,
+            yellowCards: 0,
+            redCards: 0,
+            cleanSheets: 0,
+            concededGoals: 0,
+            position: playerDetails[playerId]?.position || 'DEF',
+          });
+        }
+        const player = allPlayers.get(playerId);
+        player.yellowCards += s.yellowCards || 0;
+        player.redCards += s.redCards || 0;
+        player.cleanSheets += s.cleanSheets || 0;
+        player.concededGoals += s.concededGoals || 0;
       });
+    }
+
+    // Update stats and calculate market value for each player
+    for (const [playerId, playerData] of allPlayers) {
+      const currentStats = await getPlayerStats(playerId);
+      const currentValue = currentStats?.value || 50000;
+
+      const calculation = calculatePlayerMarketValue({
+        position: playerData.position,
+        minutes: playerData.minutes,
+        goals: playerData.goals,
+        assists: playerData.assists,
+        cleanSheets: playerData.cleanSheets,
+        concededGoals: playerData.concededGoals,
+        yellowCards: playerData.yellowCards,
+        redCards: playerData.redCards,
+        matchId,
+        matchResult: playerData.teamId === homeTeamId ? matchResult : matchResult === 'win' ? 'loss' : matchResult === 'loss' ? 'win' : 'draw',
+        accountAgeDays: playerDetails[playerId]?.accountAgeDays,
+        transferCount: playerDetails[playerId]?.transferCount,
+        currentValue,
+      });
+
+      console.log(`📈 Player ${playerData.name} (${playerId}):`, {
+        oldValue: currentValue,
+        newValue: calculation.newValue,
+        change: calculation.newValue - currentValue,
+      });
+
+      marketValueUpdates.push({
+        playerId,
+        oldValue: currentValue,
+        newValue: calculation.newValue,
+        change: calculation.newValue - currentValue,
+        calculation,
+      });
+
+      // Update player stats with new value
+      playerUpdates.push(updatePlayerStats(playerId, {
+        goals: playerData.goals,
+        assists: playerData.assists,
+        matches: 1,
+        yellowCards: playerData.yellowCards,
+        redCards: playerData.redCards,
+        cleanSheets: playerData.cleanSheets,
+        name: playerData.name,
+        teamId: playerData.teamId,
+        position: playerData.position,
+        value: calculation.newValue,
+      }));
     }
 
     await Promise.all(playerUpdates);
 
-    return NextResponse.json({ success: true, message: 'Match processed and saved to Firebase' });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Match processed and market values updated',
+      marketValueUpdates,
+    });
   } catch (error) {
     console.error('Error in /api/endmatch:', error);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
