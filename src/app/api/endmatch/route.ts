@@ -21,10 +21,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing matchId' }, { status: 400 });
     }
 
-    console.log(`📊 [Endmatch] Processing match: ${matchId}`);
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`📊 [ENDMATCH] Processing match: ${matchId}`);
+    console.log(`${'='.repeat(60)}`);
 
     const isFriendlyMatch = matchId.startsWith('tf-');
-    console.log(`🎯 Match type: ${isFriendlyMatch ? 'FRIENDLY (towarzyski)' : 'OFFICIAL (ligowy)'}`);
+    console.log(`🎯 Match type: ${isFriendlyMatch ? '⭐ FRIENDLY (towarzyski) - WARTOŚĆ ZMIENIA SIĘ' : '⚪ OFFICIAL (ligowy) - brak zmian wartości'}`);
+    console.log(`🏠 ${homeTeamId} ${homeScore} : ${awayScore} ${awayTeamId}`);
 
     const matchResult = homeScore > awayScore ? 'win' : homeScore < awayScore ? 'loss' : 'draw';
 

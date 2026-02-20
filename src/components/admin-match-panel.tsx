@@ -167,19 +167,33 @@ export function AdminMatchPanel() {
       </div>
       
       <div className="space-y-4">
+        <div className="bg-blue-900/30 border border-blue-600/50 rounded-lg p-3 mb-4">
+          <p className="text-xs text-blue-300 font-bold">💡 WAŻNE: Dla meczów towarzyskich wpisz ID zaczynające się od "tf-" (np. tf-final-0403)</p>
+        </div>
+
         <div>
-          <label className="block text-sm font-semibold mb-2">Wybierz Mecz</label>
-          <select 
-            value={matchId}
-            onChange={(e) => setMatchId(e.target.value)}
-            className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
-          >
-            {matches.slice(0, 20).map(m => (
-              <option key={m.id} value={m.id}>
-                {m.homeTeam!.shortName} vs {m.awayTeam!.shortName} (Kolejka {m.round})
-              </option>
-            ))}
-          </select>
+          <label className="block text-sm font-semibold mb-2">Mecz - Wybierz LUB wpisz ID</label>
+          <div className="grid grid-cols-1 gap-2">
+            <select 
+              value={matchId}
+              onChange={(e) => setMatchId(e.target.value)}
+              className="w-full bg-slate-800 border border-blue-600/30 rounded-lg px-3 py-2 text-sm"
+            >
+              {matches.slice(0, 20).map(m => (
+                <option key={m.id} value={m.id}>
+                  {m.homeTeam!.shortName} vs {m.awayTeam!.shortName} (Kolejka {m.round})
+                </option>
+              ))}
+            </select>
+            <span className="text-xs text-white/40 text-center">LUB</span>
+            <input
+              type="text"
+              placeholder="np. tf-final-0403"
+              value={matchId}
+              onChange={(e) => setMatchId(e.target.value)}
+              className="w-full bg-slate-800 border border-green-600/30 rounded-lg px-3 py-2 text-sm focus:border-green-600 transition-colors"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -326,13 +340,29 @@ export function AdminMatchPanel() {
           </div>
         )}
 
-        <button
-          onClick={handleSubmit}
-          disabled={scorers.length === 0}
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg"
-        >
-          💾 Zapisz Wynik Meczu
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSubmit}
+            disabled={scorers.length === 0}
+            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg"
+          >
+            💾 Zapisz Wynik Meczu
+          </button>
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined' && (window as any).devtools) {
+                (window as any).devtools.open();
+              } else {
+                console.log('🖥️ Otwórz DevTools: F12, Ctrl+Shift+I lub Cmd+Option+I');
+                console.log('📋 Logi z meczu będą widoczne w Console');
+              }
+            }}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg"
+            title="Otwórz konsole"
+          >
+            🖥️
+          </button>
+        </div>
 
         <div className="border-t border-blue-600/30 pt-4">
           <h4 className="font-bold mb-3">🔄 Synchronizacja z API</h4>
@@ -349,13 +379,16 @@ export function AdminMatchPanel() {
         </div>
 
         <div className="text-xs text-blue-400/70 bg-blue-900/20 p-3 rounded-lg border border-blue-600/20">
-          <p className="font-semibold mb-1">💡 Jak używać:</p>
-          <ol className="list-decimal list-inside space-y-1">
-            <li>Wybierz mecz</li>
+          <p className="font-semibold mb-2">💡 Jak używać:</p>
+          <ol className="list-decimal list-inside space-y-1 mb-3">
+            <li><strong>Wpisz ID meczu</strong> zaczynające się od "tf-" (towarzyski)</li>
             <li>Wpisz wynik</li>
-            <li>Dodaj strzelców (imię + Roblox ID)</li>
-            <li>Kliknij "Zapisz"</li>
+            <li>Dodaj strzelców (imię + Roblox ID + dane)</li>
+            <li>Kliknij "Zapisz Wynik Meczu"</li>
           </ol>
+          <p className="font-semibold mb-1">🖥️ Aby otworzyć DevTools:</p>
+          <p className="mb-1">• Windows: <code className="bg-black/30 px-1 rounded">F12</code> lub <code className="bg-black/30 px-1 rounded">Ctrl+Shift+I</code></p>
+          <p>• Mac: <code className="bg-black/30 px-1 rounded">Cmd+Option+I</code></p>
         </div>
       </div>
     </div>
