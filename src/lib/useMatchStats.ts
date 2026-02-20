@@ -448,6 +448,12 @@ export function useMatchStats() {
       goals: number;
       avatarUrl?: string;
     }>;
+    playerDetails?: Record<string, {
+      position: 'ATT' | 'MID' | 'DEF' | 'GK';
+      minutes: number;
+      accountAgeDays: number;
+      transferCount: number;
+    }>;
   }) => {
     try {
       console.log('🎯 Zapisywanie wyniku meczu na serwerze:', matchData);
