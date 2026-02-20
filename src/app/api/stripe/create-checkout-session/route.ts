@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = new Stripe(STRIPE_SK, {
-      apiVersion: '2025-02-24.acacia' as any
+      apiVersion: '2024-12-01' as any
     });
 
     const { userId, cart, customerEmail } = await request.json();
