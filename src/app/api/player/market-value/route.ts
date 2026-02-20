@@ -28,6 +28,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!matchId || !matchId.startsWith('tf-')) {
+      return NextResponse.json(
+        { error: 'Market value calculation only available for friendly matches. Match ID must start with "tf-"' },
+        { status: 403 }
+      );
+    }
+
     const currentStats = await getPlayerStats(playerId.toString());
     const currentValue = currentStats?.value || 50000;
 
@@ -76,11 +83,21 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const playerId = searchParams.get('playerId');
+    const matchId = searchParams.get('matchId');
 
     if (!playerId) {
       return NextResponse.json(
         { error: 'Missing playerId parameter' },
         { status: 400 }
+      );
+    }
+
+    const isFriendlyMatch = matchId ? matchId.startsWith('tf-') : false;
+
+    if (matchId && !isFriendlyMatch) {
+      return NextResponse.json(
+        { error: 'Market value calculation only available for friendly matches (tf-*)' },
+        { status: 403 }
       );
     }
 
@@ -98,6 +115,7 @@ export async function GET(request: NextRequest) {
       playerId,
       value: stats.value || 50000,
       stats,
+      isFriendlyMatch,
     });
   } catch (error) {
     console.error('Error fetching market value:', error);

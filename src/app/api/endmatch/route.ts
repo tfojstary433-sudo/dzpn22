@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`📊 [Endmatch] Processing match: ${matchId}`);
 
+    const isFriendlyMatch = matchId.startsWith('tf-');
+    console.log(`🎯 Match type: ${isFriendlyMatch ? 'FRIENDLY (towarzyski)' : 'OFFICIAL (ligowy)'}`);
+
     const matchResult = homeScore > awayScore ? 'win' : homeScore < awayScore ? 'loss' : 'draw';
 
     // 1. Save match result to history
@@ -102,36 +105,43 @@ export async function POST(request: NextRequest) {
     for (const [playerId, playerData] of allPlayers) {
       const currentStats = await getPlayerStats(playerId);
       const currentValue = currentStats?.value || 50000;
+      let newValue = currentValue;
 
-      const calculation = calculatePlayerMarketValue({
-        position: playerData.position,
-        minutes: playerData.minutes,
-        goals: playerData.goals,
-        assists: playerData.assists,
-        cleanSheets: playerData.cleanSheets,
-        concededGoals: playerData.concededGoals,
-        yellowCards: playerData.yellowCards,
-        redCards: playerData.redCards,
-        matchId,
-        matchResult: playerData.teamId === homeTeamId ? matchResult : matchResult === 'win' ? 'loss' : matchResult === 'loss' ? 'win' : 'draw',
-        accountAgeDays: playerDetails[playerId]?.accountAgeDays,
-        transferCount: playerDetails[playerId]?.transferCount,
-        currentValue,
-      });
+      if (isFriendlyMatch) {
+        const calculation = calculatePlayerMarketValue({
+          position: playerData.position,
+          minutes: playerData.minutes,
+          goals: playerData.goals,
+          assists: playerData.assists,
+          cleanSheets: playerData.cleanSheets,
+          concededGoals: playerData.concededGoals,
+          yellowCards: playerData.yellowCards,
+          redCards: playerData.redCards,
+          matchId,
+          matchResult: playerData.teamId === homeTeamId ? matchResult : matchResult === 'win' ? 'loss' : matchResult === 'loss' ? 'win' : 'draw',
+          accountAgeDays: playerDetails[playerId]?.accountAgeDays,
+          transferCount: playerDetails[playerId]?.transferCount,
+          currentValue,
+        });
 
-      console.log(`📈 Player ${playerData.name} (${playerId}):`, {
-        oldValue: currentValue,
-        newValue: calculation.newValue,
-        change: calculation.newValue - currentValue,
-      });
+        newValue = calculation.newValue;
 
-      marketValueUpdates.push({
-        playerId,
-        oldValue: currentValue,
-        newValue: calculation.newValue,
-        change: calculation.newValue - currentValue,
-        calculation,
-      });
+        console.log(`📈 [FRIENDLY] Player ${playerData.name} (${playerId}):`, {
+          oldValue: currentValue,
+          newValue: calculation.newValue,
+          change: calculation.newValue - currentValue,
+        });
+
+        marketValueUpdates.push({
+          playerId,
+          oldValue: currentValue,
+          newValue: calculation.newValue,
+          change: calculation.newValue - currentValue,
+          calculation,
+        });
+      } else {
+        console.log(`⚪ [OFFICIAL] Player ${playerData.name} (${playerId}): Wartość pozostaje bez zmian (${currentValue} €)`);
+      }
 
       // Update player stats with new value
       playerUpdates.push(updatePlayerStats(playerId, {
@@ -144,7 +154,7 @@ export async function POST(request: NextRequest) {
         name: playerData.name,
         teamId: playerData.teamId,
         position: playerData.position,
-        value: calculation.newValue,
+        value: newValue,
       }));
     }
 
