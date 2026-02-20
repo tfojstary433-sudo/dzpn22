@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculatePlayerMarketValue } from '@/lib/marketValue';
-import { getPlayerStats } from '@/lib/firebase';
+import { getPlayerStats, calculatePlayerHistoricalMarketValue } from '@/lib/firebase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -110,12 +110,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const historicalValue = await calculatePlayerHistoricalMarketValue(
+      playerId,
+      stats.position,
+      undefined,
+      undefined
+    );
+
+    console.log(`📊 [Market Value] Player ${playerId}:`, {
+      currentValue: stats.value || 50000,
+      historicalValue,
+      usingHistorical: historicalValue !== 50000,
+    });
+
     return NextResponse.json({
       success: true,
       playerId,
-      value: stats.value || 50000,
+      value: historicalValue || stats.value || 50000,
       stats,
       isFriendlyMatch,
+      historicalCalculation: historicalValue !== 50000,
     });
   } catch (error) {
     console.error('Error fetching market value:', error);

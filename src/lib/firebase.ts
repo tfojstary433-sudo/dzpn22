@@ -270,3 +270,221 @@ export async function deleteNews(newsId: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function getPlayerFriendlyMatches(userId: string): Promise<any[]> {
+  try {
+    const allMatches = await getMatchHistory();
+    
+    const friendlyMatches: any[] = [];
+    
+    for (const match of allMatches) {
+      if (!match.matchId || !match.matchId.startsWith('tf-')) continue;
+      if (!match.scorers && !match.extraStats) continue;
+      
+      const playerInMatch = 
+        (match.scorers && Array.isArray(match.scorers) && 
+         match.scorers.some((s: any) => s.playerId.toString() === userId)) ||
+        (match.extraStats && Array.isArray(match.extraStats) && 
+         match.extraStats.some((s: any) => s.playerId.toString() === userId));
+      
+      if (playerInMatch) {
+        friendlyMatches.push(match);
+      }
+    }
+    
+    return friendlyMatches.sort((a: any, b: any) => 
+      new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime()
+    );
+  } catch (error) {
+    console.error('Error fetching player friendly matches:', error);
+    return [];
+  }
+}
+
+export async function aggregatePlayerMatchStats(userId: string, matches: any[]): Promise<{
+  totalMatches: number;
+  goals: number;
+  assists: number;
+  yellowCards: number;
+  redCards: number;
+  cleanSheets: number;
+  concededGoals: number;
+  totalMinutes: number;
+  matchDetails: Array<{ matchId: string; goals: number; assists: number; yellowCards: number; redCards: number; cleanSheets: number; concededGoals: number; minutes: number; result: string; position: string; timestamp: string }>;
+}> {
+  const stats = {
+    totalMatches: 0,
+    goals: 0,
+    assists: 0,
+    yellowCards: 0,
+    redCards: 0,
+    cleanSheets: 0,
+    concededGoals: 0,
+    totalMinutes: 0,
+    matchDetails: [] as any[]
+  };
+
+  for (const match of matches) {
+    if (!match.matchId || !match.matchId.startsWith('tf-')) continue;
+
+    let playerGoals = 0;
+    let playerAssists = 0;
+    let playerYellow = 0;
+    let playerRed = 0;
+    let playerCleanSheets = 0;
+    let playerConcededGoals = 0;
+    let playerMinutes = 0;
+    let playerTeam = '';
+    let playerPosition = '';
+
+    if (match.scorers && Array.isArray(match.scorers)) {
+      const scorerEntry = match.scorers.find((s: any) => s.playerId.toString() === userId);
+      if (scorerEntry) {
+        playerGoals = scorerEntry.goals || 0;
+        playerAssists = scorerEntry.assists || 0;
+        playerTeam = scorerEntry.teamId;
+        playerMinutes = scorerEntry.minutes || 0;
+      }
+    }
+
+    if (match.extraStats && Array.isArray(match.extraStats)) {
+      const extraEntry = match.extraStats.find((s: any) => s.playerId.toString() === userId);
+      if (extraEntry) {
+        playerYellow = extraEntry.yellowCards || 0;
+        playerRed = extraEntry.redCards || 0;
+        playerCleanSheets = extraEntry.cleanSheets || 0;
+        playerConcededGoals = extraEntry.concededGoals || 0;
+        playerMinutes = extraEntry.minutes || playerMinutes;
+        playerTeam = extraEntry.teamId || playerTeam;
+        playerPosition = extraEntry.position || playerPosition;
+      }
+    }
+
+    if (playerGoals > 0 || playerYellow > 0 || playerRed > 0 || playerCleanSheets > 0 || playerConcededGoals > 0 || playerMinutes > 0) {
+      stats.totalMatches++;
+      stats.goals += playerGoals;
+      stats.assists += playerAssists;
+      stats.yellowCards += playerYellow;
+      stats.redCards += playerRed;
+      stats.cleanSheets += playerCleanSheets;
+      stats.concededGoals += playerConcededGoals;
+      stats.totalMinutes += playerMinutes;
+
+      const matchResult = match.homeScore > match.awayScore 
+        ? (playerTeam === match.homeTeamId ? 'win' : 'loss')
+        : match.homeScore < match.awayScore
+        ? (playerTeam === match.awayTeamId ? 'win' : 'loss')
+        : 'draw';
+
+      stats.matchDetails.push({
+        matchId: match.matchId,
+        goals: playerGoals,
+        assists: playerAssists,
+        yellowCards: playerYellow,
+        redCards: playerRed,
+        cleanSheets: playerCleanSheets,
+        concededGoals: playerConcededGoals,
+        minutes: playerMinutes,
+        result: matchResult,
+        position: playerPosition,
+        timestamp: match.timestamp
+      });
+    }
+  }
+
+  return stats;
+}
+
+export async function calculatePlayerHistoricalMarketValue(
+  userId: string,
+  playerPosition?: string,
+  accountAgeDays?: number,
+  transferCount?: number
+): Promise<number> {
+  try {
+    const friendlyMatches = await getPlayerFriendlyMatches(userId);
+    
+    if (friendlyMatches.length === 0) {
+      return 50000;
+    }
+
+    const aggregated = await aggregatePlayerMatchStats(userId, friendlyMatches);
+
+    if (aggregated.totalMatches === 0) {
+      return 50000;
+    }
+
+    const { calculatePlayerMarketValue } = await import('./marketValue');
+
+    let currentValue = 50000;
+    const position = playerPosition || 'MID';
+
+    for (const match of friendlyMatches) {
+      if (!match.matchId || !match.matchId.startsWith('tf-')) continue;
+
+      let playerGoals = 0;
+      let playerAssists = 0;
+      let playerYellow = 0;
+      let playerRed = 0;
+      let playerCleanSheets = 0;
+      let playerConcededGoals = 0;
+      let playerMinutes = 0;
+      let playerTeam = '';
+      let matchPosition = position;
+
+      if (match.scorers && Array.isArray(match.scorers)) {
+        const scorerEntry = match.scorers.find((s: any) => s.playerId.toString() === userId);
+        if (scorerEntry) {
+          playerGoals = scorerEntry.goals || 0;
+          playerAssists = scorerEntry.assists || 0;
+          playerTeam = scorerEntry.teamId;
+          playerMinutes = scorerEntry.minutes || 0;
+        }
+      }
+
+      if (match.extraStats && Array.isArray(match.extraStats)) {
+        const extraEntry = match.extraStats.find((s: any) => s.playerId.toString() === userId);
+        if (extraEntry) {
+          playerYellow = extraEntry.yellowCards || 0;
+          playerRed = extraEntry.redCards || 0;
+          playerCleanSheets = extraEntry.cleanSheets || 0;
+          playerConcededGoals = extraEntry.concededGoals || 0;
+          playerMinutes = extraEntry.minutes || playerMinutes;
+          playerTeam = extraEntry.teamId || playerTeam;
+          matchPosition = extraEntry.position || position;
+        }
+      }
+
+      if (playerMinutes > 0 || playerGoals > 0 || playerYellow > 0 || playerRed > 0) {
+        const matchResult = match.homeScore > match.awayScore 
+          ? (playerTeam === match.homeTeamId ? 'win' : 'loss')
+          : match.homeScore < match.awayScore
+          ? (playerTeam === match.awayTeamId ? 'win' : 'loss')
+          : 'draw';
+
+        const calculation = calculatePlayerMarketValue({
+          position: (matchPosition as 'ATT' | 'MID' | 'DEF' | 'GK') || 'MID',
+          minutes: playerMinutes,
+          goals: playerGoals,
+          assists: playerAssists,
+          cleanSheets: playerCleanSheets,
+          concededGoals: playerConcededGoals,
+          yellowCards: playerYellow,
+          redCards: playerRed,
+          matchId: match.matchId,
+          matchResult,
+          accountAgeDays,
+          transferCount,
+          currentValue,
+        });
+
+        currentValue = calculation.newValue;
+      }
+    }
+
+    return currentValue;
+  } catch (error) {
+    console.error('Error calculating historical market value:', error);
+    return 50000;
+  }
+}
