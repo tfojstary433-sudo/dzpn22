@@ -105,6 +105,7 @@ export default function GraczPage() {
   const [matchPage, setMatchPage] = useState(0);
   const [history, setHistory] = useState<any>(null);
   const [tournamentPlayers, setTournamentPlayers] = useState<any[]>([]);
+  const [marketValueFromDb, setMarketValueFromDb] = useState<number | null>(null);
   const matchesPerPage = 10;
 
   useEffect(() => {
@@ -298,6 +299,25 @@ export default function GraczPage() {
     fetchAllData();
   }, [username]);
 
+  useEffect(() => {
+    async function fetchMarketValue() {
+      if (!player?.userId) return;
+      try {
+        const res = await fetch(`/api/player/market-value?playerId=${player.userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.value) {
+            setMarketValueFromDb(data.value);
+          }
+        }
+      } catch (e) {
+        console.error('Market value fetch failed:', e);
+      }
+    }
+    
+    fetchMarketValue();
+  }, [player?.userId]);
+
   const playerHistory = useMemo(() => {
     if (!history?.players || !player) return [];
     const playerEntry = history.players[player.userId] || 
@@ -443,7 +463,7 @@ export default function GraczPage() {
         }, 0) / eksHistory.length
       : 6.5;
 
-    const marketValue = calculateMarketValue({
+    const calculatedMarketValue = calculateMarketValue({
       matches: eksStats.matches,
       goals: eksStats.goals,
       assists: eksStats.assists,
@@ -452,7 +472,7 @@ export default function GraczPage() {
 
     // 3. Przygotuj statystyki do wyświetlenia (zależnie od selectedTournament)
     const stats = {
-      marketValue: marketValue,
+      marketValue: marketValueFromDb || calculatedMarketValue,
       goals: 0,
       assists: 0,
       matchesCount: 0,
@@ -547,7 +567,7 @@ export default function GraczPage() {
     }
 
     return stats;
-  }, [playerHistory, player, selectedTournament, tournamentPlayers]);
+  }, [playerHistory, player, selectedTournament, tournamentPlayers, marketValueFromDb]);
 
 
   const playerPosition = useMemo(() => {
