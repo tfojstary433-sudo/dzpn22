@@ -37,6 +37,7 @@ import {
   Trophy
 } from 'lucide-react';
 import { calculateMarketValue, calculateMatchRating, mapPositionToPolish, getRatingColor } from '@/lib/utils';
+import { calculateMarketValueFromFriendlyMatches, formatMarketValue } from '@/lib/marketValue';
 
 interface PlayerStats {
   userId: string;
@@ -463,16 +464,25 @@ export default function GraczPage() {
         }, 0) / eksHistory.length
       : 6.5;
 
-    const calculatedMarketValue = calculateMarketValue({
+    let calculatedMarketValue = calculateMarketValue({
       matches: eksStats.matches,
       goals: eksStats.goals,
       assists: eksStats.assists,
       redCards: eksStats.redCards
     }, player?.position, eksAvgRating);
 
+    if (friendlyHistoryFromPlayer.length > 0) {
+      const friendlyMarketCalc = calculateMarketValueFromFriendlyMatches(
+        friendlyHistoryFromPlayer,
+        undefined,
+        (player?.previousClubs?.length || 0) - 1
+      );
+      calculatedMarketValue = friendlyMarketCalc.value;
+    }
+
     // 3. Przygotuj statystyki do wyświetlenia (zależnie od selectedTournament)
     const stats = {
-      marketValue: marketValueFromDb || calculatedMarketValue,
+      marketValue: calculatedMarketValue,
       goals: 0,
       assists: 0,
       matchesCount: 0,
@@ -567,7 +577,7 @@ export default function GraczPage() {
     }
 
     return stats;
-  }, [playerHistory, player, selectedTournament, tournamentPlayers, marketValueFromDb]);
+  }, [playerHistory, player, selectedTournament, tournamentPlayers]);
 
 
   const playerPosition = useMemo(() => {
