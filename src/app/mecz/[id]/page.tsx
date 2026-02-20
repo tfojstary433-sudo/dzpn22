@@ -515,6 +515,7 @@ export default function MatchDetail() {
   const [isMatchFinished, setIsMatchFinished] = useState(false);
   const [isMatchActive, setIsMatchActive] = useState(false);
   const [finishedMatchData, setFinishedMatchData] = useState<any>(null);
+  const [referees, setReferees] = useState<any>(null);
 
   const loadFinished = useCallback(() => {
     const stored = localStorage.getItem('finishedMatches');
@@ -594,6 +595,11 @@ export default function MatchDetail() {
             stadium: found.stadium || 'Ośrodek Treningowy PFF',
             category: 'MECZE TOWARZYSKIE'
           }));
+          
+          // Extract referees if available
+          if (found.referees) {
+            setReferees(found.referees);
+          }
         }
       }
 
@@ -1082,6 +1088,71 @@ export default function MatchDetail() {
                     <h2 className="text-xl md:text-5xl font-black uppercase tracking-tighter text-center leading-none drop-shadow-2xl h-12 md:h-24 flex items-center justify-center">{awayTeam.name}</h2>
                   </div>
                 </div>
+
+                {/* Referees Section */}
+                {referees && (referees.main || referees.var || referees.avar || referees.assistant1 || referees.assistant2 || referees.fourth) && (
+                  <div className="mb-20 max-w-3xl mx-auto">
+                    <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl">
+                      <h3 className="text-white/40 text-xs font-black uppercase tracking-[0.4em] mb-6 text-center">SĘDZIOWIE SPOTKANIA</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {referees.main && (
+                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">⚽</div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Główny</span>
+                              <span className="text-white font-black text-sm uppercase">{referees.main}</span>
+                            </div>
+                          </div>
+                        )}
+                        {referees.var && (
+                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">📹</div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">VAR</span>
+                              <span className="text-white font-black text-sm uppercase">{referees.var}</span>
+                            </div>
+                          </div>
+                        )}
+                        {referees.avar && (
+                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">📹</div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">AVAR</span>
+                              <span className="text-white font-black text-sm uppercase">{referees.avar}</span>
+                            </div>
+                          </div>
+                        )}
+                        {referees.assistant1 && (
+                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">🚩</div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Asystent 1</span>
+                              <span className="text-white font-black text-sm uppercase">{referees.assistant1}</span>
+                            </div>
+                          </div>
+                        )}
+                        {referees.assistant2 && (
+                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">🚩</div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Asystent 2</span>
+                              <span className="text-white font-black text-sm uppercase">{referees.assistant2}</span>
+                            </div>
+                          </div>
+                        )}
+                        {referees.fourth && (
+                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">📋</div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Czwarty</span>
+                              <span className="text-white font-black text-sm uppercase">{referees.fourth}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Score Summary (Goals) */}
                 <div className="grid grid-cols-2 gap-12 md:gap-32 mb-20 max-w-5xl mx-auto">
