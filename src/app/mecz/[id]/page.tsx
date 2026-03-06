@@ -495,31 +495,26 @@ export default function MatchDetail() {
 
   useEffect(() => {
     // Load finished matches from localStorage
-    const loadFinished = () => {
-      const stored = localStorage.getItem('finishedMatches');
-      if (stored) {
-        const finished = JSON.parse(stored);
-        setFinishedMatches(finished);
-        const status = apiData?.match?.status?.toLowerCase();
-        setIsMatchFinished(finished[id] || match?.status === 'finished' || status === 'finished' || status === 'played' || status === 'ft' || false);
-        setIsMatchActive(apiData?.match?.isActive || status === 'active' || status === 'live' || false);
-
-        // Load match result data for finished matches
-        if (finished[id] || match?.status === 'finished') {
-          const matchStats = localStorage.getItem('matchStats');
-          if (matchStats) {
-            const stats = JSON.parse(matchStats);
-            setFinishedMatchData(stats[id] || null);
-          }
+    const stored = localStorage.getItem('finishedMatches');
+    if (stored) {
+      const finished = JSON.parse(stored);
+      setFinishedMatches(finished);
+      
+      const isFin = finished[id] || match?.status === 'finished';
+      if (isFin) {
+        setIsMatchFinished(true);
+        const matchStats = localStorage.getItem('matchStats');
+        if (matchStats) {
+          const stats = JSON.parse(matchStats);
+          setFinishedMatchData(stats[id] || null);
         }
-      } else {
-        setIsMatchFinished(false);
-        setIsMatchActive(false);
       }
-    };
-    loadFinished();
+    }
+  }, [id, match?.status]);
 
+  useEffect(() => {
     const fetchMatchData = async () => {
+      if (loading) return;
       setLoading(true);
       setError(null);
       try {
@@ -535,41 +530,41 @@ export default function MatchDetail() {
           const data = await tournamentRes.json();
           const fixtures = data.fixtures || [];
           
-          // Prioritize matchUuid for precise matching
           let found = fixtures.find((m: any) => m.matchUuid === id || m.uuid === id);
-          
-          // Fallback to id only if no uuid match found
           if (!found && isNumeric(id)) {
             found = fixtures.find((m: any) => m.id?.toString() === id);
           }
           
           if (found) {
-            setPreMatchInfo({
-              ...found,
-              homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
-              awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
-              homeScore: found.scoreA,
-              awayScore: found.scoreB,
-              stadium: found.stadium || 'Ośrodek Treningowy PFF',
-              category: 'MECZE TOWARZYSKIE'
+            setPreMatchInfo((prev: any) => {
+              if (JSON.stringify(prev) === JSON.stringify(found)) return prev;
+              return {
+                ...found,
+                homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
+                awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
+                homeScore: found.scoreA,
+                awayScore: found.scoreB,
+                stadium: found.stadium || 'Ośrodek Treningowy PFF',
+                category: 'MECZE TOWARZYSKIE'
+              };
             });
           }
         }
 
-        if (scheduleRes && scheduleRes.ok && !preMatchInfo) {
+        if (scheduleRes && scheduleRes.ok) {
           const data = await scheduleRes.json();
           const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
           
-          // Prioritize matchUuid
           let found = list.find((m: any) => m.matchUuid === id || m.uuid === id);
-          
-          // Fallback to id only if no uuid match found
           if (!found && isNumeric(id)) {
             found = list.find((m: any) => m.id?.toString() === id);
           }
           
           if (found) {
-            setPreMatchInfo(found);
+            setPreMatchInfo((prev: any) => {
+              if (JSON.stringify(prev) === JSON.stringify(found)) return prev;
+              return found;
+            });
           }
         }
 
@@ -591,27 +586,13 @@ export default function MatchDetail() {
             const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
             if (response.ok) {
               const data = await response.json();
-              
-              // Team validation
-              if (preMatchInfo) {
-                const apiHome = (data.match?.teamA || '').toLowerCase();
-                const preHome = (preMatchInfo.homeTeam?.name || preMatchInfo.teamA || '').toLowerCase();
-                
-                if (preHome && apiHome && !apiHome.includes(preHome.split(' ')[0]) && !preHome.includes(apiHome.split(' ')[0])) {
-                  console.log('Skipping mismatched live data');
-                } else {
-                  setApiData(data);
-                  loaded = true;
-                }
-              } else {
-                setApiData(data);
-                loaded = true;
-              }
+              setApiData(data);
+              loaded = true;
             }
           } catch {}
         }
 
-        // Try players-history.json as a definitive score source for finished matches
+        // Try players-history.json as a definitive score source
         try {
           const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
           if (historyRes.ok) {
@@ -627,7 +608,6 @@ export default function MatchDetail() {
               }
 
               if (historyMatch) {
-                // If we found it in history, it means it's finished and we have scores
                 const hScoreA = historyMatch.scoreA;
                 const hScoreB = historyMatch.scoreB;
 
@@ -641,20 +621,12 @@ export default function MatchDetail() {
                   teamA: historyMatch.teamA,
                   teamB: historyMatch.teamB
                 }));
-                
-                if (!loaded) {
-                  setIsMatchFinished(true);
-                }
+                setIsMatchFinished(true);
               }
             }
           }
-        } catch (e) {
-          console.error('History score fetch failed:', e);
-        }
+        } catch (e) {}
 
-        if (!loaded && !preMatchInfo && !match) {
-          throw new Error('Nie udało się znaleźć danych meczu');
-        }
       } catch (err: any) {
         console.error('Error fetching match data:', err);
         setError(err.message || 'Nie udało się pobrać danych meczu');
@@ -664,36 +636,9 @@ export default function MatchDetail() {
     };
 
     fetchMatchData();
-    let interval: NodeJS.Timeout;
-    if (isMatchActive) {
-      interval = setInterval(fetchMatchData, 5000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [id, isMatchActive, match, apiData?.match?.isActive, apiData?.match?.status, preMatchInfo]);
-
-  useEffect(() => {
-    if (preMatchInfo) {
-      const matchDate = new Date(preMatchInfo.date).getTime();
-      const now = new Date().getTime();
-      const isPast = matchDate < now - (2 * 60 * 60 * 1000); // More than 2 hours ago
-      const status = preMatchInfo.status?.toLowerCase();
-      const hasStatusFinished = status === 'finished' || status === 'ft' || status === 'played';
-      
-      const isActive = preMatchInfo.isActive || status === 'active' || status === 'live' || status === 'in_progress';
-      if (isActive && !isMatchActive) {
-        setIsMatchActive(true);
-      }
-      
-      // If we have scores and it's not active, it's likely finished or has a result to show
-      const hasScore = (preMatchInfo.scoreA !== undefined && preMatchInfo.scoreA !== null && (preMatchInfo.scoreA > 0 || (preMatchInfo.scoreB !== undefined && preMatchInfo.scoreB > 0)));
-      
-      if ((hasStatusFinished || isPast || (hasScore && isPast)) && !isMatchActive) {
-        setIsMatchFinished(true);
-      }
-    }
-  }, [preMatchInfo, isMatchActive]);
+    const interval = setInterval(fetchMatchData, 10000); // 10s interval
+    return () => clearInterval(interval);
+  }, [id]); // Only depend on ID
 
   useEffect(() => {
     if (apiData) {
@@ -702,11 +647,20 @@ export default function MatchDetail() {
       const isFinished = status === 'finished' || status === 'played' || status === 'ft';
 
       setIsMatchActive(isActive);
-      if (isFinished) {
-        setIsMatchFinished(true);
-      }
+      if (isFinished) setIsMatchFinished(true);
     }
   }, [apiData]);
+
+  useEffect(() => {
+    if (preMatchInfo && !isMatchActive) {
+      const status = preMatchInfo.status?.toLowerCase();
+      const isFin = status === 'finished' || status === 'ft' || status === 'played';
+      const isActive = preMatchInfo.isActive || status === 'active' || status === 'live' || status === 'in_progress';
+      
+      if (isActive) setIsMatchActive(true);
+      if (isFin) setIsMatchFinished(true);
+    }
+  }, [preMatchInfo, isMatchActive]);
 
   useEffect(() => {
     if (isMatchFinished && !hasAutoSwitched.current) {
