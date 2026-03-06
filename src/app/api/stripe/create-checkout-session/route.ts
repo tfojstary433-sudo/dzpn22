@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
 
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'blik'],
       line_items,
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/sklep/sukces?session_id={CHECKOUT_SESSION_ID}&type=cart`,
