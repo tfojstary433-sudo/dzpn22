@@ -106,7 +106,7 @@ export function Statistics() {
       redCards: 0
     }));
 
-    return basePlayers.map(p => {
+    return basePlayers.map((p: any) => {
       // Prioritize data from useMatchStats if available and logo is NOT the default/fallback
       const isResolved = p.teamLogo && !p.teamLogo.includes('czarnepff-1.png');
       
