@@ -531,8 +531,8 @@ function TurniejeContent() {
   });
 
   // Filter and split teams by group
-  let groupA = allStandings.filter(s => s.groupId === 'A');
-  let groupB = allStandings.filter(s => s.groupId === 'B');
+  let groupA = allStandings.filter((s: any) => s.groupId === 'A');
+  let groupB = allStandings.filter((s: any) => s.groupId === 'B');
 
   // If filtering resulted in empty groups (e.g. old data format), fallback to slicing
   if (groupA.length === 0 && groupB.length === 0 && allStandings.length > 0) {
