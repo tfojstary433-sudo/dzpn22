@@ -87,8 +87,8 @@ export async function POST(request: Request) {
             await setFirebase(`UnPrzerwaCodes/${code}`, true);
             console.log(`Generated UnPrzerwa code: ${code} for user ${userId}`);
           } else {
-            // Save to other_codes
-            await setFirebase(`other_codes/${code}`, true);
+            // Save to other_codes with product ID/name as value
+            await setFirebase(`other_codes/${code}`, productId.toUpperCase());
             console.log(`Generated other_code: ${code} (${productId}) for user ${userId}`);
           }
         }
@@ -116,7 +116,8 @@ export async function POST(request: Request) {
             if (normalizedId === 'unprzerwa') {
               await setFirebase(`UnPrzerwaCodes/${code}`, true);
             } else {
-              await setFirebase(`other_codes/${code}`, true);
+              // Store product name/id as value
+              await setFirebase(`other_codes/${code}`, (item.name || item.id).toUpperCase());
             }
           }
         }
