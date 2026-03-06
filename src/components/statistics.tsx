@@ -88,7 +88,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
   );
 };
 
-export function Statistics() {
+export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
   const { topScorers, standings } = useMatchStats();
   const [activeType, setActiveType] = useState<'gracze' | 'druzyny'>('gracze');
   const [mounted, setMounted] = useState(false);
