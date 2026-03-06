@@ -166,7 +166,11 @@ export function Navbar() {
       setSearchOpen(uniqueResults.length > 0);
     };
 
-    fetchSearchResults();
+    const debounceTimer = setTimeout(() => {
+      fetchSearchResults();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
   }, [searchQuery]);
 
   const navLinks = [

@@ -24,21 +24,16 @@ export default function Home() {
         left: 0,
         behavior: 'instant'
       });
-      // Fallback for some browsers
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     };
 
     scrollToTop();
     
-    // Multiple attempts to ensure it works after various components load
-    const timeouts = [
-      setTimeout(scrollToTop, 100),
-      setTimeout(scrollToTop, 500),
-      setTimeout(scrollToTop, 1000)
-    ];
+    // Attempt once more after a small delay to handle component mounting
+    const timeout = setTimeout(scrollToTop, 100);
     
-    return () => timeouts.forEach(t => clearTimeout(t));
+    return () => clearTimeout(timeout);
   }, []);
 
   return (
