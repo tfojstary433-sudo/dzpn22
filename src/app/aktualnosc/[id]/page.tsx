@@ -3,52 +3,15 @@
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { useParams } from 'next/navigation';
-import { newsArticles as staticNews } from '@/lib/data';
+import { newsArticles } from '@/lib/data';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, User, ArrowLeft, Share2, MessageCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { getNews } from '@/lib/firebase';
 
 export default function NewsDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const [article, setArticle] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchArticle() {
-      // First check static news
-      const staticMatch = staticNews.find(a => a.id.toString() === id);
-      if (staticMatch) {
-        setArticle(staticMatch);
-        setIsLoading(false);
-        return;
-      }
-
-      // Then check firebase
-      const firebaseNews = await getNews();
-      const firebaseMatch = firebaseNews.find(a => a.id.toString() === id);
-      if (firebaseMatch) {
-        setArticle(firebaseMatch);
-      }
-      setIsLoading(false);
-    }
-
-    fetchArticle();
-  }, [id]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen text-white relative">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center py-40 px-4 relative z-10">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  const article = newsArticles.find(a => a.id === parseInt(id)) as any;
 
   if (!article) {
     return (
@@ -223,7 +186,7 @@ export default function NewsDetailPage() {
                   </h3>
                   
                   <div className="space-y-10">
-                    {staticNews.filter(a => a.id.toString() !== id).slice(0, 3).map((relatedArticle) => (
+                    {newsArticles.filter(a => a.id !== article.id).slice(0, 3).map((relatedArticle) => (
                       <Link
                         key={relatedArticle.id}
                         href={`/aktualnosc/${relatedArticle.id}`}

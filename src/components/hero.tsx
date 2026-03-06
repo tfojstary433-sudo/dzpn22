@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { matches, Match, teams, extraTeams, standings as defaultStandings } from '@/lib/data';
+import { matches, Match, teams, standings as defaultStandings } from '@/lib/data';
 import { ClubLogosBar } from './club-logos-bar';
 import { CompactLeagueTable } from './compact-widgets';
 import { API_ENDPOINTS } from '@/lib/constants';
@@ -80,34 +80,18 @@ interface ApiMatch {
   timer: string;
   period: string;
   isActive: boolean;
-  events?: {
-    goals: Array<{
-      minute: number;
-      player: string;
-      team: string;
-    }>;
-  };
 }
 
-const normalize = (s: string) => (s || '').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
-
 const getTeamFromName = (teamName: string) => {
-  const allTeams = [...teams, ...extraTeams];
-  const search = normalize(teamName);
-  
-  const foundTeam = allTeams.find(t => 
-    normalize(t.name) === search || 
-    normalize(t.shortName) === search ||
-    normalize(t.id) === search
-  );
+  const foundTeam = teams.find(t => t.name === teamName || t.shortName === teamName);
   
   if (foundTeam) return foundTeam;
 
   return {
     id: 'UNK',
     name: teamName,
-    shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
+    shortName: teamName.substring(0, 3).toUpperCase(),
+    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
     color: '#3b82f6'
   };
 };
@@ -121,7 +105,6 @@ export function Hero({
 }) {
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
   const [liveMatch, setLiveMatch] = useState<ApiMatch | null>(null);
-  const [standings, setStandings] = useState<any>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -133,83 +116,49 @@ export function Hero({
         const matchesData = await liveResponse.json();
 
         const apiMatches = Array.isArray(matchesData) ? matchesData : [];
-        const active = apiMatches.find((m: ApiMatch) => 
-          m.isActive === true || 
-          (['active', 'live', 'playing'].includes(m.status) && m.status !== 'scheduled' && m.status !== 'finished')
-        );
-        
-        if (active) {
-          try {
-            const detailRes = await fetch(`/api/matches/${active.uuid || active.id}`, { cache: 'no-store' });
-            if (detailRes.ok) {
-              const detailData = await detailRes.json();
-              setLiveMatch(detailData.match ? { ...detailData.match, events: detailData.events } : active);
-            } else {
-              setLiveMatch(active);
-            }
-          } catch (err) {
-            setLiveMatch(active);
-          }
-        } else {
-          setLiveMatch(null);
-        }
-
-        // Fetch standings/table (tournament groups)
-        try {
-          const tableResponse = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1/table.json');
-          if (tableResponse.ok) {
-            const tableData = await tableResponse.json();
-            setStandings(tableData);
-          }
-        } catch (err) {
-          console.error('Failed to fetch tournament table:', err);
-        }
+        const active = apiMatches.find((m: ApiMatch) => m.isActive || m.status === 'active');
+        setLiveMatch(active || null);
 
         // Fetch upcoming fixtures from API
-        const tournamentsResponse = await fetch(API_ENDPOINTS.TOURNAMENTS);
-        if (tournamentsResponse.ok) {
-          const tournaments = await tournamentsResponse.json();
-          const allFixtures = tournaments.flatMap((t: any) => t.fixtures || []);
-
-          // Helper to parse DD.MM.YYYY HH:mm
-          const parseApiDate = (dateStr: string) => {
-            if (!dateStr || !dateStr.includes('.') || !dateStr.includes(':')) return dateStr;
-            const [datePart, timePart] = dateStr.split(' ');
-            const [day, month, year] = datePart.split('.').map(Number);
-            const [hour, minute] = timePart.split(':').map(Number);
-            return new Date(year, month - 1, day, hour, minute).toISOString();
-          };
+        const fixturesResponse = await fetch(API_ENDPOINTS.SCHEDULE);
+        if (fixturesResponse.ok) {
+          const fixturesData = await fixturesResponse.json();
+          const fixtures = fixturesData.fixtures || [];
 
           // Map API fixtures to match format
-          const mappedFixtures = allFixtures
+          const mappedFixtures = fixtures
             .map((fixture: any) => {
-              const isoDate = parseApiDate(fixture.date);
-              const matchDate = new Date(isoDate).getTime();
+              const matchDate = new Date(fixture.date).getTime();
               const now = new Date().getTime();
-              const isPast = matchDate <= now;
+              const isPast = matchDate < now - (2 * 60 * 60 * 1000); // More than 2 hours ago
               
               return {
                 id: (fixture.matchUuid || fixture.uuid || fixture.id).toString(),
-                round: fixture.round || fixture.group || "Mecz",
-                date: isoDate,
+                round: fixture.round,
+                date: fixture.date,
                 homeTeam: getTeamFromName(fixture.teamA),
                 awayTeam: getTeamFromName(fixture.teamB),
                 homeScore: fixture.scoreA,
                 awayScore: fixture.scoreB,
                 stadium: "Stadion",
                 category: "Liga",
-                status: (fixture.status === 'finished' || fixture.status === 'played' || fixture.status === 'FT' || isPast) ? 'finished' as const : 'upcoming' as const
+                status: (fixture.status === 'finished' || fixture.status === 'FT' || isPast) ? 'finished' as const : 'upcoming' as const
               };
             })
-            .filter((m: any) => m.status === 'upcoming')
-            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            .filter((m: any) => {
+              const matchDate = new Date(m.date);
+              const now = new Date();
+              // Show matches from the last 24h (likely finished/current) and all future matches
+              return matchDate.getTime() > (now.getTime() - 24 * 60 * 60 * 1000);
+            })
+            .sort((a: any, b: any) => new Date((a as any).date).getTime() - new Date((b as any).date).getTime());
 
           setUpcomingMatches(mappedFixtures);
         } else {
           // Fallback to static data if API fails
-          const now = new Date().getTime();
+          const now = new Date();
           const filtered = matches
-            .filter(m => m.status === 'upcoming' && new Date(m.date).getTime() > now)
+            .filter(m => new Date(m.date).getTime() > (now.getTime() - 24 * 60 * 60 * 1000))
             .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
           setUpcomingMatches(filtered);
@@ -217,9 +166,9 @@ export function Hero({
       } catch (error) {
         console.error('Failed to fetch data:', error);
         // Fallback to static data
-        const now = new Date().getTime();
+        const now = new Date();
         const filtered = matches
-          .filter(m => m.status === 'upcoming' && new Date(m.date).getTime() > now)
+          .filter(m => new Date(m.date).getTime() > (now.getTime() - 24 * 60 * 60 * 1000))
           .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         setUpcomingMatches(filtered);
@@ -251,43 +200,16 @@ export function Hero({
             Brak zaplanowanych meczów w najbliższym czasie
           </p>
         </div>
-        <div className="absolute inset-0 bg-[url('https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png')] bg-center bg-no-repeat opacity-5 scale-150 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://i.ibb.co/TB027G07/czarnepff-1.png')] bg-center bg-no-repeat opacity-5 scale-150 pointer-events-none" />
       </div>
     );
   }
 
   const currentMatch = upcomingMatches[currentIndex];
 
-  const getTeamPosition = (teamName: string) => {
-    const search = normalize(teamName);
-    if (standings) {
-      // Handle tournament groups (grupaa, grupab, etc.)
-      const groupKeys = Object.keys(standings).filter(key => key.startsWith('grupa'));
-      for (const key of groupKeys) {
-        const group = standings[key];
-        if (Array.isArray(group)) {
-          const found = group.find(s => 
-            normalize(s.team || s.name || '') === search
-          );
-          if (found) return found.position;
-        }
-      }
-
-      // Handle direct array (league table)
-      if (Array.isArray(standings)) {
-        const idx = standings.findIndex(s => 
-          normalize(s.name || s.teamName || '') === search
-        );
-        if (idx !== -1) return idx + 1;
-      }
-    }
-
-    // Fallback to default standings
-    return defaultStandings.find(s => 
-      normalize(s.team?.name) === search ||
-      normalize(s.team?.shortName) === search ||
-      normalize(s.team?.id) === search
-    )?.position || '-';
+  const standings = defaultStandings;
+  const getTeamPosition = (teamId: string) => {
+    return standings.find(s => s.team?.id === teamId)?.position || '-';
   };
 
   const liveHomeTeam = liveMatch ? getTeamFromName(liveMatch.teamA) : null;
@@ -311,8 +233,8 @@ export function Hero({
     period: null
   };
 
-  const homePos = getTeamPosition(displayData.homeTeam.name);
-  const awayPos = getTeamPosition(displayData.awayTeam.name);
+  const homePos = getTeamPosition(displayData.homeTeam.id);
+  const awayPos = getTeamPosition(displayData.awayTeam.id);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -333,7 +255,7 @@ export function Hero({
       {/* Background decorations removed for transparency */}
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col 2xl:grid 2xl:grid-cols-[theme(spacing.72)_1fr_theme(spacing.72)] items-center justify-items-center gap-8 2xl:gap-12">
+        <div className="flex flex-col 2xl:grid 2xl:grid-cols-[300px_1fr_300px] items-center gap-8 2xl:gap-12">
           
           {/* Left Sidebar - Hidden on mobile/tablet */}
           <div className="hidden 2xl:block w-72 space-y-6 animate-in fade-in slide-in-from-left duration-1000">
@@ -356,7 +278,7 @@ export function Hero({
           </div>
 
           {/* Center Content */}
-          <div className="flex-1 w-full max-w-5xl flex flex-col items-center mx-auto">
+          <div className="flex-1 w-full max-w-5xl flex flex-col items-center">
             {/* Logo with broadcast style frame */}
             <div className="mb-8 flex flex-col items-center relative group w-full max-w-[800px]">
               {/* Background Glows removed */}
@@ -377,8 +299,8 @@ export function Hero({
                   <div className="relative">
                     {/* Inner logo glow removed */}
                     <Image
-                      src="https://i.ibb.co/Rk2z73Hk/obraz-2026-02-04-222253347-removebg-preview-1.png"
-                      alt="Mecze Towarzyskie 2026"
+                      src="https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png"
+                      alt="7U7 Ekstraklasa"
                       width={1000}
                       height={250}
                       className="h-36 md:h-64 w-auto object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform duration-500"
@@ -407,11 +329,7 @@ export function Hero({
             <div className="mb-4 md:mb-6 flex flex-col items-center">
               <div className="relative">
                 <h3 className="text-xl md:text-5xl font-black text-white uppercase tracking-[0.1em] md:tracking-[0.15em] drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                  {isMatchLive ? (liveMatch?.period || 'MECZ TRWA') : (
-                    (typeof currentMatch.round === 'number' || (!isNaN(Number(currentMatch.round)) && currentMatch.round !== "")) 
-                      ? `${currentMatch.round}. KOLEJKA` 
-                      : currentMatch.round
-                  )}
+                  {isMatchLive ? (liveMatch?.period || 'MECZ TRWA') : `${currentMatch.round}. KOLEJKA`}
                 </h3>
                 <div className="absolute -bottom-1 md:-bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               </div>
@@ -451,93 +369,111 @@ export function Hero({
                   <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent pointer-events-none" />
 
                   <div className="relative z-10 flex flex-col items-center w-full">
-                    <div className="flex items-center justify-center w-full gap-4 md:gap-12 px-2 md:px-4">
+                    <div className="flex items-center justify-between w-full gap-2 md:gap-8 px-2 md:px-4">
+                      {/* Home team name */}
+                      <h2 className="hidden md:block text-xl lg:text-2xl xl:text-3xl font-black text-white uppercase tracking-tight text-right w-[30%] transition-all italic">
+                        {displayData.homeTeam.name}
+                      </h2>
+
                       {/* Home team logo */}
-                      <div className="relative group flex-shrink-0 w-24 md:w-32 lg:w-40 flex flex-col items-center justify-center">
+                      <div className="relative group flex-shrink-0 w-20 md:w-32 lg:w-40 flex justify-center">
                         <Image
-                          src={displayData.homeTeam.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'}
+                          src={displayData.homeTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
                           alt={displayData.homeTeam.name}
                           width={140}
                           height={140}
-                          className="relative z-10 object-contain drop-shadow-2xl h-20 w-20 md:h-28 md:w-28 lg:h-40 lg:w-40 transition-transform duration-500 group-hover:scale-110"
+                          className="relative z-10 object-contain drop-shadow-2xl h-16 w-16 md:h-28 md:w-28 lg:h-32 lg:w-32 transition-transform duration-500 group-hover:scale-110"
                         />
-                        {isMatchLive && liveMatch?.events?.goals && (
-                          <div className="mt-4 flex flex-col items-center">
-                            {liveMatch.events.goals
-                              .filter(g => normalize(g.team) === normalize(displayData.homeTeam.name))
-                              .map((g, i) => (
-                                <div key={i} className="flex items-center gap-1.5 text-white/60">
-                                  <span className="text-[10px] md:text-xs font-bold whitespace-nowrap">{g.player}</span>
-                                  <span className="text-[8px] md:text-[10px] font-black text-[#00ccff]">{g.minute}&apos;</span>
-                                </div>
-                              ))}
-                          </div>
-                        )}
                       </div>
 
                       {/* Score/Time display */}
-                      <div className="flex flex-col items-center justify-center min-w-[100px] md:min-w-[220px] mx-2 md:mx-8">
+                      <div className="flex flex-col items-center justify-center min-w-[100px] md:min-w-[220px] mx-1 md:mx-2">
                         <div className="relative overflow-hidden rounded-xl md:rounded-2xl border border-white/10 px-4 md:px-12 py-3 md:py-6 flex flex-col items-center justify-center w-full transition-all duration-500 bg-black/10">
                           <span className={`text-2xl md:text-5xl lg:text-6xl font-black tracking-wider relative z-10 whitespace-nowrap text-white`} style={{ fontVariantNumeric: 'tabular-nums' }}>
                             {isMatchLive ? (
                               `${displayData.scoreA}:${displayData.scoreB}`
+                            ) : (currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) ? (
+                              `${currentMatch.homeScore ?? 0}:${currentMatch.awayScore ?? 0}`
                             ) : (
                               new Date(displayData.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
                             )}
                           </span>
                         </div>
                         
-                        {!isMatchLive && (
-                          <div className="mt-4 md:mt-8 scale-90 md:scale-100 relative z-20">
+                        {!isMatchLive && currentMatch.status !== 'finished' && !(currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined) && (
+                          <div className="mt-4 md:mt-8 scale-90 md:scale-100">
                             <CountdownTimer targetDate={displayData.date} />
                           </div>
                         )}
-                        
-                        <div className="flex flex-col items-center gap-1 md:gap-2 mt-2 md:mt-4">
-                          <div className="flex items-center gap-2 md:gap-3 font-black text-xs md:text-xl italic">
-                            <span className="text-white/50">#{homePos}</span>
-                            <span className="text-white/10 text-[10px] md:text-sm not-italic font-black lowercase">vs</span>
-                            <span className="text-white/50">#{awayPos}</span>
-                          </div>
-                          {!isMatchLive && currentMatch.stadium && (
-                            <div className="flex flex-col items-center gap-0.5 md:gap-1 mt-1 md:mt-2">
-                              <span className="text-[8px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">{currentMatch.stadium}</span>
-                              <span className="text-[7px] md:text-[8px] font-black text-white/40 uppercase tracking-[0.4em]">{currentMatch.category}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
 
-                      {/* Away team logo */}
-                      <div className="relative group flex-shrink-0 w-24 md:w-32 lg:w-40 flex flex-col items-center justify-center">
-                        {/* Team color glow removed */}
-                        <Image
-                          src={displayData.awayTeam.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'}
-                          alt={displayData.awayTeam.name}
-                          width={140}
-                          height={140}
-                          className="relative z-10 object-contain drop-shadow-2xl h-20 w-20 md:h-28 md:w-28 lg:h-40 lg:w-40 transition-transform duration-500 group-hover:scale-110"
-                        />
-                        {isMatchLive && liveMatch?.events?.goals && (
-                          <div className="mt-4 flex flex-col items-center">
-                            {liveMatch.events.goals
-                              .filter(g => normalize(g.team) === normalize(displayData.awayTeam.name))
-                              .map((g, i) => (
-                                <div key={i} className="flex items-center gap-1.5 text-white/60">
-                                  <span className="text-[8px] md:text-[10px] font-black text-[#00ccff]">{g.minute}&apos;</span>
-                                  <span className="text-[10px] md:text-xs font-bold whitespace-nowrap">{g.player}</span>
-                                </div>
-                              ))}
+                        {!isMatchLive && (currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) && (
+                          <div className="flex flex-col items-center gap-1 md:gap-2 mt-2 md:mt-4">
+                            <div className="bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
+                              <span className="text-[10px] md:text-xs font-black text-[#00ccff] uppercase tracking-[0.2em]">ZAKOŃCZONY</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {!isMatchLive && currentMatch.status !== 'finished' && !(currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined) && (
+                          <div className="flex flex-col items-center gap-1 md:gap-2 mt-2 md:mt-4">
+                            <div className="flex items-center gap-2 md:gap-4 font-black text-xs md:text-lg">
+                              <span className="text-white/60 bg-white/5 px-2 md:px-3 py-0.5 md:py-1 rounded-full whitespace-nowrap">#{homePos}</span>
+                              <span className="text-gray-600 text-[10px] md:text-base">vs</span>
+                              <span className="text-white/60 bg-white/5 px-2 md:px-3 py-0.5 md:py-1 rounded-full whitespace-nowrap">#{awayPos}</span>
+                            </div>
+                            {currentMatch.stadium && (
+                              <div className="flex flex-col items-center gap-0.5 md:gap-1 mt-1 md:mt-2">
+                                <span className="text-[8px] md:text-xs font-black text-white/40 uppercase tracking-[0.2em]">{currentMatch.stadium}</span>
+                                <span className="text-[7px] md:text-[9px] font-black text-white/60 uppercase tracking-[0.3em]">{currentMatch.category}</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
+
+                      {/* Away team logo */}
+                      <div className="relative group flex-shrink-0 w-20 md:w-32 lg:w-40 flex justify-center">
+                        {/* Team color glow removed */}
+                        <Image
+                          src={displayData.awayTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
+                          alt={displayData.awayTeam.name}
+                          width={140}
+                          height={140}
+                          className="relative z-10 object-contain drop-shadow-2xl h-16 w-16 md:h-28 md:w-28 lg:h-32 lg:w-32 transition-transform duration-500 group-hover:scale-110"
+                        />
+                      </div>
+
+                      {/* Away team name */}
+                      <h2 className="hidden md:block text-xl lg:text-2xl xl:text-3xl font-black text-white uppercase tracking-tight text-left w-[30%] transition-all italic">
+                        {displayData.awayTeam.name}
+                      </h2>
                     </div>
 
-                    {/* Mobile team names removed */}
+                    {/* Mobile team names */}
+                    <div className="flex md:hidden justify-between w-full px-2 mt-3 gap-2">
+                      <span className="text-[10px] font-black text-white uppercase tracking-tight text-center flex-1 truncate">{displayData.homeTeam.name}</span>
+                      <div className="w-8" />
+                      <span className="text-[10px] font-black text-white uppercase tracking-tight text-center flex-1 truncate">{displayData.awayTeam.name}</span>
+                    </div>
 
                     {/* Match navigation - arrows on sides */}
                     {!isMatchLive && (
                       <div className="flex flex-col items-center gap-6 w-full mt-4 md:mt-8">
+                        {(currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) && (
+                          <Link
+                            href={`/mecz/${currentMatch?.id}`}
+                            className="group relative px-6 md:px-10 py-3 md:py-4 rounded-lg md:rounded-xl font-black uppercase tracking-wider transition-all border border-white/20 hover:border-white/40 hover:bg-white/5"
+                          >
+                            <span className="relative z-10 text-white flex items-center gap-2 md:gap-3 text-xs md:text-base">
+                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              Centrum Meczowe
+                            </span>
+                          </Link>
+                        )}
+
                         {upcomingMatches.length > 1 && (
                           <div className="flex items-center justify-center gap-3 md:gap-6">
                             <button
@@ -593,7 +529,7 @@ export function Hero({
             </div>
           </div>
 
-          <div className="hidden 2xl:block w-72" />
+
         </div>
 
         {/* Club logos bar */}

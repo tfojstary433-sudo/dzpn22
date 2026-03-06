@@ -1,27 +1,23 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { teams } from '@/lib/data';
 import { RobloxAvatar } from './roblox-avatar';
 import { getTeamLogo, getTeamName, getTeamColor } from '@/lib/useMatchStats';
-import { CreateNewsModal } from './create-news-modal';
 
 export function Navbar() {
    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
    const [scrolled, setScrolled] = useState(false);
    const [user, setUser] = useState<any>(null);
    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-   const [showCreateNews, setShowCreateNews] = useState(false);
-   const [canCreatePosts, setCanCreatePosts] = useState(false);
    const [balance, setBalance] = useState({ balance: 0, items: {} });
    const [logoutCountdown, setLogoutCountdown] = useState<number | null>(null);
    const [searchQuery, setSearchQuery] = useState('');
    const [searchResults, setSearchResults] = useState<any[]>([]);
    const [searchOpen, setSearchOpen] = useState(false);
-   const historyDataRef = useRef<any>(null);
    const [showEmail, setShowEmail] = useState(false);
    const pathname = usePathname();
    const router = useRouter();
@@ -36,21 +32,10 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('discord_user') || localStorage.getItem('user');
-    const robloxId = localStorage.getItem('roblox_id');
-    
+    const savedUser = localStorage.getItem('discord_user');
     if (savedUser) {
       const userData = JSON.parse(savedUser);
-      // Ensure robloxId is part of the user state if available
-      if (!userData.robloxId && robloxId) {
-        userData.robloxId = robloxId;
-      }
       setUser(userData);
-
-      const roles = userData.discordRoles || userData.roles || [];
-      if (roles.some((role: string) => ['1447302327349416051'].includes(String(role)))) {
-        setCanCreatePosts(true);
-      }
 
       // Fetch balance
       fetch(`/api/user/tokens?id=${userData.id}`)
@@ -59,17 +44,6 @@ export function Navbar() {
           setBalance(data);
         })
         .catch(err => console.error('Error fetching tokens:', err));
-    }
-
-    if (robloxId) {
-      fetch(`https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/users_clubs/${robloxId}.json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            setCanCreatePosts(true);
-          }
-        })
-        .catch(err => console.error('Error checking club membership:', err));
     }
   }, []);
 
@@ -100,110 +74,99 @@ export function Navbar() {
     }
   }, [logoutCountdown]);
 
+  // Search functionality
   useEffect(() => {
-    // Pre-fetch history data on mount for faster search
-    if (!historyDataRef.current) {
-      fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json')
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (data) historyDataRef.current = data;
-        })
-        .catch(() => null);
+    if (searchQuery.length < 2) {
+      setSearchResults([]);
+      setSearchOpen(false);
+      return;
     }
-  }, []);
 
-  // Search functionality with debounce and parallel fetching
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery.length < 2) {
-        setSearchResults([]);
-        setSearchOpen(false);
-        return;
+    const fetchSearchResults = async () => {
+      const results: any[] = [];
+
+      // Search teams
+      const matchingTeams = teams.filter(team =>
+        team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        team.shortName?.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 3);
+
+      matchingTeams.forEach(team => {
+        results.push({
+          type: 'team',
+          id: team.id,
+          name: team.name,
+          logo: team.logo,
+          color: team.color || '#ffffff',
+          href: `/klub/${team.id}`
+        });
+      });
+
+      // Search players
+      try {
+        const playerResponse = await fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
+        if (playerResponse.ok) {
+          const players = await playerResponse.json();
+          
+          // Fetch history to find the latest club for each player
+          const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json').catch(() => null);
+          const historyData = historyRes && historyRes.ok ? await historyRes.json() : null;
+
+          players.forEach((player: any) => {
+            // Deduplicate: check if player already exists in results
+            if (results.some(r => r.type === 'player' && r.name === player.username)) return;
+
+            let clubId = player.clubId || player.clubName;
+            
+            // Try to find the latest club from history if available
+            if (historyData && historyData.players && historyData.players[player.userId]) {
+              const hPlayer = historyData.players[player.userId];
+              const matches = hPlayer.matches || (hPlayer.matchHistory ? Object.values(hPlayer.matchHistory) : []);
+              if (matches.length > 0) {
+                const sortedMatches = [...matches].sort((a: any, b: any) => {
+                  const dateA = new Date(a.date || a.timestamp || 0).getTime();
+                  const dateB = new Date(b.date || b.timestamp || 0).getTime();
+                  return dateB - dateA;
+                });
+                clubId = sortedMatches[0].playerTeam || sortedMatches[0].teamId || clubId;
+              }
+            }
+
+            const isReferee = clubId === 'REFEREE' || clubId === 'SED' || 
+                             String(player.clubName).toUpperCase() === 'REFEREE' || 
+                             String(clubId).toUpperCase() === 'KOLEGIUM SĘDZIOWSKIE' ||
+                             String(clubId).toUpperCase().includes('SĘDZIA');
+            
+            const resolvedClubName = isReferee ? 'Sędzia PFF' : getTeamName(clubId);
+            const resolvedClubLogo = isReferee ? null : getTeamLogo(clubId, resolvedClubName);
+            const resolvedClubColor = isReferee ? '#ef4444' : getTeamColor(clubId, resolvedClubName);
+            const isFreeAgent = !isReferee && (!clubId || clubId === '---' || resolvedClubName === clubId || resolvedClubName === 'Nieznany Klub');
+
+            results.push({
+              type: 'player',
+              id: player.userId,
+              name: player.username,
+              club: isFreeAgent ? 'FREE Agent' : resolvedClubName,
+              clubLogo: resolvedClubLogo,
+              clubColor: resolvedClubColor,
+              isFreeAgent: isFreeAgent,
+              isReferee: isReferee,
+              avatarUrl: player.avatarUrl,
+              href: `/gracz/${player.username}`
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Error searching players:', error);
       }
 
-      const fetchSearchResults = async () => {
-        const results: any[] = [];
+      // Remove duplicates by type and name (to be safer if IDs vary)
+      const uniqueResults = Array.from(new Map(results.map(item => [`${item.type}-${item.name}`, item])).values());
+      setSearchResults(uniqueResults);
+      setSearchOpen(uniqueResults.length > 0);
+    };
 
-        // Search teams locally (very fast)
-        const matchingTeams = teams.filter(team =>
-          team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          team.shortName?.toLowerCase().includes(searchQuery.toLowerCase())
-        ).slice(0, 3);
-
-        matchingTeams.forEach(team => {
-          results.push({
-            type: 'team',
-            id: team.id,
-            name: team.name,
-            logo: team.logo,
-            color: team.color || '#ffffff',
-            href: `/klub/${team.id}`
-          });
-        });
-
-        // Search players
-        try {
-          const playerResponse = await fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
-          
-          if (playerResponse.ok) {
-            const players = await playerResponse.json();
-            const cachedHistory = historyDataRef.current;
-
-            players.forEach((player: any) => {
-              if (results.some(r => r.type === 'player' && r.name === player.username)) return;
-
-              let clubId = player.clubId || player.clubName;
-              
-              if (cachedHistory && cachedHistory.players && cachedHistory.players[player.userId]) {
-                const hPlayer = cachedHistory.players[player.userId];
-                const matches = hPlayer.matches || (hPlayer.matchHistory ? Object.values(hPlayer.matchHistory) : []);
-                if (matches.length > 0) {
-                  const sortedMatches = [...matches].sort((a: any, b: any) => {
-                    const dateA = new Date(a.date || a.timestamp || 0).getTime();
-                    const dateB = new Date(b.date || b.timestamp || 0).getTime();
-                    return dateB - dateA;
-                  });
-                  clubId = sortedMatches[0].playerTeam || sortedMatches[0].teamId || clubId;
-                }
-              }
-
-              const isReferee = clubId === 'REFEREE' || clubId === 'SED' || 
-                               String(player.clubName).toUpperCase() === 'REFEREE' || 
-                               String(clubId).toUpperCase() === 'KOLEGIUM SĘDZIOWSKIE' ||
-                               String(clubId).toUpperCase().includes('SĘDZIA');
-              
-              const resolvedClubName = isReferee ? 'Sędzia PFF' : getTeamName(clubId);
-              const resolvedClubLogo = isReferee ? null : getTeamLogo(clubId, resolvedClubName);
-              const resolvedClubColor = isReferee ? '#ef4444' : getTeamColor(clubId, resolvedClubName);
-              const isFreeAgent = !isReferee && (!clubId || clubId === '---' || clubId === 'FA' || clubId === 'FREE AGENT' || resolvedClubName === 'Nieznany Klub');
-
-              results.push({
-                type: 'player',
-                id: player.userId,
-                name: player.username,
-                club: isFreeAgent ? 'FREE Agent' : resolvedClubName,
-                clubLogo: resolvedClubLogo,
-                clubColor: resolvedClubColor,
-                isFreeAgent: isFreeAgent,
-                isReferee: isReferee,
-                avatarUrl: player.avatarUrl,
-                href: `/gracz/${player.username}`
-              });
-            });
-          }
-        } catch (error) {
-          console.error('Error searching players:', error);
-        }
-
-        const uniqueResults = Array.from(new Map(results.map(item => [`${item.type}-${item.name}`, item])).values()).slice(0, 10);
-        setSearchResults(uniqueResults);
-        setSearchOpen(uniqueResults.length > 0);
-      };
-
-      fetchSearchResults();
-    }, 150); // Reduced debounce time for snappier feel
-
-    return () => clearTimeout(timer);
+    fetchSearchResults();
   }, [searchQuery]);
 
   const navLinks = [
@@ -223,31 +186,28 @@ export function Navbar() {
     <div className={`w-full sticky top-0 z-50 transition-all duration-500 ${scrolled ? 'bg-transparent backdrop-blur-xl border-b border-white/5 shadow-2xl' : 'bg-transparent'}`}>
       {/* Main Navigation */}
       <div className={`transition-all duration-500 ${scrolled ? 'py-1' : 'py-2'}`}>
-        <div className="w-full max-w-[1700px] mx-auto px-8">
-          <div className="flex items-center justify-between gap-8 h-full">
-            <Link href="/" className="flex items-center shrink-0 z-50">
-              <img
-                src="https://i.ibb.co/pBJgbXxn/image.png"
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="py-2 group relative">
+              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-colors duration-300 blur-xl" />
+              <Image
+                src="https://i.ibb.co/TB027G07/czarnepff-1.png"
                 alt="PFF Logo"
-                className={`w-auto object-contain transition-all duration-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] relative -top-[2px] ${scrolled ? 'h-12 md:h-14' : 'h-14 md:h-16'}`}
+                width={200}
+                height={80}
+                className={`w-auto brightness-0 invert opacity-90 group-hover:opacity-100 transition-all duration-300 ${scrolled ? 'h-16' : 'h-20'}`}
+                suppressHydrationWarning={true}
               />
             </Link>
 
             {/* Search Bar */}
-            <div className="hidden md:block relative shrink-0">
+            <div className="hidden md:block relative">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Szukaj klubów i zawodników..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && searchResults.length > 0) {
-                      router.push(searchResults[0].href);
-                      setSearchQuery('');
-                      setSearchOpen(false);
-                    }
-                  }}
                   className="w-72 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/5 transition-all duration-300"
                 />
                 <div className="absolute right-3 top-2.5 text-gray-400">
@@ -323,7 +283,7 @@ export function Navbar() {
                                       alt={result.club} 
                                       className="w-full h-full object-contain brightness-125" 
                                       onError={(e) => {
-                                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/pBJgbXxn/image.png';
+                                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
                                       }}
                                     />
                                   </div>
@@ -357,24 +317,7 @@ export function Navbar() {
                       isActive ? 'text-white' : 'text-white/70 hover:text-white'
                     }`}
                   >
-                    <span className="relative z-10 flex items-center gap-2">
-                      {link.label}
-                      {link.label === 'Aktualności' && canCreatePosts && (
-                        <div 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setShowCreateNews(true);
-                          }}
-                          className="p-1 bg-blue-600 rounded-md hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                          title="Dodaj Post"
-                        >
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </div>
-                      )}
-                    </span>
+                    <span className="relative z-10">{link.label}</span>
                     {/* Hover/Active background */}
                     <div className={`absolute inset-0 rounded-lg transition-all duration-500 ${
                       isActive
@@ -538,7 +481,8 @@ export function Navbar() {
                           <button
                             onClick={() => {
                               const clientId = "1448788697653973082";
-                              const redirectUri = encodeURIComponent("https://pff24.pl/callback");
+                              const origin = window.location.origin.replace(/\/$/, "");
+                              const redirectUri = encodeURIComponent(origin + "/callback");
                               const robloxId = user?.robloxId || localStorage.getItem('roblox_id') || "";
                               window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord:${robloxId}`;
                             }}
@@ -548,21 +492,6 @@ export function Navbar() {
                               <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495a18.2739 18.2739 0 00-5.4877 0 11.7496 11.7496 0 00-.6172-1.2495.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1971.3728.2914a.077.077 0 01-.0066.1277 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.095 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.095 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
                             </svg>
                             Połącz z Discordem
-                          </button>
-                        )}
-
-                        {canCreatePosts && (
-                          <button
-                            onClick={() => {
-                              setShowCreateNews(true);
-                              setUserDropdownOpen(false);
-                            }}
-                            className="w-full flex items-center justify-center gap-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 font-black py-2 rounded-lg transition-colors mb-3 border border-blue-500/30"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Stwórz Post
                           </button>
                         )}
 
@@ -585,12 +514,9 @@ export function Navbar() {
                 <button
                   onClick={() => {
                     const clientId = "8976718339232083701";
-                    // Wymuszamy adres bez www, aby zawsze zgadzał się z tym co jest w Roblox Creator Hub
-                    const origin = window.location.origin.includes('localhost') 
-                      ? window.location.origin.replace(/\/$/, "") 
-                      : 'https://pff24.pl';
+                    const origin = window.location.origin.replace(/\/$/, "");
                     const redirectUri = encodeURIComponent(origin + "/robloxcallback");
-                    window.location.href = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile`;
+                    window.location.href = `https://authorize.roblox.com/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile&state=roblox&step=accountConfirm`;
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-white/10 border border-white/10 text-white font-black text-sm rounded-xl transition-colors shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                 >
@@ -696,19 +622,6 @@ export function Navbar() {
           </div>
         </div>
       </div>
-      <CreateNewsModal 
-        isOpen={showCreateNews} 
-        onClose={() => setShowCreateNews(false)} 
-        onSuccess={() => {
-          // If we are on the news page, we might want to refresh.
-          // Since it's a client component, we can use router.refresh() or just window.location.reload()
-          if (pathname === '/aktualnosci') {
-            window.location.reload();
-          } else {
-            router.push('/aktualnosci');
-          }
-        }}
-      />
     </div>
   );
 }

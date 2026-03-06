@@ -73,6 +73,9 @@ export function Footer() {
               <h3 className="font-black text-sm mb-4 text-blue-400 uppercase tracking-wider">Turnieje</h3>
               <ul className="space-y-2.5 text-sm">
                 <li><Link href="#" className="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>Puchar Polski
+                </Link></li>
+                <li><Link href="#" className="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>Superpuchar Polski
                 </Link></li>
               </ul>

@@ -6,6 +6,12 @@ import Link from 'next/link';
 export function TournamentLogos() {
   const tournaments = [
     {
+      name: 'Puchar Polski',
+      logo: 'https://i.ibb.co/N6MvSMh1/PUCHAR-POLSKI.png',
+      href: '/turnieje?type=puchar',
+      color: 'hover:bg-red-600/10'
+    },
+    {
       name: 'Mecze Towarzyskie',
       logo: 'https://i.ibb.co/9960T9N2/obraz-2026-01-13-020503777.png',
       href: '/turnieje?type=towarzyskie',

@@ -7,25 +7,20 @@ import Link from 'next/link';
 import { teams, friendlyMatchesData, extraTeams, cupMatchesData } from '@/lib/data';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
-import { RobloxAvatar } from '@/components/roblox-avatar';
 
 function TurniejeContent() {
   const searchParams = useSearchParams();
   const type = searchParams.get('type');
   
-  const [activeTournament, setActiveTournament] = useState<'towarzyskie'>('towarzyskie');
+  const [activeTournament, setActiveTournament] = useState<'puchar' | 'towarzyskie'>(
+    type === 'towarzyskie' ? 'towarzyskie' : 'puchar'
+  );
   
   const [challongeData, setChallongeData] = useState<any>(null);
   const [tableData, setTableData] = useState<any>(null);
   const [scorersData, setScorersData] = useState<any>(null);
   const [knockoutData, setKnockoutData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
-  const remapTeamName = (name: string) => {
-    if (!name) return name;
-    if (name === 'Chojniczanka Chojnice') return 'Raków Częstochowa';
-    return name;
-  };
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -87,11 +82,10 @@ function TurniejeContent() {
     if (challongeData.fixtures && Array.isArray(challongeData.fixtures)) {
       const mappedMatches = challongeData.fixtures.map((m: any) => {
         const mapTeam = (name: string) => {
-          const remappedName = remapTeamName(name);
-          return teams.find(t => t.name.toLowerCase() === remappedName.toLowerCase()) || {
-            id: remappedName,
-            name: remappedName,
-            logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+          return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
+            id: name,
+            name: name,
+            logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
           };
         };
 
@@ -150,20 +144,18 @@ function TurniejeContent() {
       const homeParticipant = challongeData.participants.find((p: any) => p.id === m.player1_id);
       const awayParticipant = challongeData.participants.find((p: any) => p.id === m.player2_id);
 
-      const cleanName = (name: string) => name ? name.split('[')[0].trim() : '';
+      const cleanName = (name: string) => name ? name.split('[')[0].trim().toLowerCase() : '';
 
-      const homeRemapped = remapTeamName(cleanName(homeParticipant?.name));
-      const homeTeam = teams.find(t => t.name.toLowerCase() === homeRemapped.toLowerCase()) || {
+      const homeTeam = teams.find(t => t.name.toLowerCase() === cleanName(homeParticipant?.name)) || {
         id: homeParticipant?.id.toString(),
-        name: homeRemapped || 'TBD',
-        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+        name: homeParticipant?.name || 'TBD',
+        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
       };
 
-      const awayRemapped = remapTeamName(cleanName(awayParticipant?.name));
-      const awayTeam = teams.find(t => t.name.toLowerCase() === awayRemapped.toLowerCase()) || {
+      const awayTeam = teams.find(t => t.name.toLowerCase() === cleanName(awayParticipant?.name)) || {
         id: awayParticipant?.id.toString(),
-        name: awayRemapped || 'TBD',
-        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+        name: awayParticipant?.name || 'TBD',
+        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
       };
 
       const matchDate = m.underway_at || m.scheduled_start_time || m.created_at;
@@ -205,29 +197,6 @@ function TurniejeContent() {
 
   const activeFriendlyMatches = getFriendlyMatchesFromChallonge();
 
-  const getNearestUpcomingMatch = () => {
-    const allMatches = activeFriendlyMatches.flatMap(round => round.matches);
-    const upcomingMatches = allMatches.filter(m => m.status === 'upcoming');
-    
-    if (upcomingMatches.length === 0) {
-      // Jeśli nie ma nadchodzących, weź ostatni rozegrany jako fallback
-      return allMatches.sort((a: any, b: any) => {
-        const dateA = new Date(`${a.date} ${a.time}`).getTime();
-        const dateB = new Date(`${b.date} ${b.time}`).getTime();
-        return dateB - dateA;
-      })[0];
-    }
-    
-    // Sortuj po dacie i czasie
-    return upcomingMatches.sort((a: any, b: any) => {
-      const dateA = new Date(`${a.date} ${a.time}`).getTime();
-      const dateB = new Date(`${b.date} ${b.time}`).getTime();
-      return dateA - dateB;
-    })[0];
-  };
-
-  const nearestMatch = getNearestUpcomingMatch();
-
   const getFriendlyScorers = () => {
     if (scorersData && scorersData.scorers && Array.isArray(scorersData.scorers)) {
       return scorersData.scorers.map((p: any) => {
@@ -235,7 +204,7 @@ function TurniejeContent() {
         const localTeam = teams.find(team => team.name.toLowerCase() === teamName.toLowerCase()) || {
           id: teamName,
           name: teamName,
-          logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+          logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
         };
         return {
           ...p,
@@ -255,7 +224,7 @@ function TurniejeContent() {
           const localTeam = teams.find(team => team.name.toLowerCase() === teamName.toLowerCase()) || {
             id: teamName,
             name: teamName,
-            logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+            logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
           };
 
           t.players.forEach((p: any) => {
@@ -276,7 +245,7 @@ function TurniejeContent() {
       return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
         id: name,
         name: name,
-        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
       };
     };
 
@@ -350,7 +319,7 @@ function TurniejeContent() {
         return teams.find(t => t.name.toLowerCase() === name.toLowerCase()) || {
           id: name,
           name: name,
-          logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+          logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
         };
       };
 
@@ -406,7 +375,7 @@ function TurniejeContent() {
           const localTeam = teams.find(team => team.name.toLowerCase() === teamName.toLowerCase()) || {
             id: teamName,
             name: teamName,
-            logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+            logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
           };
 
           const gid = g.name.toUpperCase().includes('GRUPA A') || g.name.toUpperCase().includes('GROUP A') ? 'A' : 
@@ -437,7 +406,7 @@ function TurniejeContent() {
         const localTeam = teams.find(team => team.name.toLowerCase() === t.name.toLowerCase()) || {
           id: t.name,
           name: t.name,
-          logo: t.logoUrl || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+          logo: t.logoUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
         };
 
         const gid = t.group === '1' || t.group === 1 || t.group === 'A' ? 'A' : (t.group === '2' || t.group === 2 || t.group === 'B' ? 'B' : t.group);
@@ -463,7 +432,7 @@ function TurniejeContent() {
         const localTeam = teams.find(team => team.name.toLowerCase() === t.name.toLowerCase()) || {
           id: t.id?.toString() || t.name,
           name: t.name,
-          logo: t.logoUrl || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+          logo: t.logoUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
         };
 
         return {
@@ -492,7 +461,7 @@ function TurniejeContent() {
       const localTeam = teams.find(t => t.name.toLowerCase() === cleanName(p.name)) || {
         id: p.id.toString(),
         name: p.name,
-        logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png'
+        logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png'
       };
 
       const gid = p.group_id === 'A' || p.group_id === 1 || p.group_id === '1' ? 'A' : (p.group_id === 'B' || p.group_id === 2 || p.group_id === '2' ? 'B' : p.group_id);
@@ -555,15 +524,15 @@ function TurniejeContent() {
   
   // Group by actual groupId from Challonge
   const standingsByGroup: { [key: string]: any[] } = {};
-  allStandings.forEach((s: any) => {
+  allStandings.forEach(s => {
     const gid = s.groupId || 'unassigned';
     if (!standingsByGroup[gid]) standingsByGroup[gid] = [];
     standingsByGroup[gid].push(s);
   });
 
   // Filter and split teams by group
-  let groupA = allStandings.filter((s: any) => s.groupId === 'A');
-  let groupB = allStandings.filter((s: any) => s.groupId === 'B');
+  let groupA = allStandings.filter(s => s.groupId === 'A');
+  let groupB = allStandings.filter(s => s.groupId === 'B');
 
   // If filtering resulted in empty groups (e.g. old data format), fallback to slicing
   if (groupA.length === 0 && groupB.length === 0 && allStandings.length > 0) {
@@ -584,74 +553,6 @@ function TurniejeContent() {
   groupA.sort(sortStandings);
   groupB.sort(sortStandings);
 
-  // Calculate form for all teams
-  allStandings.forEach((s: any) => {
-    const teamName = s.team.name;
-    const form: string[] = [];
-    
-    // Get all matches for this team from fixtures
-    if (challongeData?.fixtures && Array.isArray(challongeData.fixtures)) {
-      const teamMatches = challongeData.fixtures
-        .filter((m: any) => 
-          (m.status === 'played' || m.status === 'finished' || m.status === 'complete') && 
-          (m.teamA.toLowerCase() === teamName.toLowerCase() || m.teamB.toLowerCase() === teamName.toLowerCase())
-        )
-        // Sort by date/time to get the most recent ones
-        .sort((a: any, b: any) => {
-          const dateA = new Date(`${a.date} ${a.time || '00:00'}`).getTime();
-          const dateB = new Date(`${b.date} ${b.time || '00:00'}`).getTime();
-          return dateB - dateA;
-        })
-        .slice(0, 3);
-        
-      teamMatches.forEach((m: any) => {
-        const isHome = m.teamA.toLowerCase() === teamName.toLowerCase();
-        const scoreA = Number(m.scoreA);
-        const scoreB = Number(m.scoreB);
-        
-        if (isHome) {
-          if (scoreA > scoreB) form.push('W');
-          else if (scoreA < scoreB) form.push('L');
-          else form.push('D');
-        } else {
-          if (scoreB > scoreA) form.push('W');
-          else if (scoreB < scoreA) form.push('L');
-          else form.push('D');
-        }
-      });
-    } else if (challongeData?.matches && Array.isArray(challongeData.matches)) {
-        // Fallback for old format
-        const participantId = challongeData.participants?.find((p: any) => {
-            const clean = p.name ? p.name.split('[')[0].trim().toLowerCase() : '';
-            return clean === teamName.toLowerCase();
-        })?.id;
-
-        if (participantId) {
-            const teamMatches = challongeData.matches
-                .filter((m: any) => m.state === 'complete' && (m.player1_id === participantId || m.player2_id === participantId))
-                .sort((a: any, b: any) => {
-                    const timeA = new Date(a.underway_at || a.created_at).getTime();
-                    const timeB = new Date(b.underway_at || b.created_at).getTime();
-                    return timeB - timeA;
-                })
-                .slice(0, 3);
-
-            teamMatches.forEach((m: any) => {
-                const scores = m.scores_csv.split('-').map(Number);
-                const isP1 = m.player1_id === participantId;
-                const scoreSelf = isP1 ? scores[0] : scores[1];
-                const scoreOpp = isP1 ? scores[1] : scores[0];
-
-                if (scoreSelf > scoreOpp) form.push('W');
-                else if (scoreSelf < scoreOpp) form.push('L');
-                else form.push('D');
-            });
-        }
-    }
-    
-    s.form = form;
-  });
-
   const friendlyStandings = allStandings; // Fallback for old code
 
   return (
@@ -668,23 +569,209 @@ function TurniejeContent() {
         }
       `}</style>
       
+      {/* Tournament Selector Panel */}
+      <div className="bg-[#050505] border-b border-white/5 sticky top-[72px] z-40">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center md:justify-start gap-4 py-3">
+            <button 
+              onClick={() => setActiveTournament('puchar')}
+              className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-tight transition-all duration-300 text-sm ${
+                activeTournament === 'puchar' 
+                  ? 'bg-[#B21118] text-white shadow-lg shadow-[#B21118]/20' 
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              PUCHAR POLSKI
+            </button>
+            <button 
+              onClick={() => setActiveTournament('towarzyskie')}
+              className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-tight transition-all duration-300 text-sm ${
+                activeTournament === 'towarzyskie' 
+                  ? 'bg-[#00ccff] text-white shadow-lg shadow-[#00ccff]/20' 
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              MECZE TOWARZYSKIE
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="relative overflow-hidden min-h-screen">
         {/* Textured Dynamic Background */}
         <div className="fixed inset-0 z-0 pointer-events-none transition-colors duration-1000">
-          <div className="absolute inset-0 bg-gradient-to-br transition-colors duration-1000 from-[#000a1a] via-[#000000] to-[#001a2a]" />
+          <div className={`absolute inset-0 bg-gradient-to-br transition-colors duration-1000 ${
+            activeTournament === 'puchar' 
+              ? 'from-[#1a0000] via-[#050000] to-[#2a0000]' 
+              : 'from-[#000a1a] via-[#000000] to-[#001a2a]'
+          }`} />
           <div 
             className="absolute inset-0 opacity-20 transition-all duration-1000" 
             style={{
-              backgroundImage: `repeating-linear-gradient(45deg, #00ccff 0, #00ccff 2px, transparent 0, transparent 40px)`,
+              backgroundImage: `repeating-linear-gradient(45deg, ${activeTournament === 'puchar' ? '#B21118' : '#00ccff'} 0, ${activeTournament === 'puchar' ? '#B21118' : '#00ccff'} 2px, transparent 0, transparent 40px)`,
             }}
           />
-          <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 bg-[#00ccff]/10" />
-          <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 bg-[#00ccff]/10" />
+          <div className={`absolute top-1/4 -left-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 ${
+            activeTournament === 'puchar' ? 'bg-[#B21118]/10' : 'bg-[#00ccff]/10'
+          }`} />
+          <div className={`absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 ${
+            activeTournament === 'puchar' ? 'bg-[#B21118]/10' : 'bg-[#00ccff]/10'
+          }`} />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
         </div>
 
         <div className="relative z-10">
-          <div key="friendly-section" className="pb-20">
+          {activeTournament === 'puchar' ? (
+            <div key="puchar-section">
+              {/* Hero Section */}
+              <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-[#DC143C]/20 to-transparent z-0" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#B21118]/10 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/5 blur-[120px] rounded-full" />
+                
+                <div className="relative z-10 container mx-auto px-4">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                      <h1 className="text-8xl md:text-[10rem] font-[1000] italic tracking-tighter text-white drop-shadow-[0_0_40px_rgba(255,255,255,0.3)] leading-[0.85]">
+                        PUCHAR<br />POLSKI
+                      </h1>
+                      <div className="mt-10 flex items-center gap-6">
+                        <span className="h-px w-16 bg-[#D4AF37]" />
+                        <span className="text-[#D4AF37] font-black tracking-[0.4em] uppercase text-2xl drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">SEZON 2025/26</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex justify-center md:justify-end">
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-white/20 blur-[100px] group-hover:bg-white/30 transition-all duration-500 rounded-full" />
+                        <Image
+                          src={pucharPolskiLogo}
+                          alt="Puchar Polski"
+                          width={600}
+                          height={600}
+                          className="relative drop-shadow-[0_0_80px_rgba(255,255,255,0.2)] animate-float w-full max-w-[400px] md:max-w-[600px]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Internal Nav */}
+              <div className="container mx-auto px-4 -mt-10 relative z-20">
+                <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2">
+                  <button className="flex-1 py-4 px-6 rounded-xl bg-gradient-to-br from-[#B21118] to-[#800c11] text-white font-black uppercase tracking-tight shadow-lg shadow-[#B21118]/20 transition-all">
+                    Drabinka & Terminarz
+                  </button>
+                  <Link href="/#aktualnosci" className="flex-1">
+                    <button className="w-full py-4 px-6 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white font-black uppercase tracking-tight transition-all">
+                      Aktualności
+                    </button>
+                  </Link>
+                  <Link href="/turnieje/historia" className="flex-1">
+                    <button className="w-full py-4 px-6 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white font-black uppercase tracking-tight transition-all">
+                      Historia
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Bracket Area */}
+              <div className="container mx-auto px-4 py-16 overflow-x-auto">
+                <div className="min-w-[1000px] flex justify-between gap-8 pb-12">
+                  {cupMatches.map((round, roundIdx) => (
+                    <div key={roundIdx} className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-4 mb-12 px-2">
+                        <div className="w-1.5 h-6 bg-[#B21118] rounded-full" />
+                        <h2 className="text-xl font-black uppercase tracking-tight italic whitespace-nowrap">{round.round}</h2>
+                      </div>
+                      <div className="flex flex-col justify-around flex-1 gap-8">
+                        {round.matches.map((match) => (
+                          <div key={match.id} className="relative group">
+                            <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/[0.08] transition-all duration-300 relative z-10 w-full group/card">
+                              <div className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    {match.homeTeam ? (
+                                      <>
+                                        <Image src={match.homeTeam.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                        <span className="text-sm font-bold uppercase tracking-tight truncate max-w-[120px] group-hover/card:text-[#B21118] transition-colors">{match.homeTeam.name}</span>
+                                      </>
+                                    ) : (
+                                      <span className="text-sm font-black text-white/10 italic">TBD</span>
+                                    )}
+                                  </div>
+                                  <span className="text-sm font-black text-white/40">-</span>
+                                </div>
+                                <div className="h-px bg-white/5 w-full" />
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    {match.awayTeam ? (
+                                      <>
+                                        <Image src={match.awayTeam.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                        <span className="text-sm font-bold uppercase tracking-tight truncate max-w-[120px] group-hover/card:text-[#B21118] transition-colors">{match.awayTeam.name}</span>
+                                      </>
+                                    ) : (
+                                      <span className="text-sm font-black text-white/10 italic">TBD</span>
+                                    )}
+                                  </div>
+                                  <span className="text-sm font-black text-white/40">-</span>
+                                </div>
+                                
+                                {match.homeTeam && match.awayTeam && (match as any).stadium && (
+                                  <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest truncate">{(match as any).stadium}</span>
+                                    <span className="text-[7px] font-bold text-[#B21118] uppercase tracking-[0.2em]">{(match as any).category}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#B21118] text-[10px] font-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                {match.date} @ {match.time}
+                              </div>
+                            </div>
+                            {roundIdx < cupMatches.length - 1 && (
+                              <div className="hidden lg:block absolute left-full top-1/2 w-8 h-px bg-white/10 -translate-y-1/2" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex items-center gap-4 mb-12 px-2">
+                      <div className="w-1.5 h-6 bg-gradient-to-b from-[#B21118] to-[#D4AF37] rounded-full" />
+                      <h2 className="text-xl font-black uppercase tracking-tight italic whitespace-nowrap">FINAŁ</h2>
+                    </div>
+                    <div className="flex flex-col justify-around flex-1">
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-[#D4AF37]/5 blur-2xl rounded-full" />
+                        <div className="relative bg-gradient-to-br from-[#D4AF37]/20 to-black/40 border border-[#D4AF37]/30 rounded-2xl p-8 text-center">
+                          <Image src={pucharPolskiLogo} alt="Trophy" width={60} height={60} className="mx-auto mb-4 opacity-50 grayscale" />
+                          <span className="block text-[#D4AF37] text-xs font-black uppercase tracking-widest mb-1">PGE Narodowy</span>
+                          <span className="block text-white font-black italic">MAJ 2026</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Finals Banner */}
+                <div className="mt-20 relative rounded-[2rem] overflow-hidden border border-[#D4AF37]/30 bg-gradient-to-br from-[#400609] to-[#0a0a0a] p-12 text-center">
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                  <div className="relative z-10">
+                    <Image src={pucharPolskiLogo} alt="Final" width={150} height={150} className="mx-auto mb-6 opacity-50 grayscale contrast-125" />
+                    <h3 className="text-[#D4AF37] font-bold tracking-[0.3em] uppercase mb-2">Wielki Finał</h3>
+                    <h2 className="text-5xl font-black italic uppercase tracking-tight mb-6">PGE NARODOWY</h2>
+                    <div className="inline-block px-8 py-3 rounded-full border border-white/20 bg-white/5 font-black uppercase text-xl">
+                      2 MAJA 2026
+                    </div>
+                  </div>
+                  <div className="absolute -top-24 -left-24 w-64 h-64 bg-[#B21118]/20 blur-[100px] rounded-full" />
+                  <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-[#D4AF37]/10 blur-[100px] rounded-full" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div key="friendly-section" className="pb-20">
               {/* Friendly Hero */}
               <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-[#00ccff]/10 to-transparent z-0" />
@@ -729,82 +816,61 @@ function TurniejeContent() {
               </div>
 
               <div className="container mx-auto px-4 -mt-10 relative z-20 mb-12">
-                <div className="flex flex-col items-center gap-8">
-                  {/* Regulations Link */}
-                  <a 
-                    href="https://docs.google.com/document/d/1BK0a8qGGglGxiC2txm33zwkcZuAvFXd1o98To3UZzTc/edit?usp=sharing"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative flex items-center gap-4 px-6 py-3 bg-black/60 backdrop-blur-xl border border-[#00ccff]/20 hover:border-[#00ccff]/50 rounded-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,204,255,0.1)]"
+                <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2 max-w-2xl mx-auto">
+                  <button 
+                    onClick={() => setFriendlyTab('schedule')}
+                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
+                      friendlyTab === 'schedule' 
+                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                    }`}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-[#00ccff]/10 flex items-center justify-center text-[#00ccff] group-hover:bg-[#00ccff]/20 transition-all">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[#00ccff] text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Oficjalny Dokument</span>
-                      <span className="text-white font-bold tracking-tight">Regulamin Rozgrywek</span>
-                    </div>
-                    <div className="ml-2 w-8 h-8 rounded-lg flex items-center justify-center text-white/20 group-hover:text-[#00ccff] group-hover:translate-x-1 transition-all">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </div>
-                  </a>
-
-                  <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2 max-w-2xl mx-auto overflow-x-auto scrollbar-hide">
-                    <button 
-                      onClick={() => setFriendlyTab('schedule')}
-                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
-                        friendlyTab === 'schedule' 
-                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                          : 'text-white/60 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      Mecze
-                    </button>
-                    <button 
-                      onClick={() => setFriendlyTab('knockout')}
-                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
-                        friendlyTab === 'knockout' 
-                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                          : 'text-white/60 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      Drabinka
-                    </button>
-                    <button 
-                      onClick={() => setFriendlyTab('table')}
-                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
-                        friendlyTab === 'table' 
-                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                          : 'text-white/60 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      Tabela
-                    </button>
-                    <button 
-                      onClick={() => setFriendlyTab('scorers')}
-                      className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all whitespace-nowrap ${
-                        friendlyTab === 'scorers' 
-                          ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
-                          : 'text-white/60 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      Strzelcy
-                    </button>
-                  </div>
+                    Mecze
+                  </button>
+                  <button 
+                    onClick={() => setFriendlyTab('knockout')}
+                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
+                      friendlyTab === 'knockout' 
+                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    Drabinka
+                  </button>
+                  <button 
+                    onClick={() => setFriendlyTab('table')}
+                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
+                      friendlyTab === 'table' 
+                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    Tabela
+                  </button>
+                  <button 
+                    onClick={() => setFriendlyTab('scorers')}
+                    className={`flex-1 py-4 px-6 rounded-xl font-black uppercase tracking-tight transition-all ${
+                      friendlyTab === 'scorers' 
+                        ? 'bg-gradient-to-br from-[#00ccff] to-[#0088aa] text-black shadow-lg shadow-[#00ccff]/20' 
+                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    Strzelcy
+                  </button>
                 </div>
               </div>
 
-            <div className="container mx-auto px-4">
+              <div className="container mx-auto px-4">
                 {friendlyTab === 'schedule' ? (
                   <>
                     {/* Featured Next Match */}
                     <div className="mb-20 relative z-20">
-                      {nearestMatch ? (
-                        <Link href={`/mecz/${nearestMatch.id}`}>
+                      {activeFriendlyMatches[0]?.matches[0] ? (
+                        <Link href={`/mecz/${activeFriendlyMatches[0].matches[0].id}`}>
                           <div className="bg-gradient-to-br from-[#00ccff]/20 to-black border border-[#00ccff]/30 rounded-[2.5rem] p-8 md:p-12 overflow-hidden group hover:border-[#00ccff]/60 transition-all duration-500">
                             <div className="absolute top-0 right-0 p-8">
                               <div className="px-4 py-1 bg-[#00ccff] text-black font-black italic rounded-full text-sm animate-pulse">
-                                {nearestMatch.status === 'finished' ? 'OSTATNI MECZ' : 'NAJBLIŻSZY MECZ'}
+                                NAJBLIŻSZY MECZ
                               </div>
                             </div>
                             
@@ -812,38 +878,38 @@ function TurniejeContent() {
                               <div className="flex-1 flex flex-col items-center gap-4">
                                 <div className="relative">
                                   <div className="absolute inset-0 bg-white/20 blur-3xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  <Image src={nearestMatch.homeTeam.logo} alt="" width={150} height={150} className="relative w-32 h-32 md:w-40 md:h-40 object-contain" />
+                                  <Image src={activeFriendlyMatches[0].matches[0].homeTeam.logo} alt="" width={150} height={150} className="relative w-32 h-32 md:w-40 md:h-40 object-contain" />
                                 </div>
-                                <span className="text-2xl font-black uppercase tracking-tight">{nearestMatch.homeTeam.name}</span>
+                                <span className="text-2xl font-black uppercase tracking-tight">{activeFriendlyMatches[0].matches[0].homeTeam.name}</span>
                               </div>
                               
                               <div className="flex flex-col items-center gap-6">
                                 <div className="flex flex-col items-center">
-                                  <span className="text-white/40 font-bold uppercase tracking-widest text-sm mb-2">{nearestMatch.date}</span>
+                                  <span className="text-white/40 font-bold uppercase tracking-widest text-sm mb-2">{activeFriendlyMatches[0].matches[0].date}</span>
                                   <div className="text-6xl md:text-7xl font-[1000] italic text-white bg-white/5 px-10 py-4 rounded-3xl border border-white/10">
-                                    {nearestMatch.status === 'finished' ? (
+                                    {activeFriendlyMatches[0].matches[0].status === 'finished' ? (
                                       <div className="flex items-center gap-4">
-                                        <span className="text-[#00ccff]">{nearestMatch.homeScore}</span>
+                                        <span className="text-[#00ccff]">{activeFriendlyMatches[0].matches[0].homeScore}</span>
                                         <span className="text-white/20">-</span>
-                                        <span className="text-[#00ccff]">{nearestMatch.awayScore}</span>
+                                        <span className="text-[#00ccff]">{activeFriendlyMatches[0].matches[0].awayScore}</span>
                                       </div>
                                     ) : (
-                                      nearestMatch.time
+                                      activeFriendlyMatches[0].matches[0].time
                                     )}
                                   </div>
                                 </div>
                                 <div className="text-center">
-                                  <span className="block text-[#00ccff] font-black uppercase tracking-tighter mb-1">{nearestMatch.stadium}</span>
-                                  <span className="text-white/20 font-bold uppercase text-xs">{nearestMatch.category}</span>
+                                  <span className="block text-[#00ccff] font-black uppercase tracking-tighter mb-1">{activeFriendlyMatches[0].matches[0].stadium}</span>
+                                  <span className="text-white/20 font-bold uppercase text-xs">{activeFriendlyMatches[0].matches[0].category}</span>
                                 </div>
                               </div>
 
                               <div className="flex-1 flex flex-col items-center gap-4">
                                 <div className="relative">
                                   <div className="absolute inset-0 bg-white/20 blur-3xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  <Image src={nearestMatch.awayTeam.logo} alt="" width={150} height={150} className="relative w-32 h-32 md:w-40 md:h-40 object-contain" />
+                                  <Image src={activeFriendlyMatches[0].matches[0].awayTeam.logo} alt="" width={150} height={150} className="relative w-32 h-32 md:w-40 md:h-40 object-contain" />
                                 </div>
-                                <span className="text-2xl font-black uppercase tracking-tight">{nearestMatch.awayTeam.name}</span>
+                                <span className="text-2xl font-black uppercase tracking-tight">{activeFriendlyMatches[0].matches[0].awayTeam.name}</span>
                               </div>
                             </div>
                           </div>
@@ -952,62 +1018,41 @@ function TurniejeContent() {
                                 <table className="w-full text-left border-collapse">
                                   <thead>
                                     <tr className="border-b border-white/5 bg-white/[0.02]">
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30">#</th>
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30">TEAM</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">GD</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">FORM</th>
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">TEAM</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {groupA.map((row: any, i: number) => (
+                                    {groupA.map((row, i) => (
                                       <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
-                                        <td className="py-5 px-6">
-                                          <span className={`text-lg font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
+                                        <td className="py-4 px-6">
+                                          <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
                                         </td>
-                                        <td className="py-5 px-6">
-                                          <div className="flex items-center gap-6">
-                                            <Image src={row.team.logo} alt="" width={32} height={32} className="w-8 h-8 object-contain" />
-                                            <span className={`text-lg font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
+                                        <td className="py-4 px-6">
+                                          <div className="flex items-center gap-4">
+                                            <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                            <span className={`text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
                                           </div>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-white/40">{row.played}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-white/40">{row.played}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#10b981]">{row.won}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#facc15]">{row.drawn}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#ef4444]">{row.lost}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className={`text-lg font-bold ${((row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)) > 0 ? "text-[#10b981]" : ((row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)) < 0 ? "text-[#ef4444]" : "text-white/40"}`}>
-                                            {(row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)}
-                                          </span>
-                                        </td>
-                                        <td className="py-5 px-4">
-                                          <div className="flex items-center justify-center gap-1.5">
-                                            {(row.form || []).map((res: string, idx: number) => (
-                                              <div key={idx} className={`w-7 h-7 rounded flex items-center justify-center text-[11px] font-black shadow-sm ${
-                                                res === 'W' ? 'bg-[#10b981] text-white' :
-                                                res === 'L' ? 'bg-[#ef4444] text-white' :
-                                                'bg-[#facc15] text-black'
-                                              }`}>
-                                                {res}
-                                              </div>
-                                            ))}
-                                            {(!row.form || row.form.length === 0) && <span className="text-white/10 text-[10px] font-bold">-</span>}
-                                          </div>
-                                        </td>
-                                        <td className="py-5 px-6 text-right">
-                                          <span className={`text-xl font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
+                                        <td className="py-4 px-6 text-right">
+                                          <span className={`text-sm font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
                                         </td>
                                       </tr>
                                     ))}
@@ -1027,62 +1072,41 @@ function TurniejeContent() {
                                 <table className="w-full text-left border-collapse">
                                   <thead>
                                     <tr className="border-b border-white/5 bg-white/[0.02]">
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30">#</th>
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30">TEAM</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">GD</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">FORM</th>
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">TEAM</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {allStandings.map((row: any, i: number) => (
+                                    {allStandings.map((row, i) => (
                                       <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group">
-                                        <td className="py-5 px-6">
-                                          <span className="text-lg font-bold text-white/20">{i + 1}</span>
+                                        <td className="py-4 px-6">
+                                          <span className="text-sm font-bold text-white/20">{i + 1}</span>
                                         </td>
-                                        <td className="py-5 px-6">
-                                          <div className="flex items-center gap-6">
-                                            <Image src={row.team.logo} alt="" width={32} height={32} className="w-8 h-8 object-contain" />
-                                            <span className="text-lg font-black uppercase tracking-tight group-hover:text-white transition-colors text-white/90">{row.team.name}</span>
+                                        <td className="py-4 px-6">
+                                          <div className="flex items-center gap-4">
+                                            <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                            <span className="text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors text-white/90">{row.team.name}</span>
                                           </div>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-white/40">{row.played}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-white/40">{row.played}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#10b981]">{row.won}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#facc15]">{row.drawn}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#ef4444]">{row.lost}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className={`text-lg font-bold ${((row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)) > 0 ? "text-[#10b981]" : ((row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)) < 0 ? "text-[#ef4444]" : "text-white/40"}`}>
-                                            {(row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)}
-                                          </span>
-                                        </td>
-                                        <td className="py-5 px-4">
-                                          <div className="flex items-center justify-center gap-1.5">
-                                            {(row.form || []).map((res: string, idx: number) => (
-                                              <div key={idx} className={`w-7 h-7 rounded flex items-center justify-center text-[11px] font-black shadow-sm ${
-                                                res === 'W' ? 'bg-[#10b981] text-white' :
-                                                res === 'L' ? 'bg-[#ef4444] text-white' :
-                                                'bg-[#facc15] text-black'
-                                              }`}>
-                                                {res}
-                                              </div>
-                                            ))}
-                                            {(!row.form || row.form.length === 0) && <span className="text-white/10 text-[10px] font-bold">-</span>}
-                                          </div>
-                                        </td>
-                                        <td className="py-5 px-6 text-right">
-                                          <span className="text-xl font-black text-white">{row.pts}</span>
+                                        <td className="py-4 px-6 text-right">
+                                          <span className="text-sm font-black text-white">{row.pts}</span>
                                         </td>
                                       </tr>
                                     ))}
@@ -1103,62 +1127,41 @@ function TurniejeContent() {
                                 <table className="w-full text-left border-collapse">
                                   <thead>
                                     <tr className="border-b border-white/5 bg-white/[0.02]">
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30">#</th>
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30">TEAM</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">GD</th>
-                                      <th className="py-6 px-4 text-[13px] font-black uppercase tracking-widest text-white/30 text-center">FORM</th>
-                                      <th className="py-6 px-6 text-[13px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">TEAM</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
+                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
+                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {groupB.map((row: any, i: number) => (
+                                    {groupB.map((row, i) => (
                                       <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
-                                        <td className="py-5 px-6">
-                                          <span className={`text-lg font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
+                                        <td className="py-4 px-6">
+                                          <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
                                         </td>
-                                        <td className="py-5 px-6">
-                                          <div className="flex items-center gap-6">
-                                            <Image src={row.team.logo} alt="" width={32} height={32} className="w-8 h-8 object-contain" />
-                                            <span className={`text-lg font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
+                                        <td className="py-4 px-6">
+                                          <div className="flex items-center gap-4">
+                                            <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                            <span className={`text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
                                           </div>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-white/40">{row.played}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-white/40">{row.played}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#10b981]">{row.won}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#facc15]">{row.drawn}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className="text-lg font-bold text-[#ef4444]">{row.lost}</span>
+                                        <td className="py-4 px-4 text-center">
+                                          <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
                                         </td>
-                                        <td className="py-5 px-4 text-center">
-                                          <span className={`text-lg font-bold ${((row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)) > 0 ? "text-[#10b981]" : ((row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)) < 0 ? "text-[#ef4444]" : "text-white/40"}`}>
-                                            {(row.gf || row.goalsFor || 0) - (row.ga || row.goalsAgainst || 0)}
-                                          </span>
-                                        </td>
-                                        <td className="py-5 px-4">
-                                          <div className="flex items-center justify-center gap-1.5">
-                                            {(row.form || []).map((res: string, idx: number) => (
-                                              <div key={idx} className={`w-7 h-7 rounded flex items-center justify-center text-[11px] font-black shadow-sm ${
-                                                res === 'W' ? 'bg-[#10b981] text-white' :
-                                                res === 'L' ? 'bg-[#ef4444] text-white' :
-                                                'bg-[#facc15] text-black'
-                                              }`}>
-                                                {res}
-                                              </div>
-                                            ))}
-                                            {(!row.form || row.form.length === 0) && <span className="text-white/10 text-[10px] font-bold">-</span>}
-                                          </div>
-                                        </td>
-                                        <td className="py-5 px-6 text-right">
-                                          <span className={`text-xl font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
+                                        <td className="py-4 px-6 text-right">
+                                          <span className={`text-sm font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
                                         </td>
                                       </tr>
                                     ))}
@@ -1284,7 +1287,7 @@ function TurniejeContent() {
                         </thead>
                         <tbody className="divide-y divide-white/[0.02]">
                           {topScorers.length > 0 ? (
-                            topScorers.map((player: any, idx: number) => (
+                            topScorers.map((player, idx) => (
                               <tr key={idx} className="hover:bg-white/[0.02] transition-colors group">
                                 <td className="py-5 px-8">
                                   <span className={`text-lg font-black italic ${idx === 0 ? 'text-[#00ccff]' : 'text-white/20'}`}>
@@ -1292,14 +1295,9 @@ function TurniejeContent() {
                                   </span>
                                 </td>
                                 <td className="py-5 px-8">
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10 bg-black/20 shadow-lg flex-shrink-0">
-                                      <RobloxAvatar username={player.name} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-base font-black uppercase tracking-tight text-white group-hover:text-[#00ccff] transition-colors">{player.name}</span>
-                                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">NAPASTNIK</span>
-                                    </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-base font-black uppercase tracking-tight text-white group-hover:text-[#00ccff] transition-colors">{player.name}</span>
+                                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">NAPASTNIK</span>
                                   </div>
                                 </td>
                                 <td className="py-5 px-8">
@@ -1329,6 +1327,7 @@ function TurniejeContent() {
                 )}
               </div>
             </div>
+          )}
         </div>
       </div>
       <Footer />

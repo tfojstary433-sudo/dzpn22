@@ -35,7 +35,7 @@ export function getTeamLogo(teamId: string | number, teamName?: string): string 
     if (teamByName) return teamByName.logo;
   }
   
-  return 'https://i.ibb.co/pBJgbXxn/image.png';
+  return 'https://i.ibb.co/TB027G07/czarnepff-1.png';
 }
 
 export function getTeamColor(teamId: string | number, teamName?: string): string {
@@ -277,8 +277,7 @@ export function useMatchStats() {
             homeTeamId: teamA,
             awayTeamId: teamB,
             scorers: m.scorers || [],
-            finished: true,
-            timestamp: m.date || m.createdAt || new Date().toISOString()
+            finished: true
           };
 
           [teamA, teamB].forEach(tId => {
@@ -338,15 +337,11 @@ export function useMatchStats() {
           goalDifference: s.goalsFor - s.goalsAgainst
         })).sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
 
-        if (calculatedStandings.length > 0) {
-          setStandings(calculatedStandings);
-          localStorage.setItem('standings', JSON.stringify(calculatedStandings));
-        }
+        setStandings(calculatedStandings);
+        localStorage.setItem('standings', JSON.stringify(calculatedStandings));
         
-        if (Object.keys(finishedMap).length > 0) {
-          setFinishedMatches(finishedMap);
-          localStorage.setItem('matchStats', JSON.stringify(finishedMap));
-        }
+        setFinishedMatches(finishedMap);
+        localStorage.setItem('matchStats', JSON.stringify(finishedMap));
       }
     } catch (error) {
       console.error('Error fetching statistics:', error);
@@ -447,12 +442,6 @@ export function useMatchStats() {
       teamId: string;
       goals: number;
       avatarUrl?: string;
-    }>;
-    playerDetails?: Record<string, {
-      position: 'ATT' | 'MID' | 'DEF' | 'GK';
-      minutes: number;
-      accountAgeDays: number;
-      transferCount: number;
     }>;
   }) => {
     try {

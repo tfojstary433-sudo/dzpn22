@@ -9,8 +9,6 @@ export const API_ENDPOINTS = {
   EXTERNAL_TABLE: `${REPLIT_API_BASE_URL}/api/external/table`,
   PLAYERS_HISTORY: `${REPLIT_API_BASE_URL}/players-history.json`,
   MATCHES: `${REPLIT_API_BASE_URL}/api/matches`,
-  TOURNAMENTS: `${REPLIT_API_BASE_URL}/api/tournaments`,
-  ARTICLES: `${REPLIT_API_BASE_URL}/api/articles`,
 };
 
 export const POSITION_MAPPING: Record<string, string> = {
@@ -38,9 +36,9 @@ export const POSITION_MAPPING: Record<string, string> = {
 };
 
 export const TEAM_ID_MAPPING: Record<string, string> = {
-  '1': 'ZAW', '2': 'ARK', '3': 'LEG', '4': 'LPO', '5': 'LGD',
-  '6': 'WID', '7': 'POG', '8': 'ZAG', '9': 'SOK', '10': 'WIS',
-  '11': 'GRO', '12': 'GOR', '13': 'MOT', '14': 'RAK', '15': 'JAG',
+  '1': 'ARK', '2': 'LEG', '3': 'LPO', '4': 'ZAG', '5': 'MOT',
+  '6': 'GRO', '7': 'LGD', '8': 'CHO', '9': 'OLI', '10': 'POG',
+  '11': 'UNI', '12': 'ZAW', '13': 'WIS', '14': 'SOK', '15': 'JAG',
   '16': 'WPL'
 };
 

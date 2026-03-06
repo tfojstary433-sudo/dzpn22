@@ -2,48 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const admin = require('firebase-admin');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-
-// Inicjalizacja Firebase Admin
-const serviceAccount = require('./serviceaccount.json');
-
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app"
-    });
-}
-
-const db = admin.database();
 
 const app = express();
-
-// Podstawowa ochrona nagłówków (Security Headers)
-app.use(helmet({
-    contentSecurityPolicy: false, // Wyłączamy CSP jeśli strona go nie potrzebuje do działania (np. zewnętrzne skrypty)
-    crossOriginEmbedderPolicy: false
-}));
-
-// Globalny Rate Limit - ochrona przed DDoS na poziomie aplikacji
-const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minut
-    max: 1000, // Limit 1000 żądań na IP na 15 minut
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { success: false, error: 'Too many requests, please try again later.' }
-});
-app.use(globalLimiter);
-
-// Bardziej restrykcyjny limit dla endpointów modyfikujących (ochrona przed spamem/botami)
-const apiUpdateLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minuta
-    max: 30, // Max 30 żądań na minutę
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { success: false, error: 'Osiągnięto limit żądań. Zwolnij!' }
-});
 
 // Konfiguracja katalogu danych
 const DATA_DIR = path.join(__dirname, 'src', 'data');
@@ -62,54 +22,10 @@ const readData = (filename) => {
     }
 };
 
-// Synchronizacja z Firebase (Backup)
-const syncToFirebase = async (filename, data) => {
-    try {
-        const key = filename.replace('.json', '');
-        await db.ref(`backup/${key}`).set(data);
-        console.log(`[BACKUP] Zsynchronizowano ${filename} z Firebase`);
-    } catch (error) {
-        console.error(`[BACKUP] Błąd synchronizacji ${filename}:`, error.message);
-    }
-};
-
 const saveData = (filename, data) => {
     const filePath = path.join(DATA_DIR, filename);
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-    // Backup do Firebase przy każdym zapisie
-    syncToFirebase(filename, data);
 };
-
-// Przywracanie danych z Firebase przy starcie
-const restoreFromFirebase = async () => {
-    console.log('[SYSTEM] Przywracanie danych z Firebase...');
-    const files = [
-        'league_table.json',
-        'player_statistics.json',
-        'matches_history.json',
-        'match_details.json',
-        'matches_schedule.json',
-        'lineups.json'
-    ];
-
-    for (const filename of files) {
-        try {
-            const key = filename.replace('.json', '');
-            const snapshot = await db.ref(`backup/${key}`).once('value');
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const filePath = path.join(DATA_DIR, filename);
-                fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-                console.log(`[RESTORE] Przywrócono ${filename} z Firebase`);
-            }
-        } catch (error) {
-            console.error(`[RESTORE] Błąd przywracania ${filename}:`, error.message);
-        }
-    }
-};
-
-// Uruchom przywracanie przy starcie
-restoreFromFirebase().catch(console.error);
 
 // Konfiguracja CORS - zezwól na wszystko
 app.use(cors({
@@ -148,7 +64,7 @@ app.get('/api/history', (req, res) => {
     res.json(history);
 });
 
-app.post('/api/match/start', apiUpdateLimiter, (req, res) => {
+app.post('/api/match/start', (req, res) => {
     const { teamA, teamB } = req.body;
     
     matchData = {
@@ -163,7 +79,7 @@ app.post('/api/match/start', apiUpdateLimiter, (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/api/match/update', apiUpdateLimiter, (req, res) => {
+app.post('/api/match/update', (req, res) => {
     const { teamAScore, teamBScore, timer, period } = req.body;
     
     if (teamAScore !== undefined) matchData.teamA.score = teamAScore;
@@ -176,7 +92,7 @@ app.post('/api/match/update', apiUpdateLimiter, (req, res) => {
 });
 
 // GŁÓWNY ENDPOINT PRZETWARZANIA MECZU (zgodny z roblox-endmatch.lua)
-app.post('/api/endmatch', apiUpdateLimiter, (req, res) => {
+app.post('/api/endmatch', (req, res) => {
     try {
         const { matchId, homeTeamId, awayTeamId, homeScore, awayScore, scorers, lineups } = req.body;
 

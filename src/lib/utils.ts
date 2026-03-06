@@ -34,69 +34,28 @@ export async function fetchWithTimeout(resource: string | Request, options: Requ
 export function calculateMatchRating(match: any, playerClub?: string, playerPosition?: string): number {
   if (!match) return 6.0;
   
-  const pos = String(playerPosition || '').toUpperCase();
-  const isGK = pos === 'GK' || pos.includes('BR') || pos.includes('BRAMKARZ');
-  const isDF = pos.includes('DF') || pos.includes('OB');
+  // Base rating from minutes played
+  let score = (match.minutes / 90) * 6.0 + 1.0;
   
-  // Base rating from minutes played (40 min is full match as per user request)
-  const mins = Number(match.minutes) || 0;
-  let score = (mins / 40) * 5.0 + 3.0;
+  // Stats impact
+  score += (match.goals || 0) * 1.5;
+  score += (match.assists || 0) * 1.0;
   
-  if (isGK) {
-    // GK specific logic: focus on goals conceded and minutes
-    const club = String(playerClub || '').trim();
-    const homeTeam = String(match.homeTeam || '').trim();
-    const goalsConceded = Number(club === homeTeam ? match.awayScore : match.homeScore) || 0;
-    
-    if (goalsConceded === 0 && mins > 30) score += 2.5; // Big clean sheet bonus
-    else if (goalsConceded === 1) score += 0.5;
-    else if (goalsConceded === 2) score += 0;
-    else if (goalsConceded === 3) score -= 0.5;
-    else if (goalsConceded > 3) score -= (goalsConceded - 3) * 1.0;
-    
-    // Impact of match result
-    if (match.result === 'W') score += 1.0;
-    else if (match.result === 'D') score += 0.5;
-    else score -= 0.5;
-    
-    // Penalty for yellow/red cards
-    if (Number(match.yellowCards)) score -= 1.0;
-    if (Number(match.redCards)) score -= 3.0;
-  } else {
-    // Outfield players
-    score += (Number(match.goals) || 0) * 2.0;
-    score += (Number(match.assists) || 0) * 1.5;
-    
-    if (isDF) {
-      const club = String(playerClub || '').trim();
-      const homeTeam = String(match.homeTeam || '').trim();
-      const goalsConceded = Number(club === homeTeam ? match.awayScore : match.homeScore) || 0;
-      if (goalsConceded === 0 && mins > 30) score += 1.5;
-    }
-    
-    // Win/Loss impact
-    if (match.result === 'W') score += 0.8;
-    else if (match.result === 'D') score += 0.3;
-    else score -= 0.3;
+  // Win/Loss impact
+  if (match.result === 'W') score += 0.3;
+  else if (match.result === 'D') score += 0.1;
+  else score -= 0.2;
+  
+  // Clean sheet bonus (approximate for GK/DF)
+  const isCleanSheet = match.homeTeam === playerClub 
+    ? match.awayScore === 0 
+    : match.homeScore === 0;
+
+  if ((playerPosition === 'GK' || playerPosition?.includes('DF')) && isCleanSheet) {
+    score += 0.5;
   }
 
-  return Number(Math.min(10.0, Math.max(1.0, score)).toFixed(1));
-}
-
-export function getRatingColor(rating: number, position?: string): string {
-  const pos = String(position || '').toUpperCase();
-  const isGK = pos === 'GK' || pos.includes('BR') || pos.includes('BRAMKARZ');
-  
-  // Amazing = Blue, Good = Green, Weak = Red
-  if (isGK) {
-    if (rating >= 8.5) return 'bg-blue-600/20 border-blue-500/50 text-blue-400 shadow-blue-500/20';
-    if (rating >= 6.5) return 'bg-green-600/20 border-green-500/50 text-green-400 shadow-green-500/20';
-    return 'bg-red-600/20 border-red-500/50 text-red-400 shadow-red-500/20';
-  }
-  
-  if (rating >= 9.0) return 'bg-blue-600/20 border-blue-500/50 text-blue-400 shadow-blue-500/20';
-  if (rating >= 7.0) return 'bg-green-600/20 border-green-500/50 text-green-400 shadow-green-500/20';
-  return 'bg-red-600/20 border-red-500/50 text-red-400 shadow-red-500/20';
+  return Math.min(10.0, Math.max(1.0, score));
 }
 
 export function calculateMarketValue(stats: any, position?: string, avgRating: number = 6.5): number {

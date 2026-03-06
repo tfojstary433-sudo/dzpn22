@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { teams } from '@/lib/data';
 import { useMatchStats } from '@/lib/useMatchStats';
-import { RobloxAvatar } from './roblox-avatar';
 
 export function TopScorersCard() {
   const { topScorers } = useMatchStats();
@@ -45,9 +44,13 @@ export function TopScorersCard() {
               <div className="flex items-center gap-8 mt-4">
                 <div className="relative">
                   <div className="w-40 h-40 rounded-xl overflow-hidden border-4 border-yellow-500 shadow-lg bg-gray-800">
-                    <RobloxAvatar
-                      username={topScorer.name}
-                      className="w-full h-full object-cover scale-125 translate-y-2"
+                    <Image
+                      src={`https://tr.rbxcdn.com/30DAY-AvatarHeadshot-${topScorer.playerId}-150x150-Png-00.png`}
+                      alt={topScorer.name}
+                      width={160}
+                      height={160}
+                      className="object-cover"
+                      unoptimized
                     />
                   </div>
                   <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-black rounded-full w-16 h-16 flex items-center justify-center border-4 border-gray-900 shadow-lg">
@@ -106,9 +109,13 @@ export function TopScorersCard() {
                     <div className="flex items-center gap-4">
                       <div className="relative">
                         <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-600 bg-gray-900">
-                          <RobloxAvatar
-                            username={player.name}
-                            className="w-full h-full object-cover scale-125"
+                          <Image
+                            src={`https://tr.rbxcdn.com/30DAY-AvatarHeadshot-${player.playerId}-150x150-Png-00.png`}
+                            alt={player.name}
+                            width={80}
+                            height={80}
+                            className="object-cover"
+                            unoptimized
                           />
                         </div>
                         <div className="absolute -bottom-2 -right-2 bg-gray-700 text-white rounded-full w-10 h-10 flex items-center justify-center border-2 border-gray-900 text-lg font-bold">

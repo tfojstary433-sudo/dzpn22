@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { teams, clubToFirebaseKey } from '@/lib/data';
-import { getAllUserClubs, getPlayerStats, getMatchHistory, getVerifiedPlayer } from '@/lib/firebase';
+import { getAllUserClubs, getPlayerStats, getMatchHistory } from '@/lib/firebase';
 import { API_ENDPOINTS, REPLIT_API_BASE_URL } from '@/lib/constants';
 import { fetchWithTimeout, mapPositionToPolish } from '@/lib/utils';
 
@@ -139,8 +139,6 @@ export async function GET(
   let value = 0;
   let lastMatchNumber: number | undefined = undefined;
   let country: string | undefined = undefined;
-  let discordUser: string | undefined = undefined;
-  let discordId: string | undefined = undefined;
 
   // Resolve userId if not numeric
   if (/^\d+$/.test(username)) {
@@ -219,17 +217,6 @@ export async function GET(
       );
       currentClub = team?.name || firebaseClub;
     }
-
-    // Fetch discord user info
-    try {
-      const verifiedData = await getVerifiedPlayer(userId);
-      if (verifiedData) {
-        discordUser = verifiedData.discordUser;
-        discordId = verifiedData.discordId;
-      }
-    } catch (error) {
-      console.error('Error fetching verified player info:', error);
-    }
   }
 
   // 1. Fetch from Firebase stats as baseline
@@ -257,13 +244,9 @@ export async function GET(
 
   // 2. Fetch stats from external API and merge/override
   try {
-    const [statsResponse, matchesResponse] = await Promise.all([
-      fetchWithTimeout(API_ENDPOINTS.STATS, { timeout: 2000 }),
-      fetchWithTimeout(API_ENDPOINTS.MATCHES, { timeout: 2000 })
-    ]);
-
-    if (statsResponse.ok) {
-      const data = await statsResponse.json();
+    const response = await fetchWithTimeout(API_ENDPOINTS.STATS, { timeout: 2000 });
+    if (response.ok) {
+      const data = await response.json();
       const playersData = Array.isArray(data) ? data : (data.players || []);
       if (Array.isArray(playersData)) {
         // Find player by username or userId
@@ -303,35 +286,8 @@ export async function GET(
         }
       }
     }
-
-    if (matchesResponse.ok) {
-      const allMatches = await matchesResponse.json();
-      if (Array.isArray(allMatches)) {
-        // Find latest match where player was in lineup
-        const matchesWithPlayer = allMatches
-          .filter(m => m.status === 'finished')
-          .filter(m => {
-            const inLineupA = m.lineupA?.starters?.some((p: any) => p.id?.toString() === userId || p.name?.toLowerCase() === resolvedUsername.toLowerCase());
-            const inLineupB = m.lineupB?.starters?.some((p: any) => p.id?.toString() === userId || p.name?.toLowerCase() === resolvedUsername.toLowerCase());
-            return inLineupA || inLineupB;
-          })
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-        if (matchesWithPlayer.length > 0) {
-          const latestMatch = matchesWithPlayer[0];
-          const playerInA = latestMatch.lineupA?.starters?.find((p: any) => p.id?.toString() === userId || p.name?.toLowerCase() === resolvedUsername.toLowerCase());
-          const playerInB = latestMatch.lineupB?.starters?.find((p: any) => p.id?.toString() === userId || p.name?.toLowerCase() === resolvedUsername.toLowerCase());
-          const playerLineupInfo = playerInA || playerInB;
-          
-          if (playerLineupInfo && playerLineupInfo.number) {
-            lastMatchNumber = playerLineupInfo.number;
-            console.log(`[API] Found correct number from matches API: ${lastMatchNumber} for ${resolvedUsername}`);
-          }
-        }
-      }
-    }
   } catch (error) {
-    console.error('Error fetching external stats or matches:', error);
+    console.error('Error fetching external stats:', error);
   }
 
   // 3. Use pre-fetched players history data for stats aggregation
@@ -382,7 +338,7 @@ export async function GET(
       // Update last match number from the most recent match in history
       if (historyMatches.length > 0) {
         const mostRecentMatch = historyMatches[historyMatches.length - 1];
-        if (mostRecentMatch.number && !lastMatchNumber) lastMatchNumber = mostRecentMatch.number;
+        if (mostRecentMatch.number) lastMatchNumber = mostRecentMatch.number;
       }
     } catch (e) {
       console.error('Error processing players history stats:', e);
@@ -696,8 +652,6 @@ export async function GET(
       position: mapPositionToPolish(position),
       value,
       lastMatchNumber,
-      discordUser,
-      discordId,
       country,
       previousClubs,
       parentClub: parentClub ? { name: parentClub.name, joinedAt: parentClub.joinedAt } : null,

@@ -43,7 +43,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
                       alt={item.name} 
                       className="w-full h-full object-contain drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]" 
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
+                        (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
                       }}
                     />
                   </div>
@@ -64,7 +64,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
                         alt={item.teamName} 
                         className="w-full h-full object-contain brightness-125" 
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
+                          (e.target as HTMLImageElement).src = 'https://i.ibb.co/TB027G07/czarnepff-1.png';
                         }}
                       />
                     </div>
@@ -88,7 +88,7 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
   );
 };
 
-export function Statistics({ isInTab = false }: { isInTab?: boolean } = {}) {
+export function Statistics() {
   const { topScorers, standings } = useMatchStats();
   const [activeType, setActiveType] = useState<'gracze' | 'druzyny'>('gracze');
   const [mounted, setMounted] = useState(false);
@@ -98,12 +98,65 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean } = {}) {
   }, []);
 
   const players = useMemo(() => {
-    return [] as any[]; // Zmiana na życzenie: wyzerowanie statystyk graczy
-  }, []);
+    const basePlayers = topScorers.length > 0 ? topScorers : mockPlayersData.map(p => ({
+      ...p,
+      points: p.goals + p.assists,
+      cleanSheets: 0,
+      yellowCards: 0,
+      redCards: 0
+    }));
+
+    return basePlayers.map(p => {
+      // Prioritize data from useMatchStats if available and logo is NOT the default/fallback
+      const isResolved = p.teamLogo && !p.teamLogo.includes('czarnepff-1.png');
+      
+      if (p.teamName && isResolved) {
+        return {
+          ...p,
+          teamName: p.teamName,
+          teamLogo: p.teamLogo,
+          rating: (7.0 + (p.goals * 0.2) + (p.assists * 0.1) + (Math.random() * 0.5)).toFixed(2),
+          minutes: 1500 + (p.goals * 10) + (p.assists * 5) + Math.floor(Math.random() * 100)
+        };
+      }
+
+      // If not fully resolved or default logo, try resolving again with helpers
+      const resolvedName = getTeamName(p.teamId);
+      const resolvedLogo = getTeamLogo(p.teamId, resolvedName);
+      
+      // Generate some pseudo-random but stable stats for "Rating" and "Minutes"
+      const rating = (7.0 + (p.goals * 0.2) + (p.assists * 0.1) + (Math.random() * 0.5)).toFixed(2);
+      const minutes = 1500 + (p.goals * 10) + (p.assists * 5) + Math.floor(Math.random() * 100);
+      
+      return {
+        ...p,
+        teamName: resolvedName,
+        teamLogo: resolvedLogo,
+        rating,
+        minutes
+      };
+    });
+  }, [topScorers]);
 
   const teamStats = useMemo(() => {
-    return [] as any[]; // Zmiana na życzenie: wyzerowanie statystyk drużyn
-  }, []);
+    return standings.map(s => {
+      // Find team in data.ts to get the correct logo and name
+      const shortName = s.teamId ? (TEAM_ID_MAPPING[s.teamId] || s.teamId) : '';
+      const teamData = teams.find(t => t.id === s.teamId || t.shortName === s.teamId || t.id === shortName || t.shortName === shortName) || s.team;
+      
+      return {
+        id: s.teamId,
+        name: teamData?.name || s.team?.name || 'Nieznany',
+        teamName: teamData?.shortName || s.team?.shortName || 'Klub',
+        teamLogo: teamData?.logo || s.team?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+        goalsFor: s.goalsFor,
+        goalsAgainst: s.goalsAgainst,
+        goalDifference: s.goalDifference,
+        points: s.points,
+        played: s.played
+      };
+    });
+  }, [standings]);
 
   if (!mounted) return null;
 
@@ -173,13 +226,13 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean } = {}) {
     value: t.points
   }));
 
-  const content = (
+  return (
     <div className="w-full max-w-7xl mx-auto py-12 px-4 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-400/10 blur-[150px] pointer-events-none -z-10" />
       <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-cyan-500/10 blur-[120px] pointer-events-none -z-10" />
 
-      {/* Logo Section */}
+      {/* Logo Section - Replaced Search Bar */}
       <div className="mb-12 flex justify-center">
         <div className="relative group">
           <Image
@@ -192,33 +245,52 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean } = {}) {
         </div>
       </div>
 
-      <div className="bg-white/5 backdrop-blur-xl rounded-[40px] p-20 border border-white/10 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-cyan-600/10 opacity-50" />
-        <div className="relative z-10">
-          <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 group-hover:scale-110 transition-transform duration-500">
-            <svg className="w-10 h-10 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter italic mb-4 drop-shadow-2xl">
-            Liga nie została zaczęta
-          </h3>
-          <p className="text-white/40 font-bold uppercase tracking-[0.3em] text-sm">
-            Statystyki pojawią się po pierwszym gwizdku
-          </p>
-        </div>
+      {/* Type Toggle */}
+      <div className="flex bg-black/40 backdrop-blur-xl p-1 rounded-full w-fit mb-12 border border-white/10 shadow-2xl relative mx-auto lg:mx-0">
+        <button
+          onClick={() => setActiveType('gracze')}
+          className={`px-12 py-3 rounded-full text-[16px] font-black uppercase tracking-tight transition-all duration-300 relative z-10 ${
+            activeType === 'gracze' ? 'text-white' : 'text-white/40 hover:text-white'
+          }`}
+        >
+          {activeType === 'gracze' && (
+            <div className="absolute inset-0 bg-white/20 backdrop-blur-xl rounded-full border border-white/30 -z-10 shadow-[0_0_20px_rgba(255,255,255,0.1)]" />
+          )}
+          Gracze
+        </button>
+        <button
+          onClick={() => setActiveType('druzyny')}
+          className={`px-12 py-3 rounded-full text-[16px] font-black uppercase tracking-tight transition-all duration-300 relative z-10 ${
+            activeType === 'druzyny' ? 'text-white' : 'text-white/40 hover:text-white'
+          }`}
+        >
+          {activeType === 'druzyny' && (
+            <div className="absolute inset-0 bg-white/20 backdrop-blur-xl rounded-full border border-white/30 -z-10 shadow-[0_0_20px_rgba(255,255,255,0.1)]" />
+          )}
+          Drużyny
+        </button>
       </div>
+
+      <div className="mb-10">
+        <h2 className="text-white text-3xl font-black uppercase tracking-tight">Najważ. statystyki</h2>
+      </div>
+
+      {activeType === 'gracze' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <StatCard title="Najlepszy strzelec" items={topScorersData} color="green" />
+          <StatCard title="Asysty" items={topAssistsData} color="yellow" />
+          <StatCard title="Gole + asysty" items={topPointsData} color="green" />
+          <StatCard title="Ocena PFF Stats" items={topRatingData} color="red" />
+          <StatCard title="Rozegrane minuty" items={topMinutesData} color="white" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <StatCard title="Najwięcej goli" items={topTeamGoalsData} color="green" isTeam={true} />
+          <StatCard title="Najlepsza obrona" items={topTeamDefenseData} color="yellow" isTeam={true} />
+          <StatCard title="Punkty" items={topTeamPointsData} color="green" isTeam={true} />
+        </div>
+      )}
     </div>
-  );
-
-  if (isInTab) {
-    return <div className="">{content}</div>;
-  }
-
-  return (
-    <section id="statystyki" className="py-16">
-      {content}
-    </section>
   );
 }
 

@@ -232,37 +232,25 @@ const getHalfPitchPositions = (positionType: string, count: number, xBase: numbe
   return positions;
 };
 
-const calculateSmartPositions = (starters: Array<{name: string; id?: string; position?: string}>, side: 'home' | 'away', formation?: string): Record<string, PlayerPosition> => {
-  const positionGroups: Record<string, Array<{name: string; id?: string; position?: string}>> = {
+const calculateSmartPositions = (starters: Array<{name: string; position?: string}>, side: 'home' | 'away'): Record<string, PlayerPosition> => {
+  const positionGroups: Record<string, Array<{name: string; position?: string}>> = {
     GK: [],
     DEF: [],
     MID: [],
     ATT: []
   };
   
-  const seen = new Set();
-  const uniqueStarters = starters.filter(p => {
-    const id = p.id || p.name;
-    if (!id || seen.has(id)) return false;
-    seen.add(id);
-    return true;
-  });
-
-  // Group players by position
-  uniqueStarters.forEach(p => {
-    const pos = (p.position || '').toUpperCase().trim();
-    if (pos.includes('GK') || pos === 'BR' || pos === 'BRAMKARZ' || pos === 'B') {
+  starters.forEach(p => {
+    const posType = p.position?.toUpperCase()?.trim() || 'ATT';
+    
+    if (posType === 'GK') {
       positionGroups.GK.push(p);
-    } else if (
-      pos.includes('DEF') || pos.includes('CB') || pos.includes('LB') || pos.includes('RB') || 
-      pos === 'ŚO' || pos === 'LO' || pos === 'PO' || pos === 'LWB' || pos === 'RWB' || 
-      pos === 'O' || pos === 'OB' || pos === 'OBRONA' || pos === 'SO'
-    ) {
+    } else if (posType === 'DEF' || posType === 'CB' || posType === 'LB' || posType === 'RB' || posType === 'LWB' || posType === 'RWB') {
       positionGroups.DEF.push(p);
     } else if (
-      pos.includes('MID') || pos.includes('CM') || pos.includes('CDM') || pos.includes('CAM') || 
-      pos.includes('LM') || pos.includes('RM') || pos === 'ŚP' || pos === 'DP' || pos === 'PP' || 
-      pos === 'LP' || pos === 'P' || pos === 'POMOC' || pos === 'SP' || pos === 'SPD'
+      posType === 'MID' || posType === 'CM' || posType === 'CDM' || posType === 'DM' || 
+      posType === 'CAM' || posType === 'AM' || posType === 'LM' || posType === 'RM' ||
+      posType.includes('MID')
     ) {
       positionGroups.MID.push(p);
     } else {
@@ -270,58 +258,60 @@ const calculateSmartPositions = (starters: Array<{name: string; id?: string; pos
     }
   });
   
-  // X positions for a full pitch view
-  const xPositions: Record<string, number> = side === 'home' ? {
+  const gkCount = positionGroups.GK.length;
+  const defCount = positionGroups.DEF.length;
+  const midCount = positionGroups.MID.length;
+  const attCount = positionGroups.ATT.length;
+  
+  const xPositions: Record<string, number> = {
     GK: 8,
     DEF: 22,
-    MID: 38,
-    ATT: 48
-  } : {
-    GK: 92,
-    DEF: 78,
-    MID: 62,
-    ATT: 52
+    MID: 50,
+    ATT: 78
   };
   
-  // Helper for centered Y positions (fixed for 4-3-3 layout)
-  const getYPositions = (posType: string, count: number): string[] => {
-    if (posType === 'GK') return ['50%'];
-    
-    const getCentered = (c: number) => {
-      if (c === 1) return ['50%'];
-      if (c === 2) return ['30%', '70%'];
-      if (c === 3) return ['20%', '50%', '80%'];
-      if (c === 4) return ['15%', '38%', '62%', '85%'];
-      return Array.from({length: c}, (_, i) => `${10 + (i * (80/(c-1)))}%`);
-    };
-
-    return getCentered(count);
-  };
-
+  if (midCount === 0 && attCount > 0) {
+    xPositions.ATT = 55;
+  } else if (midCount > 0 && attCount > 0) {
+    if (midCount === 1) {
+      xPositions.MID = 40;
+      xPositions.ATT = 75;
+    } else if (midCount === 2) {
+      xPositions.MID = 42;
+      xPositions.ATT = 75;
+    } else if (midCount === 3) {
+      xPositions.MID = 45;
+      xPositions.ATT = 75;
+    } else if (midCount === 4) {
+      xPositions.MID = 48;
+      xPositions.ATT = 75;
+    } else {
+      xPositions.MID = 50;
+      xPositions.ATT = 73;
+    }
+  } else if (midCount > 0 && attCount === 0) {
+    xPositions.MID = 60;
+  }
+  
+  if (defCount >= 5) {
+    xPositions.DEF = 20;
+    if (midCount > 0) {
+      xPositions.MID = 45;
+    }
+  } else if (defCount === 3) {
+    xPositions.DEF = 24;
+  }
+  
   const result: Record<string, PlayerPosition> = {};
-  const color = side === 'home' ? 'blue-600' : 'red-600';
   
   Object.entries(positionGroups).forEach(([posType, players]) => {
     if (players.length === 0) return;
     
     const xBase = xPositions[posType];
-    const yCoords = getYPositions(posType, players.length);
+    const positions = getHalfPitchPositions(posType, players.length, xBase, side);
     
     players.forEach((player, idx) => {
-      if (yCoords[idx]) {
-        result[player.name] = {
-          x: `${xBase}%`,
-          y: yCoords[idx],
-          color
-        };
-      } else {
-        // Fallback for extra players in same line
-        result[player.name] = {
-          x: `${xBase}%`,
-          y: `${10 + (idx * 10)}%`,
-          color
-        };
-      }
+      result[player.name] = positions[idx];
     });
   });
   
@@ -384,26 +374,24 @@ export default function MatchDetail() {
   
   const [activeTab, setActiveTab] = useState<'na-żywo' | 'relacja' | 'składy' | 'statystyki'>('relacja');
   const [apiData, setApiData] = useState<MatchApiData | null>(null);
-  const [tableData, setTableData] = useState<any>(null);
   const [preMatchInfo, setPreMatchInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetchedOnce, setHasFetchedOnce] = useState(!!match);
   const hasAutoSwitched = useRef(false);
 
   const allTeams = [...teams, ...extraTeams];
 
   const getHomeTeam = () => {
     if (match?.homeTeam) return match.homeTeam;
-    if (apiData?.match) {
-      const apiTeamA = apiData?.match?.teamA;
+    if (apiData) {
+      const apiTeamA = apiData.match.teamA;
       const found = allTeams.find(t => 
         normalizeTeamName(t.name) === normalizeTeamName(apiTeamA) || 
         normalizeTeamName(t.shortName) === normalizeTeamName(apiTeamA) ||
         normalizeTeamName(t.id) === normalizeTeamName(apiTeamA)
       );
       if (found) return found;
-      return { name: apiData?.match?.teamA, shortName: apiData?.match?.teamA, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
+      return { name: apiData.match.teamA, shortName: apiData.match.teamA, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
     }
     if (preMatchInfo) {
       const teamA = preMatchInfo.teamA || preMatchInfo.homeTeam || preMatchInfo.home;
@@ -414,22 +402,22 @@ export default function MatchDetail() {
         normalizeTeamName(t.id) === normalizeTeamName(teamAName)
       );
       if (found) return found;
-      return { name: teamAName, shortName: teamAName, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
+      return { name: teamAName, shortName: teamAName, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
     }
-    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
+    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
   };
 
   const getAwayTeam = () => {
     if (match?.awayTeam) return match.awayTeam;
-    if (apiData?.match) {
-      const apiTeamB = apiData?.match?.teamB;
+    if (apiData) {
+      const apiTeamB = apiData.match.teamB;
       const found = allTeams.find(t => 
         normalizeTeamName(t.name) === normalizeTeamName(apiTeamB) || 
         normalizeTeamName(t.shortName) === normalizeTeamName(apiTeamB) ||
         normalizeTeamName(t.id) === normalizeTeamName(apiTeamB)
       );
       if (found) return found;
-      return { name: apiData?.match?.teamB, shortName: apiData?.match?.teamB, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
+      return { name: apiData.match.teamB, shortName: apiData.match.teamB, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
     }
     if (preMatchInfo) {
       const teamB = preMatchInfo.teamB || preMatchInfo.awayTeam || preMatchInfo.away;
@@ -440,9 +428,9 @@ export default function MatchDetail() {
         normalizeTeamName(t.id) === normalizeTeamName(teamBName)
       );
       if (found) return found;
-      return { name: teamBName, shortName: teamBName, logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
+      return { name: teamBName, shortName: teamBName, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
     }
-    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png', id: '' };
+    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
   };
 
   const homeTeam = getHomeTeam();
@@ -451,28 +439,17 @@ export default function MatchDetail() {
   const homeStanding = standings.find(s => s.team?.id === homeTeam.id);
   const awayStanding = standings.find(s => s.team?.id === awayTeam.id);
 
-  const getTeamFromTable = (teamName: string) => {
-    if (!tableData) return null;
-    const all = [...(tableData.grupaa || []), ...(tableData.grupab || [])];
-    return all.find(t => 
-      normalizeTeamName(t.team) === normalizeTeamName(teamName)
-    );
-  };
-
-  const homeTableTeam = getTeamFromTable(homeTeam.name);
-  const awayTableTeam = getTeamFromTable(awayTeam.name);
-
-  const homePosition = homeTableTeam?.position || homeTableTeam?.rank || homeStanding?.position || '-';
-  const awayPosition = awayTableTeam?.position || awayTableTeam?.rank || awayStanding?.position || '-';
-  const homePoints = homeTableTeam?.points || homeStanding?.points || 0;
-  const awayPoints = awayTableTeam?.points || awayStanding?.points || 0;
+  const homePosition = homeStanding?.position || '-';
+  const awayPosition = awayStanding?.position || '-';
+  const homePoints = homeStanding?.points || 0;
+  const awayPoints = awayStanding?.points || 0;
 
   const isHomeTeam = useCallback((event: any) => {
     if (!event || !event.team) return false;
     const teamStr = event.team.toString().trim().toLowerCase();
     const hName = homeTeam.name.toLowerCase().trim();
     const hShort = homeTeam.shortName.toLowerCase().trim();
-    const apiTeamA = apiData?.match?.teamA?.toLowerCase().trim();
+    const apiTeamA = apiData?.match.teamA?.toLowerCase().trim();
 
     return teamStr === 'home' ||
            teamStr === 'gospodarz' ||
@@ -484,14 +461,14 @@ export default function MatchDetail() {
            hName.includes(teamStr) ||
            teamStr.includes(hName) ||
            (homeTeam.id && teamStr === homeTeam.id.toLowerCase());
-  }, [homeTeam.name, homeTeam.shortName, homeTeam.id, apiData?.match?.teamA]);
+  }, [homeTeam.name, homeTeam.shortName, homeTeam.id, apiData?.match.teamA]);
 
   const isAwayTeam = useCallback((event: any) => {
     if (!event || !event.team) return false;
     const teamStr = event.team.toString().trim().toLowerCase();
     const aName = awayTeam.name.toLowerCase().trim();
     const aShort = awayTeam.shortName.toLowerCase().trim();
-    const apiTeamB = apiData?.match?.teamB?.toLowerCase().trim();
+    const apiTeamB = apiData?.match.teamB?.toLowerCase().trim();
 
     return teamStr === 'away' ||
            teamStr === 'gość' ||
@@ -503,9 +480,9 @@ export default function MatchDetail() {
            aName.includes(teamStr) ||
            teamStr.includes(aName) ||
            (awayTeam.id && teamStr === awayTeam.id.toLowerCase());
-  }, [awayTeam.name, awayTeam.shortName, awayTeam.id, apiData?.match?.teamB]);
+  }, [awayTeam.name, awayTeam.shortName, awayTeam.id, apiData?.match.teamB]);
 
-  const calculatedScore = apiData?.events?.goals ? apiData?.events.goals.reduce((acc, goal) => {
+  const calculatedScore = apiData?.events?.goals ? apiData.events.goals.reduce((acc, goal) => {
     if (isHomeTeam(goal)) acc.scoreA++;
     else if (isAwayTeam(goal)) acc.scoreB++;
     return acc;
@@ -515,195 +492,189 @@ export default function MatchDetail() {
   const [isMatchFinished, setIsMatchFinished] = useState(false);
   const [isMatchActive, setIsMatchActive] = useState(false);
   const [finishedMatchData, setFinishedMatchData] = useState<any>(null);
-  const [referees, setReferees] = useState<any>(null);
-
-  const loadFinished = useCallback(() => {
-    const stored = localStorage.getItem('finishedMatches');
-    if (stored) {
-      const finished = JSON.parse(stored);
-      setFinishedMatches(finished);
-      const status = apiData?.match?.status?.toLowerCase();
-      setIsMatchFinished(finished[id] || match?.status === 'finished' || status === 'finished' || status === 'played' || status === 'ft' || false);
-      setIsMatchActive(apiData?.match?.isActive || status === 'active' || status === 'live' || false);
-
-      // Load match result data for finished matches
-      if (finished[id] || match?.status === 'finished') {
-        const matchStats = localStorage.getItem('matchStats');
-        if (matchStats) {
-          const stats = JSON.parse(matchStats);
-          setFinishedMatchData(stats[id] || null);
-        }
-      }
-    } else {
-      setIsMatchFinished(false);
-      setIsMatchActive(false);
-    }
-  }, [id, match, apiData?.match?.status, apiData?.match?.isActive]);
-
-  const fetchMatchData = useCallback(async (isInitial = false) => {
-    if (isInitial) setLoading(true);
-    setError(null);
-    try {
-      let loaded = false;
-
-      // Parallel fetch for initial data to speed up
-      const [tournamentRes, scheduleRes, matchesListRes, tableRes] = await Promise.all([
-        fetch(`${REPLIT_API_BASE_URL}/api/tournament/1.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-        fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-        fetch(`${REPLIT_API_BASE_URL}/api/matches`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-        fetch(`${REPLIT_API_BASE_URL}/api/tournament/1/table.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null)
-      ]);
-
-      if (tableRes && tableRes.ok) {
-        const tableData = await tableRes.json();
-        setTableData(tableData);
-      }
-
-      if (matchesListRes && matchesListRes.ok) {
-        const list = await matchesListRes.json();
-        const found = (Array.isArray(list) ? list : []).find((m: any) => m.uuid === id || m.id?.toString() === id);
-        if (found) {
-          setPreMatchInfo((prev: any) => ({
-            ...prev,
-            ...found,
-            homeScore: found.scoreA,
-            awayScore: found.scoreB
-          }));
-        }
-      }
-
-      if (tournamentRes && tournamentRes.ok) {
-        const data = await tournamentRes.json();
-        const fixtures = data.fixtures || [];
-        
-        // Prioritize matchUuid for precise matching
-        let found = fixtures.find((m: any) => m.matchUuid === id || m.uuid === id);
-        
-        // Fallback to id only if no uuid match found
-        if (!found && isNumeric(id)) {
-          found = fixtures.find((m: any) => m.id?.toString() === id);
-        }
-        
-        if (found) {
-          setPreMatchInfo((prev: any) => ({
-            ...(prev || {}),
-            ...found,
-            homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
-            awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
-            homeScore: found.scoreA,
-            awayScore: found.scoreB,
-            stadium: found.stadium || 'Ośrodek Treningowy PFF',
-            category: 'MECZE TOWARZYSKIE'
-          }));
-          
-          // Extract referees if available
-          if (found.referees) {
-            setReferees(found.referees);
-          }
-        }
-      }
-
-      if (scheduleRes && scheduleRes.ok) {
-        const data = await scheduleRes.json();
-        const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
-        
-        // Prioritize matchUuid
-        let found = list.find((m: any) => m.matchUuid === id || m.uuid === id);
-        
-        // Fallback to id only if no uuid match found
-        if (!found && isNumeric(id)) {
-          found = list.find((m: any) => m.id?.toString() === id);
-        }
-        
-        if (found) {
-          setPreMatchInfo((prev: any) => ({ ...prev, ...found }));
-        }
-      }
-
-      // Try Replit details
-      if (isUuid(id)) {
-        try {
-          const replitRes = await fetch(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-          if (replitRes.ok) {
-            const replitData = await replitRes.json();
-            setApiData(replitData);
-            loaded = true;
-          }
-        } catch {}
-      }
-
-      // Local API / Firebase fallback
-      if (!loaded) {
-        try {
-          const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-          if (response.ok) {
-            const data = await response.json();
-            setApiData(data);
-            loaded = true;
-          }
-        } catch {}
-      }
-
-      // Try players-history.json as a definitive score source for finished matches
-      try {
-        const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
-        if (historyRes.ok) {
-          const historyData = await historyRes.json();
-          if (historyData.players) {
-            let historyMatch = null;
-            for (const p of Object.values(historyData.players) as any[]) {
-              const m = p.matches?.find((match: any) => match.matchUuid === id || match.id?.toString() === id);
-              if (m) {
-                historyMatch = m;
-                break;
-              }
-            }
-
-            if (historyMatch) {
-              // If we found it in history, it means it's finished and we have scores
-              const hScoreA = historyMatch.scoreA;
-              const hScoreB = historyMatch.scoreB;
-
-              setPreMatchInfo((prev: any) => ({
-                ...(prev || {}),
-                scoreA: hScoreA,
-                scoreB: hScoreB,
-                homeScore: hScoreA,
-                awayScore: hScoreB,
-                status: 'finished',
-                teamA: historyMatch.teamA,
-                teamB: historyMatch.teamB
-              }));
-              
-              if (!loaded) {
-                setIsMatchFinished(true);
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.error('History score fetch failed:', e);
-      }
-
-      setHasFetchedOnce(true);
-    } catch (err: any) {
-      console.error('Error fetching match data:', err);
-      if (isInitial) setError(err.message || 'Nie udało się pobrać danych meczu');
-    } finally {
-      if (isInitial) setLoading(false);
-    }
-  }, [id]);
 
   useEffect(() => {
+    // Load finished matches from localStorage
+    const loadFinished = () => {
+      const stored = localStorage.getItem('finishedMatches');
+      if (stored) {
+        const finished = JSON.parse(stored);
+        setFinishedMatches(finished);
+        const status = apiData?.match?.status?.toLowerCase();
+        setIsMatchFinished(finished[id] || match?.status === 'finished' || status === 'finished' || status === 'played' || status === 'ft' || false);
+        setIsMatchActive(apiData?.match?.isActive || status === 'active' || status === 'live' || false);
+
+        // Load match result data for finished matches
+        if (finished[id] || match?.status === 'finished') {
+          const matchStats = localStorage.getItem('matchStats');
+          if (matchStats) {
+            const stats = JSON.parse(matchStats);
+            setFinishedMatchData(stats[id] || null);
+          }
+        }
+      } else {
+        setIsMatchFinished(false);
+        setIsMatchActive(false);
+      }
+    };
     loadFinished();
-    fetchMatchData(true);
-    const interval = setInterval(() => fetchMatchData(false), 5000);
-    return () => clearInterval(interval);
-  }, [id, fetchMatchData, loadFinished]);
+
+    const fetchMatchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        let loaded = false;
+
+        // Parallel fetch for initial data to speed up
+        const [tournamentRes, scheduleRes] = await Promise.all([
+          fetch(`${REPLIT_API_BASE_URL}/api/tournament/1.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
+          fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null)
+        ]);
+
+        if (tournamentRes && tournamentRes.ok) {
+          const data = await tournamentRes.json();
+          const fixtures = data.fixtures || [];
+          
+          // Prioritize matchUuid for precise matching
+          let found = fixtures.find((m: any) => m.matchUuid === id || m.uuid === id);
+          
+          // Fallback to id only if no uuid match found
+          if (!found && isNumeric(id)) {
+            found = fixtures.find((m: any) => m.id?.toString() === id);
+          }
+          
+          if (found) {
+            setPreMatchInfo({
+              ...found,
+              homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
+              awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
+              homeScore: found.scoreA,
+              awayScore: found.scoreB,
+              stadium: found.stadium || 'Ośrodek Treningowy PFF',
+              category: 'MECZE TOWARZYSKIE'
+            });
+          }
+        }
+
+        if (scheduleRes && scheduleRes.ok && !preMatchInfo) {
+          const data = await scheduleRes.json();
+          const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
+          
+          // Prioritize matchUuid
+          let found = list.find((m: any) => m.matchUuid === id || m.uuid === id);
+          
+          // Fallback to id only if no uuid match found
+          if (!found && isNumeric(id)) {
+            found = list.find((m: any) => m.id?.toString() === id);
+          }
+          
+          if (found) {
+            setPreMatchInfo(found);
+          }
+        }
+
+        // Try Replit details
+        if (isUuid(id)) {
+          try {
+            const replitRes = await fetch(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+            if (replitRes.ok) {
+              const replitData = await replitRes.json();
+              setApiData(replitData);
+              loaded = true;
+            }
+          } catch {}
+        }
+
+        // Local API / Firebase fallback
+        if (!loaded) {
+          try {
+            const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+            if (response.ok) {
+              const data = await response.json();
+              
+              // Team validation
+              if (preMatchInfo) {
+                const apiHome = (data.match?.teamA || '').toLowerCase();
+                const preHome = (preMatchInfo.homeTeam?.name || preMatchInfo.teamA || '').toLowerCase();
+                
+                if (preHome && apiHome && !apiHome.includes(preHome.split(' ')[0]) && !preHome.includes(apiHome.split(' ')[0])) {
+                  console.log('Skipping mismatched live data');
+                } else {
+                  setApiData(data);
+                  loaded = true;
+                }
+              } else {
+                setApiData(data);
+                loaded = true;
+              }
+            }
+          } catch {}
+        }
+
+        // Try players-history.json as a definitive score source for finished matches
+        try {
+          const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
+          if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            if (historyData.players) {
+              let historyMatch = null;
+              for (const p of Object.values(historyData.players) as any[]) {
+                const m = p.matches?.find((match: any) => match.matchUuid === id || match.id?.toString() === id);
+                if (m) {
+                  historyMatch = m;
+                  break;
+                }
+              }
+
+              if (historyMatch) {
+                // If we found it in history, it means it's finished and we have scores
+                const hScoreA = historyMatch.scoreA;
+                const hScoreB = historyMatch.scoreB;
+
+                setPreMatchInfo((prev: any) => ({
+                  ...(prev || {}),
+                  scoreA: hScoreA,
+                  scoreB: hScoreB,
+                  homeScore: hScoreA,
+                  awayScore: hScoreB,
+                  status: 'finished',
+                  teamA: historyMatch.teamA,
+                  teamB: historyMatch.teamB
+                }));
+                
+                if (!loaded) {
+                  setIsMatchFinished(true);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error('History score fetch failed:', e);
+        }
+
+        if (!loaded && !preMatchInfo && !match) {
+          throw new Error('Nie udało się znaleźć danych meczu');
+        }
+      } catch (err: any) {
+        console.error('Error fetching match data:', err);
+        setError(err.message || 'Nie udało się pobrać danych meczu');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMatchData();
+    let interval: NodeJS.Timeout;
+    if (isMatchActive) {
+      interval = setInterval(fetchMatchData, 5000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [id, isMatchActive, match]);
 
   useEffect(() => {
     if (preMatchInfo) {
-      setHasFetchedOnce(true);
       const matchDate = new Date(preMatchInfo.date).getTime();
       const now = new Date().getTime();
       const isPast = matchDate < now - (2 * 60 * 60 * 1000); // More than 2 hours ago
@@ -722,27 +693,20 @@ export default function MatchDetail() {
         setIsMatchFinished(true);
       }
     }
-  }, [preMatchInfo, isMatchActive, id, match]);
+  }, [preMatchInfo, isMatchActive]);
 
   useEffect(() => {
-    if (apiData?.match) {
-      const status = apiData?.match?.status?.toLowerCase();
-      const isActive = apiData?.match?.isActive || status === 'active' || status === 'live' || status === 'in_progress';
+    if (apiData) {
+      const status = apiData.match?.status?.toLowerCase();
+      const isActive = apiData.match?.isActive || status === 'active' || status === 'live';
       const isFinished = status === 'finished' || status === 'played' || status === 'ft';
 
-      if (isActive) {
-        setIsMatchActive(true);
-      }
-      
+      setIsMatchActive(isActive);
       if (isFinished) {
         setIsMatchFinished(true);
-        setIsMatchActive(false);
       }
-      
-      // If we have a match object from API, we definitely have data
-      setHasFetchedOnce(true);
     }
-  }, [apiData, isMatchActive]);
+  }, [apiData]);
 
   useEffect(() => {
     if (isMatchFinished && !hasAutoSwitched.current) {
@@ -788,7 +752,7 @@ export default function MatchDetail() {
     };
 
     fetchSchedule();
-  }, [isMatchActive, isMatchFinished, homeTeam, awayTeam, id, preMatchInfo]);
+  }, [isMatchActive, isMatchFinished, homeTeam, awayTeam, id]);
 
   const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
   const [showGoalAnimation, setShowGoalAnimation] = useState(false);
@@ -811,7 +775,7 @@ export default function MatchDetail() {
 
       if (isHomeGoalScored || isAwayGoalScored) {
         const isHome = isHomeGoalScored;
-        const relevantTeamGoals = apiData?.events.goals.filter(g => isHome ? isHomeTeam(g) : isAwayTeam(g));
+        const relevantTeamGoals = apiData.events.goals.filter(g => isHome ? isHomeTeam(g) : isAwayTeam(g));
         const latestGoal = relevantTeamGoals[relevantTeamGoals.length - 1];
         
         setGoalInfo({
@@ -827,7 +791,7 @@ export default function MatchDetail() {
     }
   }, [apiData, calculatedScore, homeTeam, awayTeam, isHomeTeam, isAwayTeam]);
 
-  if (loading && !hasFetchedOnce && !match) {
+  if (loading && !match) {
     return (
       <div className="flex flex-col">
         <Navbar />
@@ -859,32 +823,16 @@ export default function MatchDetail() {
     );
   }
 
-  const parseMatchDate = (d: any) => {
-    if (!d) return new Date();
-    if (d instanceof Date) return d;
-    if (typeof d === 'string' && d.includes('.')) {
-      const parts = d.split(' ');
-      const datePart = parts[0];
-      const timePart = parts[1] || '00:00';
-      const [day, month, year] = datePart.split('.').map(Number);
-      const [hours, minutes] = timePart.split(':').map(Number);
-      return new Date(year, month - 1, day, hours, minutes);
-    }
-    return new Date(d);
-  };
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'DATA NIEZNANA';
-    const date = parseMatchDate(dateString);
-    if (isNaN(date.getTime())) return 'DATA NIEPRAWIDŁOWA';
+    const date = new Date(dateString);
     const days = ['NIEDZIELA', 'PONIEDZIAŁEK', 'WTOREK', 'ŚRODA', 'CZWARTEK', 'PIĄTEK', 'SOBOTA'];
     return `${days[date.getDay()]}, ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
   };
 
   const formatTime = (dateString?: string) => {
     if (!dateString) return '--:--';
-    const date = parseMatchDate(dateString);
-    if (isNaN(date.getTime())) return '--:--';
+    const date = new Date(dateString);
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',
@@ -904,19 +852,15 @@ export default function MatchDetail() {
   };
 
   const eventsData: MatchEvents | null = apiData?.events
-    ? apiData?.events
+    ? apiData.events
     : (finishedMatchData?.scorers ? buildEventsFromFinished(finishedMatchData.scorers) : null);
 
-  const scoreA = apiData?.match 
-    ? (Math.max(apiData?.match?.scoreA || 0, calculatedScore?.scoreA || 0, preMatchInfo?.scoreA || 0, preMatchInfo?.homeScore || 0))
-    : (isMatchFinished && preMatchInfo?.scoreA !== undefined) 
-      ? preMatchInfo.scoreA 
-      : (Math.max(finishedMatchData?.homeScore || 0, preMatchInfo?.scoreA || 0, preMatchInfo?.homeScore || 0, match?.homeScore || 0));
-  const scoreB = apiData?.match
-    ? (Math.max(apiData?.match?.scoreB || 0, calculatedScore?.scoreB || 0, preMatchInfo?.scoreB || 0, preMatchInfo?.awayScore || 0))
-    : (isMatchFinished && preMatchInfo?.scoreB !== undefined)
-      ? preMatchInfo.scoreB
-      : (Math.max(finishedMatchData?.awayScore || 0, preMatchInfo?.scoreB || 0, preMatchInfo?.awayScore || 0, match?.awayScore || 0));
+  const scoreA = (isMatchFinished && preMatchInfo?.scoreA !== undefined) 
+    ? preMatchInfo.scoreA 
+    : (apiData?.match ? (calculatedScore?.scoreA ?? apiData.match.scoreA) : (finishedMatchData?.homeScore ?? preMatchInfo?.scoreA ?? preMatchInfo?.homeScore ?? match?.homeScore ?? 0));
+  const scoreB = (isMatchFinished && preMatchInfo?.scoreB !== undefined)
+    ? preMatchInfo.scoreB
+    : (apiData?.match ? (calculatedScore?.scoreB ?? apiData.match.scoreB) : (finishedMatchData?.awayScore ?? preMatchInfo?.scoreB ?? preMatchInfo?.awayScore ?? match?.awayScore ?? 0));
 
   const hasScore = scoreA > 0 || scoreB > 0 || isMatchActive || isMatchFinished;
 
@@ -1015,7 +959,7 @@ export default function MatchDetail() {
                         <>
                           <span className="text-white/60">TRWA</span>
                           <span className="w-px h-4 bg-white/20 mx-1"></span>
-                          {apiData?.match?.timer || '00:00'} <span className="text-white/30 font-medium">|</span> {apiData?.match?.period || 'MECZ TRWA'}
+                          {apiData?.match.timer || '00:00'} <span className="text-white/30 font-medium">|</span> {apiData?.match.period || 'MECZ TRWA'}
                         </>
                       ) : (
                         <>
@@ -1089,76 +1033,11 @@ export default function MatchDetail() {
                   </div>
                 </div>
 
-                {/* Referees Section */}
-                {referees && (referees.main || referees.var || referees.avar || referees.assistant1 || referees.assistant2 || referees.fourth) && (
-                  <div className="mb-20 max-w-3xl mx-auto">
-                    <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl">
-                      <h3 className="text-white/40 text-xs font-black uppercase tracking-[0.4em] mb-6 text-center">SĘDZIOWIE SPOTKANIA</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {referees.main && (
-                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
-                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">⚽</div>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Główny</span>
-                              <span className="text-white font-black text-sm uppercase">{referees.main}</span>
-                            </div>
-                          </div>
-                        )}
-                        {referees.var && (
-                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
-                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">📹</div>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">VAR</span>
-                              <span className="text-white font-black text-sm uppercase">{referees.var}</span>
-                            </div>
-                          </div>
-                        )}
-                        {referees.avar && (
-                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
-                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">📹</div>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">AVAR</span>
-                              <span className="text-white font-black text-sm uppercase">{referees.avar}</span>
-                            </div>
-                          </div>
-                        )}
-                        {referees.assistant1 && (
-                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
-                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">🚩</div>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Asystent 1</span>
-                              <span className="text-white font-black text-sm uppercase">{referees.assistant1}</span>
-                            </div>
-                          </div>
-                        )}
-                        {referees.assistant2 && (
-                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
-                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">🚩</div>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Asystent 2</span>
-                              <span className="text-white font-black text-sm uppercase">{referees.assistant2}</span>
-                            </div>
-                          </div>
-                        )}
-                        {referees.fourth && (
-                          <div className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-4 rounded-xl border border-white/10">
-                            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-black text-white">📋</div>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Czwarty</span>
-                              <span className="text-white font-black text-sm uppercase">{referees.fourth}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* Score Summary (Goals) */}
                 <div className="grid grid-cols-2 gap-12 md:gap-32 mb-20 max-w-5xl mx-auto">
                   <div className="flex flex-col gap-3 items-end">
                     {(finishedMatchData?.scorers || apiData?.events?.goals) && (finishedMatchData?.scorers ? finishedMatchData.scorers.filter((s: any) => s.teamId === homeTeam.id) : apiData?.events?.goals?.filter(g => isHomeTeam(g)) || []).map((goal: any, idx: number) => (
-                      <div key={`${goal.playerName || goal.player}-${goal.minute}`} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
+                      <div key={idx} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
                         <div className="flex flex-col items-end">
                           <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-blue-400 transition-colors">{goal.playerName || goal.player}</span>
                           <span className="text-white/20 text-[9px] font-black uppercase tracking-widest">GOL</span>
@@ -1172,7 +1051,7 @@ export default function MatchDetail() {
 
                   <div className="flex flex-col gap-3 items-start">
                     {(finishedMatchData?.scorers || apiData?.events?.goals) && (finishedMatchData?.scorers ? finishedMatchData.scorers.filter((s: any) => s.teamId === awayTeam.id) : apiData?.events?.goals?.filter(g => isAwayTeam(g)) || []).map((goal: any, idx: number) => (
-                      <div key={`${goal.playerName || goal.player}-${goal.minute}`} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
+                      <div key={idx} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
                         <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-red-400 font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
                           {goal.minute != null ? `${goal.minute}'` : ''}
                         </div>
@@ -1282,11 +1161,11 @@ export default function MatchDetail() {
                     });
                     
                     return [
-                      ...eventsData.goals.map((e) => ({...e, type: 'goal' as const, _id: `goal-${e.team}-${e.player}-${e.minute}`, original: e})),
-                      ...eventsData.cards.map((e) => ({...e, type: e.type, _id: `card-${e.team}-${e.player}-${e.minute}-${e.type}`})),
-                      ...eventsData.substitutions.map((e) => ({...e, type: 'substitution' as const, _id: `sub-${e.team}-${e.playerIn}-${e.playerOut}-${e.minute}`})),
-                      ...(eventsData.cancelledGoals || []).map((e) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${e.team}-${e.player}-${e.minute}`})),
-                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${e.team}-${e.player}-${e.minute}`}))
+                      ...eventsData.goals.map((e) => ({...e, type: 'goal' as const, _id: `goal-${Math.random()}`, original: e})),
+                      ...eventsData.cards.map((e, i) => ({...e, type: e.type, _id: `card-${i}`})),
+                      ...eventsData.substitutions.map((e, i) => ({...e, type: 'substitution' as const, _id: `sub-${i}`})),
+                      ...(eventsData.cancelledGoals || []).map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${i}`})),
+                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${i}`}))
                     ].sort((a, b) => b.minute - a.minute).map((event: any) => {
                       const isHomeEvent = isHomeTeam(event);
                       const isAwayEvent = isAwayTeam(event);
@@ -1492,18 +1371,18 @@ export default function MatchDetail() {
                             </div>
                             <div>
                               <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
-                              <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja 4-3-3</p>
+                              <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">{apiData?.match.lineupA?.formation || 'N/A'}</p>
                             </div>
                           </div>
 
                           <div className="space-y-4">
-                            {apiData?.match?.lineupA ? (
+                            {apiData?.match.lineupA ? (
                               <>
                                 <div>
                                   <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
                                   <div className="space-y-2">
-                                    {apiData?.match?.lineupA?.starters?.map((p, idx) => (
-                                      <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
+                                    {apiData.match.lineupA.starters?.map((p, idx) => (
+                                      <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
                                         <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
                                           <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
                                         </div>
@@ -1514,12 +1393,12 @@ export default function MatchDetail() {
                                   </div>
                                 </div>
 
-                                {apiData?.match?.lineupA?.bench && apiData?.match?.lineupA?.bench.length > 0 && (
+                                {apiData.match.lineupA.bench && apiData.match.lineupA.bench.length > 0 && (
                                   <div className="pt-4 border-t border-white/10">
                                     <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
                                     <div className="space-y-2">
-                                      {apiData?.match?.lineupA?.bench.map((p, idx) => (
-                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
+                                      {apiData.match.lineupA.bench.map((p, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
                                           <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
                                             <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
                                           </div>
@@ -1553,7 +1432,7 @@ export default function MatchDetail() {
                               {/* Center Circle */}
                               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
                                 <img 
-                                  src="https://i.ibb.co/tMkjssPP/LOGO-PFF.png" 
+                                  src="https://i.ibb.co/TB027G07/czarnepff-1.png" 
                                   alt="" 
                                   className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
                                 />
@@ -1587,21 +1466,20 @@ export default function MatchDetail() {
                             </div>
                             
                             <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
-                              {apiData?.match?.lineupA && apiData?.match?.lineupB ? (
+                              {apiData?.match.lineupA && apiData.match.lineupB ? (
                                 <div className="relative w-full h-full">
                                   {(() => {
-                                    const homePositions = calculateSmartPositions(apiData?.match?.lineupA?.starters, 'home', apiData?.match?.lineupA?.formation);
-                                    const awayPositions = calculateSmartPositions(apiData?.match?.lineupB?.starters, 'away', apiData?.match?.lineupB?.formation);
+                                    const homePositions = calculateSmartPositions(apiData.match.lineupA.starters, 'home');
+                                    const awayPositions = calculateSmartPositions(apiData.match.lineupB.starters, 'away');
                                     
                                     return [
-                                      ...apiData?.match?.lineupA?.starters.map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
-                                      ...apiData?.match?.lineupB?.starters.map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
+                                      ...apiData.match.lineupA.starters.map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
+                                      ...apiData.match.lineupB.starters.map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
                                     ].map((player, idx) => {
                                       if (!player.pos) return null;
                                       return (
-                                        <Link 
-                                          key={`${player.team}-${player.name}`} 
-                                          href={`/gracz/${player.name}`}
+                                        <div 
+                                          key={idx} 
                                           className="absolute flex flex-col items-center group cursor-pointer"
                                           style={{ 
                                             left: player.pos.x, 
@@ -1616,7 +1494,7 @@ export default function MatchDetail() {
                                           <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
                                             {player.name.split(' ').pop()}
                                           </div>
-                                        </Link>
+                                        </div>
                                       );
                                     });
                                   })()}
@@ -1640,18 +1518,18 @@ export default function MatchDetail() {
                             </div>
                             <div className="lg:text-right">
                               <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
-                              <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja 4-3-3</p>
+                              <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">{apiData?.match.lineupB?.formation || 'N/A'}</p>
                             </div>
                           </div>
 
                           <div className="space-y-4">
-                            {apiData?.match?.lineupB ? (
+                            {apiData?.match.lineupB ? (
                               <>
                                 <div>
                                   <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
                                   <div className="space-y-2">
-                                    {apiData?.match?.lineupB?.starters?.map((p, idx) => (
-                                      <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
+                                    {apiData.match.lineupB.starters?.map((p, idx) => (
+                                      <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
                                         <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
                                           <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
                                         </div>
@@ -1662,12 +1540,12 @@ export default function MatchDetail() {
                                   </div>
                                 </div>
 
-                                {apiData?.match?.lineupB?.bench && apiData?.match?.lineupB?.bench.length > 0 && (
+                                {apiData.match.lineupB.bench && apiData.match.lineupB.bench.length > 0 && (
                                   <div className="pt-4 border-t border-white/5">
                                     <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
                                     <div className="space-y-2">
-                                      {apiData?.match?.lineupB?.bench.map((p, idx) => (
-                                        <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
+                                      {apiData.match.lineupB.bench.map((p, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
                                           <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
                                             <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
                                           </div>
@@ -1696,14 +1574,14 @@ export default function MatchDetail() {
                     <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-10 border border-white/10 shadow-2xl relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent opacity-30"></div>
                       <h3 className="text-blue-400 text-2xl font-black text-center mb-12 tracking-[0.2em] uppercase relative z-10">STATYSTYKI DRUŻYNOWE</h3>
-                      {apiData?.match?.stats ? (
+                      {apiData?.match.stats ? (
                         <div className="space-y-8 relative z-10">
-                          <StatBar label="POSIADANIE PIŁKI" valA={apiData?.match?.stats?.possessionA} valB={apiData?.match?.stats?.possessionB} suffix="%" />
-                          <StatBar label="STRZAŁY" valA={apiData?.match?.stats?.shotsA} valB={apiData?.match?.stats?.shotsB} />
-                          <StatBar label="STRZAŁY CELNE" valA={apiData?.match?.stats?.onTargetA || 0} valB={apiData?.match?.stats?.onTargetB || 0} />
-                          <StatBar label="RZUTY ROŻNE" valA={apiData?.match?.stats?.cornersA || 0} valB={apiData?.match?.stats?.cornersB || 0} />
-                          <StatBar label="FAULE" valA={apiData?.match?.stats?.foulsA || 0} valB={apiData?.match?.stats?.foulsB || 0} />
-                          <StatBar label="EXPECTED GOALS (xG)" valA={apiData?.match?.stats?.xgA || 0} valB={apiData?.match?.stats?.xgB || 0} />
+                          <StatBar label="POSIADANIE PIŁKI" valA={apiData.match.stats.possessionA} valB={apiData.match.stats.possessionB} suffix="%" />
+                          <StatBar label="STRZAŁY" valA={apiData.match.stats.shotsA} valB={apiData.match.stats.shotsB} />
+                          <StatBar label="STRZAŁY CELNE" valA={apiData.match.stats.onTargetA || 0} valB={apiData.match.stats.onTargetB || 0} />
+                          <StatBar label="RZUTY ROŻNE" valA={apiData.match.stats.cornersA || 0} valB={apiData.match.stats.cornersB || 0} />
+                          <StatBar label="FAULE" valA={apiData.match.stats.foulsA || 0} valB={apiData.match.stats.foulsB || 0} />
+                          <StatBar label="EXPECTED GOALS (xG)" valA={apiData.match.stats.xgA || 0} valB={apiData.match.stats.xgB || 0} />
                         </div>
                       ) : (
                         <div className="text-center py-12 relative z-10">
@@ -1744,8 +1622,17 @@ export default function MatchDetail() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent rounded-[2rem] md:rounded-[4rem]"></div>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 relative z-10">
                   {/* Home Team */}
-                  <div className="flex flex-col items-center gap-4 md:gap-6 flex-1 justify-center md:justify-end group w-full">
-                    <div className="shrink-0 relative">
+                  <div className="flex items-center gap-4 md:gap-6 lg:gap-10 flex-1 justify-center md:justify-end group w-full">
+                    <div className="flex flex-col items-center md:items-end order-2 md:order-1">
+                      <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase tracking-tighter leading-[0.8] md:leading-[0.85] text-center md:text-right transition-transform group-hover:scale-105">
+                        {homeTeam.name.split(' ').map((word: string, i: number) => (
+                          <div key={i} className="whitespace-nowrap">{word}</div>
+                        ))}
+                      </h2>
+                      <span className="text-blue-400/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-3 md:mt-4">GOSPODARZ</span>
+                    </div>
+
+                    <div className="shrink-0 relative order-1 md:order-2">
                       <div className="absolute -inset-6 md:-inset-10 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       {homeTeam.logo && (
                         <Image
@@ -1757,9 +1644,6 @@ export default function MatchDetail() {
                         />
                       )}
                     </div>
-                    <h2 className="text-white text-xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter text-center transition-transform group-hover:scale-105">
-                      {homeTeam.name}
-                    </h2>
                   </div>
 
                   <div className="w-px h-32 md:h-40 bg-white/10 hidden md:block opacity-20 mx-2 lg:mx-4"></div>
@@ -1808,7 +1692,7 @@ export default function MatchDetail() {
                   <div className="w-px h-32 md:h-40 bg-white/10 hidden md:block opacity-20 mx-2 lg:mx-4"></div>
 
                   {/* Away Team */}
-                  <div className="flex flex-col items-center gap-4 md:gap-6 flex-1 justify-center md:justify-start group w-full">
+                  <div className="flex items-center gap-4 md:gap-6 lg:gap-10 flex-1 justify-center md:justify-start group w-full">
                     <div className="shrink-0 relative">
                       <div className="absolute -inset-6 md:-inset-10 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       {awayTeam.logo && (
@@ -1821,9 +1705,15 @@ export default function MatchDetail() {
                         />
                       )}
                     </div>
-                    <h2 className="text-white text-xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter text-center transition-transform group-hover:scale-105">
-                      {awayTeam.name}
-                    </h2>
+
+                    <div className="flex flex-col items-center md:items-start">
+                      <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase tracking-tighter leading-[0.8] md:leading-[0.85] text-center md:text-left transition-transform group-hover:scale-105">
+                        {awayTeam.name.split(' ').map((word: string, i: number) => (
+                          <div key={i} className="whitespace-nowrap">{word}</div>
+                        ))}
+                      </h2>
+                      <span className="text-blue-400/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-3 md:mt-4">GOŚĆ</span>
+                    </div>
                   </div>
                 </div>
 
@@ -1836,7 +1726,10 @@ export default function MatchDetail() {
                         <Image src={homeTeam.logo} alt="" width={40} height={40} className="relative z-10 grayscale brightness-200 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-500" />
                       )}
                     </div>
-
+                    <div className="hidden lg:flex flex-col">
+                      <span className="text-white text-[10px] font-black uppercase tracking-widest">{homeTeam.shortName || homeTeam.name}</span>
+                      <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">GOSPODARZ</span>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-6 md:gap-12">
@@ -1869,7 +1762,10 @@ export default function MatchDetail() {
                   </div>
 
                   <div className="flex items-center gap-4 group cursor-pointer opacity-20 hover:opacity-100 transition-all duration-500">
-
+                    <div className="hidden lg:flex flex-col items-end text-right">
+                      <span className="text-white text-[10px] font-black uppercase tracking-widest">{awayTeam.shortName || awayTeam.name}</span>
+                      <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">GOŚĆ</span>
+                    </div>
                     <div className="relative">
                       <div className="absolute -inset-2 bg-blue-500/10 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       {awayTeam.logo && (
@@ -1882,223 +1778,13 @@ export default function MatchDetail() {
                 {/* Tab Content for non-active matches */}
                 {activeTab === 'składy' && (
                   <div className="w-full mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    {(() => {
-                      const mData = apiData?.match || apiData || preMatchInfo;
-                      const lineupA = mData?.lineupA;
-                      const lineupB = mData?.lineupB;
-                      const hasLineups = (lineupA?.starters?.length > 0 || lineupB?.starters?.length > 0);
-
-                      if (hasLineups) {
-                        return (
-                          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                            {/* Home Team Column */}
-                            <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-2 lg:order-1">
-                              <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
-                                <div className="flex items-center gap-4 mb-6">
-                                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-                                    <img src={homeTeam.logo} alt="" className="w-8 h-8 object-contain opacity-60" />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
-                                    <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {lineupA?.formation || '4-3-3'}</p>
-                                  </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                  {lineupA && lineupA.starters?.length > 0 ? (
-                                    <>
-                                      <div>
-                                        <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
-                                        <div className="space-y-2">
-                                          {lineupA.starters.map((p: any, idx: number) => (
-                                            <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
-                                              <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                                <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                                              </div>
-                                              <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors">{p.name}</span>
-                                              {p.position && <span className="text-[8px] font-black text-white/10 ml-auto uppercase">{p.position}</span>}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-
-                                      {lineupA.bench && lineupA.bench.length > 0 && (
-                                        <div className="pt-4 border-t border-white/10">
-                                          <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
-                                          <div className="space-y-2">
-                                            {lineupA.bench.map((p: any, idx: number) => (
-                                              <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
-                                                <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                                  <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
-                                                </div>
-                                                <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors">{p.name}</span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
-                                      <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Pitch Column */}
-                            <div className="w-full lg:flex-1 order-1 lg:order-2">
-                              <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl relative overflow-hidden h-full">
-                                <h3 className="text-white/60 text-2xl font-black text-center mb-8 tracking-[0.2em] uppercase relative z-10">BOISKO</h3>
-                                
-                                <div className="relative aspect-[3/2] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
-                                  <div className="absolute inset-0 bg-[#0a101f]/40">
-                                    {/* Field Markings */}
-                                    <div className="absolute inset-0 border-2 border-white/10"></div>
-                                    <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white/10"></div>
-                                    
-                                    {/* Center Circle */}
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
-                                      <img 
-                                        src="https://i.ibb.co/pBJgbXxn/image.png" 
-                                        alt="" 
-                                        className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
-                                      />
-                                    </div>
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                                    
-                                    <div className="absolute top-1/2 left-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-l-0"></div>
-                                    <div className="absolute top-1/2 left-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-l-0"></div>
-                                    
-                                    <div className="absolute top-1/2 right-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-r-0"></div>
-                                    <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-r-0"></div>
-                                    
-                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
-                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
-                                    
-                                    <div className="absolute top-1/2 left-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-                                    <div className="absolute top-1/2 right-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-                                    
-                                    <svg className="absolute top-3 left-3 w-3 h-3" viewBox="0 0 10 10">
-                                      <path d="M 0 10 Q 0 0 10 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                    </svg>
-                                    <svg className="absolute top-3 right-3 w-3 h-3" viewBox="0 0 10 10">
-                                      <path d="M 10 10 Q 10 0 0 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                    </svg>
-                                    <svg className="absolute bottom-3 left-3 w-3 h-3" viewBox="0 0 10 10">
-                                      <path d="M 0 0 Q 0 10 10 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                    </svg>
-                                    <svg className="absolute bottom-3 right-3 w-3 h-3" viewBox="0 0 10 10">
-                                      <path d="M 10 0 Q 10 10 0 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                                    </svg>
-
-                                    {/* Players on Field */}
-                                    <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
-                                      <div className="relative w-full h-full">
-                                        {(() => {
-                                          const homePositions = calculateSmartPositions(lineupA?.starters || [], 'home', lineupA?.formation);
-                                          const awayPositions = calculateSmartPositions(lineupB?.starters || [], 'away', lineupB?.formation);
-                                          
-                                          return [
-                                            ...(lineupA?.starters || []).map((p: any) => ({ ...p, team: 'home', pos: homePositions[p.name] })),
-                                            ...(lineupB?.starters || []).map((p: any) => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
-                                          ].map((player, idx) => {
-                                            if (!player.pos) return null;
-                                            return (
-                                              <Link 
-                                                key={`${player.team}-${player.name}`} 
-                                                href={`/gracz/${player.name}`}
-                                                className="absolute flex flex-col items-center group cursor-pointer"
-                                                style={{ 
-                                                  left: player.pos.x, 
-                                                  top: player.pos.y,
-                                                  transform: 'translate(-50%, -50%)',
-                                                  zIndex: 20
-                                                }}
-                                              >
-                                                <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-white shadow-lg overflow-hidden transition-transform group-hover:scale-125 bg-gray-900`}>
-                                                  <RobloxAvatar username={player.name} className="w-full h-full object-cover" />
-                                                </div>
-                                                <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
-                                                  {player.name.split(' ').pop()}
-                                                </div>
-                                              </Link>
-                                            );
-                                          });
-                                        })()}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Away Team Column */}
-                            <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-3 lg:order-3">
-                              <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
-                                <div className="flex items-center gap-4 mb-6 lg:flex-row-reverse">
-                                  <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center shadow-lg">
-                                    <img src={awayTeam.logo} alt="" className="w-8 h-8 object-contain" />
-                                  </div>
-                                  <div className="lg:text-right">
-                                    <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
-                                    <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Formacja {lineupB?.formation || '4-3-3'}</p>
-                                  </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                  {lineupB && lineupB.starters?.length > 0 ? (
-                                    <>
-                                      <div>
-                                        <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
-                                        <div className="space-y-2">
-                                          {lineupB.starters.map((p: any, idx: number) => (
-                                            <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
-                                              <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
-                                                <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                                              </div>
-                                              <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors text-right">{p.name}</span>
-                                              {p.position && <span className="text-[8px] font-black text-white/10 mr-auto uppercase">{p.position}</span>}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-
-                                      {lineupB.bench && lineupB.bench.length > 0 && (
-                                        <div className="pt-4 border-t border-white/5">
-                                          <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
-                                          <div className="space-y-2">
-                                            {lineupB.bench.map((p: any, idx: number) => (
-                                              <div key={p.name} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
-                                                <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                                  <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
-                                                </div>
-                                                <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors text-right">{p.name}</span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
-                                      <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 w-full max-w-4xl mx-auto text-center">
-                            <p className="text-white/30 italic">Składy zostaną ogłoszone przed rozpoczęciem meczu</p>
-                          </div>
-                        );
-                      }
-                    })()}
+                    <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+                      {/* Reuse the existing lineups logic but adapted for this layout if needed, 
+                          or just show a message if no data */}
+                      <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 w-full max-w-4xl mx-auto text-center">
+                        <p className="text-white/30 italic">Składy zostaną ogłoszone przed rozpoczęciem meczu</p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

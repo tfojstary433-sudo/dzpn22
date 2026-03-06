@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Maximize2, Minimize2 } from 'lucide-react';
@@ -10,33 +10,16 @@ import { API_ENDPOINTS } from '@/lib/constants';
 
 import { LeagueTable } from './league-table';
 
-const normalize = (s: string) => (s || '').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
-
 // Helper function to get team object from name
 function getTeamFromName(teamName: string) {
   const allTeams = [...teams, ...extraTeams];
-  const search = normalize(teamName);
+  const normalizedSearch = (teamName || '').toLowerCase().trim();
   
-  if (!search) return {
-    id: 'UNK',
-    name: 'TBD',
-    shortName: 'TBD',
-    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
-    color: '#3b82f6'
-  };
-
-  const found = allTeams.find(t => {
-    const nName = normalize(t.name);
-    const nShort = normalize(t.shortName);
-    const nId = normalize(t.id);
-    
-    return nName === search || 
-           nShort === search ||
-           nId === search ||
-           nName.includes(search) ||
-           search.includes(nName) ||
-           (nShort.length > 2 && (nShort.includes(search) || search.includes(nShort)));
-  });
+  const found = allTeams.find(t => 
+    t.name.toLowerCase() === normalizedSearch || 
+    t.shortName.toLowerCase() === normalizedSearch ||
+    t.id.toLowerCase() === normalizedSearch
+  );
   
   if (found) return found;
 
@@ -44,10 +27,12 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: teamName || 'TBD',
     shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
+    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
     color: '#3b82f6'
   };
 }
+
+const normalize = (s: string) => (s || '').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
 
 interface LiveMatchData {
   id: string;
@@ -57,13 +42,11 @@ interface LiveMatchData {
   date: string;
   homeTeam: {
     score: number;
-    name: string;
     shortName: string;
     logo: string;
   };
   awayTeam: {
     score: number;
-    name: string;
     shortName: string;
     logo: string;
   };
@@ -95,43 +78,6 @@ export function ScheduleTableOverlay({
   const [loadingLive, setLoadingLive] = useState(false);
   const [fixtures, setFixtures] = useState<any[]>([]);
   const [loadingFixtures, setLoadingFixtures] = useState(false);
-  const [currentStandings, setCurrentStandings] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchStandings = async () => {
-      try {
-        const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1/table.json');
-        if (response.ok) {
-          const data = await response.json();
-          setCurrentStandings(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch tournament table for overlay:', err);
-      }
-    };
-    fetchStandings();
-  }, []);
-
-  const getTeamPosition = (teamName: string) => {
-    const search = normalize(teamName);
-    if (currentStandings) {
-      const groupKeys = Object.keys(currentStandings).filter(key => key.startsWith('grupa'));
-      for (const key of groupKeys) {
-        const group = currentStandings[key];
-        if (Array.isArray(group)) {
-          const found = group.find((s: any) => 
-            normalize(s.team || s.name || '') === search
-          );
-          if (found) return found.position;
-        }
-      }
-    }
-    return standings.find(s => 
-      normalize(s.team?.name) === search ||
-      normalize(s.team?.shortName) === search ||
-      normalize(s.team?.id) === search
-    )?.position || '-';
-  };
 
   useEffect(() => {
     const fetchLiveMatches = async () => {
@@ -148,10 +94,7 @@ export function ScheduleTableOverlay({
         const apiMatchesList = Array.isArray(apiMatches) ? apiMatches : [];
         
         for (const apiMatch of apiMatchesList) {
-          const isActuallyActive = apiMatch.isActive === true || 
-            (['active', 'live', 'playing'].includes(apiMatch.status) && apiMatch.status !== 'scheduled' && apiMatch.status !== 'finished');
-
-          if (isActuallyActive) {
+          if (apiMatch.isActive || apiMatch.status === 'active') {
             const matchInSchedule = fixtures.find(m => {
               const ta = normalize(apiMatch.teamA);
               const tb = normalize(apiMatch.teamB);
@@ -171,13 +114,11 @@ export function ScheduleTableOverlay({
                 period: apiMatch.period || 'Pierwsza połowa',
                 date: matchInSchedule.date,
                 homeTeam: {
-                  name: matchInSchedule.homeTeam.name,
                   shortName: matchInSchedule.homeTeam.shortName,
                   logo: matchInSchedule.homeTeam.logo,
                   score: apiMatch.scoreA ?? 0
                 },
                 awayTeam: {
-                  name: matchInSchedule.awayTeam.name,
                   shortName: matchInSchedule.awayTeam.shortName,
                   logo: matchInSchedule.awayTeam.logo,
                   score: apiMatch.scoreB ?? 0
@@ -185,9 +126,6 @@ export function ScheduleTableOverlay({
               });
             } else {
               // Fallback for matches not in fixtures
-              const homeTeam = getTeamFromName(apiMatch.teamA);
-              const awayTeam = getTeamFromName(apiMatch.teamB);
-
               liveData.push({
                 id: apiMatch.uuid,
                 status: apiMatch.status,
@@ -195,15 +133,13 @@ export function ScheduleTableOverlay({
                 period: apiMatch.period || 'Pierwsza połowa',
                 date: new Date().toISOString(),
                 homeTeam: {
-                  name: homeTeam.name || apiMatch.teamA,
-                  shortName: homeTeam.shortName || apiMatch.teamA?.substring(0, 3).toUpperCase() || 'HOM',
-                  logo: homeTeam.logo,
+                  shortName: apiMatch.teamA?.substring(0, 3).toUpperCase() || 'HOM',
+                  logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
                   score: apiMatch.scoreA ?? 0
                 },
                 awayTeam: {
-                  name: awayTeam.name || apiMatch.teamB,
-                  shortName: awayTeam.shortName || apiMatch.teamB?.substring(0, 3).toUpperCase() || 'AWA',
-                  logo: awayTeam.logo,
+                  shortName: apiMatch.teamB?.substring(0, 3).toUpperCase() || 'AWA',
+                  logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
                   score: apiMatch.scoreB ?? 0
                 }
               });
@@ -214,7 +150,7 @@ export function ScheduleTableOverlay({
         setLiveMatches(liveData);
       } catch (error) {
         console.error('Błąd pobierania meczów na żywo:', error);
-        // Don't clear liveMatches on error to prevent flickering
+        setLiveMatches([]);
       } finally {
         setLoadingLive(false);
       }
@@ -238,48 +174,19 @@ export function ScheduleTableOverlay({
           const fixturesData = Array.isArray(data) ? data : (data.fixtures || []);
           console.log('Fixtures array length:', fixturesData.length);
           if (Array.isArray(fixturesData) && fixturesData.length > 0) {
-            // Get unique dates sorted chronologically
-            const uniqueDates = [...new Set(fixturesData.map(f => f.date ? f.date.split(' ')[0] : ''))]
-              .filter(d => d !== '')
-              .sort((a, b) => {
-                const [da, ma, ya] = a.split('.').map(Number);
-                const [db, mb, yb] = b.split('.').map(Number);
-                return new Date(ya, ma-1, da).getTime() - new Date(yb, mb-1, db).getTime();
-              });
-
             // Map API data to expected format
-            const mappedFixtures = fixturesData.map(fixture => {
-              const datePart = fixture.date ? fixture.date.split(' ')[0] : '';
-              const dateIndex = uniqueDates.indexOf(datePart);
-              
-              // Every 3 unique dates constitute one round (as per user: "3 dni jedna kolejka")
-              // One round = 3 match days
-              let calculatedRound = 1;
-              if (dateIndex !== -1) {
-                calculatedRound = Math.floor(dateIndex / 3) + 1;
-              }
-              
-              return {
-                id: fixture.matchUuid || (fixture.id ? fixture.id.toString() : Math.random().toString()),
-                round: calculatedRound.toString(),
-                date: fixture.date,
-                homeTeam: getTeamFromName(fixture.teamA),
-                awayTeam: getTeamFromName(fixture.teamB),
-                homeScore: fixture.scoreA,
-                awayScore: fixture.scoreB,
-                stadium: fixture.group || "Stadion",
-                category: fixture.stage || "Mecz",
-                status: ((fixture.status === 'played' || fixture.status === 'finished' || fixture.isFinished || (fixture.scoreA !== null && fixture.scoreB !== null)) ? 'finished' : 'upcoming') as 'finished' | 'upcoming'
-              };
-            });
-            
-            // Sort fixtures by date
-            mappedFixtures.sort((a, b) => {
-              const dateA = safeParseDate(a.date).getTime();
-              const dateB = safeParseDate(b.date).getTime();
-              return dateA - dateB;
-            });
-
+            const mappedFixtures = fixturesData.map(fixture => ({
+              id: fixture.matchUuid || fixture.id.toString(),
+              round: fixture.round,
+              date: fixture.date,
+              homeTeam: getTeamFromName(fixture.teamA),
+              awayTeam: getTeamFromName(fixture.teamB),
+              homeScore: fixture.scoreA,
+              awayScore: fixture.scoreB,
+              stadium: "Stadion",
+              category: "Liga",
+              status: ((fixture.status === 'played' || fixture.status === 'finished' || fixture.isFinished || (fixture.scoreA > 0 || fixture.scoreB > 0)) ? 'finished' : 'upcoming') as 'finished' | 'upcoming'
+            }));
             console.log('Mapped fixtures:', mappedFixtures.slice(0, 3));
             setFixtures(mappedFixtures);
           } else {
@@ -301,67 +208,12 @@ export function ScheduleTableOverlay({
     fetchFixtures();
   }, []);
 
-  const allRounds = useMemo(() => fixtures.length > 0 
-    ? [...new Set(fixtures.map(m => m.round))].sort((a, b) => {
-        const numA = parseInt(a) || 0;
-        const numB = parseInt(b) || 0;
-        return numA - numB;
-      }) 
-    : ['1'], [fixtures]);
-  
-  const currentRound = useMemo(() => allRounds[roundIndex] || '1', [allRounds, roundIndex]);
-  const roundMatches = useMemo(() => fixtures.filter(m => m.round === currentRound), [fixtures, currentRound]);
-
-  // Auto-select current round only once on initial load
-  const [hasAutoSelected, setHasAutoSelected] = useState(false);
-  
-  useEffect(() => {
-    if (fixtures.length > 0 && allRounds.length > 0 && !hasAutoSelected) {
-      // Find the first round that has upcoming matches
-      const firstUpcomingMatch = fixtures.find(m => m.status === 'upcoming');
-      if (firstUpcomingMatch) {
-        const upcomingRound = firstUpcomingMatch.round;
-        const index = allRounds.indexOf(upcomingRound);
-        if (index !== -1) {
-          setRoundIndex(index);
-        }
-      } else {
-        // If all are finished, show the last round
-        setRoundIndex(allRounds.length - 1);
-      }
-      setHasAutoSelected(true);
-    }
-  }, [fixtures, allRounds, hasAutoSelected]);
-
-  const safeParseDate = (dateString: string) => {
-    if (!dateString) return new Date();
-    
-    // If it's already a ISO string or something new Date() likes
-    const date = new Date(dateString);
-    if (!isNaN(date.getTime())) return date;
-    
-    // Try parsing DD.MM.YYYY HH:mm or DD.MM.YYYY
-    try {
-      const parts = dateString.split(/[\s,.:]+/);
-      if (parts.length >= 3) {
-        const day = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const year = parseInt(parts[2]);
-        const hour = parts[3] ? parseInt(parts[3]) : 0;
-        const minute = parts[4] ? parseInt(parts[4]) : 0;
-        const d = new Date(year, month, day, hour, minute);
-        if (!isNaN(d.getTime())) return d;
-      }
-    } catch (e) {}
-    
-    return new Date();
-  };
+  const allRounds = fixtures.length > 0 ? [...new Set(fixtures.map(m => m.round || m.matchday || 1))].sort((a, b) => Number(a) - Number(b)) : [1];
+  const currentRound = allRounds[roundIndex] || 1;
+  const roundMatches = fixtures.filter(m => (m.round || m.matchday || 1) === currentRound);
 
   const formatDate = (dateString: string) => {
-    if (dateString && dateString.includes('.') && !dateString.includes('-') && !dateString.includes('T')) {
-      return dateString.split(' ')[0];
-    }
-    const date = safeParseDate(dateString);
+    const date = new Date(dateString);
     return date.toLocaleDateString('pl-PL', {
       day: '2-digit',
       month: '2-digit',
@@ -370,13 +222,7 @@ export function ScheduleTableOverlay({
   };
 
   const formatTime = (dateString: string) => {
-    if (!dateString) return '--:--';
-    // If it's in format DD.MM.YYYY HH:mm, just extract HH:mm
-    const parts = dateString.split(' ');
-    if (parts.length >= 2 && parts[1].includes(':')) {
-      return parts[1];
-    }
-    const date = safeParseDate(dateString);
+    const date = new Date(dateString);
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',
@@ -384,7 +230,7 @@ export function ScheduleTableOverlay({
   };
 
   return (
-    <div className={`fixed right-4 top-1/2 -translate-y-1/2 w-96 z-50 transition-all duration-300 hidden lg:block ${isMinimized ? 'translate-x-[340px]' : 'translate-x-0'}`}>
+    <div className={`fixed right-4 top-1/2 -translate-y-1/2 w-96 z-50 transition-all duration-300 ${isMinimized ? 'translate-x-[340px]' : 'translate-x-0'}`}>
       {/* Toggle Button */}
       <button
         onClick={() => setIsMinimized(!isMinimized)}
@@ -465,10 +311,12 @@ export function ScheduleTableOverlay({
             ) : liveMatches.length > 0 ? (
               <div className="divide-y divide-white/5">
                 {liveMatches.map((match) => {
-                  const homePos = getTeamPosition(match.homeTeam.name);
-                  const awayPos = getTeamPosition(match.awayTeam.name);
-                  const homeTeamData = getTeamFromName(match.homeTeam.name);
-                  const awayTeamData = getTeamFromName(match.awayTeam.name);
+                  const matchData = fixtures.find(m =>
+                    (m.homeTeam?.shortName === match.homeTeam.shortName) &&
+                    (m.awayTeam?.shortName === match.awayTeam.shortName)
+                  );
+                  const homePos = matchData ? standings.find(s => s.team?.id === matchData.homeTeam.id)?.position || '-' : '-';
+                  const awayPos = matchData ? standings.find(s => s.team?.id === matchData.awayTeam.id)?.position || '-' : '-';
                   
                   return (
                     <Link href={`/mecz/${match.id}`} key={match.id} className="block">
@@ -487,17 +335,14 @@ export function ScheduleTableOverlay({
                             <div className="relative">
                               <div 
                                 className="absolute inset-0 blur-xl opacity-30"
-                                style={{ backgroundColor: homeTeamData.color }}
+                                style={{ backgroundColor: matchData?.homeTeam.color }}
                               />
                               <Image
-                                src={homeTeamData.logo}
+                                src={match.homeTeam.logo}
                                 alt={match.homeTeam.shortName}
                                 width={36}
                                 height={36}
                                 className="relative z-10"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
-                                }}
                               />
                             </div>
                             <span className="text-[10px] font-bold text-white uppercase">{match.homeTeam.shortName}</span>
@@ -520,17 +365,14 @@ export function ScheduleTableOverlay({
                             <div className="relative">
                               <div 
                                 className="absolute inset-0 blur-xl opacity-30"
-                                style={{ backgroundColor: awayTeamData.color }}
+                                style={{ backgroundColor: matchData?.awayTeam.color }}
                               />
                               <Image
-                                src={awayTeamData.logo}
+                                src={match.awayTeam.logo}
                                 alt={match.awayTeam.shortName}
                                 width={36}
                                 height={36}
                                 className="relative z-10"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
-                                }}
                               />
                             </div>
                             <span className="text-[10px] font-bold text-white uppercase">{match.awayTeam.shortName}</span>
@@ -563,9 +405,8 @@ export function ScheduleTableOverlay({
               ←
             </button>
             <div className="flex flex-col items-center">
-              <span className="font-black text-lg tracking-tighter uppercase">
-                {currentRound}. KOLEJKA
-              </span>
+              <span className="text-[10px] font-black text-white/40 tracking-[0.2em] mb-0.5 uppercase">EKSTRAKLASA</span>
+              <span className="font-black text-lg tracking-tighter">{currentRound}. KOLEJKA</span>
             </div>
             <button
               onClick={() => setRoundIndex(Math.min(allRounds.length - 1, roundIndex + 1))}
@@ -579,8 +420,8 @@ export function ScheduleTableOverlay({
           {/* Matches */}
           <div className="divide-y divide-white/5 bg-transparent">
             {roundMatches.map((match, index) => {
-              const homePos = getTeamPosition(match.homeTeam?.name || '');
-              const awayPos = getTeamPosition(match.awayTeam?.name || '');
+              const homePos = standings.find(s => s.team?.id === match.homeTeam?.id)?.position || '-';
+              const awayPos = standings.find(s => s.team?.id === match.awayTeam?.id)?.position || '-';
 
               return (
                 <Link href={`/mecz/${match.id || index}`} key={match.id || index} className="block group">
@@ -675,73 +516,6 @@ export function ScheduleTableOverlay({
       {activeTab === 'tabela' && (
         <div className="bg-transparent text-white max-h-[600px] overflow-y-auto scrollbar-hide">
           <LeagueTable isInTab={true} compact={true} />
-        </div>
-      )}
-
-      {activeTab === 'live' && (
-        <div className="bg-transparent text-white max-h-[600px] overflow-y-auto scrollbar-hide">
-          {loadingLive && liveMatches.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-[10px] font-black uppercase text-white/20 tracking-widest">Szukanie meczów na żywo...</p>
-            </div>
-          ) : liveMatches.length > 0 ? (
-            <div className="divide-y divide-white/5 bg-transparent">
-              {liveMatches.map((match) => (
-                <Link href={`/mecz/${match.id}`} key={match.id} className="block group">
-                  <div className="px-4 py-2 bg-red-500/10 text-red-400 text-[9px] font-black tracking-widest uppercase flex items-center justify-between border-b border-white/5">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                      NA ŻYWO • {match.period}
-                    </div>
-                    <span className="font-black tabular-nums">{match.timer}</span>
-                  </div>
-                  <div className="relative px-4 py-8 bg-transparent hover:bg-white/5 transition-all cursor-pointer">
-                    <div className="relative z-10 flex items-center justify-between gap-4">
-                      {/* Home Team */}
-                      <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2.5 group-hover:scale-110 transition-transform">
-                          <img src={match.homeTeam.logo} alt="" className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-[10px] font-black text-white uppercase text-center truncate w-full">
-                          {match.homeTeam.shortName || match.homeTeam.name}
-                        </span>
-                      </div>
-                      
-                      {/* Score */}
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="flex items-center gap-3">
-                          <span className="text-3xl font-black text-white tracking-tighter">{match.homeTeam.score}</span>
-                          <span className="text-xl font-black text-white/20">:</span>
-                          <span className="text-3xl font-black text-white tracking-tighter">{match.awayTeam.score}</span>
-                        </div>
-                        <div className="px-2 py-0.5 bg-red-500/20 rounded border border-red-500/20">
-                          <span className="text-[8px] font-black text-red-400 uppercase tracking-widest animate-pulse">LIVE</span>
-                        </div>
-                      </div>
-                      
-                      {/* Away Team */}
-                      <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2.5 group-hover:scale-110 transition-transform">
-                          <img src={match.awayTeam.logo} alt="" className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-[10px] font-black text-white uppercase text-center truncate w-full">
-                          {match.awayTeam.shortName || match.awayTeam.name}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-32 opacity-20">
-              <div className="w-16 h-16 rounded-full border-2 border-white/20 flex items-center justify-center mb-6">
-                <div className="w-2 h-2 bg-white rounded-full" />
-              </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-center px-10 leading-relaxed">Aktualnie nie są rozgrywane żadne mecze</p>
-            </div>
-          )}
         </div>
       )}
       </div>

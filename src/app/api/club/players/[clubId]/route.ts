@@ -54,8 +54,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ clubId: string }> }
 ) {
-  const { clubId: rawClubId } = await params;
-  const clubId = decodeURIComponent(rawClubId);
+  const { clubId } = await params;
 
   const firebaseKey = clubToFirebaseKey[clubId];
   if (!firebaseKey) {

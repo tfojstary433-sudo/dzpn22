@@ -48,6 +48,7 @@ export function CompactLeagueTable({ setActiveTab, setIsMinimized }: WidgetProps
               <>
                 <Image src={standing.team.logo} alt={standing.team.name} width={24} height={24} className="shrink-0" />
                 <span className="flex-1 text-xs font-bold text-white uppercase truncate group-hover:text-white transition-colors">{standing.team.shortName}</span>
+                <span className="text-xs font-black text-white bg-white/10 px-2 py-0.5 rounded-md group-hover:bg-white/20 transition-colors">{standing.points}</span>
               </>
             )}
           </Link>

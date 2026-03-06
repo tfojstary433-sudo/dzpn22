@@ -17,13 +17,7 @@ export default function CallbackPage() {
       const isDiscord = state === 'discord' || state?.startsWith('discord:');
       const apiPath = isDiscord ? '/api/auth/callback' : '/api/auth/roblox/callback';
       fetch(`${apiPath}?code=${code}&state=${state || ''}`)
-        .then(async (res) => {
-          const data = await res.json();
-          if (!res.ok) {
-            throw new Error(data.error || 'Błąd serwera podczas autoryzacji.');
-          }
-          return data;
-        })
+        .then((res) => res.json())
         .then((data) => {
           // Remove code from URL to prevent reuse on refresh
           window.history.replaceState({}, '', '/callback');
@@ -43,12 +37,6 @@ export default function CallbackPage() {
                 avatar: null // Will be handled by RobloxAvatar component
               };
               localStorage.setItem('discord_user', JSON.stringify(userData));
-
-              // AUTOMATIC REDIRECT TO DISCORD AFTER ROBLOX LOGIN
-              const clientId = "1448788697653973082";
-              const redirectUri = encodeURIComponent("https://pff24.pl/callback");
-              window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord:${data.robloxId}`;
-              return;
             } else {
               const existingUserStr = localStorage.getItem('discord_user');
               let userData;
@@ -84,7 +72,7 @@ export default function CallbackPage() {
         })
         .catch((err) => {
           console.error('Callback error:', err);
-          setError(err.message || 'Wystąpił błąd podczas logowania.');
+          setError('Wystąpił błąd podczas logowania.');
           // Remove code from URL even on error
           window.history.replaceState({}, '', '/callback');
         });
@@ -123,32 +111,16 @@ export default function CallbackPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">
-      <div className="flex flex-col items-center gap-8 p-8 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl shadow-2xl max-w-md w-full mx-4">
-        {countdown !== null ? (
-          <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
-            <div className="w-24 h-24 bg-green-500/20 border-4 border-green-500 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.3)]">
-              <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter text-center mb-2">
-              Połączono pomyślnie!
-            </h1>
-            <p className="text-white/60 font-bold text-center">
-              Przekierowanie do sklepu za <span className="text-green-500">{countdown}s</span>...
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center">
-            <div className="w-16 h-16 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin mb-6"></div>
-            <h1 className="text-2xl font-black uppercase tracking-widest text-center">
-              Synchronizacja...
-            </h1>
-            <p className="text-white/40 font-medium text-center mt-2">
-              Łączymy Twoje konta i nadajemy rangi
-            </p>
-          </div>
-        )}
+      <div className="flex flex-col items-center gap-6">
+        <div className="w-16 h-16 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin"></div>
+        <div className="text-center">
+          <h1 className="text-2xl font-black uppercase tracking-widest">
+            {countdown !== null ? `Przekierowanie za ${countdown}s` : 'Autoryzacja...'}
+          </h1>
+          <p className="text-white/40 font-medium">
+            {countdown !== null ? 'Pomyślnie zalogowano!' : 'Proszę czekać, łączymy z Roblox'}
+          </p>
+        </div>
       </div>
     </div>
   );

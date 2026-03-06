@@ -1,27 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { headers } from 'next/headers';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_PATH = path.join(process.cwd(), 'src', 'data', 'user_tokens.json');
-
-function readTokenData() {
-  if (!fs.existsSync(DATA_PATH)) return { users: {}, purchases: [] };
-  try {
-    const content = fs.readFileSync(DATA_PATH, 'utf-8');
-    return JSON.parse(content);
-  } catch (e) {
-    return { users: {}, purchases: [] };
-  }
-}
-
-function saveTokenData(data: any) {
-  try {
-    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,6 +23,7 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, sig!, endpointSecret);
     } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
       return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
     }
 
@@ -60,58 +40,83 @@ export async function POST(request: NextRequest) {
         const hasVip = session.metadata?.hasVip === 'true';
         const products = session.metadata?.products?.split(',').filter(p => p) || [];
 
+        console.log('Payment successful:', {
+          userId,
+          regularTokens,
+          bonusTokens,
+          vipDays,
+          hasVip,
+          products,
+          amount: session.amount_total,
+        });
+
         if (userId) {
-          const data = readTokenData();
-          
-          if (!data.users[userId]) {
-            data.users[userId] = { balance: 0, bonusBalance: 0, items: {} };
+          // 1. Activate VIP if needed
+          if (hasVip && vipDays > 0) {
+            console.log(`Activating VIP for user ${userId} for ${vipDays} days`);
+            // TODO: Implement VIP activation logic in database
           }
 
-          const user = data.users[userId];
-
-          // 1. Add tokens directly
+          // 2. Add tokens if needed
           if (regularTokens > 0 || bonusTokens > 0) {
-            user.balance += regularTokens;
-            user.bonusBalance += bonusTokens;
-          }
+            try {
+              const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/user/tokens`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: userId,
+                  action: 'addTokens',
+                  amount: {
+                    regular: regularTokens,
+                    bonus: bonusTokens
+                  }
+                })
+              });
 
-          // 2. Handle products (UNBAN, etc.)
-          if (products.length > 0) {
-            products.forEach(productId => {
-              if (!user.items[productId]) {
-                user.items[productId] = 0;
+              if (response.ok) {
+                console.log(`Added ${regularTokens} regular + ${bonusTokens} bonus tokens to user ${userId}`);
+              } else {
+                console.error('Failed to add tokens to user account');
               }
-              user.items[productId] += 1;
-            });
+            } catch (error) {
+              console.error('Error adding tokens:', error);
+            }
           }
 
-          // 3. Log the purchase
-          data.purchases.push({
-            userId,
-            type: 'stripe_payment',
-            regularTokens,
-            bonusTokens,
-            products,
-            amount: session.amount_total,
-            timestamp: new Date().toISOString(),
-            sessionId: session.id,
-          });
-
-          // Save all changes
-          saveTokenData(data);
+          // 3. Handle products (UNBAN, etc.)
+          if (products.length > 0) {
+            console.log(`Granting products to user ${userId}:`, products);
+            try {
+              // Mark products as owned in the user data
+              await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/user/tokens`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: userId,
+                  action: 'grantProducts',
+                  products: products
+                })
+              });
+            } catch (error) {
+              console.error('Error granting products:', error);
+            }
+          }
         }
 
         break;
 
       case 'payment_intent.payment_failed':
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log('Payment failed:', paymentIntent.id);
         break;
 
       default:
-        break;
+        console.log(`Unhandled event type ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
+    console.error('Webhook error:', error);
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }

@@ -20,13 +20,13 @@ function getTeamLogo(teamId: string): string {
     'SOK': 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png',
     'WIS': 'https://upload.wikimedia.org/wikipedia/en/1/15/Wis%C5%82a_Krak%C3%B3w_logo.svg',
     'GRO': 'https://i.ibb.co/V0rcs98Q/obraz-2026-01-04-213027745-removebg-preview-4.png',
-    'RAK': 'https://i.ibb.co/b5q4tsmh/obraz-2026-02-13-230749363.png',
+    'CHO': 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png',
     'ZAG': 'https://i.ibb.co/7xBP97MW/dvyf-Zx2g-Ykwr8-Dur.png',
     'LEC_0': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', // Lechia Gdańsk
     'LEC_3': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', // Lechia Gdańsk
-    'LEC_1': 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png' // Placeholder
+    'LEC_1': 'https://i.ibb.co/TB027G07/czarnepff-1.png' // Placeholder
   };
-  return teamLogos[teamId] || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png';
+  return teamLogos[teamId] || 'https://i.ibb.co/TB027G07/czarnepff-1.png';
 }
 
 export const RecentResultsSidebar = memo(function RecentResultsSidebar() {

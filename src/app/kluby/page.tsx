@@ -10,6 +10,7 @@ export default function KlubyPage() {
   const displayTeams = useMemo(() => [
     'Zawisza Bydgoszcz',
     'Arka Gdynia',
+    'Unia Skierniewice',
     'Legia Warszawa',
     'Lech Poznań',
     'Pogoń Szczecin',
@@ -19,11 +20,10 @@ export default function KlubyPage() {
     'Sokół Olsztyn',
     'Grom Nowy Staw',
     'Motor Lublin',
-    'Raków Częstochowa',
+    'Olimpia Elbląg',
+    'Chojniczanka Chojnice',
     'Jagiellonia Białystok',
-    'Wisła Płock',
-    'Górnik Zabrze',
-    'Widzew Łódź'
+    'Wisła Płock'
   ], []);
 
   const filteredTeams = useMemo(() => teams.filter(team =>
@@ -33,45 +33,28 @@ export default function KlubyPage() {
   const [playerCounts, setPlayerCounts] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    let isMounted = true;
-    
     // Fetch player counts for all teams
     const fetchPlayerCounts = async () => {
-      // Use a sequential loop with a small delay to avoid overwhelming the server/Firebase
+      const counts: { [key: string]: number } = {};
+
       for (const team of filteredTeams) {
-        if (!isMounted) break;
-        
         try {
-          const response = await fetch(`/api/club/players/${encodeURIComponent(team.id)}`);
-          if (!response.ok) {
-            if (isMounted) {
-              setPlayerCounts(prev => ({ ...prev, [team.id]: 0 }));
-            }
-            continue;
-          }
+          const response = await fetch(`/api/club/players/${team.id}`);
+          if (!response.ok) continue;
           const data = await response.json();
-          if (isMounted) {
-            setPlayerCounts(prev => ({ ...prev, [team.id]: data.players ? data.players.length : 0 }));
-          }
+          counts[team.id] = data.players ? data.players.length : 0;
         } catch (error) {
           console.error('Error fetching players for', team.id, ':', error);
-          if (isMounted) {
-            setPlayerCounts(prev => ({ ...prev, [team.id]: 0 }));
-          }
+          counts[team.id] = 0;
         }
-        
-        // Small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 50));
       }
+
+      setPlayerCounts(prev => ({ ...prev, ...counts }));
     };
 
     if (filteredTeams.length > 0) {
       fetchPlayerCounts();
     }
-    
-    return () => {
-      isMounted = false;
-    };
   }, [filteredTeams]);
 
   return (

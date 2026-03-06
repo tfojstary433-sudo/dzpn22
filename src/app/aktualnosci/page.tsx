@@ -2,83 +2,19 @@
 
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
-import { newsArticles as staticNews } from '@/lib/data';
+import { newsArticles } from '@/lib/data';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, ArrowRight, Search, Filter, Plus, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { getNews, deleteNews } from '@/lib/firebase';
-import { CreateNewsModal } from '@/components/create-news-modal';
-
-const MEDIA_ROLE_IDS = ['1447302327349416051'];
+import { Calendar, ArrowRight, Search, Filter } from 'lucide-react';
+import { useState } from 'react';
 
 export default function NewsListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Wszystkie');
-  const [news, setNews] = useState<any[]>([]);
-  const [isMedia, setIsMedia] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check role
-    const userStr = localStorage.getItem('discord_user') || localStorage.getItem('user');
-    const robloxId = localStorage.getItem('roblox_id');
+  const categories = ['Wszystkie', ...Array.from(new Set(newsArticles.map(a => a.category)))];
 
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      const roles = user.discordRoles || user.roles || [];
-      console.log('User roles:', roles); // Diagnostyka ról
-      
-      const hasMediaRole = roles.some((roleId: string) => MEDIA_ROLE_IDS.includes(String(roleId)));
-      if (hasMediaRole) {
-        setIsMedia(true);
-      }
-    }
-
-    // Check club membership if not already media
-    if (robloxId) {
-      fetch(`https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/users_clubs/${robloxId}.json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            setIsMedia(true);
-          }
-        })
-        .catch(err => console.error('Error checking club membership:', err));
-    }
-
-    // Fetch news
-    fetchNews();
-  }, []);
-
-  const fetchNews = async () => {
-    setIsLoading(true);
-    const firebaseNews = await getNews();
-    // Combine static and firebase news, avoiding duplicates if any
-    const combined = [...firebaseNews, ...staticNews.filter(sn => !firebaseNews.find(fn => fn.title === sn.title))];
-    
-    // Sort by date (descending)
-    combined.sort((a, b) => {
-      const dateA = new Date(a.date?.split(',')[0].split('.').reverse().join('-') || 0).getTime();
-      const dateB = new Date(b.date?.split(',')[0].split('.').reverse().join('-') || 0).getTime();
-      return dateB - dateA;
-    });
-
-    setNews(combined);
-    setIsLoading(false);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Czy na pewno chcesz usunąć ten artykuł?')) {
-      const success = await deleteNews(id);
-      if (success) fetchNews();
-    }
-  };
-
-  const categories = ['Wszystkie', ...Array.from(new Set(news.map(a => a.category)))];
-
-  const filteredArticles = news.filter(article => {
+  const filteredArticles = newsArticles.filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          article.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeCategory === 'Wszystkie' || article.category === activeCategory;
@@ -115,26 +51,17 @@ export default function NewsListPage() {
               </p>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center w-full md:w-auto">
-              <div className="relative group w-full md:w-80">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <div className="relative group">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-blue-500 transition-colors" />
                 <input 
                   type="text" 
                   placeholder="Szukaj artykułów..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl pl-16 pr-8 py-5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all w-full"
+                  className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl pl-16 pr-8 py-5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all w-full md:w-80"
                 />
               </div>
-              {isMedia && (
-                <button 
-                  onClick={() => setShowAddModal(true)}
-                  className="w-full md:w-auto px-8 py-5 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(37,99,235,0.3)] whitespace-nowrap"
-                >
-                  <Plus className="w-4 h-4" />
-                  Dodaj Post
-                </button>
-              )}
             </div>
           </div>
 
@@ -180,14 +107,6 @@ export default function NewsListPage() {
                     <div className="flex items-center gap-4 mb-8">
                       <span className="px-5 py-2 bg-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Wyróżnione</span>
                       <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{featuredArticle.category}</span>
-                      {isMedia && typeof featuredArticle.id === 'string' && (
-                        <button 
-                          onClick={(e) => { e.preventDefault(); handleDelete(featuredArticle.id as string); }}
-                          className="ml-auto p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
                     </div>
                     <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-none mb-8 group-hover:text-blue-400 transition-colors">
                       {featuredArticle.title}
@@ -224,18 +143,10 @@ export default function NewsListPage() {
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+                      <div className="absolute top-6 left-6">
                         <span className="px-5 py-2 bg-black/60 backdrop-blur-xl rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10 group-hover:bg-blue-600 group-hover:border-blue-400 transition-all">
                           {article.category}
                         </span>
-                        {isMedia && typeof article.id === 'string' && (
-                          <button 
-                            onClick={(e) => { e.preventDefault(); handleDelete(article.id as string); }}
-                            className="p-2 bg-red-500/20 backdrop-blur-xl text-red-500 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-xl"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
                       </div>
                     </div>
                     <div className="p-10 flex flex-col flex-1">
@@ -277,12 +188,6 @@ export default function NewsListPage() {
       </main>
 
       <Footer />
-
-      <CreateNewsModal 
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSuccess={fetchNews}
-      />
     </div>
   );
 }

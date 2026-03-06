@@ -271,12 +271,12 @@ export const teams: Team[] = [
     stadium: 'Stadion Miejski w Elblągu'
   },
   {
-    id: 'RAK',
-    name: 'Raków Częstochowa',
-    shortName: 'Raków',
-    logo: 'https://i.ibb.co/b5q4tsmh/obraz-2026-02-13-230749363.png',
+    id: 'CHO',
+    name: 'Chojniczanka Chojnice',
+    shortName: 'Chojniczanka',
+    logo: 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png',
     color: '#dc2626',
-    stadium: 'Miejski Stadion Piłkarski Raków'
+    stadium: 'Stadion Miejski w Chojnicach'
   },
   {
     id: 'JAG',
@@ -293,22 +293,6 @@ export const teams: Team[] = [
     logo: 'https://i.ibb.co/SX6LkvnR/obraz-2026-02-01-105518416.png',
     color: '#1e40af',
     stadium: 'Stadion im. Kazimierza Górskiego'
-  },
-  { 
-    id: 'GOR', 
-    name: 'Górnik Zabrze', 
-    shortName: 'Górnik', 
-    logo: 'https://i.ibb.co/JbKwtPG/obraz-2026-02-15-150938056-removebg-preview-1.png',
-    color: '#dc2626',
-    stadium: 'Stadion im. Ernesta Pohla'
-  },
-  { 
-    id: 'WID', 
-    name: 'Widzew Łódź', 
-    shortName: 'Widzew', 
-    logo: 'https://i.ibb.co/Kzmfkdbb/Herb-Widzew-d.png',
-    color: '#dc2626',
-    stadium: 'Stadion Widzewa Łódź'
   },
   {
     id: 'SED',
@@ -329,15 +313,15 @@ export const clubToFirebaseKey: { [key: string]: string } = {
   'LEG': 'Club 3', // Legia Warszawa
   'LPO': 'Club 4', // Lech Poznań
   'LGD': 'Club 5', // Lechia Gdańsk
-  'WID': 'Club 6', // Widzew Łódź
+  'UNI': 'Club 6', // Unia Skierniewice
   'POG': 'Club 7', // Pogoń Szczecin
   'ZAG': 'Club 8', // Zagłębie Lubin
   'SOK': 'Club 9', // Sokół Olsztyn
   'WIS': 'Club 10', // Wisła Kraków
   'GRO': 'Club 11', // Grom Nowy Staw
-  'GOR': 'Club 12', // Górnik Zabrze
-  'MOT': 'Club 13', // Motor Lublin
-  'RAK': 'Club 14', // Raków Częstochowa
+  'MOT': 'Club 12', // Motor Lublin
+  'OLI': 'Club 13', // Olimpia Elbląg
+  'CHO': 'Club 14', // Chojniczanka Chojnice
   'JAG': 'Club 15', // Jagiellonia Białystok
   'WPL': 'Club 16', // Wisła Płock
   'SED': 'Referee', // Sędziowie
@@ -346,7 +330,7 @@ export const clubToFirebaseKey: { [key: string]: string } = {
 
 export const extraTeams: Team[] = [
   { id: 'ext1', name: 'GKS Katowice', shortName: 'GKS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/GKS_Katowice_logo.png' },
-  { id: 'WID', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://i.ibb.co/Kzmfkdbb/Herb-Widzew-d.png' },
+  { id: 'ext2', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Widzew_L%C3%B3dz_logo.png' },
   { id: 'ext3', name: 'Cracovia', shortName: 'Cracovia', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/KS_Cracovia_logo.svg' },
   { id: 'ext4', name: 'Korona Kielce', shortName: 'Korona', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Korona_Kielce.svg' },
   { id: 'ext5', name: 'Radomiak Radom', shortName: 'Radomiak', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Radomiak_Radom_Logo.png' },
@@ -355,7 +339,7 @@ export const extraTeams: Team[] = [
 export const matches: Match[] = [
   // Runda 1
   { id: 'm1', homeTeam: teams[0], awayTeam: teams[1], date: '2026-01-25T20:30:00', round: 1, status: 'upcoming', stadium: teams[0].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm2', homeTeam: teams[2], awayTeam: teams[3], date: '2026-01-25T17:00:00', round: 1, status: 'upcoming', stadium: teams[2].stadium, category: 'EKSTRAKLASA' },
+  { id: 'm2', homeTeam: teams[2], awayTeam: teams[3], homeScore: 2, awayScore: 1, date: '2026-01-25T17:00:00', round: 1, status: 'finished', stadium: teams[2].stadium, category: 'EKSTRAKLASA' },
   { id: 'm4', homeTeam: teams[6], awayTeam: teams[7], date: '2026-01-26T19:30:00', round: 1, status: 'upcoming', stadium: teams[6].stadium, category: 'EKSTRAKLASA' },
   { id: 'm5', homeTeam: teams[8], awayTeam: teams[9], date: '2026-01-26T15:00:00', round: 1, status: 'upcoming', stadium: teams[8].stadium, category: 'EKSTRAKLASA' },
   { id: 'm6', homeTeam: teams[10], awayTeam: teams[3], date: '2026-01-26T17:30:00', round: 1, status: 'upcoming', stadium: teams[10].stadium, category: 'EKSTRAKLASA' },
@@ -572,6 +556,45 @@ Pierwszy sezon to czas eksperymentów i wspólnego tworzenia ligi. Kluby dopiero
     date: '10.01.2026, 17:15',
     author: 'Redakcja PFF',
     relatedTeamIds: []
+  },
+  {
+    id: 2,
+    category: 'TRANSFERY',
+    title: 'Giełda transferowa płonie – największe ruchy przedsezonowe',
+    image: 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png',
+    description: 'Kluby Ekstraklasy PFF nie próżnują. Zobacz, kto zmienił barwy klubowe w ostatnim tygodniu i jakie wzmocnienia planują najwięksi faworyci.',
+    content: `Okno transferowe w Ekstraklasie PFF dostarcza nam codziennie nowych emocji. Największe kluby walczą o najlepszych zawodników na rynku, a kwoty kontraktów rosną z godziny na godzinę. Zespół Jagiellonii Białystok ogłosił pozyskanie trzech kluczowych graczy formacji ofensywnej, co stawia ich w roli jednego z głównych kandydatów do tytułu.
+
+Z kolei Wisła Kraków stawia na młode talenty, podpisując kontrakty z obiecującymi zawodnikami z niższych lig. Dyrektor sportowy klubu podkreśla, że budują zespół z perspektywą na lata, a nie tylko na jeden sezon. Eksperci przewidują, że walka o podium będzie niezwykle zacięta, a o sukcesie mogą zadecydować detale wypracowane podczas zimowego okresu przygotowawczego.`,
+    date: '12.01.2026, 09:30',
+    author: 'Mateusz Sportowy',
+    relatedTeamIds: ['JAG', 'WIS']
+  },
+  {
+    id: 3,
+    category: 'WYWIAD',
+    title: 'Prezes PFF: "Naszym celem jest stworzenie najbardziej profesjonalnej ligi w Roblox"',
+    image: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    description: 'Ekskluzywny wywiad z szefem Polskiej Federacji Futbolu o planach na rozwój, nowych systemach meczowych i współpracy ze społecznością.',
+    content: `W szczerej rozmowie z naszą redakcją, Prezes PFF opowiedział o wizji rozwoju federacji na najbliższe lata. "Chcemy, aby PFF było kojarzone z jakością i profesjonalizmem. Wprowadzamy nowe systemy anty-cheatowe, szkolimy sędziów i dbamy o oprawę graficzną każdego spotkania" – mówi Prezes.
+
+Kluczowym elementem strategii jest zaangażowanie społeczności. PFF planuje cykliczne spotkania z kapitanami drużyn oraz otwarte głosowania nad zmianami w regulaminie. "To liga dla graczy i chcemy, aby to oni mieli decydujący głos w sprawach, które ich dotyczą" – dodaje. Już niedługo możemy spodziewać się prezentacji nowego systemu stadionów, który ma zrewolucjonizować doświadczenie z gry.`,
+    date: '15.01.2026, 20:00',
+    author: 'Adrian Wywiad',
+    relatedTeamIds: []
+  },
+  {
+    id: 4,
+    category: 'PORADNIK',
+    title: 'Jak zostać zawodnikiem PFF? Przewodnik dla początkujących',
+    image: 'https://i.ibb.co/SXDCV1tC/PFFGRAFIKA.png',
+    description: 'Chciałbyś spróbować swoich sił w profesjonalnych rozgrywkach? Dowiedz się, jak założyć profil, znaleźć klub i przejść testy sprawnościowe.',
+    content: `Dołączenie do Polskiej Federacji Futbolu jest prostsze niż myślisz, ale wymaga zaangażowania. Pierwszym krokiem jest dołączenie do naszego oficjalnego serwera Discord, gdzie publikowane są ogłoszenia o testach (tryoutach) w poszczególnych klubach.
+
+Warto zadbać o swoją reputację na boisku i poza nim. Kluby szukają nie tylko umiejętności technicznych, ale także dyscypliny i umiejętności gry zespołowej. W naszym poradniku znajdziesz listę najczęściej popełnianych błędów przez nowych graczy oraz wskazówki, jak przygotować się do pierwszego oficjalnego meczu. Pamiętaj, że każdy z obecnych mistrzów zaczynał dokładnie tak samo jak Ty.`,
+    date: '18.01.2026, 14:20',
+    author: 'Trener Tomek',
+    relatedTeamIds: []
   }
 ];
 
@@ -616,7 +639,7 @@ export const sneakPeeks: SneakPeak[] = [
   {
     id: 3,
     title: 'Przeciek nowego interfejsu',
-    image: 'https://i.ibb.co/pBJgbXxn/image.png',
+    image: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
     type: 'image',
     date: '2026-01-09',
   }

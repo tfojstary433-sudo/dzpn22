@@ -37,10 +37,6 @@ export default function TransferyPage() {
 
           if (data.players) {
             Object.entries(data.players).forEach(([userId, player]: [string, any]) => {
-              // Skip players named "BRAK" or with empty names
-              const playerName = player.name || player.username || '';
-              if (!playerName || playerName.toUpperCase() === 'BRAK') return;
-
               if (player.matches && player.matches.length > 0) {
                 // Sort matches by date ascending
                 const sortedMatches = [...player.matches].sort((a: any, b: any) => 
@@ -48,29 +44,11 @@ export default function TransferyPage() {
                 );
 
                 let lastTeamName = '';
-                const freeAgentLogo = 'https://www.fifacm.com/content/media/imgs/fifa21/teams/256/l111592.png';
                 
-                sortedMatches.forEach((match: any, index: number) => {
+                sortedMatches.forEach((match: any) => {
                   const currentTeamName = match.playerTeam;
                   
-                  // Case 1: First match ever (Join from Free Agent)
-                  if (index === 0 && currentTeamName) {
-                    const toTeam = teams.find(t => t.name === currentTeamName || t.id === currentTeamName);
-                    allTransfers.push({
-                      id: `${userId}-first-${match.playedAt}`,
-                      player: player.name || 'Nieznany',
-                      position: mapPositionToPolish(player.position || match.position || '---'),
-                      from: 'Wolny Agent',
-                      to: toTeam?.name || currentTeamName,
-                      fromLogo: freeAgentLogo,
-                      toLogo: toTeam?.logo || 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
-                      robloxUsername: player.name,
-                      date: match.playedAt ? new Date(match.playedAt).toLocaleDateString('pl-PL') : '---',
-                      timestamp: new Date(match.playedAt).getTime()
-                    });
-                  }
-                  // Case 2: Change of teams
-                  else if (lastTeamName && currentTeamName !== lastTeamName) {
+                  if (lastTeamName && currentTeamName !== lastTeamName) {
                     const fromTeam = teams.find(t => t.name === lastTeamName || t.id === lastTeamName);
                     const toTeam = teams.find(t => t.name === currentTeamName || t.id === currentTeamName);
 
@@ -80,8 +58,8 @@ export default function TransferyPage() {
                       position: mapPositionToPolish(player.position || match.position || '---'),
                       from: fromTeam?.name || lastTeamName,
                       to: toTeam?.name || currentTeamName,
-                      fromLogo: fromTeam?.logo || freeAgentLogo,
-                      toLogo: toTeam?.logo || freeAgentLogo,
+                      fromLogo: fromTeam?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+                      toLogo: toTeam?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
                       robloxUsername: player.name,
                       date: match.playedAt ? new Date(match.playedAt).toLocaleDateString('pl-PL') : '---',
                       timestamp: new Date(match.playedAt).getTime()
@@ -93,8 +71,8 @@ export default function TransferyPage() {
             });
           }
 
-          // Sort all transfers by timestamp descending and limit to top 10
-          setTransfers(allTransfers.sort((a, b) => b.timestamp - a.timestamp).slice(0, 10));
+          // Sort all transfers by timestamp descending
+          setTransfers(allTransfers.sort((a, b) => b.timestamp - a.timestamp));
         }
       } catch (error) {
         console.error('Error fetching transfers:', error);

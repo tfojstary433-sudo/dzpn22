@@ -118,36 +118,13 @@ export default function ProductDetailPage() {
           setBalance(data.balance || 0);
         })
         .catch(err => console.error('Error fetching tokens:', err));
-    } else {
-      const clientId = "1448788697653973082";
-      const redirectUri = encodeURIComponent("https://pff24.pl/callback");
-      window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord`;
     }
   }, []);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-transparent text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        <Navbar />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="w-16 h-16 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin mb-6"></div>
-          <h1 className="text-2xl font-black uppercase tracking-widest text-center">
-            Logowanie przez Discord...
-          </h1>
-        </div>
-      </div>
-    );
-  }
-
   if (!product) {
     return (
-      <div className="min-h-screen bg-transparent text-white flex items-center justify-center relative overflow-hidden">
-        <Navbar />
-        {/* Background Glows */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
-        
-        <div className="text-center relative z-10">
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+        <div className="text-center">
           <h1 className="text-3xl font-black mb-4">Produkt nie znaleziony</h1>
           <button 
             onClick={() => router.push('/sklep')}
@@ -176,41 +153,8 @@ export default function ProductDetailPage() {
     setMessage(null);
 
     if (isPLN) {
-      if (!user) {
-        setMessage({ type: 'error', text: 'Musisz być zalogowany, aby dokonać zakupu' });
-        setLoading(false);
-        return;
-      }
-
-      fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          customerEmail: user.email,
-          cart: [{
-            id: productId,
-            name: product.name,
-            price: product.price,
-            quantity: quantity,
-            type: 'pln-product',
-            image: product.images[0]
-          }]
-        }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          setMessage({ type: 'error', text: data.error || 'Błąd płatności' });
-        }
-      })
-      .catch(err => {
-        console.error('Stripe error:', err);
-        setMessage({ type: 'error', text: 'Błąd połączenia z systemem płatności' });
-      })
-      .finally(() => setLoading(false));
+      setMessage({ type: 'error', text: 'Płatności w PLN wymagają odrębnego systemu płatności' });
+      setLoading(false);
       return;
     }
 
@@ -246,13 +190,8 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-white font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
       <Navbar />
-
-      {/* Background Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-400/10 blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-cyan-500/10 blur-[120px] pointer-events-none -z-10" />
 
       <main className="container mx-auto px-4 pt-32 pb-24">
         {/* Back Button */}
@@ -395,12 +334,12 @@ export default function ProductDetailPage() {
 
                 {message && (
                   <div className={`mb-8 p-6 rounded-2xl border animate-in fade-in slide-in-from-top-4 duration-500 ${
-                    message?.type === 'success' 
+                    message.type === 'success' 
                     ? 'bg-green-500/10 border-green-500/30 text-green-400' 
                     : 'bg-red-500/10 border-red-500/30 text-red-400'
                   }`}>
                     <p className="font-bold flex items-center gap-2">
-                      {message?.type === 'success' ? '✓' : '✕'} {message?.text}
+                      {message.type === 'success' ? '✓' : '✕'} {message.text}
                     </p>
                   </div>
                 )}

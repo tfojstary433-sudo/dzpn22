@@ -23,7 +23,7 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: teamName || 'TBD',
     shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/7d4R0vZH/obraz-2026-02-04-222253347-removebg-preview-1.png',
+    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
     color: '#3b82f6'
   };
 }
@@ -76,25 +76,10 @@ interface MatchCardProps {
   };
 }
 
-function parseMatchDate(d: any) {
-  if (!d) return new Date();
-  if (d instanceof Date) return d;
-  if (typeof d === 'string' && d.includes('.')) {
-    const parts = d.split(' ');
-    const datePart = parts[0];
-    const timePart = parts[1] || '00:00';
-    const [day, month, year] = datePart.split('.').map(Number);
-    const [hours, minutes] = timePart.split(':').map(Number);
-    return new Date(year, month - 1, day, hours, minutes);
-  }
-  return new Date(d);
-}
-
 function MatchCard({ match, isLive = false, isFinished = false, liveData, finishedData }: MatchCardProps) {
   const formatTime = (dateString: string) => {
     if (!dateString) return '--:--';
-    const date = parseMatchDate(dateString);
-    if (isNaN(date.getTime())) return '--:--';
+    const date = new Date(dateString);
     return date.toLocaleTimeString('pl-PL', {
       hour: '2-digit',
       minute: '2-digit',
@@ -230,8 +215,8 @@ function MatchCard({ match, isLive = false, isFinished = false, liveData, finish
   );
 }
 
-export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { isInTab?: boolean; initialTab?: 'terminarz' | 'live' } = {}) {
-  const [activeMainTab, setActiveMainTab] = useState<'terminarz' | 'live'>(initialTab);
+export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
+  const [activeMainTab, setActiveMainTab] = useState<'terminarz' | 'live'>('terminarz');
   const [liveMatches, setLiveMatches] = useState<LiveMatch[]>([]);
   const [loadingLive, setLoadingLive] = useState(false);
   const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
@@ -252,22 +237,13 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
 
   useEffect(() => {
     const fetchLive = async () => {
-      setLoadingLive(true);
       try {
         const response = await fetch('/api/matches');
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
         const data: ApiMatch[] = await response.json();
-        
-        // Bardziej elastyczne sprawdzanie aktywnych meczów
-        const activeMatches = data.filter((m: ApiMatch) => 
-          m.isActive === true || 
-          m.status === 'active' || 
-          m.status === 'live' || 
-          m.status === 'playing' ||
-          (m.timer && m.timer !== '0:00' && m.timer !== '00:00' && m.status !== 'finished' && m.status !== 'scheduled')
-        );
+        const activeMatches = data.filter((m: ApiMatch) => m.status === 'active' || m.isActive);
 
         if (activeMatches.length > 0) {
           const mappedMatches = activeMatches.map((apiMatch: ApiMatch) => {
@@ -336,12 +312,12 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
         } else {
           console.error('Failed to fetch fixtures, status:', response.status);
           // Fallback to local data
-          setFixtures([]);
+          setFixtures(matches);
         }
       } catch (error) {
         console.error('Error fetching fixtures:', error);
         // Fallback to local data
-        setFixtures([]);
+        setFixtures(matches);
       } finally {
         setLoadingFixtures(false);
       }
@@ -506,62 +482,63 @@ export function MatchSchedule({ isInTab = false, initialTab = 'terminarz' }: { i
               ))}
             </div>
           ) : (
-            <div className="text-center py-24 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              <div className="relative z-10">
-                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 group-hover:scale-110 transition-transform duration-500">
-                  <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="text-white/40 text-xl font-medium tracking-tight mb-8">Aktualnie nie odbywają się żadne mecze</p>
-                <button 
-                  onClick={() => setActiveMainTab('terminarz')}
-                  className="px-8 py-3 bg-white text-black font-black rounded-xl hover:bg-[#00ccff] hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl"
-                >
-                  ZOBACZ TERMINARZ
-                </button>
-              </div>
+            <div className="text-center py-20 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+              <p className="text-gray-500 text-lg">Aktualnie nie odbywają się żadne mecze</p>
+              <button 
+                onClick={() => setActiveMainTab('terminarz')}
+                className="mt-4 text-blue-600 font-semibold hover:underline"
+              >
+                Zobacz terminarz →
+              </button>
             </div>
           )}
         </div>
       ) : (
         <>
-          {roundMatches.length > 0 && (
-            <div className="mb-20 relative pt-10 pb-6">
-              {/* Ambient Background Glows */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-              
-              <div className="flex flex-col items-center justify-center gap-6 relative z-10">
-                <div className="flex flex-col items-center relative">
-                  {/* Decorative Line with Glow */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="h-[2px] w-8 bg-gradient-to-r from-transparent to-[#00ccff]" />
-                    <div className="w-1.5 h-1.5 bg-[#00ccff] rounded-full shadow-[0_0_10px_#00ccff]" />
-                    <div className="h-[2px] w-8 bg-gradient-to-l from-transparent to-[#00ccff]" />
-                  </div>
-
-                  <div className="relative px-12 py-4 bg-white/[0.02] backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl">
-                    <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase flex items-baseline gap-4">
-                      <span className="text-[#00ccff] drop-shadow-[0_0_25px_rgba(0,204,255,0.4)]">{selectedRound}</span>
-                      <span className="text-3xl md:text-4xl opacity-90 tracking-widest font-black italic">KOLEJKA</span>
-                    </h3>
-                    
-                    {/* Glass corner accents */}
-                    <div className="absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-[#00ccff]/30 rounded-tl-lg" />
-                    <div className="absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-[#00ccff]/30 rounded-br-lg" />
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-2">
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.5em]">Sezon 2025/26</span>
-                  </div>
-                </div>
+          <div className="mb-20 relative pt-10 pb-6">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+            
+            <div className="flex flex-col items-center justify-center gap-6 relative z-10">
+              <div className="relative group">
+                <div className="absolute -inset-8 bg-blue-500/10 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+                <Image
+                  src="https://i.ibb.co/TB027G07/czarnepff-1.png"
+                  alt="PFF"
+                  width={200}
+                  height={100}
+                  className="brightness-0 invert opacity-40 h-24 md:h-28 w-auto relative z-10 grayscale hover:grayscale-0 transition-all duration-700"
+                />
               </div>
 
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+              <div className="flex flex-col items-center relative">
+                {/* Decorative Line with Glow */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="h-[2px] w-8 bg-gradient-to-r from-transparent to-[#00ccff]" />
+                  <div className="w-1.5 h-1.5 bg-[#00ccff] rounded-full shadow-[0_0_10px_#00ccff]" />
+                  <div className="h-[2px] w-8 bg-gradient-to-l from-transparent to-[#00ccff]" />
+                </div>
+
+                <div className="relative px-12 py-4 bg-white/[0.02] backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl">
+                  <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase flex items-baseline gap-4">
+                    <span className="text-[#00ccff] drop-shadow-[0_0_25px_rgba(0,204,255,0.4)]">{selectedRound}</span>
+                    <span className="text-3xl md:text-4xl opacity-90 tracking-widest font-black italic">KOLEJKA</span>
+                  </h3>
+                  
+                  {/* Glass corner accents */}
+                  <div className="absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-[#00ccff]/30 rounded-tl-lg" />
+                  <div className="absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-[#00ccff]/30 rounded-br-lg" />
+                </div>
+
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.5em]">Sezon 2025/26</span>
+                </div>
+              </div>
             </div>
-          )}
+
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+          </div>
           
           <div className="space-y-4">
             {/* Finished Matches */}
