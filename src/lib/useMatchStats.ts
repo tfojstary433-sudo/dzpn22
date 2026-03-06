@@ -243,7 +243,7 @@ export function useMatchStats() {
             points: goals + assists,
             country: player.country || "PL",
             position: player.position || "---",
-            avatar: player.avatar
+            avatarUrl: player.avatar
           };
         });
         
@@ -277,7 +277,8 @@ export function useMatchStats() {
             homeTeamId: teamA,
             awayTeamId: teamB,
             scorers: m.scorers || [],
-            finished: true
+            finished: true,
+            timestamp: m.timestamp || new Date().toISOString()
           };
 
           [teamA, teamB].forEach(tId => {
