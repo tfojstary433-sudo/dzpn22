@@ -449,7 +449,7 @@ export default function MatchDetail() {
     const stored = localStorage.getItem('finishedMatches');
     if (stored) {
       const finished = JSON.parse(stored);
-      setFinishedMatches(prev => {
+      setFinishedMatches((prev: any) => {
         if (JSON.stringify(prev) === JSON.stringify(finished)) return prev;
         return finished;
       });
@@ -460,7 +460,7 @@ export default function MatchDetail() {
         const matchStats = localStorage.getItem('matchStats');
         if (matchStats) {
           const stats = JSON.parse(matchStats);
-          setFinishedMatchData(prev => {
+          setFinishedMatchData((prev: any) => {
             const currentStats = stats[id] || null;
             if (JSON.stringify(prev) === JSON.stringify(currentStats)) return prev;
             return currentStats;
@@ -683,7 +683,7 @@ export default function MatchDetail() {
     };
 
     fetchSchedule();
-  }, [isMatchActive, isMatchFinished, homeTeam.name, homeTeam.shortName, homeTeam.id, awayTeam.name, awayTeam.shortName, awayTeam.id, id]);
+  }, [isMatchActive, isMatchFinished, homeTeam.name, homeTeam.shortName, homeTeam.id, awayTeam.name, awayTeam.shortName, awayTeam.id, id, preMatchInfo]);
 
   const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
   const [showGoalAnimation, setShowGoalAnimation] = useState(false);
