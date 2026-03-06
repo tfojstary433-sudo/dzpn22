@@ -678,14 +678,14 @@ function TurniejeContent() {
               {/* Bracket Area */}
               <div className="container mx-auto px-4 py-16 overflow-x-auto">
                 <div className="min-w-[1000px] flex justify-between gap-8 pb-12">
-                  {cupMatches.map((round, roundIdx) => (
+                  {cupMatches.map((round: any, roundIdx: number) => (
                     <div key={roundIdx} className="flex-1 flex flex-col">
                       <div className="flex items-center gap-4 mb-12 px-2">
                         <div className="w-1.5 h-6 bg-[#B21118] rounded-full" />
                         <h2 className="text-xl font-black uppercase tracking-tight italic whitespace-nowrap">{round.round}</h2>
                       </div>
                       <div className="flex flex-col justify-around flex-1 gap-8">
-                        {round.matches.map((match) => (
+                        {round.matches.map((match: any) => (
                           <div key={match.id} className="relative group">
                             <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/[0.08] transition-all duration-300 relative z-10 w-full group/card">
                               <div className="flex flex-col gap-3">
@@ -1028,7 +1028,7 @@ function TurniejeContent() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {groupA.map((row, i) => (
+                                    {groupA.map((row: any, i: number) => (
                                       <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
                                         <td className="py-4 px-6">
                                           <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
@@ -1082,7 +1082,7 @@ function TurniejeContent() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {allStandings.map((row, i) => (
+                                    {allStandings.map((row: any, i: number) => (
                                       <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group">
                                         <td className="py-4 px-6">
                                           <span className="text-sm font-bold text-white/20">{i + 1}</span>
@@ -1137,7 +1137,7 @@ function TurniejeContent() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {groupB.map((row, i) => (
+                                    {groupB.map((row: any, i: number) => (
                                       <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
                                         <td className="py-4 px-6">
                                           <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
@@ -1184,7 +1184,7 @@ function TurniejeContent() {
                   <div className="container mx-auto px-4 py-16 overflow-x-auto scrollbar-hide">
                     {knockoutRounds.length > 0 ? (
                       <div className="min-w-[1000px] flex justify-between gap-12 pb-12 relative">
-                        {knockoutRounds.map((round, ridx) => (
+                        {knockoutRounds.map((round: any, ridx: number) => (
                           <div key={ridx} className="flex-1 flex flex-col">
                             {/* Round Header */}
                             <div className="flex items-center gap-4 mb-12 px-2">
@@ -1194,7 +1194,7 @@ function TurniejeContent() {
 
                             {/* Matches Container */}
                             <div className={`flex flex-col flex-1 gap-8 ${ridx === 1 ? 'justify-center' : 'justify-around'}`}>
-                              {round.matches.map((match, midx) => (
+                              {round.matches.map((match: any, midx: number) => (
                                 <div key={midx} className="relative group">
                                   <Link href={`/mecz/${match.id}`}>
                                     <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-[#00ccff]/50 transition-all duration-300 relative z-10 w-full group/card shadow-2xl">

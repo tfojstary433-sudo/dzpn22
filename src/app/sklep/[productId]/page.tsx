@@ -148,13 +148,47 @@ export default function ProductDetailPage() {
   const totalPrice = product.type === 'quantity' ? product.pricePerUnit * quantity : product.price;
   const isPLN = product.currency === 'pln';
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
+    if (!user) {
+      setMessage({ type: 'error', text: 'Musisz być zalogowany, aby dokonać zakupu' });
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
 
     if (isPLN) {
-      setMessage({ type: 'error', text: 'Płatności w PLN wymagają odrębnego systemu płatności' });
-      setLoading(false);
+      try {
+        const response = await fetch('/api/stripe/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            cart: [{
+              id: productId,
+              name: product.name,
+              description: product.description,
+              image: product.images[0],
+              price: totalPrice,
+              quantity: quantity,
+              type: 'pln-product'
+            }],
+            customerEmail: user.email,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setMessage({ type: 'error', text: data.error || 'Błąd podczas tworzenia płatności' });
+        }
+      } catch (error) {
+        console.error('Checkout error:', error);
+        setMessage({ type: 'error', text: 'Błąd podczas połączenia z serwerem płatności' });
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
