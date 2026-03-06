@@ -4,14 +4,15 @@ import { headers } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    const secretKey = process.env.STRIPE_SECRET_KEY || process.env.STRIPE;
+    if (!secretKey || !process.env.STRIPE_WEBHOOK_SECRET) {
       return NextResponse.json(
         { error: 'Stripe configuration missing' },
         { status: 500 }
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(secretKey);
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     const body = await request.text();

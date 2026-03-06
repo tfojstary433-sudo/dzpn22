@@ -3,14 +3,15 @@ import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY) {
+    const secretKey = process.env.STRIPE_SECRET_KEY || process.env.STRIPE;
+    if (!secretKey) {
       return NextResponse.json(
         { error: 'Stripe configuration missing' },
         { status: 500 }
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(secretKey);
 
     const { userId, cart, customerEmail } = await request.json();
 

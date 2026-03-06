@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { matches, Match, teams, extraTeams, standings, friendlyMatchesData, findMatchById } from '@/lib/data';
@@ -232,87 +232,34 @@ const getHalfPitchPositions = (positionType: string, count: number, xBase: numbe
   return positions;
 };
 
-const calculateSmartPositions = (starters: Array<{name: string; position?: string}>, side: 'home' | 'away'): Record<string, PlayerPosition> => {
-  const positionGroups: Record<string, Array<{name: string; position?: string}>> = {
-    GK: [],
-    DEF: [],
-    MID: [],
-    ATT: []
-  };
+const calculateSmartPositions = (starters: Array<{name: string; position?: string}>, side: 'home' | 'away'): Array<PlayerPosition & { name: string }> => {
+  const color = side === 'home' ? 'blue-600' : 'red-600';
+  const result: Array<PlayerPosition & { name: string }> = [];
   
-  starters.forEach(p => {
-    const posType = p.position?.toUpperCase()?.trim() || 'ATT';
-    
-    if (posType === 'GK') {
-      positionGroups.GK.push(p);
-    } else if (posType === 'DEF' || posType === 'CB' || posType === 'LB' || posType === 'RB' || posType === 'LWB' || posType === 'RWB') {
-      positionGroups.DEF.push(p);
-    } else if (
-      posType === 'MID' || posType === 'CM' || posType === 'CDM' || posType === 'DM' || 
-      posType === 'CAM' || posType === 'AM' || posType === 'LM' || posType === 'RM' ||
-      posType.includes('MID')
-    ) {
-      positionGroups.MID.push(p);
-    } else {
-      positionGroups.ATT.push(p);
+  if (!starters || starters.length === 0) return result;
+
+  // Static 4-3-3 positions
+  const formation433: PlayerPosition[] = [
+    { x: side === 'home' ? '8%' : '92%', y: '50%', color }, // GK
+    { x: side === 'home' ? '20%' : '80%', y: '12%', color }, // LB
+    { x: side === 'home' ? '20%' : '80%', y: '38%', color }, // CB
+    { x: side === 'home' ? '20%' : '80%', y: '62%', color }, // CB
+    { x: side === 'home' ? '20%' : '80%', y: '88%', color }, // RB
+    { x: side === 'home' ? '45%' : '55%', y: '25%', color }, // LCM
+    { x: side === 'home' ? '45%' : '55%', y: '50%', color }, // CM
+    { x: side === 'home' ? '45%' : '55%', y: '75%', color }, // RCM
+    { x: side === 'home' ? '75%' : '25%', y: '18%', color }, // LW
+    { x: side === 'home' ? '75%' : '25%', y: '50%', color }, // ST
+    { x: side === 'home' ? '75%' : '25%', y: '82%', color }, // RW
+  ];
+
+  starters.slice(0, 11).forEach((player, idx) => {
+    if (formation433[idx]) {
+      result.push({
+        ...formation433[idx],
+        name: player.name
+      });
     }
-  });
-  
-  const gkCount = positionGroups.GK.length;
-  const defCount = positionGroups.DEF.length;
-  const midCount = positionGroups.MID.length;
-  const attCount = positionGroups.ATT.length;
-  
-  const xPositions: Record<string, number> = {
-    GK: 8,
-    DEF: 22,
-    MID: 50,
-    ATT: 78
-  };
-  
-  if (midCount === 0 && attCount > 0) {
-    xPositions.ATT = 55;
-  } else if (midCount > 0 && attCount > 0) {
-    if (midCount === 1) {
-      xPositions.MID = 40;
-      xPositions.ATT = 75;
-    } else if (midCount === 2) {
-      xPositions.MID = 42;
-      xPositions.ATT = 75;
-    } else if (midCount === 3) {
-      xPositions.MID = 45;
-      xPositions.ATT = 75;
-    } else if (midCount === 4) {
-      xPositions.MID = 48;
-      xPositions.ATT = 75;
-    } else {
-      xPositions.MID = 50;
-      xPositions.ATT = 73;
-    }
-  } else if (midCount > 0 && attCount === 0) {
-    xPositions.MID = 60;
-  }
-  
-  if (defCount >= 5) {
-    xPositions.DEF = 20;
-    if (midCount > 0) {
-      xPositions.MID = 45;
-    }
-  } else if (defCount === 3) {
-    xPositions.DEF = 24;
-  }
-  
-  const result: Record<string, PlayerPosition> = {};
-  
-  Object.entries(positionGroups).forEach(([posType, players]) => {
-    if (players.length === 0) return;
-    
-    const xBase = xPositions[posType];
-    const positions = getHalfPitchPositions(posType, players.length, xBase, side);
-    
-    players.forEach((player, idx) => {
-      result[player.name] = positions[idx];
-    });
   });
   
   return result;
@@ -375,8 +322,9 @@ export default function MatchDetail() {
   const [activeTab, setActiveTab] = useState<'na-żywo' | 'relacja' | 'składy' | 'statystyki'>('relacja');
   const [apiData, setApiData] = useState<MatchApiData | null>(null);
   const [preMatchInfo, setPreMatchInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isFirstFetch = useRef(true);
   const hasAutoSwitched = useRef(false);
 
   const allTeams = [...teams, ...extraTeams];
@@ -482,11 +430,14 @@ export default function MatchDetail() {
            (awayTeam.id && teamStr === awayTeam.id.toLowerCase());
   }, [awayTeam.name, awayTeam.shortName, awayTeam.id, apiData?.match.teamB]);
 
-  const calculatedScore = apiData?.events?.goals ? apiData.events.goals.reduce((acc, goal) => {
-    if (isHomeTeam(goal)) acc.scoreA++;
-    else if (isAwayTeam(goal)) acc.scoreB++;
-    return acc;
-  }, { scoreA: 0, scoreB: 0 }) : null;
+  const calculatedScore = useMemo(() => {
+    if (!apiData?.events?.goals) return null;
+    return apiData.events.goals.reduce((acc, goal) => {
+      if (isHomeTeam(goal)) acc.scoreA++;
+      else if (isAwayTeam(goal)) acc.scoreB++;
+      return acc;
+    }, { scoreA: 0, scoreB: 0 });
+  }, [apiData?.events?.goals, isHomeTeam, isAwayTeam]);
 
   // Check if match is finished based on localStorage
   const [isMatchFinished, setIsMatchFinished] = useState(false);
@@ -498,7 +449,10 @@ export default function MatchDetail() {
     const stored = localStorage.getItem('finishedMatches');
     if (stored) {
       const finished = JSON.parse(stored);
-      setFinishedMatches(finished);
+      setFinishedMatches(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(finished)) return prev;
+        return finished;
+      });
       
       const isFin = finished[id] || match?.status === 'finished';
       if (isFin) {
@@ -506,7 +460,11 @@ export default function MatchDetail() {
         const matchStats = localStorage.getItem('matchStats');
         if (matchStats) {
           const stats = JSON.parse(matchStats);
-          setFinishedMatchData(stats[id] || null);
+          setFinishedMatchData(prev => {
+            const currentStats = stats[id] || null;
+            if (JSON.stringify(prev) === JSON.stringify(currentStats)) return prev;
+            return currentStats;
+          });
         }
       }
     }
@@ -514,13 +472,13 @@ export default function MatchDetail() {
 
   useEffect(() => {
     const fetchMatchData = async () => {
-      if (loading) return;
-      setLoading(true);
+      if (isFirstFetch.current) {
+        setLoading(true);
+      }
       setError(null);
       try {
         let loaded = false;
 
-        // Parallel fetch for initial data to speed up
         const [tournamentRes, scheduleRes] = await Promise.all([
           fetch(`${REPLIT_API_BASE_URL}/api/tournament/1.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
           fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null)
@@ -537,8 +495,7 @@ export default function MatchDetail() {
           
           if (found) {
             setPreMatchInfo((prev: any) => {
-              if (JSON.stringify(prev) === JSON.stringify(found)) return prev;
-              return {
+              const updated = {
                 ...found,
                 homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
                 awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
@@ -547,6 +504,8 @@ export default function MatchDetail() {
                 stadium: found.stadium || 'Ośrodek Treningowy PFF',
                 category: 'MECZE TOWARZYSKIE'
               };
+              if (JSON.stringify(prev) === JSON.stringify(updated)) return prev;
+              return updated;
             });
           }
         }
@@ -568,31 +527,34 @@ export default function MatchDetail() {
           }
         }
 
-        // Try Replit details
         if (isUuid(id)) {
           try {
             const replitRes = await fetch(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
             if (replitRes.ok) {
               const replitData = await replitRes.json();
-              setApiData(replitData);
+              setApiData(prev => {
+                if (JSON.stringify(prev) === JSON.stringify(replitData)) return prev;
+                return replitData;
+              });
               loaded = true;
             }
           } catch {}
         }
 
-        // Local API / Firebase fallback
         if (!loaded) {
           try {
             const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
             if (response.ok) {
               const data = await response.json();
-              setApiData(data);
+              setApiData(prev => {
+                if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
+                return data;
+              });
               loaded = true;
             }
           } catch {}
         }
 
-        // Try players-history.json as a definitive score source
         try {
           const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
           if (historyRes.ok) {
@@ -600,7 +562,7 @@ export default function MatchDetail() {
             if (historyData.players) {
               let historyMatch = null;
               for (const p of Object.values(historyData.players) as any[]) {
-                const m = p.matches?.find((match: any) => match.matchUuid === id || match.id?.toString() === id);
+                const m = p.matches?.find((m: any) => m.matchUuid === id || m.id?.toString() === id);
                 if (m) {
                   historyMatch = m;
                   break;
@@ -611,16 +573,20 @@ export default function MatchDetail() {
                 const hScoreA = historyMatch.scoreA;
                 const hScoreB = historyMatch.scoreB;
 
-                setPreMatchInfo((prev: any) => ({
-                  ...(prev || {}),
-                  scoreA: hScoreA,
-                  scoreB: hScoreB,
-                  homeScore: hScoreA,
-                  awayScore: hScoreB,
-                  status: 'finished',
-                  teamA: historyMatch.teamA,
-                  teamB: historyMatch.teamB
-                }));
+                setPreMatchInfo((prev: any) => {
+                  const updated = {
+                    ...(prev || {}),
+                    scoreA: hScoreA,
+                    scoreB: hScoreB,
+                    homeScore: hScoreA,
+                    awayScore: hScoreB,
+                    status: 'finished',
+                    teamA: historyMatch.teamA,
+                    teamB: historyMatch.teamB
+                  };
+                  if (JSON.stringify(prev) === JSON.stringify(updated)) return prev;
+                  return updated;
+                });
                 setIsMatchFinished(true);
               }
             }
@@ -629,14 +595,17 @@ export default function MatchDetail() {
 
       } catch (err: any) {
         console.error('Error fetching match data:', err);
-        setError(err.message || 'Nie udało się pobrać danych meczu');
+        if (isFirstFetch.current) setError(err.message || 'Nie udało się pobrać danych meczu');
       } finally {
-        setLoading(false);
+        if (isFirstFetch.current) {
+          setLoading(false);
+          isFirstFetch.current = false;
+        }
       }
     };
 
     fetchMatchData();
-    const interval = setInterval(fetchMatchData, 10000); // 10s interval
+    const interval = setInterval(fetchMatchData, 10000);
     return () => clearInterval(interval);
   }, [id]); // Only depend on ID
 
@@ -646,13 +615,16 @@ export default function MatchDetail() {
       const isActive = apiData.match?.isActive || status === 'active' || status === 'live';
       const isFinished = status === 'finished' || status === 'played' || status === 'ft';
 
-      setIsMatchActive(isActive);
-      if (isFinished) setIsMatchFinished(true);
+      if (isActive) setIsMatchActive(true);
+      if (isFinished) {
+        setIsMatchFinished(true);
+        setIsMatchActive(false);
+      }
     }
   }, [apiData]);
 
   useEffect(() => {
-    if (preMatchInfo && !isMatchActive) {
+    if (preMatchInfo && !isMatchActive && !isMatchFinished) {
       const status = preMatchInfo.status?.toLowerCase();
       const isFin = status === 'finished' || status === 'ft' || status === 'played';
       const isActive = preMatchInfo.isActive || status === 'active' || status === 'live' || status === 'in_progress';
@@ -660,7 +632,7 @@ export default function MatchDetail() {
       if (isActive) setIsMatchActive(true);
       if (isFin) setIsMatchFinished(true);
     }
-  }, [preMatchInfo, isMatchActive]);
+  }, [preMatchInfo, isMatchActive, isMatchFinished]);
 
   useEffect(() => {
     if (isMatchFinished && !hasAutoSwitched.current) {
@@ -701,12 +673,17 @@ export default function MatchDetail() {
           });
         }
         
-        if (found) setPreMatchInfo(found);
+        if (found) {
+          setPreMatchInfo((prev: any) => {
+            if (JSON.stringify(prev) === JSON.stringify(found)) return prev;
+            return found;
+          });
+        }
       } catch {}
     };
 
     fetchSchedule();
-  }, [isMatchActive, isMatchFinished, homeTeam, awayTeam, id, preMatchInfo]);
+  }, [isMatchActive, isMatchFinished, homeTeam.name, homeTeam.shortName, homeTeam.id, awayTeam.name, awayTeam.shortName, awayTeam.id, id]);
 
   const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
   const [showGoalAnimation, setShowGoalAnimation] = useState(false);
@@ -1115,11 +1092,11 @@ export default function MatchDetail() {
                     });
                     
                     return [
-                      ...eventsData.goals.map((e) => ({...e, type: 'goal' as const, _id: `goal-${Math.random()}`, original: e})),
-                      ...eventsData.cards.map((e, i) => ({...e, type: e.type, _id: `card-${i}`})),
-                      ...eventsData.substitutions.map((e, i) => ({...e, type: 'substitution' as const, _id: `sub-${i}`})),
-                      ...(eventsData.cancelledGoals || []).map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${i}`})),
-                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${i}`}))
+                      ...eventsData.goals.map((e, i) => ({...e, type: 'goal' as const, _id: `goal-${i}-${e.minute}-${e.player}`, original: e})),
+                      ...eventsData.cards.map((e, i) => ({...e, type: e.type, _id: `card-${i}-${e.minute}-${e.player}`})),
+                      ...eventsData.substitutions.map((e, i) => ({...e, type: 'substitution' as const, _id: `sub-${i}-${e.minute}-${e.playerIn}`})),
+                      ...(eventsData.cancelledGoals || []).map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${i}-${e.minute}`})),
+                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${i}-${e.minute}`}))
                     ].sort((a, b) => b.minute - a.minute).map((event: any) => {
                       const isHomeEvent = isHomeTeam(event);
                       const isAwayEvent = isAwayTeam(event);
@@ -1427,17 +1404,16 @@ export default function MatchDetail() {
                                     const awayPositions = calculateSmartPositions(apiData.match.lineupB.starters, 'away');
                                     
                                     return [
-                                      ...apiData.match.lineupA.starters.map(p => ({ ...p, team: 'home', pos: homePositions[p.name] })),
-                                      ...apiData.match.lineupB.starters.map(p => ({ ...p, team: 'away', pos: awayPositions[p.name] }))
+                                      ...homePositions.map(p => ({ ...p, team: 'home' })),
+                                      ...awayPositions.map(p => ({ ...p, team: 'away' }))
                                     ].map((player, idx) => {
-                                      if (!player.pos) return null;
                                       return (
                                         <div 
-                                          key={idx} 
+                                          key={`${player.team}-${idx}`} 
                                           className="absolute flex flex-col items-center group cursor-pointer"
                                           style={{ 
-                                            left: player.pos.x, 
-                                            top: player.pos.y,
+                                            left: player.x, 
+                                            top: player.y,
                                             transform: 'translate(-50%, -50%)',
                                             zIndex: 20
                                           }}

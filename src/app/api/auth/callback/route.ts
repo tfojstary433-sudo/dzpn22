@@ -42,9 +42,9 @@ function getData(fileName: string) {
   return {};
 }
 
-const CLIENT_ID = '1448788697653973082';
-const CLIENT_SECRET = 'CiW1atPyupU5QO1H2Q2iYzw7hjEvarOW';
-const GUILD_ID = '1447302326971793520';
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1448788697653973082';
+const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'CiW1atPyupU5QO1H2Q2iYzw7hjEvarOW';
+const GUILD_ID = process.env.DISCORD_GUILD_ID || '1447302326971793520';
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 export async function GET(request: Request) {

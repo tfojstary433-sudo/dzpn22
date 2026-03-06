@@ -484,7 +484,7 @@ export function Navbar() {
                         {!user.discordId && (
                           <button
                             onClick={() => {
-                              const clientId = "1448788697653973082";
+                              const clientId = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID || "1448788697653973082";
                               const origin = window.location.origin.replace(/\/$/, "");
                               const redirectUri = encodeURIComponent(origin + "/callback");
                               const robloxId = user?.robloxId || localStorage.getItem('roblox_id') || "";
@@ -517,7 +517,7 @@ export function Navbar() {
               ) : (
                 <button
                   onClick={() => {
-                    const clientId = "8976718339232083701";
+                    const clientId = process.env.NEXT_PUBLIC_ROBLOX_CLIENT_ID || "8976718339232083701";
                     const origin = window.location.origin.replace(/\/$/, "");
                     const redirectUri = encodeURIComponent(origin + "/robloxcallback");
                     window.location.href = `https://authorize.roblox.com/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile&state=roblox&step=accountConfirm`;

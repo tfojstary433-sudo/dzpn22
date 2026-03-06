@@ -1,21 +1,39 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { FIREBASE_BASE_URL } from '@/lib/constants';
 
-const DATA_PATH = path.join(process.cwd(), 'src', 'data', 'user_tokens.json');
+// Helper to generate a random code
+function generateRandomCode(length = 12) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
-function readData() {
-  if (!fs.existsSync(DATA_PATH)) return { users: {}, purchases: [] };
+async function getFirebase(path: string) {
   try {
-    const content = fs.readFileSync(DATA_PATH, 'utf-8');
-    return JSON.parse(content);
+    const res = await fetch(`${FIREBASE_BASE_URL}/${path}.json`);
+    if (!res.ok) return null;
+    return await res.json();
   } catch (e) {
-    return { users: {}, purchases: [] };
+    console.error(`Firebase fetch error (${path}):`, e);
+    return null;
   }
 }
 
-function saveData(data: any) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
+async function setFirebase(path: string, data: any) {
+  try {
+    const res = await fetch(`${FIREBASE_BASE_URL}/${path}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return res.ok;
+  } catch (e) {
+    console.error(`Firebase save error (${path}):`, e);
+    return false;
+  }
 }
 
 export async function GET(request: Request) {
@@ -26,93 +44,91 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
   }
 
-  const data = readData();
-  const user = data.users[userId] || { balance: 0, bonusBalance: 0, items: {} };
+  // Get tokens from Firebase
+  const balance = await getFirebase(`tokens/${userId}`) || 0;
   
-  // Merge bonus and regular balance into one pool
-  const totalBalance = user.balance + user.bonusBalance;
-
-  return NextResponse.json({ balance: totalBalance, items: user.items });
+  // For UI compatibility, we still return an object with items (even if empty now)
+  return NextResponse.json({ balance, items: {} });
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId, action, amount, itemId, quantity } = body;
+    const { userId, action, amount, itemId, quantity, products } = body;
 
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
-    const data = readData();
-    if (!data.users[userId]) {
-      data.users[userId] = { balance: 0, bonusBalance: 0, items: {} };
-    }
-
-    const user = data.users[userId];
-
     if (action === 'addTokens') {
       const { regular, bonus } = amount;
-      user.balance += regular || 0;
-      user.bonusBalance += bonus || 0;
+      const totalToAdd = (regular || 0) + (bonus || 0);
       
-      data.purchases.push({
-        userId,
-        type: 'token_purchase',
-        amount: { regular, bonus },
-        timestamp: new Date().toISOString(),
-      });
-    } else if (action === 'purchase') {
-      // Check if user has enough tokens
-      const totalTokens = user.balance + user.bonusBalance;
-      if (totalTokens < amount) {
-        return NextResponse.json({ error: 'Not enough tokens' }, { status: 400 });
-      }
-
-      // Deduct tokens (use bonus first, then regular)
-      let remaining = amount;
-      if (user.bonusBalance >= remaining) {
-        user.bonusBalance -= remaining;
-        remaining = 0;
-      } else {
-        remaining -= user.bonusBalance;
-        user.bonusBalance = 0;
-        user.balance -= remaining;
-      }
-
-      // Add item to inventory
-      if (!user.items[itemId]) {
-        user.items[itemId] = 0;
-      }
-      user.items[itemId] += quantity || 1;
-
-      data.purchases.push({
-        userId,
-        type: 'item_purchase',
-        itemId,
-        quantity,
-        cost: amount,
-        timestamp: new Date().toISOString(),
+      // Get current balance
+      const currentBalance = await getFirebase(`tokens/${userId}`) || 0;
+      const newBalance = currentBalance + totalToAdd;
+      
+      // Save to Firebase
+      await setFirebase(`tokens/${userId}`, newBalance);
+      
+      return NextResponse.json({ 
+        success: true, 
+        balance: newBalance 
       });
     } else if (action === 'grantProducts') {
-      const { products } = body;
-      if (products && Array.isArray(products)) {
-        products.forEach(productId => {
-          if (!user.items[productId]) {
-            user.items[productId] = 0;
+      const productsToGrant = products || [];
+      if (productsToGrant && Array.isArray(productsToGrant)) {
+        for (const productId of productsToGrant) {
+          const code = generateRandomCode();
+          const normalizedId = productId.toLowerCase();
+          
+          if (normalizedId === 'unprzerwa') {
+            // Save to UnPrzerwaCodes
+            await setFirebase(`UnPrzerwaCodes/${code}`, true);
+            console.log(`Generated UnPrzerwa code: ${code} for user ${userId}`);
+          } else {
+            // Save to other_codes
+            await setFirebase(`other_codes/${code}`, true);
+            console.log(`Generated other_code: ${code} (${productId}) for user ${userId}`);
           }
-          user.items[productId] += 1;
-        });
+        }
       }
+      return NextResponse.json({ success: true });
+    } else if (action === 'removeTokens') {
+      // Logic for internal shop purchases (deducting tokens)
+      const currentBalance = await getFirebase(`tokens/${userId}`) || 0;
+      if (currentBalance < amount) {
+        return NextResponse.json({ error: 'Not enough tokens' }, { status: 400 });
+      }
+      
+      const newBalance = currentBalance - amount;
+      await setFirebase(`tokens/${userId}`, newBalance);
+      
+      // If items were bought with tokens, also generate codes for them
+      const items = body.items || [];
+      if (items.length > 0) {
+        for (const item of items) {
+          const q = item.quantity || 1;
+          for (let i = 0; i < q; i++) {
+            const code = generateRandomCode();
+            const normalizedId = item.id.toLowerCase();
+            
+            if (normalizedId === 'unprzerwa') {
+              await setFirebase(`UnPrzerwaCodes/${code}`, true);
+            } else {
+              await setFirebase(`other_codes/${code}`, true);
+            }
+          }
+        }
+      }
+      
+      return NextResponse.json({ 
+        success: true, 
+        balance: newBalance 
+      });
     }
 
-    saveData(data);
-    const totalBalance = user.balance + user.bonusBalance;
-    return NextResponse.json({ 
-      success: true, 
-      balance: totalBalance,
-      items: user.items 
-    });
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
   } catch (error) {
     console.error('Purchase error:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
