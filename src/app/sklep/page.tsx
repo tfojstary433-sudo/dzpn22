@@ -129,16 +129,16 @@ const vipPackages = [];
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+const normalToken = "https://i.ibb.co/SXJ3TDjY/obraz-2026-01-22-144700123.png";
+const successImages = [
+  "https://i.ibb.co/35CBs6hY/obraz-2026-01-22-144514080.png",
+  "https://i.ibb.co/5hLZTwbG/obraz-2026-01-22-144537167.png",
+  "https://i.ibb.co/Hp94m0x8/obraz-2026-01-22-144558424.png",
+  "https://i.ibb.co/twzxFRCs/obraz-2026-01-22-144623517.png"
+];
+
 function FallingTokens({ isSuccess }: { isSuccess: boolean }) {
   const [items, setItems] = useState<{ id: number; left: number; duration: number; delay: number; size: number; img: string }[]>([]);
-
-  const normalToken = "https://i.ibb.co/SXJ3TDjY/obraz-2026-01-22-144700123.png";
-  const successImages = [
-    "https://i.ibb.co/35CBs6hY/obraz-2026-01-22-144514080.png",
-    "https://i.ibb.co/5hLZTwbG/obraz-2026-01-22-144537167.png",
-    "https://i.ibb.co/Hp94m0x8/obraz-2026-01-22-144558424.png",
-    "https://i.ibb.co/twzxFRCs/obraz-2026-01-22-144623517.png"
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {

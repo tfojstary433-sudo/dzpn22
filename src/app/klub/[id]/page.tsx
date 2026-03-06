@@ -125,7 +125,7 @@ export default function KlubPage() {
         };
       })
       .reverse();
-  }, [id, apiFixtures, apiMatches, team?.name]);
+  }, [id, apiFixtures, apiMatches, team]);
 
   // Get next match
   const nextMatch = useMemo(() => {

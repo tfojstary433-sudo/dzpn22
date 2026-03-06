@@ -524,7 +524,7 @@ function TurniejeContent() {
   
   // Group by actual groupId from Challonge
   const standingsByGroup: { [key: string]: any[] } = {};
-  allStandings.forEach(s => {
+  allStandings.forEach((s: any) => {
     const gid = s.groupId || 'unassigned';
     if (!standingsByGroup[gid]) standingsByGroup[gid] = [];
     standingsByGroup[gid].push(s);

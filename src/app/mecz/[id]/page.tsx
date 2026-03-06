@@ -671,7 +671,7 @@ export default function MatchDetail() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [id, isMatchActive, match]);
+  }, [id, isMatchActive, match, apiData?.match?.isActive, apiData?.match?.status, preMatchInfo]);
 
   useEffect(() => {
     if (preMatchInfo) {
@@ -752,7 +752,7 @@ export default function MatchDetail() {
     };
 
     fetchSchedule();
-  }, [isMatchActive, isMatchFinished, homeTeam, awayTeam, id]);
+  }, [isMatchActive, isMatchFinished, homeTeam, awayTeam, id, preMatchInfo]);
 
   const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
   const [showGoalAnimation, setShowGoalAnimation] = useState(false);
