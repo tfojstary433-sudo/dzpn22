@@ -777,7 +777,7 @@ function TurniejeContent() {
                     <div className="space-y-16">
                       {/* Separate by Groups */}
                       {['A', 'B'].map((gid) => {
-                        const groupMatches = getFriendlyStandings().filter(s => s.groupId === gid);
+                        const groupMatches = getFriendlyStandings().filter((s: any) => s.groupId === gid);
                         if (groupMatches.length === 0) return null;
                         
                         return (
@@ -800,7 +800,7 @@ function TurniejeContent() {
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                  {groupMatches.sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga)).map((s, idx) => (
+                                  {groupMatches.sort((a: any, b: any) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga)).map((s: any, idx: number) => (
                                     <tr key={idx} className="hover:bg-white/[0.03] transition-colors group">
                                       <td className="px-8 py-6">
                                         <span className={`text-xl font-black italic ${idx < 2 ? 'text-[#00ccff]' : 'text-white/20'}`}>

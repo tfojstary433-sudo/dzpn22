@@ -435,7 +435,7 @@ export const sneakPeeks: SneakPeak[] = [
   }
 ];
 
-export const cupMatchesData = [];
+export const cupMatchesData: any[] = [];
 
 export const findMatchById = (id: string): Match | undefined => {
   const allMatches: Match[] = [
