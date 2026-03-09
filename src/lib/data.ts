@@ -379,7 +379,19 @@ export const mockPlayersData = [
   { playerId: 15, name: 'MateuszKochalski', teamId: 'WIS', goals: 0, assists: 0, cleanSheets: 4, yellowCards: 1, redCards: 0, value: 700000, position: 'Bramkarz', previousClubs: [] },
 ];
 
-export const newsArticles = [];
+export interface Article {
+  id: number;
+  title: string;
+  description: string;
+  content?: string;
+  image: string;
+  category: string;
+  date: string;
+  author?: string;
+  isVertical?: boolean;
+}
+
+export const newsArticles: Article[] = [];
 
 export const friendlyMatchesData = [
   {

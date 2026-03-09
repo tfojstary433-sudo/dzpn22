@@ -33,20 +33,20 @@ export default function NewsDetailPage() {
             author: a.author
           }));
 
-          const allArticles = [...mappedArticles, ...staticNewsArticles];
+          const allArticles = [...mappedArticles, ...(staticNewsArticles as any[])];
           const found = allArticles.find(a => String(a.id) === id);
           setArticle(found);
           setOtherArticles(allArticles.filter(a => String(a.id) !== id).slice(0, 3));
         } else {
-          const found = staticNewsArticles.find(a => String(a.id) === id);
+          const found = (staticNewsArticles as any[]).find(a => String(a.id) === id);
           setArticle(found);
-          setOtherArticles(staticNewsArticles.filter(a => String(a.id) !== id).slice(0, 3));
+          setOtherArticles((staticNewsArticles as any[]).filter(a => String(a.id) !== id).slice(0, 3));
         }
       } catch (error) {
         console.error('Error fetching article:', error);
-        const found = staticNewsArticles.find(a => String(a.id) === id);
+        const found = (staticNewsArticles as any[]).find(a => String(a.id) === id);
         setArticle(found);
-        setOtherArticles(staticNewsArticles.filter(a => String(a.id) !== id).slice(0, 3));
+        setOtherArticles((staticNewsArticles as any[]).filter(a => String(a.id) !== id).slice(0, 3));
       } finally {
         setLoading(false);
       }
