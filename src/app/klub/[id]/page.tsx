@@ -268,8 +268,9 @@ export default function KlubPage() {
           s.assists += (m.assists || 0);
           s.ratingSum += (m.rating || 0);
           s.matches += 1;
-        }
-      });
+          }
+        });
+      }
     });
 
     const playerList = Object.values(statsMap).map(s => ({

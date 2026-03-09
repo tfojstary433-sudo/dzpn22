@@ -1424,8 +1424,6 @@ function TurniejeContent() {
                   </div>
                 )}
               </div>
-            </div>
-        </div>
       </div>
       <Footer />
     </div>
