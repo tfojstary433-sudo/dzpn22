@@ -230,6 +230,59 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
     value: t.points
   }));
 
+  if (selectedLeague === 'Ekstraklasa') {
+    return (
+      <div className="w-full max-w-7xl mx-auto py-12 px-4 relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
+        
+        {/* League Switcher */}
+        <div className="flex flex-col md:flex-row items-center justify-center mb-12">
+          <div className="flex bg-black/40 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative group">
+            {(['Ekstraklasa', 'Mecze Towarzyskie'] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setSelectedLeague(l)}
+                className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative z-10 ${
+                  selectedLeague === l ? 'text-black' : 'text-white/40 hover:text-white'
+                }`}
+              >
+                {selectedLeague === l && (
+                  <div className="absolute inset-0 bg-white rounded-xl -z-10 shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
+                )}
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Logo Section */}
+        <div className="mb-12 flex justify-center">
+          <div className="relative group">
+            <Image
+              src="https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png"
+              alt="Ekstraklasa"
+              width={400}
+              height={100}
+              className="h-16 md:h-24 w-auto object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+            />
+          </div>
+        </div>
+
+        <div className="py-24 flex flex-col items-center justify-center text-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] shadow-2xl">
+          <div className="w-20 h-20 bg-blue-600/10 rounded-full flex items-center justify-center mb-8 border border-blue-500/20">
+            <svg className="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-3xl font-black uppercase italic tracking-tighter text-white mb-4">Brak danych statystycznych</h3>
+          <p className="text-white/40 max-w-md font-medium leading-relaxed">
+            Statystyki dla Ekstraklasy zostaną udostępnione po rozpoczęciu nowego sezonu rozgrywek.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto py-12 px-4 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
@@ -260,7 +313,7 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
       <div className="mb-12 flex justify-center">
         <div className="relative group">
           <Image
-            src={selectedLeague === 'Ekstraklasa' ? "https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png" : "https://i.ibb.co/vWZWXTC/obraz-2026-02-04-222253347-removebg-preview-1.png"}
+            src="https://i.ibb.co/vWZWXTC/obraz-2026-02-04-222253347-removebg-preview-1.png"
             alt={selectedLeague}
             width={400}
             height={100}

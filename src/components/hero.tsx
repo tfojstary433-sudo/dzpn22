@@ -431,20 +431,20 @@ export function Hero({
                       </h2>
 
                       {/* Home team logo */}
-                      <div className="relative group flex-shrink-0 w-20 md:w-32 lg:w-40 flex justify-center">
+                      <div className="relative group flex-shrink-0 w-12 md:w-20 lg:w-28 flex justify-center z-10">
                         <Image
                           src={displayData.homeTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
                           alt={displayData.homeTeam.name}
                           width={140}
                           height={140}
-                          className="relative z-10 object-contain drop-shadow-2xl h-16 w-16 md:h-28 md:w-28 lg:h-32 lg:w-32 transition-transform duration-500 group-hover:scale-110"
+                          className="relative z-10 object-contain drop-shadow-2xl h-10 w-10 md:h-20 md:w-20 lg:h-24 lg:w-24 transition-transform duration-500 group-hover:scale-110"
                         />
                       </div>
 
                       {/* Score/Time display */}
-                      <div className="flex flex-col items-center justify-center min-w-[100px] md:min-w-[220px] mx-1 md:mx-2">
-                        <div className="relative overflow-hidden rounded-xl md:rounded-2xl border border-white/10 px-4 md:px-12 py-3 md:py-6 flex flex-col items-center justify-center w-full transition-all duration-500 bg-black/10">
-                          <span className={`text-2xl md:text-5xl lg:text-6xl font-black tracking-wider relative z-10 whitespace-nowrap text-white`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <div className="flex flex-col items-center justify-center min-w-[100px] md:min-w-[240px] mx-1 md:mx-4 z-20">
+                        <div className="relative overflow-hidden rounded-xl md:rounded-2xl border border-white/10 px-3 md:px-10 py-2 md:py-5 flex flex-col items-center justify-center w-full transition-all duration-500 bg-black/10">
+                          <span className={`text-xl md:text-4xl lg:text-5xl font-black tracking-wider relative z-10 whitespace-nowrap text-white`} style={{ fontVariantNumeric: 'tabular-nums' }}>
                             {isMatchLive ? (
                               `${displayData.scoreA}:${displayData.scoreB}`
                             ) : (currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) ? (
@@ -487,14 +487,13 @@ export function Hero({
                       </div>
 
                       {/* Away team logo */}
-                      <div className="relative group flex-shrink-0 w-20 md:w-32 lg:w-40 flex justify-center">
-                        {/* Team color glow removed */}
+                      <div className="relative group flex-shrink-0 w-12 md:w-20 lg:w-28 flex justify-center z-10">
                         <Image
                           src={displayData.awayTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
                           alt={displayData.awayTeam.name}
                           width={140}
                           height={140}
-                          className="relative z-10 object-contain drop-shadow-2xl h-16 w-16 md:h-28 md:w-28 lg:h-32 lg:w-32 transition-transform duration-500 group-hover:scale-110"
+                          className="relative z-10 object-contain drop-shadow-2xl h-10 w-10 md:h-20 md:w-20 lg:h-24 lg:w-24 transition-transform duration-500 group-hover:scale-110"
                         />
                       </div>
 

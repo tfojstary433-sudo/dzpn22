@@ -97,7 +97,7 @@ export const teams: Team[] = [
     address: 'ul. Sportowa 1, 96-100 Skierniewice',
     phone: '+48 46 833 21 45',
     email: 'kontakt@uniaskierniewice.pl'
-  },
+  } as any,
   { 
     id: 'LGD', 
     name: 'Lechia Gdańsk', 
@@ -113,7 +113,7 @@ export const teams: Team[] = [
     address: 'ul. Pokoleń Lechii Gdańsk 1, 80-560 Gdańsk',
     phone: '+48 58 768 98 00',
     email: 'biuro@lechia.pl'
-  },
+  } as any,
   { 
     id: 'ZAG', 
     name: 'Zagłębie Lubin', 
@@ -129,7 +129,7 @@ export const teams: Team[] = [
     address: 'ul. Złotoryjska 20, 59-300 Lubin',
     phone: '+48 76 749 53 00',
     email: 'biuro@zaglebie.lubin.pl'
-  },
+  } as any,
   { 
     id: 'LPO', 
     name: 'Lech Poznań', 
@@ -145,7 +145,7 @@ export const teams: Team[] = [
     address: 'ul. Bułgarska 17, 60-320 Poznań',
     phone: '+48 61 850 44 50',
     email: 'biuro@lechpoznan.pl'
-  },
+  } as any,
   { 
     id: 'ARK', 
     name: 'Arka Gdynia', 
@@ -157,7 +157,7 @@ export const teams: Team[] = [
     coach: 'mlodypikel',
     spokesperson: '.pako7u7',
     stadium: 'Stadion Miejski w Gdyni'
-  },
+  } as any,
   { 
     id: 'LEG', 
     name: 'Legia Warszawa', 
@@ -173,7 +173,7 @@ export const teams: Team[] = [
     address: 'ul. Łazienkowska 3, 00-449 Warszawa',
     phone: '+48 22 518 61 00',
     email: 'biuro@legia.com'
-  },
+  } as any,
   { 
     id: 'POG', 
     name: 'Pogoń Szczecin', 
@@ -189,7 +189,7 @@ export const teams: Team[] = [
     address: 'ul. Karola Szymanowskiego 1, 71-426 Szczecin',
     phone: '+48 91 460 41 00',
     email: 'biuro@pogonszczecin.pl'
-  },
+  } as any,
   { 
     id: 'ZAW', 
     name: 'Zawisza Bydgoszcz', 
@@ -205,7 +205,7 @@ export const teams: Team[] = [
     address: 'ul. Sportowa 2, 85-091 Bydgoszcz',
     phone: '+48 52 322 56 78',
     email: 'kontakt@zawiszabydgoszcz.pl'
-  },
+  } as any,
   { 
     id: 'WIS', 
     name: 'Wisła Kraków', 
@@ -221,7 +221,7 @@ export const teams: Team[] = [
     address: 'ul. Reymonta 22, 30-059 Kraków',
     phone: '+48 12 630 64 37',
     email: 'biuro@wisla.krakow.pl'
-  },
+  } as any,
   { 
     id: 'SOK', 
     name: 'Sokół Olsztyn', 
@@ -237,23 +237,23 @@ export const teams: Team[] = [
     address: 'ul. Sportowa 5, 14-100 Ostróda',
     phone: '+48 89 646 32 11',
     email: 'kontakt@sokolostroda.pl'
-  },
+  } as any,
   { 
-    id: 'GRO', 
-    name: 'Grom Nowy Staw', 
-    shortName: 'Grom', 
-    logo: 'https://i.ibb.co/V0rcs98Q/obraz-2026-01-04-213027745-removebg-preview-4.png',
-    color: '#15803d',
+    id: 'BBT', 
+    name: 'Bruk-Bet Termalica', 
+    shortName: 'Termalica', 
+    logo: 'https://i.ibb.co/60TzV8Xg/obraz-2026-03-09-233546167-removebg-preview.png',
+    color: '#f97316',
     founded: '04.01.2026',
     president: '.eska.12',
     coach: 'Nieznany',
     spokesperson: 'Nieznany',
-    stadiumCapacity: 2000,
-    stadium: 'Stadion Sportowy w Nowym Stawie',
-    address: 'ul. Gdańska 12, 82-230 Nowy Staw',
-    phone: '+48 55 248 12 34',
-    email: 'biuro@gromnowystaw.pl'
-  },
+    stadiumCapacity: 4666,
+    stadium: 'Stadion Bruk-Bet w Niecieczy',
+    address: 'Nieciecza 150, 33-240 Żabno',
+    phone: '+48 14 644 44 44',
+    email: 'biuro@brukbet.com'
+  } as any,
   { 
     id: 'MOT', 
     name: 'Motor Lublin', 
@@ -261,39 +261,23 @@ export const teams: Team[] = [
     logo: 'https://i.ibb.co/bgRJrvnj/Motor-Lublin-S-A-Oficjalny-Herb.png',
     color: '#facc15',
     stadium: 'Arena Lublin'
-  },
-  {
-    id: 'OLI',
-    name: 'Olimpia Elbląg',
-    shortName: 'Olimpia',
-    logo: 'https://i.ibb.co/RGsNqf6G/olimpia-elblag.png',
-    color: '#1e40af',
-    stadium: 'Stadion Miejski w Elblągu'
-  },
-  {
-    id: 'CHO',
-    name: 'Chojniczanka Chojnice',
-    shortName: 'Chojniczanka',
-    logo: 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png',
-    color: '#dc2626',
-    stadium: 'Stadion Miejski w Chojnicach'
-  },
-  {
-    id: 'JAG',
-    name: 'Jagiellonia Białystok',
-    shortName: 'Jagiellonia',
+  } as any,
+  { 
+    id: 'JAG', 
+    name: 'Jagiellonia Białystok', 
+    shortName: 'Jagiellonia', 
     logo: 'https://i.ibb.co/1JmyhfVn/obraz-2026-01-29-161936924.png',
     color: '#facc15',
     stadium: 'Stadion Miejski w Białymstoku'
-  },
-  {
-    id: 'WPL',
-    name: 'Wisła Płock',
-    shortName: 'Wisła Płock',
+  } as any,
+  { 
+    id: 'WPL', 
+    name: 'Wisła Płock', 
+    shortName: 'Wisła Płock', 
     logo: 'https://i.ibb.co/SX6LkvnR/obraz-2026-02-01-105518416.png',
     color: '#1e40af',
     stadium: 'Stadion im. Kazimierza Górskiego'
-  },
+  } as any,
   {
     id: 'SED',
     name: 'Kolegium Sędziowskie',
@@ -303,7 +287,7 @@ export const teams: Team[] = [
     founded: '01.01.2026',
     president: 'Zarząd PFF',
     stadium: 'PFF Arena'
-  },
+  } as any,
 ];
 
 // Map club IDs to Firebase keys
@@ -318,10 +302,8 @@ export const clubToFirebaseKey: { [key: string]: string } = {
   'ZAG': 'Club 8', // Zagłębie Lubin
   'SOK': 'Club 9', // Sokół Olsztyn
   'WIS': 'Club 10', // Wisła Kraków
-  'GRO': 'Club 11', // Grom Nowy Staw
+  'BBT': 'Club 11', // Bruk-Bet Termalica
   'MOT': 'Club 12', // Motor Lublin
-  'OLI': 'Club 13', // Olimpia Elbląg
-  'CHO': 'Club 14', // Chojniczanka Chojnice
   'JAG': 'Club 15', // Jagiellonia Białystok
   'WPL': 'Club 16', // Wisła Płock
   'SED': 'Referee', // Sędziowie
@@ -329,11 +311,11 @@ export const clubToFirebaseKey: { [key: string]: string } = {
 };
 
 export const extraTeams: Team[] = [
-  { id: 'ext1', name: 'GKS Katowice', shortName: 'GKS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/GKS_Katowice_logo.png' },
-  { id: 'ext2', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://i.ibb.co/1fNvYHvf/Widzew-L-dz-logo.png' },
-  { id: 'ext3', name: 'Cracovia', shortName: 'Cracovia', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/KS_Cracovia_logo.svg' },
-  { id: 'ext4', name: 'Korona Kielce', shortName: 'Korona', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Korona_Kielce.svg' },
-  { id: 'ext5', name: 'Radomiak Radom', shortName: 'Radomiak', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Radomiak_Radom_Logo.png' },
+  { id: 'ext1', name: 'GKS Katowice', shortName: 'GKS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/GKS_Katowice_logo.png' } as any,
+  { id: 'ext2', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://i.ibb.co/1fNvYHvf/Widzew-L-dz-logo.png' } as any,
+  { id: 'ext3', name: 'Cracovia', shortName: 'Cracovia', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/KS_Cracovia_logo.svg' } as any,
+  { id: 'ext4', name: 'Korona Kielce', shortName: 'Korona', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Korona_Kielce.svg' } as any,
+  { id: 'ext5', name: 'Radomiak Radom', shortName: 'Radomiak', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Radomiak_Radom_Logo.png' } as any,
 ];
 
 export const matches: Match[] = [];
@@ -353,8 +335,6 @@ export const standings: Standing[] = [
   { position: 12, team: teams[2], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
   { position: 13, team: teams[7], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
   { position: 14, team: teams[13], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 15, team: teams[14], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 16, team: teams[15], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
 ];
 
 export const topScorers: Player[] = [];

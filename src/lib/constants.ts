@@ -37,7 +37,7 @@ export const POSITION_MAPPING: Record<string, string> = {
 
 export const TEAM_ID_MAPPING: Record<string, string> = {
   '1': 'ARK', '2': 'LEG', '3': 'LPO', '4': 'ZAG', '5': 'MOT',
-  '6': 'GRO', '7': 'LGD', '8': 'CHO', '9': 'OLI', '10': 'POG',
+  '6': 'BBT', '7': 'LGD', '10': 'POG',
   '11': 'UNI', '12': 'ZAW', '13': 'WIS', '14': 'SOK', '15': 'JAG',
   '16': 'WPL'
 };

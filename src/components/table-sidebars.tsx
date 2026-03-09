@@ -14,13 +14,11 @@ function getTeamLogo(teamId: string): string {
     'LGD': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png',
     'POG': 'https://ext.same-assets.com/1250577607/3079565559.png',
     'ZAW': 'https://upload.wikimedia.org/wikipedia/commons/5/55/Herb_Zawiszy_Bydgoszcz.png',
-    'OLI': 'https://i.ibb.co/RGsNqf6G/olimpia-elblag.png',
     'UNI': 'https://i.ibb.co/Vp3YY8FY/unia-logo-300x300.png',
     'MOT': 'https://i.ibb.co/bgRJrvnj/Motor-Lublin-S-A-Oficjalny-Herb.png',
     'SOK': 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png',
     'WIS': 'https://upload.wikimedia.org/wikipedia/en/1/15/Wis%C5%82a_Krak%C3%B3w_logo.svg',
-    'GRO': 'https://i.ibb.co/V0rcs98Q/obraz-2026-01-04-213027745-removebg-preview-4.png',
-    'CHO': 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png',
+    'BBT': 'https://i.ibb.co/60TzV8Xg/obraz-2026-03-09-233546167-removebg-preview.png',
     'ZAG': 'https://i.ibb.co/7xBP97MW/dvyf-Zx2g-Ykwr8-Dur.png',
     'LEC_0': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', // Lechia Gdańsk
     'LEC_3': 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', // Lechia Gdańsk

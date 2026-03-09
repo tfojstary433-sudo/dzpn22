@@ -136,20 +136,12 @@ export function CompactMatchCountdown({ isMinimized = false }: { isMinimized?: b
   }, []);
 
   if (loading || hasLiveMatch || isMinimized) {
-    if (loading) return <div className="fixed right-8 top-96 w-80 h-48 bg-black/10 rounded-xl" />;
+    if (loading) return null;
     return null;
   }
 
   if (!displayMatch) {
-    return (
-      <div className="fixed right-8 top-96 w-96 z-40">
-        <div className="bg-gray-800 rounded-lg p-8 border-t-4 border-b-4 border-blue-600">
-          <div className="text-center">
-            <p className="text-gray-300 text-sm font-semibold">Brak zaplanowanych spotkań</p>
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const formatDate = (dateString: string) => {
@@ -176,71 +168,73 @@ export function CompactMatchCountdown({ isMinimized = false }: { isMinimized?: b
   const roundMatch = roundMatches.length > 0 ? roundMatches[0] : displayMatch;
 
   return (
-    <div className="fixed right-8 top-96 w-80 z-40">
-      <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-xl p-4 shadow-lg border border-blue-500">
-        <p className="text-center text-gray-200 text-xs font-semibold mb-3">
-          {formatDate(roundMatch.date)}
-        </p>
+    <div className="fixed right-4 md:right-8 bottom-8 md:bottom-auto md:top-96 w-[calc(100%-2rem)] md:w-80 z-[60] animate-in slide-in-from-right duration-500">
+      <div className="bg-[#0a101f]/90 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 ring-1 ring-white/5">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Najbliższy Mecz</span>
+          <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest">
+            {formatDate(roundMatch.date)}
+          </p>
+        </div>
 
-        <div className="mb-3">
+        <div className="mb-4 bg-white/5 rounded-xl py-3 border border-white/5">
           <CountdownTimer targetDate={roundMatch.date} />
         </div>
 
-        <div className="flex items-center justify-between gap-2 px-2">
-          <div className="flex items-center gap-2">
-            <Image
-              src={roundMatch.homeTeam!.logo}
-              alt={roundMatch.homeTeam!.name}
-              width={40}
-              height={40}
-            />
-            <div className="text-white text-center flex-1">
-              <p className="text-xs font-semibold leading-tight">{roundMatch.homeTeam!.shortName.substring(0, 3).toUpperCase()}</p>
+        <div className="flex items-center justify-between gap-4 px-2 mb-4">
+          <div className="flex flex-col items-center gap-2 flex-1">
+            <div className="w-12 h-12 bg-white/5 rounded-xl p-2 border border-white/10 flex items-center justify-center shadow-lg">
+              <Image
+                src={roundMatch.homeTeam!.logo}
+                alt={roundMatch.homeTeam!.name}
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             </div>
+            <p className="text-[10px] font-black text-white uppercase tracking-tight truncate w-full text-center">{roundMatch.homeTeam!.shortName.toUpperCase()}</p>
           </div>
 
-          <div className="flex flex-col items-center justify-center flex-shrink-0">
-            <span className="text-gray-100 text-[10px] font-bold">VS</span>
-            {roundMatch.stadium && (
-              <span className="text-[7px] text-blue-200 font-black uppercase tracking-tighter text-center max-w-[40px] truncate leading-none mt-1 opacity-60">
-                {roundMatch.stadium.split(' ')[0]}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="text-white text-center flex-1">
-              <p className="text-xs font-semibold leading-tight">{roundMatch.awayTeam!.shortName.substring(0, 3).toUpperCase()}</p>
+          <div className="flex flex-col items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-1">
+              <span className="text-blue-400 text-[10px] font-black tracking-tighter">VS</span>
             </div>
-            <Image
-              src={roundMatch.awayTeam!.logo}
-              alt={roundMatch.awayTeam!.name}
-              width={40}
-              height={40}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-1 mt-3 bg-blue-800 rounded-lg p-2 relative group/cat">
-          <button
-            onClick={handlePrevRound}
-            disabled={allRounds.indexOf(selectedRound) === 0}
-            className="px-2 py-1 text-white text-xs font-bold hover:opacity-80 disabled:opacity-30"
-          >
-            ←
-          </button>
-          <div className="flex flex-col items-center flex-1">
-            <span className="text-white text-xs font-bold">{selectedRound}. KOLEJKA</span>
             {roundMatch.category && (
-              <span className="text-[6px] font-black text-blue-300 uppercase tracking-widest opacity-0 group-hover/cat:opacity-100 transition-opacity absolute -top-1 px-1 bg-blue-800 rounded">
+              <span className="text-[7px] text-white/20 font-black uppercase tracking-widest text-center">
                 {roundMatch.category}
               </span>
             )}
           </div>
+
+          <div className="flex flex-col items-center gap-2 flex-1">
+            <div className="w-12 h-12 bg-white/5 rounded-xl p-2 border border-white/10 flex items-center justify-center shadow-lg">
+              <Image
+                src={roundMatch.awayTeam!.logo}
+                alt={roundMatch.awayTeam!.name}
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+            </div>
+            <p className="text-[10px] font-black text-white uppercase tracking-tight truncate w-full text-center">{roundMatch.awayTeam!.shortName.toUpperCase()}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-1 bg-white/5 rounded-xl p-1.5 border border-white/5">
+          <button
+            onClick={handlePrevRound}
+            disabled={allRounds.indexOf(selectedRound) === 0}
+            className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all disabled:opacity-10"
+          >
+            ←
+          </button>
+          <div className="flex flex-col items-center flex-1">
+            <span className="text-white text-[10px] font-black uppercase tracking-widest">{selectedRound}. KOLEJKA</span>
+          </div>
           <button
             onClick={handleNextRound}
             disabled={allRounds.indexOf(selectedRound) === allRounds.length - 1}
-            className="px-2 py-1 text-white text-xs font-bold hover:opacity-80 disabled:opacity-30"
+            className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-all disabled:opacity-10"
           >
             →
           </button>

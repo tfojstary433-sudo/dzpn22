@@ -13,6 +13,7 @@ export function Navbar() {
    const [scrolled, setScrolled] = useState(false);
    const [user, setUser] = useState<any>(null);
    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+   const [refreshingRoles, setRefreshingRoles] = useState(false);
    const [balance, setBalance] = useState({ balance: 0, items: {} });
    const [logoutCountdown, setLogoutCountdown] = useState<number | null>(null);
    const [searchQuery, setSearchQuery] = useState('');
@@ -45,6 +46,37 @@ export function Navbar() {
         })
         .catch(err => console.error('Error fetching tokens:', err));
     }
+  }, []);
+
+  useEffect(() => {
+    const syncRoles = async () => {
+      const savedUser = localStorage.getItem('discord_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        if (userData.username) {
+          try {
+            // Check if we checked roles recently (last 5 minutes)
+            const lastCheck = localStorage.getItem('last_roles_check');
+            const now = Date.now();
+            if (lastCheck && now - parseInt(lastCheck) < 5 * 60 * 1000) return;
+
+            const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${userData.username}`);
+            if (response.ok) {
+              const freshData = await response.json();
+              const updatedRoles = freshData.discordRoles || [];
+              const updatedUser = { ...userData, discordRoles: updatedRoles };
+              localStorage.setItem('discord_user', JSON.stringify(updatedUser));
+              localStorage.setItem('last_roles_check', now.toString());
+              setUser(updatedUser);
+            }
+          } catch (err) {
+            console.error('Error syncing roles:', err);
+          }
+        }
+      }
+    };
+
+    syncRoles();
   }, []);
 
   useEffect(() => {
@@ -498,6 +530,35 @@ export function Navbar() {
                             Połącz z Discordem
                           </button>
                         )}
+
+                        <button
+                          onClick={async () => {
+                            if (!user?.username || refreshingRoles) return;
+                            setRefreshingRoles(true);
+                            try {
+                              const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${user.username}`);
+                              if (response.ok) {
+                                const freshData = await response.json();
+                                const updatedRoles = freshData.discordRoles || [];
+                                const updatedUser = { ...user, discordRoles: updatedRoles };
+                                localStorage.setItem('discord_user', JSON.stringify(updatedUser));
+                                localStorage.setItem('last_roles_check', Date.now().toString());
+                                setUser(updatedUser);
+                              }
+                            } catch (err) {
+                              console.error('Error refreshing roles:', err);
+                            } finally {
+                              setRefreshingRoles(false);
+                            }
+                          }}
+                          disabled={refreshingRoles}
+                          className="w-full bg-blue-500/20 hover:bg-blue-500/30 disabled:bg-gray-500/20 text-blue-400 disabled:text-gray-400 font-black py-2 rounded-lg transition-colors mb-2 flex items-center justify-center gap-2"
+                        >
+                          <svg className={`w-4 h-4 ${refreshingRoles ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          {refreshingRoles ? 'Odświeżanie...' : 'Odśwież Rangi'}
+                        </button>
 
                         <button
                           onClick={() => {

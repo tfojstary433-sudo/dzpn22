@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Plus, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Plus, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle, RefreshCw, Clock } from 'lucide-react';
 
 interface CreateArticleModalProps {
   isOpen: boolean;
@@ -11,8 +11,10 @@ interface CreateArticleModalProps {
 
 export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticleModalProps) {
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [cooldown, setCooldown] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -22,7 +24,23 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
   });
 
   useEffect(() => {
+    const checkCooldown = () => {
+      const lastPost = localStorage.getItem('last_article_post');
+      if (lastPost) {
+        const lastTime = parseInt(lastPost);
+        const now = Date.now();
+        const diff = now - lastTime;
+        const remaining = (24 * 60 * 60 * 1000) - diff;
+        if (remaining > 0) {
+          setCooldown(remaining);
+        } else {
+          setCooldown(null);
+        }
+      }
+    };
+
     if (isOpen) {
+      checkCooldown();
       const savedUser = localStorage.getItem('discord_user');
       if (savedUser) {
         const userData = JSON.parse(savedUser);
@@ -37,25 +55,67 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
     };
   }, [isOpen]);
 
+  const handleRefreshRoles = async () => {
+    setRefreshing(true);
+    try {
+      const savedUser = localStorage.getItem('discord_user');
+      if (!savedUser) return;
+      const userData = JSON.parse(savedUser);
+      if (!userData.username) return;
+
+      const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${userData.username}`);
+      if (response.ok) {
+        const freshData = await response.json();
+        // Update localStorage with fresh roles from DB/Discord
+        const updatedUser = {
+          ...userData,
+          discordRoles: freshData.discordRoles || []
+        };
+        localStorage.setItem('discord_user', JSON.stringify(updatedUser));
+        // Force refresh the page to update UI permissions
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Error refreshing roles:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cooldown) return;
     setLoading(true);
     setError(null);
 
     try {
+      // Prepare data - ensure optional fields are handled correctly
+      const submissionData = {
+        ...formData,
+        imageUrl: formData.imageUrl.trim() || null,
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        author: formData.author.trim()
+      };
+
       const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       });
 
+      const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error('Wystąpił błąd podczas tworzenia artykułu.');
+        throw new Error(result.error || result.message || 'Wystąpił błąd podczas tworzenia artykułu.');
       }
+
+      // Set cooldown
+      localStorage.setItem('last_article_post', Date.now().toString());
 
       setSuccess(true);
       setTimeout(() => {
@@ -80,6 +140,12 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const formatCooldown = (ms: number) => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
   };
 
   return (
@@ -116,16 +182,40 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {cooldown && (
+                <div className="flex items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400 text-sm font-bold animate-in slide-in-from-top-2">
+                  <Clock className="w-5 h-5 shrink-0" />
+                  <p>Limit publikacji: Kolejny artykuł za {formatCooldown(cooldown)}</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/10 rounded-2xl">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Twoje Uprawnienia</span>
+                  <span className="text-white font-bold text-xs">Zsynchronizuj rangi z Discordem</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRefreshRoles}
+                  disabled={refreshing}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
+                  {refreshing ? 'Odświeżanie...' : 'Odśwież Rangi'}
+                </button>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Tytuł artykułu</label>
                 <input
+                  disabled={!!cooldown}
                   required
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="Wprowadź tytuł..."
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
                 />
               </div>
 
@@ -133,10 +223,11 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Kategoria</label>
                   <select
+                    disabled={!!cooldown}
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer disabled:opacity-50"
                   >
                     <option value="AKTUALNOŚCI">Aktualności</option>
                     <option value="TRANSFERY">Transfery</option>
@@ -148,13 +239,14 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Autor</label>
                   <input
+                    disabled={!!cooldown}
                     required
                     type="text"
                     name="author"
                     value={formData.author}
                     onChange={handleChange}
                     placeholder="Twój nick..."
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -164,12 +256,13 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
                 <div className="relative">
                   <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20" />
                   <input
+                    disabled={!!cooldown}
                     type="url"
                     name="imageUrl"
                     value={formData.imageUrl}
                     onChange={handleChange}
                     placeholder="https://i.ibb.co/..."
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl pl-16 pr-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl pl-16 pr-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -177,13 +270,14 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Treść artykułu (HTML obsługiwany)</label>
                 <textarea
+                  disabled={!!cooldown}
                   required
                   name="content"
                   value={formData.content}
                   onChange={handleChange}
                   rows={6}
                   placeholder="Treść artykułu tutaj..."
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-3xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none"
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-3xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none disabled:opacity-50"
                 />
               </div>
 
@@ -195,7 +289,7 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
               )}
 
               <button
-                disabled={loading}
+                disabled={loading || !!cooldown}
                 type="submit"
                 className="w-full bg-blue-600 text-white font-black uppercase italic tracking-[0.2em] py-5 rounded-2xl hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(37,99,235,0.3)] disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 group"
               >
@@ -204,7 +298,7 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
                 ) : (
                   <>
                     <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                    Opublikuj Artykuł
+                    {cooldown ? 'Limit publikacji aktywny' : 'Opublikuj Artykuł'}
                   </>
                 )}
               </button>
@@ -219,18 +313,45 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
 export function CreateArticleButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
+  const [loading, setLoading] = useState(true);
   const REQUIRED_ROLE_ID = '1447302327349416051';
 
   useEffect(() => {
-    const checkPermission = () => {
+    const checkPermission = async () => {
       const savedUser = localStorage.getItem('discord_user');
       if (savedUser) {
         const userData = JSON.parse(savedUser);
-        const roles = userData.discordRoles || [];
-        setHasPermission(roles.includes(REQUIRED_ROLE_ID));
+        
+        // Always try to fetch fresh data from API to ensure role wasn't taken away
+        if (userData.username) {
+          try {
+            const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${userData.username}`);
+            if (response.ok) {
+              const freshData = await response.json();
+              const updatedRoles = freshData.discordRoles || [];
+              
+              // Update localStorage if roles changed
+              if (JSON.stringify(updatedRoles) !== JSON.stringify(userData.discordRoles)) {
+                const updatedUser = { ...userData, discordRoles: updatedRoles };
+                localStorage.setItem('discord_user', JSON.stringify(updatedUser));
+                setHasPermission(updatedRoles.includes(REQUIRED_ROLE_ID));
+              } else {
+                setHasPermission(userData.discordRoles?.includes(REQUIRED_ROLE_ID));
+              }
+            } else {
+              setHasPermission(userData.discordRoles?.includes(REQUIRED_ROLE_ID));
+            }
+          } catch (err) {
+            console.error('Error syncing roles:', err);
+            setHasPermission(userData.discordRoles?.includes(REQUIRED_ROLE_ID));
+          }
+        } else {
+          setHasPermission(userData.discordRoles?.includes(REQUIRED_ROLE_ID));
+        }
       } else {
         setHasPermission(false);
       }
+      setLoading(false);
     };
 
     checkPermission();
@@ -239,7 +360,7 @@ export function CreateArticleButton() {
     return () => window.removeEventListener('storage', checkPermission);
   }, []);
 
-  if (!hasPermission) return null;
+  if (loading || !hasPermission) return null;
 
   return (
     <>
