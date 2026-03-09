@@ -3,15 +3,70 @@
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { useParams } from 'next/navigation';
-import { newsArticles } from '@/lib/data';
+import { newsArticles as staticNewsArticles } from '@/lib/data';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, User, ArrowLeft, Share2, MessageCircle } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Share2, MessageCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function NewsDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const article = newsArticles.find(a => a.id === parseInt(id)) as any;
+  const [article, setArticle] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [otherArticles, setOtherArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchArticleData = async () => {
+      try {
+        const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles');
+        if (response.ok) {
+          const data = await response.json();
+          const mappedArticles = data.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            description: a.content.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...',
+            content: a.content,
+            image: a.imageUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+            category: a.category || 'News',
+            date: new Date(a.publishedAt || a.createdAt).toLocaleDateString('pl-PL'),
+            author: a.author
+          }));
+
+          const allArticles = [...mappedArticles, ...staticNewsArticles];
+          const found = allArticles.find(a => String(a.id) === id);
+          setArticle(found);
+          setOtherArticles(allArticles.filter(a => String(a.id) !== id).slice(0, 3));
+        } else {
+          const found = staticNewsArticles.find(a => String(a.id) === id);
+          setArticle(found);
+          setOtherArticles(staticNewsArticles.filter(a => String(a.id) !== id).slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching article:', error);
+        const found = staticNewsArticles.find(a => String(a.id) === id);
+        setArticle(found);
+        setOtherArticles(staticNewsArticles.filter(a => String(a.id) !== id).slice(0, 3));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticleData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen text-white relative">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-60 px-4 relative z-10">
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+          <p className="text-white/40 font-black uppercase tracking-widest text-xs">Ładowanie artykułu...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -126,7 +181,7 @@ export default function NewsDetailPage() {
                 <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/5 rounded-[56px] p-10 md:p-20 shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[150px] rounded-full -mr-64 -mt-64 group-hover:bg-blue-600/10 transition-colors duration-1000" />
                   
-                  <div className="prose prose-invert prose-2xl max-w-none relative z-10">
+                  <div className="relative z-10">
                     {article.isVertical && article.image && (
                       <div className="float-right ml-12 mb-12 w-full md:w-1/2 lg:w-[400px] relative aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-700 group/img">
                         <div className="absolute inset-0 bg-blue-500/10 z-10 opacity-0 group-hover/img:opacity-100 transition-opacity" />
@@ -140,14 +195,10 @@ export default function NewsDetailPage() {
                     )}
                     <div className="space-y-12 text-white/70 leading-[1.7] font-medium tracking-tight">
                       {article.content ? (
-                        article.content.split('\n\n').map((paragraph: string, idx: number) => (
-                          <p 
-                            key={idx} 
-                            className={`text-2xl md:text-3xl leading-[1.55] transition-colors duration-500 hover:text-white/90 ${idx === 0 ? 'first-letter:text-9xl first-letter:font-black first-letter:text-blue-500 first-letter:mr-6 first-letter:float-left first-letter:leading-[0.8] first-letter:mt-4 first-letter:uppercase first-letter:italic first-letter:drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]' : ''}`}
-                          >
-                            {paragraph}
-                          </p>
-                        ))
+                        <div 
+                          className="text-2xl md:text-3xl leading-[1.55] prose prose-invert prose-2xl max-w-none"
+                          dangerouslySetInnerHTML={{ __html: article.content }}
+                        />
                       ) : (
                         <p className="text-2xl md:text-3xl leading-[1.55]">
                           {article.description}
@@ -186,7 +237,7 @@ export default function NewsDetailPage() {
                   </h3>
                   
                   <div className="space-y-10">
-                    {newsArticles.filter(a => a.id !== article.id).slice(0, 3).map((relatedArticle) => (
+                    {otherArticles.map((relatedArticle) => (
                       <Link
                         key={relatedArticle.id}
                         href={`/aktualnosc/${relatedArticle.id}`}

@@ -136,7 +136,7 @@ export interface TeamStanding {
   };
 }
 
-export function useMatchStats() {
+export function useMatchStats(season: string = 'current') {
   const [topScorers, setTopScorers] = useState<PlayerStats[]>([]);
   const [standings, setStandings] = useState<TeamStanding[]>([]);
   const [finishedMatches, setFinishedMatches] = useState<Record<string, MatchResult>>({});
@@ -151,14 +151,16 @@ export function useMatchStats() {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [season]); // Re-fetch when season changes
 
   const fetchFromServer = async () => {
     try {
-      // Use the new API endpoints requested by user
+      const seasonQuery = season !== 'current' ? `?season=${season}` : '';
+      
+      // Use the local caching APIs
       const [historyRes, matchesRes] = await Promise.all([
-        fetch(API_ENDPOINTS.PLAYERS_HISTORY).catch(() => null),
-        fetch(API_ENDPOINTS.MATCHES).catch(() => null)
+        fetch(`/api/history${seasonQuery}`).catch(() => null),
+        fetch(`/api/matches${seasonQuery}`).catch(() => null)
       ]);
 
       let historyData: any = null;

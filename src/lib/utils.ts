@@ -34,12 +34,15 @@ export async function fetchWithTimeout(resource: string | Request, options: Requ
 export function calculateMatchRating(match: any, playerClub?: string, playerPosition?: string): number {
   if (!match) return 6.0;
   
-  // Base rating from minutes played
-  let score = (match.minutes / 90) * 6.0 + 1.0;
+  // Base rating of 6.0 for any appearance
+  let score = 6.0;
   
   // Stats impact
   score += (match.goals || 0) * 1.5;
   score += (match.assists || 0) * 1.0;
+  
+  // Minutes impact (bonus for playing more)
+  score += (match.minutes / 90) * 0.5;
   
   // Win/Loss impact
   if (match.result === 'W') score += 0.3;
@@ -55,7 +58,7 @@ export function calculateMatchRating(match: any, playerClub?: string, playerPosi
     score += 0.5;
   }
 
-  return Math.min(10.0, Math.max(1.0, score));
+  return Math.min(10.0, Math.max(6.0, score));
 }
 
 export function calculateMarketValue(stats: any, position?: string, avgRating: number = 6.5): number {

@@ -91,6 +91,8 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
 export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
   const { topScorers, standings } = useMatchStats();
   const [activeType, setActiveType] = useState<'gracze' | 'druzyny'>('gracze');
+  const [selectedLeague, setSelectedLeague] = useState<'Ekstraklasa' | 'Mecze Towarzyskie'>('Mecze Towarzyskie');
+  const [selectedSeason, setSelectedSeason] = useState('2025/2026');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -98,6 +100,8 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
   }, []);
 
   const players = useMemo(() => {
+    // If friendly matches selected, we might want to filter or use different mock data
+    // For now keeping it simple as requested
     const basePlayers = topScorers.length > 0 ? topScorers : mockPlayersData.map(p => ({
       ...p,
       points: p.goals + p.assists,
@@ -136,7 +140,7 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
         minutes
       };
     });
-  }, [topScorers]);
+  }, [topScorers, selectedLeague]);
 
   const teamStats = useMemo(() => {
     return standings.map(s => {
@@ -156,7 +160,7 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
         played: s.played
       };
     });
-  }, [standings]);
+  }, [standings, selectedLeague]);
 
   if (!mounted) return null;
 
@@ -232,12 +236,32 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-400/10 blur-[150px] pointer-events-none -z-10" />
       <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-cyan-500/10 blur-[120px] pointer-events-none -z-10" />
 
-      {/* Logo Section - Replaced Search Bar */}
+      {/* League Switcher */}
+      <div className="flex flex-col md:flex-row items-center justify-center mb-12">
+        <div className="flex bg-black/40 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative group">
+          {(['Ekstraklasa', 'Mecze Towarzyskie'] as const).map((l) => (
+            <button
+              key={l}
+              onClick={() => setSelectedLeague(l)}
+              className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative z-10 ${
+                selectedLeague === l ? 'text-black' : 'text-white/40 hover:text-white'
+              }`}
+            >
+              {selectedLeague === l && (
+                <div className="absolute inset-0 bg-white rounded-xl -z-10 shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
+              )}
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Logo Section */}
       <div className="mb-12 flex justify-center">
         <div className="relative group">
           <Image
-            src="https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png"
-            alt="7U7 Ekstraklasa"
+            src={selectedLeague === 'Ekstraklasa' ? "https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png" : "https://i.ibb.co/vWZWXTC/obraz-2026-02-04-222253347-removebg-preview-1.png"}
+            alt={selectedLeague}
             width={400}
             height={100}
             className="h-16 md:h-24 w-auto object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] group-hover:scale-105 transition-transform duration-500"

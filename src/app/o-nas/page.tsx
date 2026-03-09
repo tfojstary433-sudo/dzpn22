@@ -19,11 +19,6 @@ const STAFF = [
     role: 'ZARZĄD', 
     image: 'https://i.ibb.co/MknTFcRs/obraz-2026-02-01-151525881.png' 
   },
-  { 
-    name: 'diranee', 
-    role: 'ZARZĄD', 
-    image: 'https://i.ibb.co/fGCRhLkM/obraz-2026-02-01-151625390.png' 
-  },
 ];
 
 function StaffCard({ member }: { member: typeof STAFF[0] }) {
@@ -52,19 +47,19 @@ function StaffCard({ member }: { member: typeof STAFF[0] }) {
 
 export default function ONasPage() {
   return (
-    <div className="min-h-screen bg-[#050b14] text-white font-inter overflow-x-hidden">
+    <div className="min-h-screen bg-transparent text-white font-inter overflow-x-hidden">
       <Navbar />
       
       {/* Hero Section - Identical style to Home page */}
-      <div className="relative min-h-screen flex items-center justify-center">
+      <div className="relative min-h-screen flex items-center justify-center bg-transparent">
         {/* Background Layer */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 bg-transparent">
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
             style={{ backgroundImage: 'url(https://i.ibb.co/mCNVZdMn/osr-4.png)' }}
           />
           {/* Deep blue gradient overlay like in actual home page */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050b14]/80 via-[#050b14]/40 to-[#050b14]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/40 via-blue-900/20 to-transparent" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10 pt-20">
@@ -132,16 +127,8 @@ export default function ONasPage() {
         </div>
       </div>
 
-      {/* Staff Section - Using the same background style as Hero but with more blur */}
-      <div className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
-            style={{ backgroundImage: 'url(https://i.ibb.co/mCNVZdMn/osr-4.png)' }}
-          />
-          <div className="absolute inset-0 bg-[#050b14]/90 backdrop-blur-2xl" />
-        </div>
-
+      {/* Staff Section - Transparent style */}
+      <div className="relative py-32 overflow-hidden bg-transparent">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-24">
             <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter mb-4 text-white">

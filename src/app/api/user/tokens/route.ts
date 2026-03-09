@@ -64,13 +64,29 @@ export async function POST(request: Request) {
       const { regular, bonus } = amount;
       const totalToAdd = (regular || 0) + (bonus || 0);
       
-      // Get current balance
-      const currentBalance = await getFirebase(`tokens/${userId}`) || 0;
-      const newBalance = currentBalance + totalToAdd;
+      let newBalance = 0;
+      let success = false;
+      let retries = 3;
+
+      while (retries > 0 && !success) {
+        // Get current balance
+        const currentBalance = await getFirebase(`tokens/${userId}`) || 0;
+        newBalance = currentBalance + totalToAdd;
+        
+        // Save to Firebase
+        const ok = await setFirebase(`tokens/${userId}`, newBalance);
+        if (ok) {
+          success = true;
+        } else {
+          retries--;
+          if (retries > 0) await new Promise(r => setTimeout(r, 500));
+        }
+      }
       
-      // Save to Firebase
-      await setFirebase(`tokens/${userId}`, newBalance);
-      
+      if (!success) {
+        return NextResponse.json({ error: 'Failed to update balance' }, { status: 500 });
+      }
+
       return NextResponse.json({ 
         success: true, 
         balance: newBalance 

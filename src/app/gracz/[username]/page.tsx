@@ -98,7 +98,7 @@ export default function GraczPage() {
   const [loading, setLoading] = useState(true);
   const [statMode, setStatMode] = useState<'total' | 'per90'>('total');
   const [activeTab, setActiveTab] = useState('przegląd');
-  const [selectedTournament, setSelectedTournament] = useState<'Ekstraklasa' | 'Mecze Towarzyskie'>('Ekstraklasa');
+  const [selectedTournament, setSelectedTournament] = useState<'Ekstraklasa' | 'Mecze Towarzyskie'>('Mecze Towarzyskie');
   const [isTournamentOpen, setIsTournamentOpen] = useState(false);
   const [matchPage, setMatchPage] = useState(0);
   const [history, setHistory] = useState<any>(null);
@@ -440,6 +440,7 @@ export default function GraczPage() {
         p.robloxId?.toString() === player?.userId
       );
 
+      // Add data from API (Replit)
       if (tournamentPlayer) {
         stats.matchesCount = tournamentPlayer.matchesPlayed || 0;
         stats.goals = tournamentPlayer.goals || 0;
@@ -468,8 +469,49 @@ export default function GraczPage() {
         } else {
           stats.avgRating = 6.0 + (stats.goals * 0.5) + (stats.assists * 0.3) - (stats.redCards * 1.0);
         }
-        stats.avgRating = Math.max(1, Math.min(10, stats.avgRating));
       }
+
+      // Add data from global history (as requested - include Ekstraklasa stats in Friendly section)
+      if (playerHistory.length > 0) {
+        playerHistory.forEach((m: any) => {
+          stats.matchesCount++;
+          if (m.role === 'starter') stats.started++;
+          stats.minutes += (m.minutesPlayed || (m.role === 'starter' ? 90 : 30));
+          stats.goals += (m.goals?.length || 0);
+          stats.assists += (m.assists || 0);
+          m.cards?.forEach((c: any) => {
+            const type = String(c.type).toLowerCase();
+            if (type.includes('yellow')) stats.yellowCards++;
+            if (type.includes('red')) stats.redCards++;
+          });
+        });
+
+        const ratings = playerHistory.map((m: any) => {
+          const isWinner = (m.playerTeam === m.teamA && m.scoreA > m.scoreB) || (m.playerTeam === m.teamB && m.scoreB > m.scoreA);
+          const isDraw = m.scoreA === m.scoreB;
+          const result = isWinner ? 'W' : (isDraw ? 'D' : 'L');
+          return calculateMatchRating({
+            minutes: m.minutesPlayed || (m.role === 'starter' ? 90 : 30),
+            goals: m.goals?.length || 0,
+            assists: m.assists || 0,
+            result: result,
+            homeTeam: m.teamA,
+            awayTeam: m.teamB,
+            homeScore: m.scoreA,
+            awayScore: m.scoreB
+          }, m.playerTeam, m.position);
+        });
+        
+        const totalRating = ratings.reduce((a: number, b: number) => a + b, 0);
+        if (tournamentPlayer && tournamentPlayer.matches?.length > 0) {
+            // Already calculated initial avgRating from tournamentPlayer
+            stats.avgRating = (totalRating + (stats.avgRating * tournamentPlayer.matches.length)) / (ratings.length + tournamentPlayer.matches.length);
+        } else {
+            stats.avgRating = totalRating / ratings.length;
+        }
+      }
+
+      stats.avgRating = Math.max(6.0, Math.min(10, stats.avgRating));
     } else {
       if (playerHistory.length > 0) {
         const filteredHistory = playerHistory.filter((m: any) => {

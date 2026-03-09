@@ -9,12 +9,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 
 function TurniejeContent() {
-  const searchParams = useSearchParams();
-  const type = searchParams.get('type');
-  
-  const [activeTournament, setActiveTournament] = useState<'puchar' | 'towarzyskie'>(
-    type === 'towarzyskie' ? 'towarzyskie' : 'puchar'
-  );
+  const [activeTournament] = useState<'towarzyskie'>('towarzyskie');
   
   const [challongeData, setChallongeData] = useState<any>(null);
   const [tableData, setTableData] = useState<any>(null);
@@ -600,177 +595,19 @@ function TurniejeContent() {
       <div className="relative overflow-hidden min-h-screen">
         {/* Textured Dynamic Background */}
         <div className="fixed inset-0 z-0 pointer-events-none transition-colors duration-1000">
-          <div className={`absolute inset-0 bg-gradient-to-br transition-colors duration-1000 ${
-            activeTournament === 'puchar' 
-              ? 'from-[#1a0000] via-[#050000] to-[#2a0000]' 
-              : 'from-[#000a1a] via-[#000000] to-[#001a2a]'
-          }`} />
+          <div className="absolute inset-0 bg-gradient-to-br transition-colors duration-1000 from-[#000a1a] via-[#000000] to-[#001a2a]" />
           <div 
             className="absolute inset-0 opacity-20 transition-all duration-1000" 
             style={{
-              backgroundImage: `repeating-linear-gradient(45deg, ${activeTournament === 'puchar' ? '#B21118' : '#00ccff'} 0, ${activeTournament === 'puchar' ? '#B21118' : '#00ccff'} 2px, transparent 0, transparent 40px)`,
+              backgroundImage: `repeating-linear-gradient(45deg, #00ccff 0, #00ccff 2px, transparent 0, transparent 40px)`,
             }}
           />
-          <div className={`absolute top-1/4 -left-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 ${
-            activeTournament === 'puchar' ? 'bg-[#B21118]/10' : 'bg-[#00ccff]/10'
-          }`} />
-          <div className={`absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 ${
-            activeTournament === 'puchar' ? 'bg-[#B21118]/10' : 'bg-[#00ccff]/10'
-          }`} />
+          <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 bg-[#00ccff]/10" />
+          <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 blur-[150px] rounded-full transition-all duration-1000 bg-[#00ccff]/10" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
         </div>
 
         <div className="relative z-10">
-          {activeTournament === 'puchar' ? (
-            <div key="puchar-section">
-              {/* Hero Section */}
-              <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-[#DC143C]/20 to-transparent z-0" />
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#B21118]/10 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/5 blur-[120px] rounded-full" />
-                
-                <div className="relative z-10 container mx-auto px-4">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                      <h1 className="text-8xl md:text-[10rem] font-[1000] italic tracking-tighter text-white drop-shadow-[0_0_40px_rgba(255,255,255,0.3)] leading-[0.85]">
-                        PUCHAR<br />POLSKI
-                      </h1>
-                      <div className="mt-10 flex items-center gap-6">
-                        <span className="h-px w-16 bg-[#D4AF37]" />
-                        <span className="text-[#D4AF37] font-black tracking-[0.4em] uppercase text-2xl drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">SEZON 2025/26</span>
-                      </div>
-                    </div>
-                    <div className="flex-1 flex justify-center md:justify-end">
-                      <div className="relative group">
-                        <div className="absolute inset-0 bg-white/20 blur-[100px] group-hover:bg-white/30 transition-all duration-500 rounded-full" />
-                        <Image
-                          src={pucharPolskiLogo}
-                          alt="Puchar Polski"
-                          width={600}
-                          height={600}
-                          className="relative drop-shadow-[0_0_80px_rgba(255,255,255,0.2)] animate-float w-full max-w-[400px] md:max-w-[600px]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Internal Nav */}
-              <div className="container mx-auto px-4 -mt-10 relative z-20">
-                <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2">
-                  <button className="flex-1 py-4 px-6 rounded-xl bg-gradient-to-br from-[#B21118] to-[#800c11] text-white font-black uppercase tracking-tight shadow-lg shadow-[#B21118]/20 transition-all">
-                    Drabinka & Terminarz
-                  </button>
-                  <Link href="/#aktualnosci" className="flex-1">
-                    <button className="w-full py-4 px-6 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white font-black uppercase tracking-tight transition-all">
-                      Aktualności
-                    </button>
-                  </Link>
-                  <Link href="/turnieje/historia" className="flex-1">
-                    <button className="w-full py-4 px-6 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white font-black uppercase tracking-tight transition-all">
-                      Historia
-                    </button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Bracket Area */}
-              <div className="container mx-auto px-4 py-16 overflow-x-auto">
-                <div className="min-w-[1000px] flex justify-between gap-8 pb-12">
-                  {cupMatches.map((round: any, roundIdx: number) => (
-                    <div key={roundIdx} className="flex-1 flex flex-col">
-                      <div className="flex items-center gap-4 mb-12 px-2">
-                        <div className="w-1.5 h-6 bg-[#B21118] rounded-full" />
-                        <h2 className="text-xl font-black uppercase tracking-tight italic whitespace-nowrap">{round.round}</h2>
-                      </div>
-                      <div className="flex flex-col justify-around flex-1 gap-8">
-                        {round.matches.map((match: any) => (
-                          <div key={match.id} className="relative group">
-                            <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/[0.08] transition-all duration-300 relative z-10 w-full group/card">
-                              <div className="flex flex-col gap-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    {match.homeTeam ? (
-                                      <>
-                                        <Image src={match.homeTeam.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
-                                        <span className="text-sm font-bold uppercase tracking-tight truncate max-w-[120px] group-hover/card:text-[#B21118] transition-colors">{match.homeTeam.name}</span>
-                                      </>
-                                    ) : (
-                                      <span className="text-sm font-black text-white/10 italic">TBD</span>
-                                    )}
-                                  </div>
-                                  <span className="text-sm font-black text-white/40">-</span>
-                                </div>
-                                <div className="h-px bg-white/5 w-full" />
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    {match.awayTeam ? (
-                                      <>
-                                        <Image src={match.awayTeam.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
-                                        <span className="text-sm font-bold uppercase tracking-tight truncate max-w-[120px] group-hover/card:text-[#B21118] transition-colors">{match.awayTeam.name}</span>
-                                      </>
-                                    ) : (
-                                      <span className="text-sm font-black text-white/10 italic">TBD</span>
-                                    )}
-                                  </div>
-                                  <span className="text-sm font-black text-white/40">-</span>
-                                </div>
-                                
-                                {match.homeTeam && match.awayTeam && (match as any).stadium && (
-                                  <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
-                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest truncate">{(match as any).stadium}</span>
-                                    <span className="text-[7px] font-bold text-[#B21118] uppercase tracking-[0.2em]">{(match as any).category}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#B21118] text-[10px] font-black rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                                {match.date} @ {match.time}
-                              </div>
-                            </div>
-                            {roundIdx < cupMatches.length - 1 && (
-                              <div className="hidden lg:block absolute left-full top-1/2 w-8 h-px bg-white/10 -translate-y-1/2" />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex-1 flex flex-col">
-                    <div className="flex items-center gap-4 mb-12 px-2">
-                      <div className="w-1.5 h-6 bg-gradient-to-b from-[#B21118] to-[#D4AF37] rounded-full" />
-                      <h2 className="text-xl font-black uppercase tracking-tight italic whitespace-nowrap">FINAŁ</h2>
-                    </div>
-                    <div className="flex flex-col justify-around flex-1">
-                      <div className="relative group">
-                        <div className="absolute inset-0 bg-[#D4AF37]/5 blur-2xl rounded-full" />
-                        <div className="relative bg-gradient-to-br from-[#D4AF37]/20 to-black/40 border border-[#D4AF37]/30 rounded-2xl p-8 text-center">
-                          <Image src={pucharPolskiLogo} alt="Trophy" width={60} height={60} className="mx-auto mb-4 opacity-50 grayscale" />
-                          <span className="block text-[#D4AF37] text-xs font-black uppercase tracking-widest mb-1">PGE Narodowy</span>
-                          <span className="block text-white font-black italic">MAJ 2026</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Finals Banner */}
-                <div className="mt-20 relative rounded-[2rem] overflow-hidden border border-[#D4AF37]/30 bg-gradient-to-br from-[#400609] to-[#0a0a0a] p-12 text-center">
-                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-                  <div className="relative z-10">
-                    <Image src={pucharPolskiLogo} alt="Final" width={150} height={150} className="mx-auto mb-6 opacity-50 grayscale contrast-125" />
-                    <h3 className="text-[#D4AF37] font-bold tracking-[0.3em] uppercase mb-2">Wielki Finał</h3>
-                    <h2 className="text-5xl font-black italic uppercase tracking-tight mb-6">PGE NARODOWY</h2>
-                    <div className="inline-block px-8 py-3 rounded-full border border-white/20 bg-white/5 font-black uppercase text-xl">
-                      2 MAJA 2026
-                    </div>
-                  </div>
-                  <div className="absolute -top-24 -left-24 w-64 h-64 bg-[#B21118]/20 blur-[100px] rounded-full" />
-                  <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-[#D4AF37]/10 blur-[100px] rounded-full" />
-                </div>
-              </div>
-            </div>
-          ) : (
             <div key="friendly-section" className="pb-20">
               {/* Friendly Hero */}
               <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
@@ -859,6 +696,267 @@ function TurniejeContent() {
                   </button>
                 </div>
               </div>
+
+              {/* Tab Content Rendering */}
+              {friendlyTab === 'schedule' && (
+                <div className="container mx-auto px-4 space-y-16">
+                  {loading ? (
+                    <div className="flex flex-col items-center justify-center py-32 gap-6">
+                      <div className="w-16 h-16 border-4 border-[#00ccff]/20 border-t-[#00ccff] rounded-full animate-spin" />
+                      <p className="text-[#00ccff] font-black uppercase tracking-widest animate-pulse">Pobieranie terminarza...</p>
+                    </div>
+                  ) : activeFriendlyMatches.length > 0 ? (
+                    activeFriendlyMatches.map((round: any, roundIdx: number) => (
+                      <section key={roundIdx} className="relative">
+                        <div className="flex items-center gap-6 mb-10">
+                          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#00ccff]/30" />
+                          <h2 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#00ccff] drop-shadow-[0_0_15px_rgba(0,204,255,0.4)]">
+                            {round.round}
+                          </h2>
+                          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#00ccff]/30" />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {round.matches.map((match: any) => (
+                            <div key={match.id} className="group relative bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/[0.08] hover:border-[#00ccff]/40 transition-all duration-500 overflow-hidden">
+                              {/* Background Glow */}
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ccff]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#00ccff]/10 transition-colors" />
+                              
+                              <div className="relative z-10 flex flex-col gap-6">
+                                {/* Teams */}
+                                <div className="flex flex-col gap-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                      <div className="w-12 h-12 bg-black/40 rounded-xl p-2 border border-white/5 group-hover:scale-110 transition-transform">
+                                        <Image src={match.homeTeam.logo} alt="" width={40} height={40} className="w-full h-full object-contain" />
+                                      </div>
+                                      <span className="font-black uppercase tracking-tight text-lg group-hover:text-[#00ccff] transition-colors truncate max-w-[150px]">{match.homeTeam.name}</span>
+                                    </div>
+                                    <span className="text-2xl font-black italic text-white/40">{match.homeScore !== undefined ? match.homeScore : '-'}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                      <div className="w-12 h-12 bg-black/40 rounded-xl p-2 border border-white/5 group-hover:scale-110 transition-transform">
+                                        <Image src={match.awayTeam.logo} alt="" width={40} height={40} className="w-full h-full object-contain" />
+                                      </div>
+                                      <span className="font-black uppercase tracking-tight text-lg group-hover:text-[#00ccff] transition-colors truncate max-w-[150px]">{match.awayTeam.name}</span>
+                                    </div>
+                                    <span className="text-2xl font-black italic text-white/40">{match.awayScore !== undefined ? match.awayScore : '-'}</span>
+                                  </div>
+                                </div>
+
+                                {/* Footer Stats */}
+                                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest italic">{match.date} @ {match.time}</span>
+                                    <span className="text-[10px] font-black text-[#00ccff] uppercase tracking-widest">{match.category}</span>
+                                  </div>
+                                  <Link href={`/mecz/${match.id}`}>
+                                    <button className="px-4 py-2 bg-white/5 hover:bg-[#00ccff] hover:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                      Szczegóły
+                                    </button>
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))
+                  ) : (
+                    <div className="text-center py-32">
+                      <h3 className="text-3xl font-black uppercase text-white/20 italic tracking-tighter">Brak zaplanowanych meczów</h3>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {friendlyTab === 'table' && (
+                <div className="container mx-auto px-4 max-w-5xl">
+                  {getFriendlyStandings().length > 0 ? (
+                    <div className="space-y-16">
+                      {/* Separate by Groups */}
+                      {['A', 'B'].map((gid) => {
+                        const groupMatches = getFriendlyStandings().filter(s => s.groupId === gid);
+                        if (groupMatches.length === 0) return null;
+                        
+                        return (
+                          <section key={gid}>
+                            <div className="flex items-center gap-6 mb-8">
+                              <h2 className="text-3xl font-black italic uppercase tracking-tighter text-[#00ccff]">GRUPA {gid}</h2>
+                              <div className="h-px flex-1 bg-gradient-to-r from-[#00ccff]/30 to-transparent" />
+                            </div>
+                            
+                            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-xl">
+                              <table className="w-full text-left border-collapse">
+                                <thead>
+                                  <tr className="bg-white/5">
+                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic">#</th>
+                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic">Klub</th>
+                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">M</th>
+                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">W-R-P</th>
+                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">Bramki</th>
+                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">PKT</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                  {groupMatches.sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga)).map((s, idx) => (
+                                    <tr key={idx} className="hover:bg-white/[0.03] transition-colors group">
+                                      <td className="px-8 py-6">
+                                        <span className={`text-xl font-black italic ${idx < 2 ? 'text-[#00ccff]' : 'text-white/20'}`}>
+                                          {idx + 1}
+                                        </span>
+                                      </td>
+                                      <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 bg-black/40 rounded-lg p-1.5 border border-white/5 group-hover:scale-110 transition-transform">
+                                            <Image src={s.team.logo} alt="" width={32} height={32} className="w-full h-full object-contain" />
+                                          </div>
+                                          <span className="font-black uppercase tracking-tight group-hover:text-[#00ccff] transition-colors">
+                                            {s.team.name}
+                                          </span>
+                                        </div>
+                                      </td>
+                                      <td className="px-8 py-6 text-center font-bold text-white/60">{s.played}</td>
+                                      <td className="px-8 py-6 text-center font-bold text-white/60">{s.won}-{s.drawn}-{s.lost}</td>
+                                      <td className="px-8 py-6 text-center font-bold text-white/60">{s.gf}:{s.ga}</td>
+                                      <td className="px-8 py-6 text-center">
+                                        <span className="text-2xl font-black italic text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                                          {s.pts}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </section>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-32 opacity-20">
+                      <h3 className="text-3xl font-black uppercase italic tracking-tighter">Brak danych tabeli</h3>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {friendlyTab === 'scorers' && (
+                <div className="container mx-auto px-4 max-w-4xl">
+                  {topScorers.length > 0 ? (
+                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-xl">
+                      <div className="p-10 border-b border-white/10 bg-white/5">
+                        <h2 className="text-4xl font-black italic uppercase tracking-tighter text-[#00ccff]">KRÓL STRZELCÓW</h2>
+                      </div>
+                      <div className="divide-y divide-white/5">
+                        {topScorers.map((p: any, idx: number) => (
+                          <div key={idx} className="p-8 flex items-center gap-8 hover:bg-white/[0.03] transition-all group">
+                            <div className="w-12 text-center">
+                              <span className={`text-3xl font-black italic ${idx === 0 ? 'text-[#D4AF37]' : idx === 1 ? 'text-white/60' : idx === 2 ? 'text-[#CD7F32]' : 'text-white/20'}`}>
+                                {idx + 1}
+                              </span>
+                            </div>
+                            <div className="flex-1 flex items-center gap-6">
+                              <div className="w-16 h-16 rounded-2xl bg-black/40 border border-white/5 p-2 group-hover:scale-110 transition-transform">
+                                <Image src={p.team.logo} alt="" width={48} height={48} className="w-full h-full object-contain" />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-xl font-black uppercase tracking-tight group-hover:text-[#00ccff] transition-colors">{p.name}</span>
+                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{p.team.name}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-5xl font-black italic text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                                {p.goals}
+                              </span>
+                              <span className="block text-[8px] font-black text-[#00ccff] uppercase tracking-[0.3em] mt-1">BRAMEK</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-32 opacity-20">
+                      <h3 className="text-3xl font-black uppercase italic tracking-tighter">Brak danych strzelców</h3>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {friendlyTab === 'knockout' && (
+                <div className="container mx-auto px-4 pb-20">
+                  {knockoutRounds.length > 0 ? (
+                    <div className="flex flex-col gap-20">
+                      {knockoutRounds.map((round: any, roundIdx: number) => (
+                        <section key={roundIdx}>
+                          <div className="flex items-center gap-6 mb-12 justify-center">
+                            <div className="h-px w-24 bg-gradient-to-r from-transparent to-[#00ccff]/50" />
+                            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                              {round.name}
+                            </h2>
+                            <div className="h-px w-24 bg-gradient-to-l from-transparent to-[#00ccff]/50" />
+                          </div>
+                          
+                          <div className={`grid grid-cols-1 ${round.matches.length > 1 ? 'md:grid-cols-2' : ''} gap-12 max-w-5xl mx-auto`}>
+                            {round.matches.map((match: any) => (
+                              <div key={match.id} className="relative group">
+                                <div className="absolute inset-0 bg-[#00ccff]/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="relative bg-black/40 border border-white/10 rounded-[2rem] p-10 hover:border-[#00ccff]/40 transition-all duration-500 backdrop-blur-xl">
+                                  <div className="flex items-center justify-between gap-8 mb-8">
+                                    <div className="flex-1 flex flex-col items-center text-center gap-4">
+                                      <div className="w-24 h-24 bg-black/60 rounded-3xl p-4 border border-white/5 group-hover:scale-110 transition-transform shadow-2xl">
+                                        <Image src={match.homeTeam.logo} alt="" width={80} height={80} className="w-full h-full object-contain" />
+                                      </div>
+                                      <span className="font-black uppercase tracking-tight text-sm line-clamp-1">{match.homeTeam.name}</span>
+                                    </div>
+
+                                    <div className="flex flex-col items-center gap-2">
+                                      <div className="flex items-center gap-4">
+                                        <span className="text-5xl font-black italic text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                                          {match.homeScore !== undefined ? match.homeScore : '-'}
+                                        </span>
+                                        <span className="text-2xl font-black text-white/20">:</span>
+                                        <span className="text-5xl font-black italic text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                                          {match.awayScore !== undefined ? match.awayScore : '-'}
+                                        </span>
+                                      </div>
+                                      {match.status === 'finished' && (
+                                        <span className="px-3 py-1 bg-[#00ccff]/10 border border-[#00ccff]/20 rounded-lg text-[8px] font-black text-[#00ccff] uppercase tracking-widest">
+                                          ZAKOŃCZONO
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="flex-1 flex flex-col items-center text-center gap-4">
+                                      <div className="w-24 h-24 bg-black/60 rounded-3xl p-4 border border-white/5 group-hover:scale-110 transition-transform shadow-2xl">
+                                        <Image src={match.awayTeam.logo} alt="" width={80} height={80} className="w-full h-full object-contain" />
+                                      </div>
+                                      <span className="font-black uppercase tracking-tight text-sm line-clamp-1">{match.awayTeam.name}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="text-center pt-6 border-t border-white/5">
+                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">
+                                      {match.date} @ {match.time} • {match.stadium}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-32 opacity-20">
+                      <h3 className="text-3xl font-black uppercase italic tracking-tighter">Brak danych fazy pucharowej</h3>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+        </div>
 
               <div className="container mx-auto px-4">
                 {friendlyTab === 'schedule' ? (
@@ -1327,7 +1425,6 @@ function TurniejeContent() {
                 )}
               </div>
             </div>
-          )}
         </div>
       </div>
       <Footer />

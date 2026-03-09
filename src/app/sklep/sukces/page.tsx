@@ -74,16 +74,27 @@ function SuccessContent() {
 
 export default function SuccessPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Navbar />
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-2xl font-black animate-pulse uppercase tracking-widest text-[#00ccff]">Ładowanie statusu...</div>
-        </div>
-      }>
-        <SuccessContent />
-      </Suspense>
-      <Footer />
+    <div className="min-h-screen bg-transparent text-white font-sans relative">
+      {/* Background with same style as other pages */}
+      <div className="fixed inset-0 z-0 bg-transparent">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105"
+          style={{ backgroundImage: 'url(https://i.ibb.co/mCNVZdMn/osr-4.png)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/40 via-blue-900/20 to-transparent" />
+      </div>
+
+      <div className="relative z-10">
+        <Navbar />
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-2xl font-black animate-pulse uppercase tracking-widest text-[#00ccff]">Ładowanie statusu...</div>
+          </div>
+        }>
+          <SuccessContent />
+        </Suspense>
+        <Footer />
+      </div>
     </div>
   );
 }

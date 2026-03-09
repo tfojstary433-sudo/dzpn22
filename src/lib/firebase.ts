@@ -161,3 +161,68 @@ export async function getMatchHistory(): Promise<any[]> {
     return [];
   }
 }
+
+export async function getUserTokens(userId: string): Promise<number> {
+  try {
+    const response = await fetch(`${FIREBASE_BASE_URL}/tokens/${userId}.json`);
+    if (!response.ok) return 0;
+    const data = await response.json();
+    return data || 0;
+  } catch (error) {
+    console.error('Error fetching user tokens from Firebase:', error);
+    return 0;
+  }
+}
+
+export async function updateUserTokens(userId: string, amount: number): Promise<boolean> {
+  try {
+    const currentTokens = await getUserTokens(userId);
+    const newTokens = currentTokens + amount;
+    
+    console.log(`Updating tokens for user ${userId}: ${currentTokens} + ${amount} = ${newTokens}`);
+    
+    const response = await fetch(`${FIREBASE_BASE_URL}/tokens/${userId}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTokens)
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error updating user tokens in Firebase:', error);
+    return false;
+  }
+}
+
+export async function grantUserProducts(userId: string, products: string[]): Promise<boolean> {
+  try {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const generateCode = () => {
+      let res = '';
+      for (let i = 0; i < 12; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+      return res;
+    };
+
+    for (const productId of products) {
+      const code = generateCode();
+      const normalizedId = productId.toLowerCase();
+      
+      if (normalizedId === 'unprzerwa') {
+        await fetch(`${FIREBASE_BASE_URL}/UnPrzerwaCodes/${code}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(true)
+        });
+      } else {
+        await fetch(`${FIREBASE_BASE_URL}/other_codes/${code}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productId.toUpperCase())
+        });
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error('Error granting products in Firebase:', error);
+    return false;
+  }
+}

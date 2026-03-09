@@ -148,15 +148,17 @@ export default function KlubPage() {
     // Find all matches for this team
     const teamMatches: any[] = [];
     Object.values(history.players).forEach((player: any) => {
-      player.matches.forEach((m: any) => {
-        if (m.playerTeam === team.name) {
-          teamMatches.push({
-            ...m,
-            playerName: player.name,
-            robloxId: player.robloxId
-          });
-        }
-      });
+      if (player.matches && Array.isArray(player.matches)) {
+        player.matches.forEach((m: any) => {
+          if (m.playerTeam?.toUpperCase() === team.name.toUpperCase()) {
+            teamMatches.push({
+              ...m,
+              playerName: player.name,
+              robloxId: player.robloxId
+            });
+          }
+        });
+      }
     });
 
     if (teamMatches.length === 0) return null;
@@ -207,9 +209,12 @@ export default function KlubPage() {
       
       // Basic overlap prevention
       let key = `${coords.col}-${coords.row}`;
-      while (usedCoords.has(key)) {
+      let attempts = 0;
+      while (usedCoords.has(key) && attempts < 20) {
         coords.col = (coords.col % 5) + 1;
+        if (attempts > 5) coords.row = (coords.row % 7) + 1;
         key = `${coords.col}-${coords.row}`;
+        attempts++;
       }
       usedCoords.add(key);
 
@@ -245,9 +250,10 @@ export default function KlubPage() {
         return;
       }
 
-      player.matches.forEach((m: any) => {
-        if (m.playerTeam === team.name) {
-          if (!statsMap[player.name]) {
+      if (player.matches && Array.isArray(player.matches)) {
+        player.matches.forEach((m: any) => {
+          if (m.playerTeam?.toUpperCase() === team.name.toUpperCase()) {
+            if (!statsMap[player.name]) {
             statsMap[player.name] = { 
               name: player.name, 
               goals: 0, 
@@ -295,6 +301,7 @@ export default function KlubPage() {
     }> = [];
 
     Object.values(history.players).forEach((player: any) => {
+      if (!player.matches || !Array.isArray(player.matches)) return;
       const playerMatches = [...player.matches].sort((a, b) => 
         new Date(a.playedAt || a.date).getTime() - new Date(b.playedAt || b.date).getTime()
       );
@@ -306,7 +313,7 @@ export default function KlubPage() {
         const matchDate = currentMatch.playedAt || currentMatch.date;
 
         // Joined the club
-        if (currentMatch.playerTeam === team.name && (!prevMatch || prevMatch.playerTeam !== team.name)) {
+        if (currentMatch.playerTeam?.toUpperCase() === team.name.toUpperCase() && (!prevMatch || prevMatch.playerTeam?.toUpperCase() !== team.name.toUpperCase())) {
           transfers.push({
             playerName: player.name,
             type: 'IN',
@@ -318,7 +325,7 @@ export default function KlubPage() {
         }
 
         // Left the club
-        if (prevMatch && prevMatch.playerTeam === team.name && currentMatch.playerTeam !== team.name) {
+        if (prevMatch && prevMatch.playerTeam?.toUpperCase() === team.name.toUpperCase() && currentMatch.playerTeam?.toUpperCase() !== team.name.toUpperCase()) {
           transfers.push({
             playerName: player.name,
             type: 'OUT',

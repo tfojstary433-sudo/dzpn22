@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { newsArticles, sneakPeeks } from '@/lib/data';
+import { newsArticles as staticNewsArticles, sneakPeeks } from '@/lib/data';
+import { useState, useEffect } from 'react';
 
 interface Article {
   id: number;
@@ -96,8 +97,34 @@ function NewsCard({ article, large = false, index = 0 }: { article: Article; lar
 }
 
 export function NewsSection() {
-  const largeArticles = newsArticles.slice(0, 2);
-  const smallArticles = newsArticles.slice(2, 6);
+  const [articles, setArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles');
+        if (response.ok) {
+          const data = await response.json();
+          const mappedArticles = data.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            description: a.content.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...',
+            image: a.imageUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+            category: a.category || 'News'
+          }));
+          setArticles([...mappedArticles, ...staticNewsArticles]);
+        } else {
+          setArticles(staticNewsArticles);
+        }
+      } catch (error) {
+        setArticles(staticNewsArticles);
+      }
+    };
+    fetchArticles();
+  }, []);
+
+  const largeArticles = articles.slice(0, 2);
+  const smallArticles = articles.slice(2, 6);
 
   return (
     <section id="aktualnosci" className="py-20 relative">

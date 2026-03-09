@@ -330,174 +330,13 @@ export const clubToFirebaseKey: { [key: string]: string } = {
 
 export const extraTeams: Team[] = [
   { id: 'ext1', name: 'GKS Katowice', shortName: 'GKS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/GKS_Katowice_logo.png' },
-  { id: 'ext2', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Widzew_L%C3%B3dz_logo.png' },
+  { id: 'ext2', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://i.ibb.co/1fNvYHvf/Widzew-L-dz-logo.png' },
   { id: 'ext3', name: 'Cracovia', shortName: 'Cracovia', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/KS_Cracovia_logo.svg' },
   { id: 'ext4', name: 'Korona Kielce', shortName: 'Korona', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Korona_Kielce.svg' },
   { id: 'ext5', name: 'Radomiak Radom', shortName: 'Radomiak', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Radomiak_Radom_Logo.png' },
 ];
 
-export const matches: Match[] = [
-  // Runda 1
-  { id: 'm1', homeTeam: teams[0], awayTeam: teams[1], date: '2026-01-25T20:30:00', round: 1, status: 'upcoming', stadium: teams[0].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm2', homeTeam: teams[2], awayTeam: teams[3], homeScore: 2, awayScore: 1, date: '2026-01-25T17:00:00', round: 1, status: 'finished', stadium: teams[2].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm4', homeTeam: teams[6], awayTeam: teams[7], date: '2026-01-26T19:30:00', round: 1, status: 'upcoming', stadium: teams[6].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm5', homeTeam: teams[8], awayTeam: teams[9], date: '2026-01-26T15:00:00', round: 1, status: 'upcoming', stadium: teams[8].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm6', homeTeam: teams[10], awayTeam: teams[3], date: '2026-01-26T17:30:00', round: 1, status: 'upcoming', stadium: teams[10].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm6b', homeTeam: teams[11], awayTeam: teams[12], date: '2026-01-26T18:00:00', round: 1, status: 'upcoming', stadium: teams[11].stadium, category: 'EKSTRAKLASA' },
-
-  // Runda 2
-  { id: 'm7', homeTeam: teams[1], awayTeam: teams[2], date: '2026-02-01T20:00:00', round: 2, status: 'upcoming', stadium: teams[1].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm8', homeTeam: teams[3], awayTeam: teams[4], date: '2026-02-01T17:00:00', round: 2, status: 'upcoming', stadium: teams[3].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm9', homeTeam: teams[5], awayTeam: teams[6], date: '2026-02-01T19:30:00', round: 2, status: 'upcoming', stadium: teams[5].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm10', homeTeam: teams[7], awayTeam: teams[8], date: '2026-02-02T17:00:00', round: 2, status: 'upcoming', stadium: teams[7].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm11', homeTeam: teams[9], awayTeam: teams[10], date: '2026-02-02T19:30:00', round: 2, status: 'upcoming', stadium: teams[9].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm12', homeTeam: teams[0], awayTeam: teams[3], date: '2026-02-02T20:30:00', round: 2, status: 'upcoming', stadium: teams[0].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm12b', homeTeam: teams[12], awayTeam: teams[11], date: '2026-02-02T21:00:00', round: 2, status: 'upcoming', stadium: teams[12].stadium, category: 'EKSTRAKLASA' },
-
-  // Runda 3
-  { id: 'm13', homeTeam: teams[2], awayTeam: teams[0], date: '2026-02-08T20:30:00', round: 3, status: 'upcoming', stadium: teams[2].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm14', homeTeam: teams[4], awayTeam: teams[1], date: '2026-02-08T17:00:00', round: 3, status: 'upcoming', stadium: teams[4].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm15', homeTeam: teams[6], awayTeam: teams[3], date: '2026-02-08T19:30:00', round: 3, status: 'upcoming', stadium: teams[6].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm16', homeTeam: teams[8], awayTeam: teams[5], date: '2026-02-09T17:00:00', round: 3, status: 'upcoming', stadium: teams[8].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm17', homeTeam: teams[10], awayTeam: teams[7], date: '2026-02-09T19:30:00', round: 3, status: 'upcoming', stadium: teams[10].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm18', homeTeam: teams[3], awayTeam: teams[9], date: '2026-02-09T20:00:00', round: 3, status: 'upcoming', stadium: teams[3].stadium, category: 'EKSTRAKLASA' },
-
-  // Runda 4
-  { id: 'm19', homeTeam: teams[0], awayTeam: teams[4], date: '2026-02-15T20:30:00', round: 4, status: 'upcoming', stadium: teams[0].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm20', homeTeam: teams[1], awayTeam: teams[6], date: '2026-02-15T17:00:00', round: 4, status: 'upcoming', stadium: teams[1].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm21', homeTeam: teams[3], awayTeam: teams[8], date: '2026-02-15T19:30:00', round: 4, status: 'upcoming', stadium: teams[3].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm22', homeTeam: teams[5], awayTeam: teams[10], date: '2026-02-16T17:00:00', round: 4, status: 'upcoming', stadium: teams[5].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm23', homeTeam: teams[7], awayTeam: teams[2], date: '2026-02-16T19:30:00', round: 4, status: 'upcoming', stadium: teams[7].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm24', homeTeam: teams[9], awayTeam: teams[0], date: '2026-02-16T20:00:00', round: 4, status: 'upcoming', stadium: teams[9].stadium, category: 'EKSTRAKLASA' },
-
-  // Runda 5
-  { id: 'm25', homeTeam: teams[4], awayTeam: teams[7], date: '2026-02-22T20:30:00', round: 5, status: 'upcoming', stadium: teams[4].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm26', homeTeam: teams[6], awayTeam: teams[9], date: '2026-02-22T17:00:00', round: 5, status: 'upcoming', stadium: teams[6].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm27', homeTeam: teams[8], awayTeam: teams[1], date: '2026-02-22T19:30:00', round: 5, status: 'upcoming', stadium: teams[8].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm28', homeTeam: teams[10], awayTeam: teams[3], date: '2026-02-23T17:00:00', round: 5, status: 'upcoming', stadium: teams[10].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm29', homeTeam: teams[2], awayTeam: teams[5], date: '2026-02-23T19:30:00', round: 5, status: 'upcoming', stadium: teams[2].stadium, category: 'EKSTRAKLASA' },
-  { id: 'm30', homeTeam: teams[0], awayTeam: teams[6], date: '2026-02-23T20:00:00', round: 5, status: 'upcoming', stadium: teams[0].stadium, category: 'EKSTRAKLASA' },
-
-  // Runda 6
-  { id: 'm31', homeTeam: teams[7], awayTeam: teams[0], date: '2026-03-01T20:30:00', round: 6, status: 'upcoming' },
-  { id: 'm32', homeTeam: teams[9], awayTeam: teams[2], date: '2026-03-01T17:00:00', round: 6, status: 'upcoming' },
-  { id: 'm33', homeTeam: teams[1], awayTeam: teams[10], date: '2026-03-01T19:30:00', round: 6, status: 'upcoming' },
-  { id: 'm34', homeTeam: teams[3], awayTeam: teams[4], date: '2026-03-02T17:00:00', round: 6, status: 'upcoming' },
-  { id: 'm35', homeTeam: teams[5], awayTeam: teams[8], date: '2026-03-02T19:30:00', round: 6, status: 'upcoming' },
-  { id: 'm36', homeTeam: teams[6], awayTeam: teams[0], date: '2026-03-02T20:00:00', round: 6, status: 'upcoming' },
-
-  // Runda 7
-  { id: 'm37', homeTeam: teams[0], awayTeam: teams[9], date: '2026-03-08T20:30:00', round: 7, status: 'upcoming' },
-  { id: 'm38', homeTeam: teams[2], awayTeam: teams[1], date: '2026-03-08T17:00:00', round: 7, status: 'upcoming' },
-  { id: 'm39', homeTeam: teams[4], awayTeam: teams[5], date: '2026-03-08T19:30:00', round: 7, status: 'upcoming' },
-  { id: 'm40', homeTeam: teams[6], awayTeam: teams[7], date: '2026-03-09T17:00:00', round: 7, status: 'upcoming' },
-  { id: 'm41', homeTeam: teams[8], awayTeam: teams[3], date: '2026-03-09T19:30:00', round: 7, status: 'upcoming' },
-  { id: 'm42', homeTeam: teams[10], awayTeam: teams[9], date: '2026-03-09T20:00:00', round: 7, status: 'upcoming' },
-
-  // Runda 8
-  { id: 'm43', homeTeam: teams[9], awayTeam: teams[4], date: '2026-03-15T20:30:00', round: 8, status: 'upcoming' },
-  { id: 'm44', homeTeam: teams[1], awayTeam: teams[0], date: '2026-03-15T17:00:00', round: 8, status: 'upcoming' },
-  { id: 'm45', homeTeam: teams[3], awayTeam: teams[2], date: '2026-03-15T19:30:00', round: 8, status: 'upcoming' },
-  { id: 'm46', homeTeam: teams[5], awayTeam: teams[6], date: '2026-03-16T17:00:00', round: 8, status: 'upcoming' },
-  { id: 'm47', homeTeam: teams[7], awayTeam: teams[10], date: '2026-03-16T19:30:00', round: 8, status: 'upcoming' },
-  { id: 'm48', homeTeam: teams[8], awayTeam: teams[0], date: '2026-03-16T20:00:00', round: 8, status: 'upcoming' },
-
-  // Runda 9
-  { id: 'm49', homeTeam: teams[0], awayTeam: teams[10], date: '2026-03-22T20:30:00', round: 9, status: 'upcoming' },
-  { id: 'm50', homeTeam: teams[2], awayTeam: teams[9], date: '2026-03-22T17:00:00', round: 9, status: 'upcoming' },
-  { id: 'm51', homeTeam: teams[4], awayTeam: teams[3], date: '2026-03-22T19:30:00', round: 9, status: 'upcoming' },
-  { id: 'm52', homeTeam: teams[6], awayTeam: teams[8], date: '2026-03-23T17:00:00', round: 9, status: 'upcoming' },
-  { id: 'm53', homeTeam: teams[1], awayTeam: teams[5], date: '2026-03-23T19:30:00', round: 9, status: 'upcoming' },
-  { id: 'm54', homeTeam: teams[7], awayTeam: teams[4], date: '2026-03-23T20:00:00', round: 9, status: 'upcoming' },
-
-  // Runda 10
-  { id: 'm55', homeTeam: teams[10], awayTeam: teams[0], date: '2026-03-29T20:30:00', round: 10, status: 'upcoming' },
-  { id: 'm56', homeTeam: teams[9], awayTeam: teams[6], date: '2026-03-29T17:00:00', round: 10, status: 'upcoming' },
-  { id: 'm57', homeTeam: teams[3], awayTeam: teams[1], date: '2026-03-29T19:30:00', round: 10, status: 'upcoming' },
-  { id: 'm58', homeTeam: teams[5], awayTeam: teams[2], date: '2026-03-30T17:00:00', round: 10, status: 'upcoming' },
-  { id: 'm59', homeTeam: teams[7], awayTeam: teams[9], date: '2026-03-30T19:30:00', round: 10, status: 'upcoming' },
-  { id: 'm60', homeTeam: teams[8], awayTeam: teams[4], date: '2026-03-30T20:00:00', round: 10, status: 'upcoming' },
-
-  // Runda 11 - Rewanże
-  { id: 'm61', homeTeam: teams[1], awayTeam: teams[0], date: '2026-04-05T20:30:00', round: 11, status: 'upcoming' },
-  { id: 'm62', homeTeam: teams[3], awayTeam: teams[2], date: '2026-04-05T17:00:00', round: 11, status: 'upcoming' },
-  { id: 'm63', homeTeam: teams[5], awayTeam: teams[4], date: '2026-04-05T19:30:00', round: 11, status: 'upcoming' },
-  { id: 'm64', homeTeam: teams[7], awayTeam: teams[6], date: '2026-04-06T19:30:00', round: 11, status: 'upcoming' },
-  { id: 'm65', homeTeam: teams[9], awayTeam: teams[8], date: '2026-04-06T15:00:00', round: 11, status: 'upcoming' },
-  { id: 'm66', homeTeam: teams[3], awayTeam: teams[10], date: '2026-04-06T17:30:00', round: 11, status: 'upcoming' },
-
-  // Runda 12
-  { id: 'm67', homeTeam: teams[2], awayTeam: teams[1], date: '2026-04-12T20:00:00', round: 12, status: 'upcoming' },
-  { id: 'm68', homeTeam: teams[4], awayTeam: teams[3], date: '2026-04-12T17:00:00', round: 12, status: 'upcoming' },
-  { id: 'm69', homeTeam: teams[6], awayTeam: teams[5], date: '2026-04-12T19:30:00', round: 12, status: 'upcoming' },
-  { id: 'm70', homeTeam: teams[8], awayTeam: teams[7], date: '2026-04-13T17:00:00', round: 12, status: 'upcoming' },
-  { id: 'm71', homeTeam: teams[10], awayTeam: teams[9], date: '2026-04-13T19:30:00', round: 12, status: 'upcoming' },
-  { id: 'm72', homeTeam: teams[3], awayTeam: teams[0], date: '2026-04-13T20:30:00', round: 12, status: 'upcoming' },
-
-  // Runda 13
-  { id: 'm73', homeTeam: teams[0], awayTeam: teams[2], date: '2026-04-19T20:30:00', round: 13, status: 'upcoming' },
-  { id: 'm74', homeTeam: teams[1], awayTeam: teams[4], date: '2026-04-19T17:00:00', round: 13, status: 'upcoming' },
-  { id: 'm75', homeTeam: teams[3], awayTeam: teams[6], date: '2026-04-19T19:30:00', round: 13, status: 'upcoming' },
-  { id: 'm76', homeTeam: teams[5], awayTeam: teams[8], date: '2026-04-20T17:00:00', round: 13, status: 'upcoming' },
-  { id: 'm77', homeTeam: teams[7], awayTeam: teams[10], date: '2026-04-20T19:30:00', round: 13, status: 'upcoming' },
-  { id: 'm78', homeTeam: teams[9], awayTeam: teams[3], date: '2026-04-20T20:00:00', round: 13, status: 'upcoming' },
-
-  // Runda 14
-  { id: 'm79', homeTeam: teams[4], awayTeam: teams[0], date: '2026-04-26T20:30:00', round: 14, status: 'upcoming' },
-  { id: 'm80', homeTeam: teams[6], awayTeam: teams[1], date: '2026-04-26T17:00:00', round: 14, status: 'upcoming' },
-  { id: 'm81', homeTeam: teams[8], awayTeam: teams[3], date: '2026-04-26T19:30:00', round: 14, status: 'upcoming' },
-  { id: 'm82', homeTeam: teams[10], awayTeam: teams[5], date: '2026-04-27T17:00:00', round: 14, status: 'upcoming' },
-  { id: 'm83', homeTeam: teams[2], awayTeam: teams[7], date: '2026-04-27T19:30:00', round: 14, status: 'upcoming' },
-  { id: 'm84', homeTeam: teams[0], awayTeam: teams[9], date: '2026-04-27T20:00:00', round: 14, status: 'upcoming' },
-
-  // Runda 15
-  { id: 'm85', homeTeam: teams[7], awayTeam: teams[4], date: '2026-05-03T20:30:00', round: 15, status: 'upcoming' },
-  { id: 'm86', homeTeam: teams[9], awayTeam: teams[6], date: '2026-05-03T17:00:00', round: 15, status: 'upcoming' },
-  { id: 'm87', homeTeam: teams[1], awayTeam: teams[8], date: '2026-05-03T19:30:00', round: 15, status: 'upcoming' },
-  { id: 'm88', homeTeam: teams[3], awayTeam: teams[10], date: '2026-05-04T17:00:00', round: 15, status: 'upcoming' },
-  { id: 'm89', homeTeam: teams[5], awayTeam: teams[2], date: '2026-05-04T19:30:00', round: 15, status: 'upcoming' },
-  { id: 'm90', homeTeam: teams[6], awayTeam: teams[0], date: '2026-05-04T20:00:00', round: 15, status: 'upcoming' },
-
-  // Runda 16
-  { id: 'm91', homeTeam: teams[0], awayTeam: teams[7], date: '2026-05-10T20:30:00', round: 16, status: 'upcoming' },
-  { id: 'm92', homeTeam: teams[2], awayTeam: teams[9], date: '2026-05-10T17:00:00', round: 16, status: 'upcoming' },
-  { id: 'm93', homeTeam: teams[10], awayTeam: teams[1], date: '2026-05-10T19:30:00', round: 16, status: 'upcoming' },
-  { id: 'm94', homeTeam: teams[4], awayTeam: teams[3], date: '2026-05-11T17:00:00', round: 16, status: 'upcoming' },
-  { id: 'm95', homeTeam: teams[8], awayTeam: teams[5], date: '2026-05-11T19:30:00', round: 16, status: 'upcoming' },
-  { id: 'm96', homeTeam: teams[0], awayTeam: teams[6], date: '2026-05-11T20:00:00', round: 16, status: 'upcoming' },
-
-  // Runda 17
-  { id: 'm97', homeTeam: teams[9], awayTeam: teams[0], date: '2026-05-17T20:30:00', round: 17, status: 'upcoming' },
-  { id: 'm98', homeTeam: teams[1], awayTeam: teams[2], date: '2026-05-17T17:00:00', round: 17, status: 'upcoming' },
-  { id: 'm99', homeTeam: teams[5], awayTeam: teams[4], date: '2026-05-17T19:30:00', round: 17, status: 'upcoming' },
-  { id: 'm100', homeTeam: teams[7], awayTeam: teams[6], date: '2026-05-18T17:00:00', round: 17, status: 'upcoming' },
-  { id: 'm101', homeTeam: teams[3], awayTeam: teams[8], date: '2026-05-18T19:30:00', round: 17, status: 'upcoming' },
-  { id: 'm102', homeTeam: teams[9], awayTeam: teams[10], date: '2026-05-18T20:00:00', round: 17, status: 'upcoming' },
-
-  // Runda 18
-  { id: 'm103', homeTeam: teams[4], awayTeam: teams[9], date: '2026-05-24T20:30:00', round: 18, status: 'upcoming' },
-  { id: 'm104', homeTeam: teams[0], awayTeam: teams[1], date: '2026-05-24T17:00:00', round: 18, status: 'upcoming' },
-  { id: 'm105', homeTeam: teams[2], awayTeam: teams[3], date: '2026-05-24T19:30:00', round: 18, status: 'upcoming' },
-  { id: 'm106', homeTeam: teams[6], awayTeam: teams[5], date: '2026-05-25T17:00:00', round: 18, status: 'upcoming' },
-  { id: 'm107', homeTeam: teams[10], awayTeam: teams[7], date: '2026-05-25T19:30:00', round: 18, status: 'upcoming' },
-  { id: 'm108', homeTeam: teams[0], awayTeam: teams[8], date: '2026-05-25T20:00:00', round: 18, status: 'upcoming' },
-
-  // Runda 19
-  { id: 'm109', homeTeam: teams[10], awayTeam: teams[0], date: '2026-05-31T20:30:00', round: 19, status: 'upcoming' },
-  { id: 'm110', homeTeam: teams[9], awayTeam: teams[2], date: '2026-05-31T17:00:00', round: 19, status: 'upcoming' },
-  { id: 'm111', homeTeam: teams[3], awayTeam: teams[4], date: '2026-05-31T19:30:00', round: 19, status: 'upcoming' },
-  { id: 'm112', homeTeam: teams[8], awayTeam: teams[6], date: '2026-06-01T17:00:00', round: 19, status: 'upcoming' },
-  { id: 'm113', homeTeam: teams[5], awayTeam: teams[1], date: '2026-06-01T19:30:00', round: 19, status: 'upcoming' },
-  { id: 'm114', homeTeam: teams[4], awayTeam: teams[7], date: '2026-06-01T20:00:00', round: 19, status: 'upcoming' },
-
-  // Runda 20
-  { id: 'm115', homeTeam: teams[0], awayTeam: teams[10], date: '2026-06-07T20:30:00', round: 20, status: 'upcoming' },
-  { id: 'm116', homeTeam: teams[6], awayTeam: teams[9], date: '2026-06-07T17:00:00', round: 20, status: 'upcoming' },
-  { id: 'm117', homeTeam: teams[1], awayTeam: teams[3], date: '2026-06-07T19:30:00', round: 20, status: 'upcoming' },
-  { id: 'm118', homeTeam: teams[2], awayTeam: teams[5], date: '2026-06-08T17:00:00', round: 20, status: 'upcoming' },
-  { id: 'm119', homeTeam: teams[9], awayTeam: teams[7], date: '2026-06-08T19:30:00', round: 20, status: 'upcoming' },
-  { id: 'm120', homeTeam: teams[4], awayTeam: teams[8], date: '2026-06-08T20:00:00', round: 20, status: 'upcoming' },
-];
+export const matches: Match[] = [];
 
 export const standings: Standing[] = [
   { position: 1, team: teams[4], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
@@ -540,75 +379,14 @@ export const mockPlayersData = [
   { playerId: 15, name: 'MateuszKochalski', teamId: 'WIS', goals: 0, assists: 0, cleanSheets: 4, yellowCards: 1, redCards: 0, value: 700000, position: 'Bramkarz', previousClubs: [] },
 ];
 
-export const newsArticles = [
-  {
-    id: 1,
-    category: 'EKSTRAKLASA',
-    title: 'Pierwszy sezon Ekstraklasy na Polskiej Federacji Futbolu za niedługo startuje!',
-    image: 'https://i.ibb.co/SXDCV1tC/PFFGRAFIKA.png',
-    isVertical: true,
-    description: 'Już wkrótce rozpoczynamy historyczny, pierwszy sezon rozgrywek Ekstraklasy pod szyldem Polskiej Federacji Futbolu. Przygotujcie się na niesamowite emocje!',
-    content: `Pierwszy sezon Ekstraklasy PFF w Roblox – wszystko dopiero się zaczyna. Pierwszy sezon Ekstraklasy Polskiej Federacji Futbolu w Roblox to start zupełnie nowego projektu, który ma na celu stworzenie miejsca dla wszystkich fanów piłki nożnej w wirtualnym świecie. To moment, w którym liga dopiero nabiera kształtów, a każdy zawodnik ma szansę zapisać się w jej historii od samego początku. Nie ma jeszcze gwiazd, legend ani faworytów — są za to pasja, rywalizacja i otwarte drzwi dla nowych graczy, którzy chcą spróbować swoich sił na boisku.
-
-Ekstraklasa PFF w Roblox wystartowała jako pierwsza oficjalna liga organizowana przez Polską Federację Futbolu. Sezon inauguracyjny to etap budowania zasad, struktur i drużyn, które w przyszłości stworzą silną i rozpoznawalną ligę. Rozgrywki są otwarte na nowych zawodników, a każdy mecz to okazja do nauki, rozwoju umiejętności i dobrej zabawy. Liczy się zaangażowanie, współpraca zespołowa i chęć gry — nie doświadczenie.
-
-Pierwszy sezon to czas eksperymentów i wspólnego tworzenia ligi. Kluby dopiero się formują, a zawodnicy mają realny wpływ na atmosferę, styl gry i przyszłość rozgrywek. Każdy gol, każda asysta i każdy mecz budują historię Ekstraklasy PFF od samych podstaw. Jeśli szukasz miejsca, gdzie możesz pograć w piłkę w Roblox, poznać nowych ludzi i stać się częścią rozwijającej się społeczności — Ekstraklasa PFF to idealne miejsce na start. To nie jest liga gotowa — to liga, którą tworzymy razem.`,
-    date: '10.01.2026, 17:15',
-    author: 'Redakcja PFF',
-    relatedTeamIds: []
-  },
-  {
-    id: 2,
-    category: 'TRANSFERY',
-    title: 'Giełda transferowa płonie – największe ruchy przedsezonowe',
-    image: 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png',
-    description: 'Kluby Ekstraklasy PFF nie próżnują. Zobacz, kto zmienił barwy klubowe w ostatnim tygodniu i jakie wzmocnienia planują najwięksi faworyci.',
-    content: `Okno transferowe w Ekstraklasie PFF dostarcza nam codziennie nowych emocji. Największe kluby walczą o najlepszych zawodników na rynku, a kwoty kontraktów rosną z godziny na godzinę. Zespół Jagiellonii Białystok ogłosił pozyskanie trzech kluczowych graczy formacji ofensywnej, co stawia ich w roli jednego z głównych kandydatów do tytułu.
-
-Z kolei Wisła Kraków stawia na młode talenty, podpisując kontrakty z obiecującymi zawodnikami z niższych lig. Dyrektor sportowy klubu podkreśla, że budują zespół z perspektywą na lata, a nie tylko na jeden sezon. Eksperci przewidują, że walka o podium będzie niezwykle zacięta, a o sukcesie mogą zadecydować detale wypracowane podczas zimowego okresu przygotowawczego.`,
-    date: '12.01.2026, 09:30',
-    author: 'Mateusz Sportowy',
-    relatedTeamIds: ['JAG', 'WIS']
-  },
-  {
-    id: 3,
-    category: 'WYWIAD',
-    title: 'Prezes PFF: "Naszym celem jest stworzenie najbardziej profesjonalnej ligi w Roblox"',
-    image: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
-    description: 'Ekskluzywny wywiad z szefem Polskiej Federacji Futbolu o planach na rozwój, nowych systemach meczowych i współpracy ze społecznością.',
-    content: `W szczerej rozmowie z naszą redakcją, Prezes PFF opowiedział o wizji rozwoju federacji na najbliższe lata. "Chcemy, aby PFF było kojarzone z jakością i profesjonalizmem. Wprowadzamy nowe systemy anty-cheatowe, szkolimy sędziów i dbamy o oprawę graficzną każdego spotkania" – mówi Prezes.
-
-Kluczowym elementem strategii jest zaangażowanie społeczności. PFF planuje cykliczne spotkania z kapitanami drużyn oraz otwarte głosowania nad zmianami w regulaminie. "To liga dla graczy i chcemy, aby to oni mieli decydujący głos w sprawach, które ich dotyczą" – dodaje. Już niedługo możemy spodziewać się prezentacji nowego systemu stadionów, który ma zrewolucjonizować doświadczenie z gry.`,
-    date: '15.01.2026, 20:00',
-    author: 'Adrian Wywiad',
-    relatedTeamIds: []
-  },
-  {
-    id: 4,
-    category: 'PORADNIK',
-    title: 'Jak zostać zawodnikiem PFF? Przewodnik dla początkujących',
-    image: 'https://i.ibb.co/SXDCV1tC/PFFGRAFIKA.png',
-    description: 'Chciałbyś spróbować swoich sił w profesjonalnych rozgrywkach? Dowiedz się, jak założyć profil, znaleźć klub i przejść testy sprawnościowe.',
-    content: `Dołączenie do Polskiej Federacji Futbolu jest prostsze niż myślisz, ale wymaga zaangażowania. Pierwszym krokiem jest dołączenie do naszego oficjalnego serwera Discord, gdzie publikowane są ogłoszenia o testach (tryoutach) w poszczególnych klubach.
-
-Warto zadbać o swoją reputację na boisku i poza nim. Kluby szukają nie tylko umiejętności technicznych, ale także dyscypliny i umiejętności gry zespołowej. W naszym poradniku znajdziesz listę najczęściej popełnianych błędów przez nowych graczy oraz wskazówki, jak przygotować się do pierwszego oficjalnego meczu. Pamiętaj, że każdy z obecnych mistrzów zaczynał dokładnie tak samo jak Ty.`,
-    date: '18.01.2026, 14:20',
-    author: 'Trener Tomek',
-    relatedTeamIds: []
-  }
-];
+export const newsArticles = [];
 
 export const friendlyMatchesData = [
   {
-    round: 'STYCZEŃ 2026',
+    round: 'MARZEC 2026',
     matches: [
-      { id: 'f1', homeTeam: teams[0], awayTeam: teams[2], date: '2026-01-15', time: '19:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'ZIMOWE PRZYGOTOWANIA' },
-      { id: 'f2', homeTeam: teams[1], awayTeam: teams[3], date: '2026-01-16', time: '20:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'MECZ TESTOWY' },
-      { id: 'f3', homeTeam: teams[4], awayTeam: teams[6], date: '2026-01-20', time: '18:30', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'SPARING' },
-      { id: 'f4', homeTeam: teams[5], awayTeam: teams[7], date: '2026-01-21', time: '17:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'MECZ KONTROLNY' },
-      { id: 'f5', homeTeam: teams[8], awayTeam: teams[10], date: '2026-01-22', time: '19:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'ZIMOWE PRZYGOTOWANIA' },
-      { id: 'f6', homeTeam: teams[9], awayTeam: teams[11], date: '2026-01-23', time: '18:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'SPARING' },
-      { id: 'f7', homeTeam: teams[12], awayTeam: teams[0], date: '2026-01-24', time: '20:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'MECZ TESTOWY' },
+      { id: 'f11', homeTeam: teams[4], awayTeam: teams[7], date: '2026-03-10', time: '18:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'MECZ TOWARZYSKI' },
+      { id: 'f12', homeTeam: teams[1], awayTeam: teams[3], date: '2026-03-12', time: '20:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'SPARING' },
     ]
   },
   {
@@ -645,37 +423,7 @@ export const sneakPeeks: SneakPeak[] = [
   }
 ];
 
-export const cupMatchesData = [
-  {
-    round: '1/16 FINAŁU',
-    matches: [
-      { id: 'c1', homeTeam: teams[0], awayTeam: teams[1], date: '2026-03-10', time: '18:00', status: 'upcoming', stadium: teams[0].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c2', homeTeam: teams[2], awayTeam: teams[3], date: '2026-03-10', time: '20:30', status: 'upcoming', stadium: teams[2].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c3', homeTeam: teams[4], awayTeam: teams[5], date: '2026-03-11', time: '17:30', status: 'upcoming', stadium: teams[4].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c4', homeTeam: teams[6], awayTeam: teams[7], date: '2026-03-11', time: '20:00', status: 'upcoming', stadium: teams[6].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c5', homeTeam: teams[8], awayTeam: teams[9], date: '2026-03-12', time: '18:00', status: 'upcoming', stadium: teams[8].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c6', homeTeam: teams[10], awayTeam: teams[1], date: '2026-03-12', time: '20:30', status: 'upcoming', stadium: teams[10].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c7', homeTeam: teams[11], awayTeam: teams[12], date: '2026-03-13', time: '17:30', status: 'upcoming', stadium: teams[11].stadium, category: 'PUCHAR POLSKI' },
-      { id: 'c8', homeTeam: teams[2], awayTeam: teams[6], date: '2026-03-13', time: '20:00', status: 'upcoming', stadium: teams[2].stadium, category: 'PUCHAR POLSKI' },
-    ]
-  },
-  {
-    round: '1/8 FINAŁU',
-    matches: [
-      { id: 'c9', homeTeam: null, awayTeam: null, date: 'TBD', time: 'TBD', status: 'upcoming', stadium: 'TBD', category: 'PUCHAR POLSKI' },
-      { id: 'c10', homeTeam: null, awayTeam: null, date: 'TBD', time: 'TBD', status: 'upcoming', stadium: 'TBD', category: 'PUCHAR POLSKI' },
-      { id: 'c11', homeTeam: null, awayTeam: null, date: 'TBD', time: 'TBD', status: 'upcoming', stadium: 'TBD', category: 'PUCHAR POLSKI' },
-      { id: 'c12', homeTeam: null, awayTeam: null, date: 'TBD', time: 'TBD', status: 'upcoming', stadium: 'TBD', category: 'PUCHAR POLSKI' },
-    ]
-  },
-  {
-    round: '1/4 FINAŁU',
-    matches: [
-      { id: 'c13', homeTeam: null, awayTeam: null, date: 'TBD', time: 'TBD', status: 'upcoming', stadium: 'TBD', category: 'PUCHAR POLSKI' },
-      { id: 'c14', homeTeam: null, awayTeam: null, date: 'TBD', time: 'TBD', status: 'upcoming', stadium: 'TBD', category: 'PUCHAR POLSKI' },
-    ]
-  }
-];
+export const cupMatchesData = [];
 
 export const findMatchById = (id: string): Match | undefined => {
   const allMatches: Match[] = [

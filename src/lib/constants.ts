@@ -4,7 +4,7 @@ export const FIREBASE_BASE_URL = "https://wlpn-roblox-default-rtdb.europe-west1.
 export const API_ENDPOINTS = {
   STATS: `${REPLIT_API_BASE_URL}/api/stats`,
   TABLE: `${REPLIT_API_BASE_URL}/api/table`,
-  SCHEDULE: `${REPLIT_API_BASE_URL}/api/fixtures`,
+  SCHEDULE: '/api/schedule',
   EXTERNAL_STATS: `${REPLIT_API_BASE_URL}/api/external/stats`,
   EXTERNAL_TABLE: `${REPLIT_API_BASE_URL}/api/external/table`,
   PLAYERS_HISTORY: `${REPLIT_API_BASE_URL}/players-history.json`,

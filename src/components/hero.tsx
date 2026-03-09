@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { matches, Match, teams, standings as defaultStandings } from '@/lib/data';
+import { matches, Match, teams, standings as defaultStandings, friendlyMatchesData } from '@/lib/data';
 import { ClubLogosBar } from './club-logos-bar';
 import { CompactLeagueTable } from './compact-widgets';
 import { API_ENDPOINTS } from '@/lib/constants';
@@ -107,6 +107,7 @@ export function Hero({
   const [liveMatch, setLiveMatch] = useState<ApiMatch | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [activeLeague, setActiveLeague] = useState<'Ekstraklasa' | 'Mecze Towarzyskie'>('Mecze Towarzyskie');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,22 +157,11 @@ export function Hero({
           setUpcomingMatches(mappedFixtures);
         } else {
           // Fallback to static data if API fails
-          const now = new Date();
-          const filtered = matches
-            .filter(m => new Date(m.date).getTime() > (now.getTime() - 24 * 60 * 60 * 1000))
-            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-          setUpcomingMatches(filtered);
+          setUpcomingMatches([]);
         }
       } catch (error) {
         console.error('Failed to fetch data:', error);
-        // Fallback to static data
-        const now = new Date();
-        const filtered = matches
-          .filter(m => new Date(m.date).getTime() > (now.getTime() - 24 * 60 * 60 * 1000))
-          .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-        setUpcomingMatches(filtered);
+        setUpcomingMatches([]);
       } finally {
         setLoading(false);
       }
@@ -189,23 +179,70 @@ export function Hero({
 
   const isMatchLive = liveMatch !== null;
   
-  if (upcomingMatches.length === 0 && !isMatchLive) {
+  // Filter matches based on active league
+  const filteredMatches = activeLeague === 'Ekstraklasa' ? upcomingMatches : (() => {
+    const allFriendly = friendlyMatchesData.flatMap(round => round.matches);
+    const now = new Date();
+    
+    // First try: Upcoming or very recent (last 24h)
+    const recentAndUpcoming = allFriendly
+      .filter(m => new Date(m.date).getTime() > (now.getTime() - 24 * 60 * 60 * 1000))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+    if (recentAndUpcoming.length > 0) return recentAndUpcoming as Match[];
+    
+    // Second try: If nothing upcoming, show the single absolute nearest future match
+    const futureMatches = allFriendly
+      .filter(m => new Date(m.date).getTime() >= now.getTime())
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+    if (futureMatches.length > 0) return [futureMatches[0]] as Match[];
+    
+    // Third try: If everything is in the past, show the most recent finished match
+    const pastMatches = allFriendly
+      .filter(m => new Date(m.date).getTime() < now.getTime())
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+    if (pastMatches.length > 0) return [pastMatches[0]] as Match[];
+    
+    return [] as Match[];
+  })();
+
+  if (filteredMatches.length === 0 && !isMatchLive) {
     return (
-      <div className="relative w-full py-16 md:py-24 overflow-hidden min-h-[400px] flex items-center justify-center bg-gradient-to-b from-black to-[#0a1628]">
+      <div className="relative w-full py-8 md:py-24 overflow-hidden min-h-[600px] md:min-h-[850px] flex flex-col items-center justify-center">
+        {/* League Switcher even in empty state */}
+        <div className="mb-12 flex bg-black/40 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-2xl relative z-20">
+          {(['Ekstraklasa', 'Mecze Towarzyskie'] as const).map((l) => (
+            <button
+              key={l}
+              onClick={() => { setActiveLeague(l); setCurrentIndex(0); }}
+              className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative z-10 ${
+                activeLeague === l ? 'text-black' : 'text-white/40 hover:text-white'
+              }`}
+            >
+              {activeLeague === l && (
+                <div className="absolute inset-0 bg-white rounded-xl -z-10 shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
+              )}
+              {l}
+            </button>
+          ))}
+        </div>
+
         <div className="container mx-auto px-4 text-center z-10">
-          <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">
+          <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4 italic drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
             Witamy w <span className="text-[#00ccff]">PFF</span>
           </h1>
-          <p className="text-gray-400 text-lg uppercase tracking-widest font-bold">
+          <p className="text-gray-400 text-lg uppercase tracking-widest font-bold opacity-50">
             Brak zaplanowanych meczów w najbliższym czasie
           </p>
         </div>
-        <div className="absolute inset-0 bg-[url('https://i.ibb.co/TB027G07/czarnepff-1.png')] bg-center bg-no-repeat opacity-5 scale-150 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://i.ibb.co/TB027G07/czarnepff-1.png')] bg-center bg-no-repeat opacity-[0.03] scale-150 pointer-events-none" />
       </div>
     );
   }
 
-  const currentMatch = upcomingMatches[currentIndex];
+  const currentMatch = filteredMatches[currentIndex];
 
   const standings = defaultStandings;
   const getTeamPosition = (teamId: string) => {
@@ -243,7 +280,7 @@ export function Hero({
   };
 
   const nextMatch = () => {
-    if (currentIndex < upcomingMatches.length - 1) setCurrentIndex(currentIndex + 1);
+    if (currentIndex < filteredMatches.length - 1) setCurrentIndex(currentIndex + 1);
   };
 
   const prevMatch = () => {
@@ -285,6 +322,24 @@ export function Hero({
               
               {/* Main Frame */}
               <div className="bg-transparent px-6 md:px-20 py-6 md:py-10 rounded-3xl md:rounded-[2.5rem] border border-white/10 relative overflow-hidden flex flex-col items-center w-full">
+                {/* League Switcher */}
+                <div className="absolute top-4 flex bg-black/40 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-2xl z-20">
+                  {(['Ekstraklasa', 'Mecze Towarzyskie'] as const).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => { setActiveLeague(l); setCurrentIndex(0); }}
+                      className={`px-6 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 relative z-10 ${
+                        activeLeague === l ? 'text-black' : 'text-white/40 hover:text-white'
+                      }`}
+                    >
+                      {activeLeague === l && (
+                        <div className="absolute inset-0 bg-white rounded-xl -z-10" />
+                      )}
+                      {l}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="absolute inset-0 bg-transparent pointer-events-none" />
                 
                 {/* 7U7 Side Label (Left) */}
@@ -295,12 +350,12 @@ export function Hero({
                 </div>
 
                 {/* Content Container */}
-                <div className="relative z-10 flex flex-col items-center">
+                <div className="relative z-10 flex flex-col items-center pt-8">
                   <div className="relative">
                     {/* Inner logo glow removed */}
                     <Image
-                      src="https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png"
-                      alt="7U7 Ekstraklasa"
+                      src={activeLeague === 'Ekstraklasa' ? "https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png" : "https://i.ibb.co/vWZWXTC/obraz-2026-02-04-222253347-removebg-preview-1.png"}
+                      alt={activeLeague}
                       width={1000}
                       height={250}
                       className="h-36 md:h-64 w-auto object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform duration-500"
@@ -329,7 +384,7 @@ export function Hero({
             <div className="mb-4 md:mb-6 flex flex-col items-center">
               <div className="relative">
                 <h3 className="text-xl md:text-5xl font-black text-white uppercase tracking-[0.1em] md:tracking-[0.15em] drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                  {isMatchLive ? (liveMatch?.period || 'MECZ TRWA') : `${currentMatch.round}. KOLEJKA`}
+                  {isMatchLive ? (liveMatch?.period || 'MECZ TRWA') : (typeof currentMatch.round === 'number' ? `${currentMatch.round}. KOLEJKA` : currentMatch.round)}
                 </h3>
                 <div className="absolute -bottom-1 md:-bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               </div>

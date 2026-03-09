@@ -48,7 +48,6 @@ export default function Home() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-      <NewsSection />
       <Footer />
     </>
   );

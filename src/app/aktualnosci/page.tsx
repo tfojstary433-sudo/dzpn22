@@ -2,24 +2,71 @@
 
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
-import { newsArticles } from '@/lib/data';
+import { newsArticles as staticNewsArticles } from '@/lib/data';
+import { CreateArticleButton } from '@/components/create-article-modal';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, ArrowRight, Search, Filter } from 'lucide-react';
-import { useState } from 'react';
+import { Calendar, ArrowRight, Search, Filter, Sparkles, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function NewsListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Wszystkie');
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['Wszystkie', ...Array.from(new Set(newsArticles.map(a => a.category)))];
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles');
+        if (response.ok) {
+          const data = await response.json();
+          // Map API data to our structure
+          const mappedArticles = data.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            description: a.content.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...',
+            content: a.content,
+            image: a.imageUrl || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+            category: a.category || 'News',
+            date: new Date(a.publishedAt || a.createdAt).toLocaleDateString('pl-PL'),
+            rawDate: a.publishedAt || a.createdAt,
+            author: a.author
+          }));
+          
+          // Combine with static articles if needed, or just use API
+          // For now, let's use API articles first, then static ones as fallback or additions
+          setArticles([...mappedArticles, ...staticNewsArticles]);
+        } else {
+          setArticles(staticNewsArticles);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+        setArticles(staticNewsArticles);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const filteredArticles = newsArticles.filter(article => {
+    fetchArticles();
+  }, []);
+
+  const categories = ['Wszystkie', ...Array.from(new Set(articles.map(a => a.category)))];
+
+  const filteredArticles = articles.filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          article.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeCategory === 'Wszystkie' || article.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const isNew = (dateStr: string) => {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    return diffInHours < 24;
+  };
 
   const featuredArticle = filteredArticles[0];
   const otherArticles = filteredArticles.slice(1);
@@ -51,7 +98,8 @@ export default function NewsListPage() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-center">
+              <CreateArticleButton />
               <div className="relative group">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-blue-500 transition-colors" />
                 <input 
@@ -86,7 +134,12 @@ export default function NewsListPage() {
             ))}
           </div>
 
-          {filteredArticles.length > 0 ? (
+          {loading ? (
+            <div className="py-40 flex flex-col items-center justify-center">
+              <Sparkles className="w-12 h-12 text-blue-500 animate-pulse mb-6" />
+              <p className="text-white/40 font-black uppercase tracking-[0.3em] text-xs">Ładowanie artykułów...</p>
+            </div>
+          ) : filteredArticles.length > 0 ? (
             <div className="space-y-20">
               {/* Featured Article */}
               {activeCategory === 'Wszystkie' && searchTerm === '' && featuredArticle && (
@@ -102,6 +155,14 @@ export default function NewsListPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-1000"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+                    {isNew(featuredArticle.rawDate) && (
+                      <div className="absolute top-10 left-10 z-20">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-400/50 animate-bounce">
+                          <Clock className="w-4 h-4 text-white" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white">NOWY</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="lg:col-span-5 p-10 md:p-20 flex flex-col justify-center">
                     <div className="flex items-center gap-4 mb-8">
@@ -143,10 +204,16 @@ export default function NewsListPage() {
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute top-6 left-6">
+                      <div className="absolute top-6 left-6 flex flex-col gap-3">
                         <span className="px-5 py-2 bg-black/60 backdrop-blur-xl rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10 group-hover:bg-blue-600 group-hover:border-blue-400 transition-all">
                           {article.category}
                         </span>
+                        {isNew(article.rawDate) && (
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] border border-blue-400/30">
+                            <Clock className="w-3 h-3 text-white" />
+                            <span className="text-[8px] font-black uppercase tracking-widest text-white">NOWY</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="p-10 flex flex-col flex-1">

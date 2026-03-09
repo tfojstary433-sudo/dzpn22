@@ -255,6 +255,37 @@ app.post('/api/match/end', (req, res) => {
 app.use(express.static('.'));
 
 const PORT = 3000;
+
+// System automatycznego pobierania danych z Replit API
+const REPLIT_API_URL = 'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/fixtures';
+const CACHE_FILE = 'cached_fixtures.json';
+
+const fetchAndCacheSchedule = async () => {
+    try {
+        console.log('[CACHE] Pobieranie danych z Replit API...');
+        const response = await fetch(REPLIT_API_URL);
+        if (response.ok) {
+            const data = await response.json();
+            // Zapisz nowe dane (nadpisując stare)
+            saveData(CACHE_FILE, data);
+            console.log('[CACHE] Pomyślnie zaktualizowano terminarz z API.');
+        } else {
+            console.warn('[CACHE] Błąd pobierania z API, status:', response.status);
+        }
+    } catch (error) {
+        console.error('[CACHE] Błąd połączenia z Replit API:', error.message);
+    }
+};
+
+// Pobierz dane przy starcie i co 5 minut
+fetchAndCacheSchedule();
+setInterval(fetchAndCacheSchedule, 5 * 60 * 1000);
+
+app.get('/api/schedule', (req, res) => {
+    const schedule = readData(CACHE_FILE);
+    res.json(schedule);
+});
+
 app.listen(PORT, () => {
     console.log(`[SERVER] Uruchomiony na porcie ${PORT}`);
     console.log(`[API] POST /api/endmatch (Nowy system)`);
