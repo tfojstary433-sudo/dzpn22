@@ -9,7 +9,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 
 function TurniejeContent() {
-  const [activeTournament] = useState<'towarzyskie'>('towarzyskie');
+  const [activeTournament, setActiveTournament] = useState<'puchar' | 'towarzyskie'>('towarzyskie');
   
   const [challongeData, setChallongeData] = useState<any>(null);
   const [tableData, setTableData] = useState<any>(null);
