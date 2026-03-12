@@ -144,7 +144,7 @@ export default function ExamPage() {
     const percentage = Math.round((correct / questions.length) * 100);
 
     const result = {
-      discordId: user.id,
+      discordId: user.discordId || user.id,
       username: user.discordUsername || user.global_name || user.username,
       ip: userIp,
       score: correct,
