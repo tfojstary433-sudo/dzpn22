@@ -520,7 +520,10 @@ export function Navbar() {
                               const origin = window.location.origin.replace(/\/$/, "");
                               const redirectUri = encodeURIComponent(origin + "/callback");
                               const robloxId = user?.robloxId || localStorage.getItem('roblox_id') || "";
-                              window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=discord:${robloxId}`;
+                              const isExam = pathname.includes('/test/');
+                              const token = isExam ? pathname.split('/').pop() : "";
+                              const state = isExam ? `exam:${token}` : `discord:${robloxId}`;
+                              window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=${state}`;
                             }}
                             className="w-full flex items-center justify-center gap-2 bg-[#5865F2] hover:bg-[#4752C4] text-white font-black py-2 rounded-lg transition-colors mb-3"
                           >
