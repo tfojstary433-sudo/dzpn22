@@ -10,15 +10,19 @@ export default function RobloxCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const processedRef = useRef(false);
 
   useEffect(() => {
+    if (processedRef.current) return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state') || 'roblox';
 
     if (code) {
-      const apiPath = state === 'discord' ? '/api/auth/callback' : '/api/auth/roblox/callback';
-      fetch(`${apiPath}?code=${code}`)
+      processedRef.current = true;
+      const apiPath = state === 'discord' || state.startsWith('exam:') ? '/api/auth/callback' : '/api/auth/roblox/callback';
+      fetch(`${apiPath}?code=${code}&state=${encodeURIComponent(state)}`)
         .then((res) => res.json())
         .then((data) => {
           // Remove code from URL to prevent reuse on refresh
