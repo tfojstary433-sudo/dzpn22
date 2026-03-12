@@ -277,6 +277,17 @@ export const topAssists: Player[] = [];
 
 export const mockPlayersData: any[] = [];
 
+export interface Article {
+  id: number;
+  title: string;
+  image: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  category: string;
+  author: string;
+}
+
 export const newsArticles: Article[] = [];
 
 export const friendlyMatchesData: any[] = [];
