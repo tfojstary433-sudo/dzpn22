@@ -42,9 +42,9 @@ function getData(fileName: string) {
   return {};
 }
 
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1448788697653973082';
-const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'CiW1atPyupU5QO1H2Q2iYzw7hjEvarOW';
-const GUILD_ID = process.env.DISCORD_GUILD_ID || '1447302326971793520';
+const CLIENT_ID = '1448788697653973082';
+const CLIENT_SECRET = 'CiW1atPyupU5QO1H2Q2iYzw7hjEvarOW';
+const GUILD_ID = '1447302326971793520';
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 export async function GET(request: Request) {
@@ -67,12 +67,14 @@ export async function GET(request: Request) {
   // Pobieramy origin z nagłówków dla lepszej kompatybilności z proxy (np. Vercel)
   const host = request.headers.get('host') || new URL(request.url).host;
   const protocol = request.headers.get('x-forwarded-proto') || (new URL(request.url).protocol.replace(':', ''));
-  const origin = `${protocol}://${host}`;
+  
+  // Prefer statically defined BASE_URL for production
+  let origin = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
   
   // Choose redirect URI based on state or entry point
   let redirectUri = `${origin.replace(/\/$/, "")}/callback`;
   
-  if (state === 'roblox' || state.startsWith('exam:')) {
+  if (state === 'roblox') {
     redirectUri = `${origin.replace(/\/$/, "")}/robloxcallback`;
   }
 

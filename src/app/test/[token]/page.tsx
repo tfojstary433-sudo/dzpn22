@@ -77,11 +77,11 @@ export default function ExamPage() {
         setExamData(data);
 
         // Check whitelist
-        const isAuthorized = data.authorizedDiscordIds.some(auth => auth.discordId === userData.id);
+        const isAuthorized = data.authorizedDiscordIds.some(auth => auth.discordId === (userData.robloxId || userData.id));
         setAuthorized(isAuthorized);
 
-        // Check if already taken (by Discord ID or IP)
-        const hasTaken = data.results?.some(res => res.discordId === userData.id || res.ip === userIp);
+        // Check if already taken (by ID or IP)
+        const hasTaken = data.results?.some(res => res.discordId === (userData.robloxId || userData.id) || res.ip === userIp);
         if (hasTaken) {
           setAlreadyTaken(true);
         }
@@ -144,8 +144,8 @@ export default function ExamPage() {
     const percentage = Math.round((correct / questions.length) * 100);
 
     const result = {
-      discordId: user.discordId || user.id,
-      username: user.discordUsername || user.global_name || user.username,
+      discordId: user.robloxId || user.id,
+      username: user.robloxUsername || user.username,
       ip: userIp,
       score: correct,
       totalQuestions: questions.length,
@@ -247,18 +247,21 @@ export default function ExamPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-3xl font-black uppercase tracking-tighter">Wymagane Logowanie</h1>
-            <p className="text-white/40 font-medium leading-relaxed">Aby rozpocząć egzamin dla administracji, musisz zalogować się przez Discord OAuth2.</p>
+            <p className="text-white/40 font-medium leading-relaxed">Aby rozpocząć egzamin dla administracji, musisz zalogować się przez Roblox OAuth2.</p>
           </div>
           <button
             onClick={() => {
-              const clientId = "1448788697653973082";
+              const clientId = "8976718339232083701";
               const origin = window.location.origin.replace(/\/$/, "");
-              const redirectUri = encodeURIComponent(origin + "/callback");
-              window.location.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+email+guilds+guilds.members.read&state=exam:${token}`;
+              const redirectUri = encodeURIComponent(origin + "/robloxcallback");
+              window.location.href = `https://authorize.roblox.com/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile&state=exam:${token}&step=accountConfirm`;
             }}
-            className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 shadow-xl"
+            className="w-full bg-black hover:bg-white/10 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 shadow-xl border border-white/10"
           >
-             Zaloguj się przez Discord
+             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.5 4L20 18.5L5.5 20L4 5.5L18.5 4ZM14.5 10.5H9.5V14.5H14.5V10.5Z" />
+             </svg>
+             Zaloguj się przez Roblox
           </button>
         </div>
       </div>

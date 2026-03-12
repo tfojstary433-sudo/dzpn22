@@ -12,6 +12,13 @@ export default function CallbackPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
+    const errorParam = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+
+    if (errorParam) {
+      setError(errorDescription || errorParam);
+      return;
+    }
 
     if (code) {
       const isDiscord = state === 'discord' || state?.startsWith('discord:');

@@ -18,6 +18,13 @@ export default function RobloxCallbackPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state') || 'roblox';
+    const errorParam = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+
+    if (errorParam) {
+      setError(errorDescription || errorParam);
+      return;
+    }
 
     if (code) {
       processedRef.current = true;
