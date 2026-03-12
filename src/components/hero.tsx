@@ -181,7 +181,7 @@ export function Hero({
   
   // Filter matches based on active league
   const filteredMatches = activeLeague === 'Ekstraklasa' ? upcomingMatches : (() => {
-    const allFriendly = friendlyMatchesData.flatMap(round => round.matches);
+    const allFriendly = (friendlyMatchesData as any[]).flatMap(round => (round.matches || []));
     const now = new Date();
     
     // First try: Upcoming or very recent (last 24h)

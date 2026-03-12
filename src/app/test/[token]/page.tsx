@@ -114,48 +114,7 @@ export default function ExamPage() {
     }
   }, [examStarted, examFinished]);
 
-  // Timer logic
-  useEffect(() => {
-    if (examStarted && !examFinished && timeLeft > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            finishExam();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [examStarted, examFinished, timeLeft]);
-
-  const startExam = () => {
-    if (!authorized || alreadyTaken) return;
-    setExamStarted(true);
-    setStartTime(Date.now());
-    setAnswers(new Array(examData?.questions.length || 0).fill(-1));
-  };
-
-  const handleAnswer = (optionIndex: number) => {
-    const newAnswers = [...answers];
-    newAnswers[currentQuestionIndex] = optionIndex;
-    setAnswers(newAnswers);
-  };
-
-  const nextQuestion = () => {
-    if (!examData) return;
-    if (currentQuestionIndex < examData.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      finishExam();
-    }
-  };
-
-  const finishExam = async () => {
+  const finishExam = useCallback(async () => {
     if (examFinished) return;
     setExamFinished(true);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -208,7 +167,26 @@ export default function ExamPage() {
     } catch (e) {
       console.error('Failed to save exam results:', e);
     }
-  };
+  }, [examFinished, examData, startTime, user, userIp, answers]);
+
+  // Timer logic
+  useEffect(() => {
+    if (examStarted && !examFinished && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!);
+            finishExam();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [examStarted, examFinished, timeLeft, finishExam]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

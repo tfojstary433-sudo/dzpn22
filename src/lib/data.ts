@@ -279,7 +279,7 @@ export const mockPlayersData = [];
 
 export const newsArticles: Article[] = [];
 
-export const friendlyMatchesData = [];
+export const friendlyMatchesData: any[] = [];
 
 export const sneakPeeks: SneakPeak[] = [
   {

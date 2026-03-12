@@ -140,7 +140,7 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
         minutes
       };
     });
-  }, [topScorers, selectedLeague]);
+  }, [topScorers]);
 
   const teamStats = useMemo(() => {
     return standings.map(s => {
@@ -160,7 +160,7 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
         played: s.played
       };
     });
-  }, [standings, selectedLeague]);
+  }, [standings]);
 
   if (!mounted) return null;
 

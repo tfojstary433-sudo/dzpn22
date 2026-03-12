@@ -141,19 +141,7 @@ export function useMatchStats(season: string = 'current') {
   const [standings, setStandings] = useState<TeamStanding[]>([]);
   const [finishedMatches, setFinishedMatches] = useState<Record<string, MatchResult>>({});
 
-  useEffect(() => {
-    loadStats();
-    fetchFromServer();
-
-    const handleStorageChange = () => {
-      loadStats();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [season]); // Re-fetch when season changes
-
-  const fetchFromServer = async () => {
+  const fetchFromServer = useCallback(async () => {
     try {
       const seasonQuery = season !== 'current' ? `?season=${season}` : '';
       
@@ -350,7 +338,19 @@ export function useMatchStats(season: string = 'current') {
       console.error('Error fetching statistics:', error);
       loadLocalData();
     }
-  };
+  }, [season]);
+
+  useEffect(() => {
+    loadStats();
+    fetchFromServer();
+
+    const handleStorageChange = () => {
+      loadStats();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [season, fetchFromServer]);
 
   const loadLocalData = () => {
     try {
