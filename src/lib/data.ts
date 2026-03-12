@@ -275,7 +275,7 @@ export const topScorers: Player[] = [];
 
 export const topAssists: Player[] = [];
 
-export const mockPlayersData = [];
+export const mockPlayersData: any[] = [];
 
 export const newsArticles: Article[] = [];
 

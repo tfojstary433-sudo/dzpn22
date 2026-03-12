@@ -102,9 +102,9 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
   const players = useMemo(() => {
     // If friendly matches selected, we might want to filter or use different mock data
     // For now keeping it simple as requested
-    const basePlayers = topScorers.length > 0 ? topScorers : mockPlayersData.map(p => ({
+    const basePlayers = topScorers.length > 0 ? topScorers : (mockPlayersData as any[]).map((p: any) => ({
       ...p,
-      points: p.goals + p.assists,
+      points: (p.goals || 0) + (p.assists || 0),
       cleanSheets: 0,
       yellowCards: 0,
       redCards: 0
