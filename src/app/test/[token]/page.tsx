@@ -188,6 +188,28 @@ export default function ExamPage() {
     };
   }, [examStarted, examFinished, timeLeft, finishExam]);
 
+  const startExam = () => {
+    if (!authorized || alreadyTaken) return;
+    setExamStarted(true);
+    setStartTime(Date.now());
+    setAnswers(new Array(examData?.questions.length || 0).fill(-1));
+  };
+
+  const handleAnswer = (optionIndex: number) => {
+    const newAnswers = [...answers];
+    newAnswers[currentQuestionIndex] = optionIndex;
+    setAnswers(newAnswers);
+  };
+
+  const nextQuestion = () => {
+    if (!examData) return;
+    if (currentQuestionIndex < examData.questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      finishExam();
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
