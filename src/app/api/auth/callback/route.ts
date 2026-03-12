@@ -69,7 +69,7 @@ export async function GET(request: Request) {
   const protocol = request.headers.get('x-forwarded-proto') || (new URL(request.url).protocol.replace(':', ''));
   
   // Prefer statically defined BASE_URL for production
-  let origin = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
+  const origin = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
   
   // Choose redirect URI based on state or entry point
   let redirectUri = `${origin.replace(/\/$/, "")}/callback`;
