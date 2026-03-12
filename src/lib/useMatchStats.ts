@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { teams } from './data';
 import { getAllPlayerStats } from './firebase';
 import { API_ENDPOINTS, TEAM_ID_MAPPING } from './constants';
