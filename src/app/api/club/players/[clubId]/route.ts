@@ -96,23 +96,8 @@ export async function GET(
     console.log('Found playerUserIds for club', clubId, ':', playerUserIds.length);
 
     if (playerUserIds.length === 0) {
-      console.log('No players found for club', clubId, '- returning mock players');
-      // Return some mock players for testing
-      const mockPlayers = [
-        {
-          userId: '2613143527',
-          username: 'Pako7u7lol',
-          avatarUrl: 'https://www.roblox.com/headshot-thumbnail/image?userId=2613143527&width=150&height=150&format=png',
-          clubId,
-          value: 100000,
-          previousClubs: [],
-          lastMatchNumber: 7,
-          position: 'Napastnik',
-          verified: true,
-          stats: { goals: 5, assists: 3, matches: 10 }
-        }
-      ];
-      return NextResponse.json({ players: mockPlayers });
+      console.log('No players found for club', clubId);
+      return NextResponse.json({ players: [] });
     }
 
     // Create players list with real usernames (avatars fetched in frontend)
@@ -144,7 +129,7 @@ export async function GET(
       players: players
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
       }
     });
 

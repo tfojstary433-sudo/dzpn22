@@ -7,28 +7,9 @@ import { teams } from '@/lib/data';
 import { useState, useEffect, useMemo } from 'react';
 
 export default function KlubyPage() {
-  const displayTeams = useMemo(() => [
-    'Zawisza Bydgoszcz',
-    'Arka Gdynia',
-    'Unia Skierniewice',
-    'Legia Warszawa',
-    'Lech Poznań',
-    'Pogoń Szczecin',
-    'Zagłębie Lubin',
-    'Lechia Gdańsk',
-    'Wisła Kraków',
-    'Sokół Olsztyn',
-    'Grom Nowy Staw',
-    'Motor Lublin',
-    'Olimpia Elbląg',
-    'Chojniczanka Chojnice',
-    'Jagiellonia Białystok',
-    'Wisła Płock'
-  ], []);
-
   const filteredTeams = useMemo(() => teams.filter(team =>
-    displayTeams.includes(team.name)
-  ), [displayTeams]);
+    team.id !== 'SED'
+  ), []);
 
   const [playerCounts, setPlayerCounts] = useState<{ [key: string]: number }>({});
 
@@ -42,7 +23,7 @@ export default function KlubyPage() {
           const response = await fetch(`/api/club/players/${team.id}`);
           if (!response.ok) continue;
           const data = await response.json();
-          counts[team.id] = data.players ? data.players.length : 0;
+          counts[team.id] = Array.isArray(data) ? data.length : (data.players ? data.players.length : 0);
         } catch (error) {
           console.error('Error fetching players for', team.id, ':', error);
           counts[team.id] = 0;
@@ -86,19 +67,17 @@ export default function KlubyPage() {
                 href={`/klub/${team.id}`}
                 className="bg-white/10 hover:bg-white/20 rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-105 shadow-xl flex flex-col items-center justify-center min-h-[250px] backdrop-blur-2xl group"
               >
-                <div className="mb-6 relative">
-                  <div 
-                    className="absolute inset-0 blur-2xl opacity-20 scale-150 rounded-full"
-                    style={{ backgroundColor: team.color }}
-                  ></div>
-                  <img 
-                    src={team.logo} 
-                    alt={team.name}
-                    className="relative z-10 w-24 h-24 object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-300"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder-logo.png';
-                    }}
-                  />
+                <div className="mb-8 relative w-32 h-32 flex items-center justify-center mx-auto">
+                  <div className="w-24 h-24 relative flex items-center justify-center">
+                    <img 
+                      src={team.logo} 
+                      alt={team.name}
+                      className="max-w-full max-h-full object-contain drop-shadow-2xl transform group-hover:scale-110 transition-all duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder-logo.png';
+                      }}
+                    />
+                  </div>
                 </div>
                 
                 <h2 className="text-white font-black text-xl text-center uppercase tracking-tight mb-2 group-hover:text-blue-400 transition-colors">

@@ -426,43 +426,58 @@ export function Hero({
                   <div className="relative z-10 flex flex-col items-center w-full">
                     <div className="flex items-center justify-between w-full gap-2 md:gap-8 px-2 md:px-4">
                       {/* Home team name */}
-                      <h2 className="hidden md:block text-xl lg:text-2xl xl:text-3xl font-black text-white uppercase tracking-tight text-right w-[30%] transition-all italic">
+                      <h2 className="hidden md:block text-xl lg:text-2xl xl:text-3xl font-black text-white uppercase tracking-tight text-right w-[25%] transition-all italic">
                         {displayData.homeTeam.name}
                       </h2>
 
-                      {/* Home team logo */}
-                      <div className="relative group flex-shrink-0 w-12 md:w-20 lg:w-28 flex justify-center z-10">
-                        <Image
-                          src={displayData.homeTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
-                          alt={displayData.homeTeam.name}
-                          width={140}
-                          height={140}
-                          className="relative z-10 object-contain drop-shadow-2xl h-10 w-10 md:h-20 md:w-20 lg:h-24 lg:w-24 transition-transform duration-500 group-hover:scale-110"
-                        />
-                      </div>
+                      {/* Main Center Area */}
+                      <div className="flex flex-col items-center flex-1 z-20">
+                        {/* Hour and Logos Row */}
+                        <div className="flex items-center justify-center gap-4 md:gap-12 w-full mb-4 md:mb-8">
+                          {/* Home team logo */}
+                          <div className="relative group flex-shrink-0 w-12 md:w-20 lg:w-28 flex justify-center z-10">
+                            <Image
+                              src={displayData.homeTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
+                              alt={displayData.homeTeam.name}
+                              width={140}
+                              height={140}
+                              className="relative z-10 object-contain drop-shadow-2xl h-10 w-10 md:h-20 md:w-20 lg:h-24 lg:w-24 transition-transform duration-500 group-hover:scale-110"
+                            />
+                          </div>
 
-                      {/* Score/Time display */}
-                      <div className="flex flex-col items-center justify-center min-w-[100px] md:min-w-[240px] mx-1 md:mx-4 z-20">
-                        <div className="relative overflow-hidden rounded-xl md:rounded-2xl border border-white/10 px-3 md:px-10 py-2 md:py-5 flex flex-col items-center justify-center w-full transition-all duration-500 bg-black/10">
-                          <span className={`text-xl md:text-4xl lg:text-5xl font-black tracking-wider relative z-10 whitespace-nowrap text-white`} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {isMatchLive ? (
-                              `${displayData.scoreA}:${displayData.scoreB}`
-                            ) : (currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) ? (
-                              `${currentMatch.homeScore ?? 0}:${currentMatch.awayScore ?? 0}`
-                            ) : (
-                              new Date(displayData.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
-                            )}
-                          </span>
+                          {/* Score/Time display */}
+                          <div className="relative overflow-hidden rounded-xl md:rounded-2xl border border-white/10 px-3 md:px-10 py-2 md:py-5 flex flex-col items-center justify-center transition-all duration-500 bg-black/10 min-w-[100px] md:min-w-[200px]">
+                            <span className={`text-xl md:text-4xl lg:text-5xl font-black tracking-wider relative z-10 whitespace-nowrap text-white`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              {isMatchLive ? (
+                                `${displayData.scoreA}:${displayData.scoreB}`
+                              ) : (currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) ? (
+                                `${currentMatch.homeScore ?? 0}:${currentMatch.awayScore ?? 0}`
+                              ) : (
+                                new Date(displayData.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Away team logo */}
+                          <div className="relative group flex-shrink-0 w-12 md:w-20 lg:w-28 flex justify-center z-10">
+                            <Image
+                              src={displayData.awayTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
+                              alt={displayData.awayTeam.name}
+                              width={140}
+                              height={140}
+                              className="relative z-10 object-contain drop-shadow-2xl h-10 w-10 md:h-20 md:w-20 lg:h-24 lg:w-24 transition-transform duration-500 group-hover:scale-110"
+                            />
+                          </div>
                         </div>
                         
                         {!isMatchLive && currentMatch.status !== 'finished' && !(currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined) && (
-                          <div className="mt-4 md:mt-8 scale-90 md:scale-100">
+                          <div className="scale-90 md:scale-100">
                             <CountdownTimer targetDate={displayData.date} />
                           </div>
                         )}
 
                         {!isMatchLive && (currentMatch.status === 'finished' || (currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined)) && (
-                          <div className="flex flex-col items-center gap-1 md:gap-2 mt-2 md:mt-4">
+                          <div className="flex flex-col items-center gap-1 md:gap-2">
                             <div className="bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
                               <span className="text-[10px] md:text-xs font-black text-[#00ccff] uppercase tracking-[0.2em]">ZAKOŃCZONY</span>
                             </div>
@@ -470,7 +485,7 @@ export function Hero({
                         )}
                         
                         {!isMatchLive && currentMatch.status !== 'finished' && !(currentMatch.homeScore !== undefined && currentMatch.awayScore !== undefined) && (
-                          <div className="flex flex-col items-center gap-1 md:gap-2 mt-2 md:mt-4">
+                          <div className="flex flex-col items-center gap-1 md:gap-2 mt-4">
                             <div className="flex items-center gap-2 md:gap-4 font-black text-xs md:text-lg">
                               <span className="text-white/60 bg-white/5 px-2 md:px-3 py-0.5 md:py-1 rounded-full whitespace-nowrap">#{homePos}</span>
                               <span className="text-gray-600 text-[10px] md:text-base">vs</span>
@@ -486,19 +501,8 @@ export function Hero({
                         )}
                       </div>
 
-                      {/* Away team logo */}
-                      <div className="relative group flex-shrink-0 w-12 md:w-20 lg:w-28 flex justify-center z-10">
-                        <Image
-                          src={displayData.awayTeam.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png'}
-                          alt={displayData.awayTeam.name}
-                          width={140}
-                          height={140}
-                          className="relative z-10 object-contain drop-shadow-2xl h-10 w-10 md:h-20 md:w-20 lg:h-24 lg:w-24 transition-transform duration-500 group-hover:scale-110"
-                        />
-                      </div>
-
                       {/* Away team name */}
-                      <h2 className="hidden md:block text-xl lg:text-2xl xl:text-3xl font-black text-white uppercase tracking-tight text-left w-[30%] transition-all italic">
+                      <h2 className="hidden md:block text-xl lg:text-2xl xl:text-3xl font-black text-white uppercase tracking-tight text-left w-[25%] transition-all italic">
                         {displayData.awayTeam.name}
                       </h2>
                     </div>

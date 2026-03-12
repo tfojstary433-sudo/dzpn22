@@ -83,144 +83,75 @@ export interface SneakPeak {
 
 export const teams: Team[] = [
   { 
-    id: 'UNI', 
-    name: 'Unia Skierniewice', 
-    shortName: 'Unia', 
-    logo: 'https://i.ibb.co/Vp3YY8FY/unia-logo-300x300.png',
-    color: '#facc15',
-    founded: '14.12.2025',
-    president: 'czokapik',
-    coach: 'Nieznany',
-    spokesperson: 'Japuszko',
-    stadiumCapacity: 5000,
-    stadium: 'Stadion Miejski w Skierniewicach',
-    address: 'ul. Sportowa 1, 96-100 Skierniewice',
-    phone: '+48 46 833 21 45',
-    email: 'kontakt@uniaskierniewice.pl'
-  } as any,
-  { 
-    id: 'LGD', 
-    name: 'Lechia Gdańsk', 
-    shortName: 'Lechia', 
-    logo: 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png',
-    color: '#16a34a',
-    founded: '14.12.2025',
-    president: 'Nieznany',
-    coach: 'Nieznany',
-    spokesperson: 'Nieznany',
-    stadiumCapacity: 43615,
-    stadium: 'Stadion Energa w Gdańsku',
-    address: 'ul. Pokoleń Lechii Gdańsk 1, 80-560 Gdańsk',
-    phone: '+48 58 768 98 00',
-    email: 'biuro@lechia.pl'
-  } as any,
-  { 
-    id: 'ZAG', 
-    name: 'Zagłębie Lubin', 
-    shortName: 'Zagłębie', 
-    logo: 'https://i.ibb.co/7xBP97MW/dvyf-Zx2g-Ykwr8-Dur.png',
-    color: '#f97316',
-    founded: '14.12.2025',
-    president: 'nark0t4k',
-    coach: 'Nieznany',
-    spokesperson: 'piotencjusz1_',
-    stadiumCapacity: 16086,
-    stadium: 'Stadion Zagłębia Lubin',
-    address: 'ul. Złotoryjska 20, 59-300 Lubin',
-    phone: '+48 76 749 53 00',
-    email: 'biuro@zaglebie.lubin.pl'
-  } as any,
-  { 
-    id: 'LPO', 
-    name: 'Lech Poznań', 
-    shortName: 'Lech', 
-    logo: 'https://ext.same-assets.com/1250577607/3317158738.png',
-    color: '#1e40af',
-    founded: '14.12.2025',
-    president: 'matek.67',
-    coach: 'Nieznany',
-    spokesperson: 'Bonzai',
-    stadiumCapacity: 43269,
-    stadium: 'ENEA Stadion w Poznaniu',
-    address: 'ul. Bułgarska 17, 60-320 Poznań',
-    phone: '+48 61 850 44 50',
-    email: 'biuro@lechpoznan.pl'
-  } as any,
-  { 
-    id: 'ARK', 
-    name: 'Arka Gdynia', 
-    shortName: 'Arka', 
-    logo: 'https://ext.same-assets.com/1250577607/451783410.png',
-    color: '#facc15',
-    founded: '13.12.2025',
-    president: 'mlodypikel',
-    coach: 'mlodypikel',
-    spokesperson: '.pako7u7',
-    stadium: 'Stadion Miejski w Gdyni'
-  } as any,
-  { 
-    id: 'LEG', 
-    name: 'Legia Warszawa', 
-    shortName: 'Legia', 
-    logo: 'https://ext.same-assets.com/1250577607/695801781.png',
-    color: '#16a34a',
-    founded: '13.12.2025',
-    president: 'xlissy.',
-    coach: 'Nieznany',
-    spokesperson: 'Nieznany',
-    stadiumCapacity: 31103,
-    stadium: 'Stadion Wojska Polskiego w Warszawie',
-    address: 'ul. Łazienkowska 3, 00-449 Warszawa',
-    phone: '+48 22 518 61 00',
-    email: 'biuro@legia.com'
-  } as any,
-  { 
-    id: 'POG', 
-    name: 'Pogoń Szczecin', 
-    shortName: 'Pogoń', 
-    logo: 'https://ext.same-assets.com/1250577607/3079565559.png',
-    color: '#1e3a8a',
-    founded: '14.12.2025',
-    president: '.flexxy',
-    coach: 'Nieznany',
-    spokesperson: 'klatka',
-    stadiumCapacity: 21193,
-    stadium: 'Stadion Miejski im. Floriana Krygiera w Szczecinie',
-    address: 'ul. Karola Szymanowskiego 1, 71-426 Szczecin',
-    phone: '+48 91 460 41 00',
-    email: 'biuro@pogonszczecin.pl'
-  } as any,
-  { 
     id: 'ZAW', 
     name: 'Zawisza Bydgoszcz', 
     shortName: 'Zawisza', 
     logo: 'https://upload.wikimedia.org/wikipedia/commons/5/55/Herb_Zawiszy_Bydgoszcz.png',
     color: '#1e40af',
     founded: '13.12.2025',
-    president: 'Zeusinho',
-    coach: 'Nieznany',
-    spokesperson: '_els1',
-    stadiumCapacity: 20247,
-    stadium: 'Stadion Miejski w Bydgoszczy',
-    address: 'ul. Sportowa 2, 85-091 Bydgoszcz',
-    phone: '+48 52 322 56 78',
-    email: 'kontakt@zawiszabydgoszcz.pl'
+    stadium: 'Stadion Miejski w Bydgoszczy'
   } as any,
   { 
-    id: 'WIS', 
-    name: 'Wisła Kraków', 
-    shortName: 'Wisła', 
-    logo: 'https://upload.wikimedia.org/wikipedia/en/1/15/Wis%C5%82a_Krak%C3%B3w_logo.svg',
+    id: 'ARK', 
+    name: 'Arka Gdynia', 
+    shortName: 'Arka', 
+    logo: 'https://arka.gdynia.pl/files/herb/arka_gdynia_mzks_kolor.png',
+    color: '#facc15',
+    founded: '13.12.2025',
+    stadium: 'Stadion Miejski w Gdyni'
+  } as any,
+  { 
+    id: 'LEG', 
+    name: 'Legia Warszawa', 
+    shortName: 'Legia', 
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Legia_Warsaw_logo.png',
+    color: '#16a34a',
+    founded: '13.12.2025',
+    stadium: 'Stadion Wojska Polskiego w Warszawie'
+  } as any,
+  { 
+    id: 'LPO', 
+    name: 'Lech Poznań', 
+    shortName: 'Lech', 
+    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/KKS_Lech_Pozna%C5%84.svg/960px-KKS_Lech_Pozna%C5%84.svg.png',
+    color: '#1e40af',
+    founded: '14.12.2025',
+    stadium: 'ENEA Stadion w Poznaniu'
+  } as any,
+  { 
+    id: 'LGD', 
+    name: 'Lechia Gdańsk', 
+    shortName: 'Lechia', 
+    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b7/Lechia_Gda%C5%84sk_logo.svg/1200px-Lechia_Gda%C5%84sk_logo.svg.png',
+    color: '#16a34a',
+    founded: '14.12.2025',
+    stadium: 'Stadion Energa w Gdańsku'
+  } as any,
+  { 
+    id: 'WID', 
+    name: 'Widzew Łódź', 
+    shortName: 'Widzew', 
+    logo: 'https://i.ibb.co/1fNvYHvf/Widzew-L-dz-logo.png',
     color: '#dc2626',
-    founded: '03.01.2026',
-    president: 'jm242.2',
-    coach: 'Nieznany',
-    spokesperson: 'eryczek0103, saguaro321_47983',
-    stadiumCapacity: 33326,
-    stadium: 'Stadion Miejski im. Henryka Reymana',
-    address: 'ul. Reymonta 22, 30-059 Kraków',
-    phone: '+48 12 630 64 37',
-    email: 'biuro@wisla.krakow.pl'
+    stadium: 'Stadion Widzewa'
+  } as any,
+  { 
+    id: 'POG', 
+    name: 'Pogoń Szczecin', 
+    shortName: 'Pogoń', 
+    logo: 'https://pogoncdn.stellis.one/imgsize-xs/documents/7740889/44a6ff9f-f346-69e6-890c-c6f10c6e891b',
+    color: '#1e3a8a',
+    founded: '14.12.2025',
+    stadium: 'Stadion Miejski im. Floriana Krygiera w Szczecinie'
+  } as any,
+  { 
+    id: 'ZAG', 
+    name: 'Zagłębie Lubin', 
+    shortName: 'Zagłębie', 
+    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/20/Zag%C5%82%C4%99bie_Lubin_crest.svg/1200px-Zag%C5%82%C4%99bie_Lubin_crest.svg.png',
+    color: '#f97316',
+    founded: '14.12.2025',
+    stadium: 'Stadion Zagłębia Lubin'
   } as any,
   { 
     id: 'SOK', 
@@ -229,30 +160,24 @@ export const teams: Team[] = [
     logo: 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png',
     color: '#00ccff',
     founded: '29.12.2025',
-    president: 'JASiO',
-    coach: 'Nieznany',
-    spokesperson: 'Raister',
-    stadiumCapacity: 3000,
-    stadium: 'Stadion Miejski w Ostródzie',
-    address: 'ul. Sportowa 5, 14-100 Ostróda',
-    phone: '+48 89 646 32 11',
-    email: 'kontakt@sokolostroda.pl'
+    stadium: 'Stadion Miejski w Ostródzie'
   } as any,
   { 
-    id: 'BBT', 
-    name: 'Bruk-Bet Termalica', 
-    shortName: 'Termalica', 
-    logo: 'https://i.ibb.co/60TzV8Xg/obraz-2026-03-09-233546167-removebg-preview.png',
-    color: '#f97316',
-    founded: '04.01.2026',
-    president: '.eska.12',
-    coach: 'Nieznany',
-    spokesperson: 'Nieznany',
-    stadiumCapacity: 4666,
-    stadium: 'Stadion Bruk-Bet w Niecieczy',
-    address: 'Nieciecza 150, 33-240 Żabno',
-    phone: '+48 14 644 44 44',
-    email: 'biuro@brukbet.com'
+    id: 'WIS', 
+    name: 'Wisła Kraków', 
+    shortName: 'Wisła', 
+    logo: 'https://upload.wikimedia.org/wikipedia/en/1/15/Wis%C5%82a_Krak%C3%B3w_logo.svg',
+    color: '#dc2626',
+    founded: '03.01.2026',
+    stadium: 'Stadion Miejski im. Henryka Reymana'
+  } as any,
+  { 
+    id: 'GOR', 
+    name: 'Górnik Zabrze', 
+    shortName: 'Górnik', 
+    logo: 'https://i.ibb.co/VWrm9ws7/obraz-2026-03-12-125114114-removebg-preview.png',
+    color: '#16a34a',
+    stadium: 'Stadion im. Ernesta Pohla'
   } as any,
   { 
     id: 'MOT', 
@@ -261,6 +186,14 @@ export const teams: Team[] = [
     logo: 'https://i.ibb.co/bgRJrvnj/Motor-Lublin-S-A-Oficjalny-Herb.png',
     color: '#facc15',
     stadium: 'Arena Lublin'
+  } as any,
+  { 
+    id: 'RAK', 
+    name: 'Raków Częstochowa', 
+    shortName: 'Raków', 
+    logo: 'https://i.ibb.co/JWY69LTG/obraz-2026-03-12-125051411-removebg-preview.png',
+    color: '#dc2626',
+    stadium: 'Miejski Stadion Piłkarski Raków'
   } as any,
   { 
     id: 'JAG', 
@@ -277,6 +210,15 @@ export const teams: Team[] = [
     logo: 'https://i.ibb.co/SX6LkvnR/obraz-2026-02-01-105518416.png',
     color: '#1e40af',
     stadium: 'Stadion im. Kazimierza Górskiego'
+  } as any,
+  { 
+    id: 'BBT', 
+    name: 'Bruk-Bet Termalica', 
+    shortName: 'Termalica', 
+    logo: 'https://i.ibb.co/ymPLdBLJ/obraz-2026-03-12-125026443-removebg-preview.png',
+    color: '#f97316',
+    founded: '04.01.2026',
+    stadium: 'Stadion Bruk-Bet w Niecieczy'
   } as any,
   {
     id: 'SED',
@@ -297,99 +239,47 @@ export const clubToFirebaseKey: { [key: string]: string } = {
   'LEG': 'Club 3', // Legia Warszawa
   'LPO': 'Club 4', // Lech Poznań
   'LGD': 'Club 5', // Lechia Gdańsk
-  'UNI': 'Club 6', // Unia Skierniewice
+  'WID': 'Club 6', // Widzew Łódź
   'POG': 'Club 7', // Pogoń Szczecin
   'ZAG': 'Club 8', // Zagłębie Lubin
   'SOK': 'Club 9', // Sokół Olsztyn
   'WIS': 'Club 10', // Wisła Kraków
-  'BBT': 'Club 11', // Bruk-Bet Termalica
-  'MOT': 'Club 12', // Motor Lublin
+  'GOR': 'Club 12', // Górnik Zabrze
+  'MOT': 'Club 13', // Motor Lublin
+  'RAK': 'Club 14', // Raków Częstochowa
   'JAG': 'Club 15', // Jagiellonia Białystok
   'WPL': 'Club 16', // Wisła Płock
+  'BBT': 'Club 17', // Bruk-Bet Termalica
   'SED': 'Referee', // Sędziowie
   'MED': 'Media'     // Media
 };
 
-export const extraTeams: Team[] = [
-  { id: 'ext1', name: 'GKS Katowice', shortName: 'GKS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/GKS_Katowice_logo.png' } as any,
-  { id: 'ext2', name: 'Widzew Łódź', shortName: 'Widzew', logo: 'https://i.ibb.co/1fNvYHvf/Widzew-L-dz-logo.png' } as any,
-  { id: 'ext3', name: 'Cracovia', shortName: 'Cracovia', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/KS_Cracovia_logo.svg' } as any,
-  { id: 'ext4', name: 'Korona Kielce', shortName: 'Korona', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Korona_Kielce.svg' } as any,
-  { id: 'ext5', name: 'Radomiak Radom', shortName: 'Radomiak', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Radomiak_Radom_Logo.png' } as any,
-];
+export const extraTeams: Team[] = [];
 
 export const matches: Match[] = [];
 
-export const standings: Standing[] = [
-  { position: 1, team: teams[4], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 2, team: teams[10], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 3, team: teams[3], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 4, team: teams[1], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 5, team: teams[5], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 6, team: teams[11], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 7, team: teams[12], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 8, team: teams[6], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 9, team: teams[9], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 10, team: teams[0], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 11, team: teams[8], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 12, team: teams[2], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 13, team: teams[7], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-  { position: 14, team: teams[13], played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0 },
-];
+export const standings: Standing[] = teams.filter(t => t.id !== 'SED').map((team, index) => ({
+  position: index + 1,
+  team,
+  played: 0,
+  won: 0,
+  drawn: 0,
+  lost: 0,
+  goalsFor: 0,
+  goalsAgainst: 0,
+  goalDifference: 0,
+  points: 0
+}));
 
 export const topScorers: Player[] = [];
 
 export const topAssists: Player[] = [];
 
-export const mockPlayersData = [
-  { playerId: 1, name: 'PAKO7U7LOL', teamId: 'POG', goals: 13, assists: 4, cleanSheets: 0, yellowCards: 2, redCards: 0, value: 1250000, position: 'Napastnik', previousClubs: ['ARK', 'LEG'] },
-  { playerId: 2, name: 'MichaelAmeyaw', teamId: 'ARK', goals: 5, assists: 8, cleanSheets: 0, yellowCards: 1, redCards: 0, value: 850000, position: 'Pomocnik', previousClubs: ['POG'] },
-  { playerId: 3, name: 'KarolCzubak', teamId: 'LEG', goals: 10, assists: 2, cleanSheets: 0, yellowCards: 3, redCards: 0, value: 950000, position: 'Napastnik', previousClubs: ['ARK'] },
-  { playerId: 4, name: 'MikaelIshak', teamId: 'LPO', goals: 10, assists: 3, cleanSheets: 0, yellowCards: 1, redCards: 0, value: 1500000, position: 'Napastnik', previousClubs: [] },
-  { playerId: 5, name: 'SebastianBergier', teamId: 'WIS', goals: 9, assists: 1, cleanSheets: 0, yellowCards: 2, redCards: 1, value: 750000, position: 'Napastnik', previousClubs: ['LGD'] },
-  { playerId: 6, name: 'JanGrzesik', teamId: 'ZAW', goals: 8, assists: 5, cleanSheets: 0, yellowCards: 1, redCards: 0, value: 650000, position: 'Obrońca', previousClubs: ['ZAG'] },
-  { playerId: 7, name: 'CamiloMena', teamId: 'ZAG', goals: 7, assists: 5, cleanSheets: 0, yellowCards: 4, redCards: 0, value: 1100000, position: 'Pomocnik', previousClubs: ['LGD'] },
-  { playerId: 8, name: 'BartoszNowak', teamId: 'SOK', goals: 6, assists: 5, cleanSheets: 0, yellowCards: 2, redCards: 0, value: 550000, position: 'Pomocnik', previousClubs: ['LPO'] },
-  { playerId: 9, name: 'RafalWolski', teamId: 'LGD', goals: 5, assists: 5, cleanSheets: 0, yellowCards: 1, redCards: 0, value: 450000, position: 'Pomocnik', previousClubs: ['LEG', 'WIS'] },
-  { playerId: 10, name: 'JesusImaz', teamId: 'POG', goals: 9, assists: 3, cleanSheets: 0, yellowCards: 3, redCards: 0, value: 800000, position: 'Pomocnik', previousClubs: ['LEG'] },
-  { playerId: 11, name: 'KacperTobiasz', teamId: 'LEG', goals: 0, assists: 0, cleanSheets: 7, yellowCards: 0, redCards: 0, value: 2000000, position: 'Bramkarz', previousClubs: [] },
-  { playerId: 12, name: 'BartoszMrozek', teamId: 'LPO', goals: 0, assists: 0, cleanSheets: 6, yellowCards: 1, redCards: 0, value: 1200000, position: 'Bramkarz', previousClubs: ['ZAG'] },
-  { playerId: 13, name: 'ValentinCojocaru', teamId: 'POG', goals: 0, assists: 0, cleanSheets: 5, yellowCards: 0, redCards: 0, value: 900000, position: 'Bramkarz', previousClubs: [] },
-  { playerId: 14, name: 'KrzysztofBebicz', teamId: 'ZAG', goals: 0, assists: 0, cleanSheets: 5, yellowCards: 2, redCards: 0, value: 400000, position: 'Bramkarz', previousClubs: [] },
-  { playerId: 15, name: 'MateuszKochalski', teamId: 'WIS', goals: 0, assists: 0, cleanSheets: 4, yellowCards: 1, redCards: 0, value: 700000, position: 'Bramkarz', previousClubs: [] },
-];
-
-export interface Article {
-  id: number;
-  title: string;
-  description: string;
-  content?: string;
-  image: string;
-  category: string;
-  date: string;
-  author?: string;
-  isVertical?: boolean;
-}
+export const mockPlayersData = [];
 
 export const newsArticles: Article[] = [];
 
-export const friendlyMatchesData = [
-  {
-    round: 'MARZEC 2026',
-    matches: [
-      { id: 'f11', homeTeam: teams[4], awayTeam: teams[7], date: '2026-03-10', time: '18:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'MECZ TOWARZYSKI' },
-      { id: 'f12', homeTeam: teams[1], awayTeam: teams[3], date: '2026-03-12', time: '20:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'SPARING' },
-    ]
-  },
-  {
-    round: 'LUTY 2026',
-    matches: [
-      { id: 'f8', homeTeam: teams[11], awayTeam: teams[1], date: '2026-02-01', time: '17:30', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'PRE-SEASON' },
-      { id: 'f9', homeTeam: teams[2], awayTeam: teams[5], date: '2026-02-02', time: '19:00', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'SPARING' },
-      { id: 'f10', homeTeam: teams[7], awayTeam: teams[8], date: '2026-02-03', time: '18:30', status: 'upcoming', stadium: 'OŚRODEK TRENINGOWY PFF', category: 'MECZ KONTROLNY' },
-    ]
-  }
-];
+export const friendlyMatchesData = [];
 
 export const sneakPeeks: SneakPeak[] = [
   {
@@ -420,8 +310,8 @@ export const cupMatchesData: any[] = [];
 export const findMatchById = (id: string): Match | undefined => {
   const allMatches: Match[] = [
     ...matches,
-    ...friendlyMatchesData.flatMap(r => r.matches as Match[]),
-    ...cupMatchesData.flatMap(r => r.matches as Match[])
+    ...friendlyMatchesData.flatMap((r: any) => r.matches as Match[]),
+    ...cupMatchesData.flatMap((r: any) => r.matches as Match[])
   ];
   return allMatches.find(m => m.id === id);
 };

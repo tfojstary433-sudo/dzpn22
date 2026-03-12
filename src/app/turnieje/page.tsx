@@ -9,7 +9,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 
 function TurniejeContent() {
-  const [activeTournament, setActiveTournament] = useState<'puchar' | 'towarzyskie'>('towarzyskie');
+  const [activeTournament, setActiveTournament] = useState<'towarzyskie'>('towarzyskie');
   
   const [challongeData, setChallongeData] = useState<any>(null);
   const [tableData, setTableData] = useState<any>(null);
@@ -19,7 +19,6 @@ function TurniejeContent() {
 
   useEffect(() => {
     const fetchTeams = async () => {
-      if (activeTournament === 'towarzyskie') {
         setLoading(true);
         try {
           const endpoints = [
@@ -55,7 +54,6 @@ function TurniejeContent() {
         } finally {
           setLoading(false);
         }
-      }
     };
 
     fetchTeams();
@@ -564,34 +562,8 @@ function TurniejeContent() {
         }
       `}</style>
       
-      {/* Tournament Selector Panel */}
-      <div className="bg-[#050505] border-b border-white/5 sticky top-[72px] z-40">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center md:justify-start gap-4 py-3">
-            <button 
-              onClick={() => setActiveTournament('puchar')}
-              className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-tight transition-all duration-300 text-sm ${
-                activeTournament === 'puchar' 
-                  ? 'bg-[#B21118] text-white shadow-lg shadow-[#B21118]/20' 
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              PUCHAR POLSKI
-            </button>
-            <button 
-              onClick={() => setActiveTournament('towarzyskie')}
-              className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-tight transition-all duration-300 text-sm ${
-                activeTournament === 'towarzyskie' 
-                  ? 'bg-[#00ccff] text-white shadow-lg shadow-[#00ccff]/20' 
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              MECZE TOWARZYSKIE
-            </button>
-          </div>
-        </div>
-      </div>
-
+      {/* Tournament Selector Panel removed */}
+      
       <div className="relative overflow-hidden min-h-screen">
         {/* Textured Dynamic Background */}
         <div className="fixed inset-0 z-0 pointer-events-none transition-colors duration-1000">
@@ -771,76 +743,7 @@ function TurniejeContent() {
                 </div>
               )}
 
-              {friendlyTab === 'table' && (
-                <div className="container mx-auto px-4 max-w-5xl">
-                  {getFriendlyStandings().length > 0 ? (
-                    <div className="space-y-16">
-                      {/* Separate by Groups */}
-                      {['A', 'B'].map((gid) => {
-                        const groupMatches = getFriendlyStandings().filter((s: any) => s.groupId === gid);
-                        if (groupMatches.length === 0) return null;
-                        
-                        return (
-                          <section key={gid}>
-                            <div className="flex items-center gap-6 mb-8">
-                              <h2 className="text-3xl font-black italic uppercase tracking-tighter text-[#00ccff]">GRUPA {gid}</h2>
-                              <div className="h-px flex-1 bg-gradient-to-r from-[#00ccff]/30 to-transparent" />
-                            </div>
-                            
-                            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-xl">
-                              <table className="w-full text-left border-collapse">
-                                <thead>
-                                  <tr className="bg-white/5">
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic">#</th>
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic">Klub</th>
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">M</th>
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">W-R-P</th>
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">Bramki</th>
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40 italic text-center">PKT</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                  {groupMatches.sort((a: any, b: any) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga)).map((s: any, idx: number) => (
-                                    <tr key={idx} className="hover:bg-white/[0.03] transition-colors group">
-                                      <td className="px-8 py-6">
-                                        <span className={`text-xl font-black italic ${idx < 2 ? 'text-[#00ccff]' : 'text-white/20'}`}>
-                                          {idx + 1}
-                                        </span>
-                                      </td>
-                                      <td className="px-8 py-6">
-                                        <div className="flex items-center gap-4">
-                                          <div className="w-10 h-10 bg-black/40 rounded-lg p-1.5 border border-white/5 group-hover:scale-110 transition-transform">
-                                            <Image src={s.team.logo} alt="" width={32} height={32} className="w-full h-full object-contain" />
-                                          </div>
-                                          <span className="font-black uppercase tracking-tight group-hover:text-[#00ccff] transition-colors">
-                                            {s.team.name}
-                                          </span>
-                                        </div>
-                                      </td>
-                                      <td className="px-8 py-6 text-center font-bold text-white/60">{s.played}</td>
-                                      <td className="px-8 py-6 text-center font-bold text-white/60">{s.won}-{s.drawn}-{s.lost}</td>
-                                      <td className="px-8 py-6 text-center font-bold text-white/60">{s.gf}:{s.ga}</td>
-                                      <td className="px-8 py-6 text-center">
-                                        <span className="text-2xl font-black italic text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-                                          {s.pts}
-                                        </span>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </section>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-32 opacity-20">
-                      <h3 className="text-3xl font-black uppercase italic tracking-tighter">Brak danych tabeli</h3>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Redundant table section removed */}
 
               {friendlyTab === 'scorers' && (
                 <div className="container mx-auto px-4 max-w-4xl">

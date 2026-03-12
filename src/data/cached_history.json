@@ -1,0 +1,6640 @@
+{
+  "generatedAt": "2026-03-01T20:54:33.288Z",
+  "playersCount": 142,
+  "players": {
+    "346201": {
+      "robloxId": 346201,
+      "name": "michal123",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "599365": {
+      "robloxId": 599365,
+      "name": "brak",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5374356": {
+      "robloxId": 5374356,
+      "name": "Niema",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Wisła Kraków",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "41340893": {
+      "robloxId": 41340893,
+      "name": "Kakasik",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Wisła Kraków",
+          "position": "BRAMKARZ",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "52858529": {
+      "robloxId": 52858529,
+      "name": "smooth12345678",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Wisła Kraków",
+          "position": "NAPAD",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "111792806": {
+      "robloxId": 111792806,
+      "name": "Fujiwara_Takumi",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "PP",
+          "number": 86,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "170961280": {
+      "robloxId": 170961280,
+      "name": "wmpir483",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "LS",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [
+            {
+              "minute": 18,
+              "isPenalty": false
+            },
+            {
+              "minute": 12,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "PS",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [
+            {
+              "minute": 46,
+              "isPenalty": false
+            },
+            {
+              "minute": 23,
+              "isPenalty": false
+            },
+            {
+              "minute": 20,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "PS",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "192252293": {
+      "robloxId": 192252293,
+      "name": "electricraichu12",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-sok-wis-2502",
+          "teamA": "Sokół Olsztyn",
+          "teamB": "Wisła Płock",
+          "scoreA": 3,
+          "scoreB": 0,
+          "playerTeam": "Sokół Olsztyn",
+          "position": "SO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "241450241": {
+      "robloxId": 241450241,
+      "name": "mikoxxolafxx1213",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚO",
+          "number": 10,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "261499483": {
+      "robloxId": 261499483,
+      "name": "ransiak",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-sok-wis-2502",
+          "teamA": "Sokół Olsztyn",
+          "teamB": "Wisła Płock",
+          "scoreA": 3,
+          "scoreB": 0,
+          "playerTeam": "Sokół Olsztyn",
+          "position": "SO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "329275638": {
+      "robloxId": 329275638,
+      "name": "alex77451",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "420090850": {
+      "robloxId": 420090850,
+      "name": "policjant81",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 8,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "491125436": {
+      "robloxId": 491125436,
+      "name": "Fujiwara_TakumiI86",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "LO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "534238396": {
+      "robloxId": 534238396,
+      "name": "pangoferek123",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-sok-wis-2502",
+          "teamA": "Sokół Olsztyn",
+          "teamB": "Wisła Płock",
+          "scoreA": 3,
+          "scoreB": 0,
+          "playerTeam": "Sokół Olsztyn",
+          "position": "GK",
+          "number": 87,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "565188438": {
+      "robloxId": 565188438,
+      "name": "rudaBozena",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "SO",
+          "number": 88,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "619816246": {
+      "robloxId": 619816246,
+      "name": "eryk959",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "LP",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "746295359": {
+      "robloxId": 746295359,
+      "name": "kubuks123",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "LO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "764696591": {
+      "robloxId": 764696591,
+      "name": "SAurelE",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SP",
+          "number": 14,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [
+            {
+              "minute": 18,
+              "isPenalty": false
+            },
+            {
+              "minute": 2,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LSP",
+          "number": 14,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "N",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [
+            {
+              "minute": 6,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "887520805": {
+      "robloxId": 887520805,
+      "name": "nikoKud12",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "PP",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 25
+            },
+            {
+              "type": "yellow",
+              "minute": 4
+            }
+          ],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "999796351": {
+      "robloxId": 999796351,
+      "name": "kozak_21",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "LŚP",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [
+            {
+              "minute": 12,
+              "isPenalty": false
+            },
+            {
+              "minute": 11,
+              "isPenalty": false
+            },
+            {
+              "minute": 4,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [
+            {
+              "minute": 21,
+              "isPenalty": false
+            },
+            {
+              "minute": 9,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 38
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [
+            {
+              "minute": 10,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [
+            {
+              "minute": 9,
+              "isPenalty": false
+            },
+            {
+              "minute": 1,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 29
+            },
+            {
+              "type": "yellow",
+              "minute": 29
+            }
+          ],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1054802832": {
+      "robloxId": 1054802832,
+      "name": "KRYSTIAN7317",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "N",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 13,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1222634363": {
+      "robloxId": 1222634363,
+      "name": "Bartus1607",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "LO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 11
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1249214537": {
+      "robloxId": 1249214537,
+      "name": "bartixxx111",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "LO",
+          "number": 33,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 28
+            },
+            {
+              "type": "yellow",
+              "minute": 25
+            }
+          ],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1392995155": {
+      "robloxId": 1392995155,
+      "name": "jagotiger12345",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "LO",
+          "number": 19,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "ŚP",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "SO",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1394096288": {
+      "robloxId": 1394096288,
+      "name": "KREATOR1992",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "10",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 29,
+              "isPenalty": false
+            },
+            {
+              "minute": 7,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1413033769": {
+      "robloxId": 1413033769,
+      "name": "EKIPA_2000",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "N",
+          "number": 21,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [
+            {
+              "minute": 32,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1422613999": {
+      "robloxId": 1422613999,
+      "name": "Ravusiek",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "N",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "N",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [
+            {
+              "minute": 11,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1596774797": {
+      "robloxId": 1596774797,
+      "name": "lubiemotory1234",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "SP",
+          "number": 12,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1598112277": {
+      "robloxId": 1598112277,
+      "name": "Wafel_24",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "PS",
+          "number": 22,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "PS",
+          "number": 22,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1632030731": {
+      "robloxId": 1632030731,
+      "name": "Marekvrx",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "ŚP",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1644753742": {
+      "robloxId": 1644753742,
+      "name": "Hogaty5110",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "ST",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 26
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Widzew Łódź",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1660877823": {
+      "robloxId": 1660877823,
+      "name": "szyump12",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "4",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1693357520": {
+      "robloxId": 1693357520,
+      "name": "fan_skolimka",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚO",
+          "number": 88,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1705392817": {
+      "robloxId": 1705392817,
+      "name": "vvghgufoj",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "PS",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 3,
+              "isPenalty": false
+            },
+            {
+              "minute": 3,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Widzew Łódź",
+          "position": "LO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 25
+            },
+            {
+              "type": "yellow",
+              "minute": 12
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1734123521": {
+      "robloxId": 1734123521,
+      "name": "prospatr",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [
+            {
+              "minute": 39,
+              "isPenalty": false
+            },
+            {
+              "minute": 19,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LW",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [
+            {
+              "minute": 8,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1749796430": {
+      "robloxId": 1749796430,
+      "name": "prezydent343",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "N",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "LS",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1899326917": {
+      "robloxId": 1899326917,
+      "name": "yelonewio12",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "N",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1917877007": {
+      "robloxId": 1917877007,
+      "name": "michal134xd",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "ŚPD",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 3,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "N",
+          "number": 28,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "1954974162": {
+      "robloxId": 1954974162,
+      "name": "oski123sd",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "LO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "ŚO",
+          "number": 19,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2008432854": {
+      "robloxId": 2008432854,
+      "name": "rotrikowy1245",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [
+            {
+              "minute": 31,
+              "isPenalty": false
+            },
+            {
+              "minute": 28,
+              "isPenalty": false
+            },
+            {
+              "minute": 21,
+              "isPenalty": false
+            },
+            {
+              "minute": 16,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 23
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2020079160": {
+      "robloxId": 2020079160,
+      "name": "jurekkoziol",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚO",
+          "number": 87,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 23
+            },
+            {
+              "type": "yellow",
+              "minute": 23
+            },
+            {
+              "type": "yellow",
+              "minute": 13
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2031550199": {
+      "robloxId": 2031550199,
+      "name": "szymekzapadka",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "SO",
+          "number": 17,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2210593048": {
+      "robloxId": 2210593048,
+      "name": "pandajdvv",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "LO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2271856502": {
+      "robloxId": 2271856502,
+      "name": "kokoseds",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "GK",
+          "number": 13,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "GK",
+          "number": 17,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2280447813": {
+      "robloxId": 2280447813,
+      "name": "Janekpiggy2",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "GK",
+          "number": 31,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2321087137": {
+      "robloxId": 2321087137,
+      "name": "SAureIE",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "N",
+          "number": 12,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2372793432": {
+      "robloxId": 2372793432,
+      "name": "Vuroqc",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LSP",
+          "number": 24,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SP",
+          "number": 24,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 27
+            }
+          ],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2390883337": {
+      "robloxId": 2390883337,
+      "name": "fizowaty2137",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "N",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2395050784": {
+      "robloxId": 2395050784,
+      "name": "Wojtek4230",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SP",
+          "number": 12,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2415748268": {
+      "robloxId": 2415748268,
+      "name": "0FXMA",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "PS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "PS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2422333987": {
+      "robloxId": 2422333987,
+      "name": "Kabanostonooob",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [
+            {
+              "minute": 16,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2437627501": {
+      "robloxId": 2437627501,
+      "name": "Ziomek919191",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LO",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "1",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2483898891": {
+      "robloxId": 2483898891,
+      "name": "WatraPlayer0809",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [
+            {
+              "minute": 10,
+              "isPenalty": false
+            },
+            {
+              "minute": 1,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2484122181": {
+      "robloxId": 2484122181,
+      "name": "cytruseqzjarany",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [
+            {
+              "minute": 16,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [
+            {
+              "minute": 19,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [
+            {
+              "minute": 48,
+              "isPenalty": false
+            },
+            {
+              "minute": 21,
+              "isPenalty": false
+            },
+            {
+              "minute": 16,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 24,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2514395175": {
+      "robloxId": 2514395175,
+      "name": "B4RT02115",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-sok-wis-2502",
+          "teamA": "Sokół Olsztyn",
+          "teamB": "Wisła Płock",
+          "scoreA": 3,
+          "scoreB": 0,
+          "playerTeam": "Sokół Olsztyn",
+          "position": "SO",
+          "number": 23,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2622875053": {
+      "robloxId": 2622875053,
+      "name": "Kacper1234567897895",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "LO",
+          "number": 45,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2657280620": {
+      "robloxId": 2657280620,
+      "name": "Rolextoja",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-sok-wis-2502",
+          "teamA": "Sokół Olsztyn",
+          "teamB": "Wisła Płock",
+          "scoreA": 3,
+          "scoreB": 0,
+          "playerTeam": "Sokół Olsztyn",
+          "position": "SO",
+          "number": 28,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2773152839": {
+      "robloxId": 2773152839,
+      "name": "Jaktampol",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "LO",
+          "number": 44,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "LO",
+          "number": 44,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "LO",
+          "number": 44,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": "LO",
+          "number": 44,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2784268423": {
+      "robloxId": 2784268423,
+      "name": "Jacob7643837",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": "PO",
+          "number": 33,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2784639101": {
+      "robloxId": 2784639101,
+      "name": "Robbertt07",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "SP",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2798502672": {
+      "robloxId": 2798502672,
+      "name": "gdobat12",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "LS`",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "SP",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 35
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2911964019": {
+      "robloxId": 2911964019,
+      "name": "GosiaPro1244",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 30,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 30,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "2985263091": {
+      "robloxId": 2985263091,
+      "name": "psyjaci",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "PO",
+          "number": 75,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3032261008": {
+      "robloxId": 3032261008,
+      "name": "halszka19",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "PO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [
+            {
+              "minute": 17,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "PO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "PO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3051959869": {
+      "robloxId": 3051959869,
+      "name": "Fanmatiko",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "PO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3058250323": {
+      "robloxId": 3058250323,
+      "name": "umywalja",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "20",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 24
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3058866260": {
+      "robloxId": 3058866260,
+      "name": "Antos6754",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "PP",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3163641988": {
+      "robloxId": 3163641988,
+      "name": "wwwwwppppg2",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3170600159": {
+      "robloxId": 3170600159,
+      "name": "kluseczkaAntekme",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "RW",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [
+            {
+              "minute": 6,
+              "isPenalty": false
+            },
+            {
+              "minute": 6,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3178437482": {
+      "robloxId": 3178437482,
+      "name": "mambana2011",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "N",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3226586024": {
+      "robloxId": 3226586024,
+      "name": "pokoncieleniwce",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "PO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3247451662": {
+      "robloxId": 3247451662,
+      "name": "Ja_KochamPisKaczyski",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [
+            {
+              "minute": 27,
+              "isPenalty": false
+            },
+            {
+              "minute": 11,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3341679809": {
+      "robloxId": 3341679809,
+      "name": "kai321lego",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "SO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3342324909": {
+      "robloxId": 3342324909,
+      "name": "prawiep",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "LO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚO",
+          "number": 88,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 17
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3351659985": {
+      "robloxId": 3351659985,
+      "name": "Maksigamer6678",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚP",
+          "number": 91,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3364452303": {
+      "robloxId": 3364452303,
+      "name": "1_suchy",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3383381811": {
+      "robloxId": 3383381811,
+      "name": "marcol91O",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "GK",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "SP",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3448939193": {
+      "robloxId": 3448939193,
+      "name": "neziaxxxxx",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "SO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3481224704": {
+      "robloxId": 3481224704,
+      "name": "Zygmund3928",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "SP",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 25
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3695538958": {
+      "robloxId": 3695538958,
+      "name": "6felek9",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "LP",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3774280052": {
+      "robloxId": 3774280052,
+      "name": "Palion835",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "PL",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [
+            {
+              "minute": 26,
+              "isPenalty": false
+            },
+            {
+              "minute": 22,
+              "isPenalty": false
+            },
+            {
+              "minute": 4,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3820940453": {
+      "robloxId": 3820940453,
+      "name": "trytonotgetlag",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "SPD",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 23
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "3889037793": {
+      "robloxId": 3889037793,
+      "name": "boruk2137",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "PS",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [
+            {
+              "minute": 21,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "ŚP",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4057078153": {
+      "robloxId": 4057078153,
+      "name": "Batoryzapasowe2",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4085519869": {
+      "robloxId": 4085519869,
+      "name": "koteczkuuuu2",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LSO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4111319339": {
+      "robloxId": 4111319339,
+      "name": "misieczeq123",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 67,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 67,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4189400241": {
+      "robloxId": 4189400241,
+      "name": "XAYONXD",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [
+            {
+              "minute": 14,
+              "isPenalty": false
+            },
+            {
+              "minute": 8,
+              "isPenalty": false
+            },
+            {
+              "minute": 7,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [
+            {
+              "minute": 46,
+              "isPenalty": false
+            },
+            {
+              "minute": 42,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "PS|",
+          "number": 10,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚP",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [
+            {
+              "minute": 31,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 27
+            }
+          ],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4218802104": {
+      "robloxId": 4218802104,
+      "name": "NINBOSS337",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "99",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4235261804": {
+      "robloxId": 4235261804,
+      "name": "cytrusek00pl0f",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "LS",
+          "number": 22,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4256913455": {
+      "robloxId": 4256913455,
+      "name": "Pan_Jacus2",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 24
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4486499642": {
+      "robloxId": 4486499642,
+      "name": "Dima28072013",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "PO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "OB",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Widzew Łódź",
+          "position": "PO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚRODKOWA OBRONA",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7134208044": {
+      "robloxId": 7134208044,
+      "name": "makarenamena1",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Widzew Łódź",
+          "position": "LS",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 32,
+              "isPenalty": false
+            },
+            {
+              "minute": 21,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "LS",
+          "number": 28,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [
+            {
+              "minute": 23,
+              "isPenalty": false
+            },
+            {
+              "minute": 7,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 40
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Widzew Łódź",
+          "position": "LS",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 20
+            },
+            {
+              "type": "yellow",
+              "minute": 16
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5527071788": {
+      "robloxId": 5527071788,
+      "name": "Onlykawasaki_00",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "PO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5558369451": {
+      "robloxId": 5558369451,
+      "name": "hajson2115",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-wis-1902",
+          "teamA": "Widzew Łódź",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 3,
+          "playerTeam": "Wisła Kraków",
+          "position": "N",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 9,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "N",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 7
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4793507207": {
+      "robloxId": 4793507207,
+      "name": "Kosmosgaming1234",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "1",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "10486274517": {
+      "robloxId": 10486274517,
+      "name": "lolaks2115",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Widzew Łódź",
+          "position": "SP",
+          "number": 53,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 16
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5386681363": {
+      "robloxId": 5386681363,
+      "name": "Kylian_GK",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SO",
+          "number": 55,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LO",
+          "number": 55,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "OBRONA",
+          "number": 55,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 21
+            }
+          ],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "9096752546": {
+      "robloxId": 9096752546,
+      "name": "Marcel_old3",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "PO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": null,
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SP",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7223575375": {
+      "robloxId": 7223575375,
+      "name": "Bobosek0292",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LS",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [
+            {
+              "minute": 29,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "PS",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 16
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "PSP",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7487790534": {
+      "robloxId": 7487790534,
+      "name": "Kubusss28",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-uni-gro-1502",
+          "teamA": "Widzew Łódź",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 4,
+          "scoreB": 9,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "PS",
+          "number": 44,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 46,
+          "minutesPlayed": 46,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "GK",
+          "number": 44,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SP",
+          "number": 44,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "8070133131": {
+      "robloxId": 8070133131,
+      "name": "fearlessa01",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "N",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "N",
+          "number": 7,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "N",
+          "number": 11,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [
+            {
+              "minute": 40,
+              "isPenalty": false
+            },
+            {
+              "minute": 34,
+              "isPenalty": false
+            },
+            {
+              "minute": 22,
+              "isPenalty": false
+            },
+            {
+              "minute": 4,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7760886794": {
+      "robloxId": 7760886794,
+      "name": "Perer2115PL",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "SO",
+          "number": 47,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "47",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7606451127": {
+      "robloxId": 7606451127,
+      "name": "FabianekPL_3",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "LO",
+          "number": 13,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "OBRONA",
+          "number": 38,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4674039540": {
+      "robloxId": 4674039540,
+      "name": "Pako7u7lol",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "GK",
+          "number": 77,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Arka Gdynia",
+          "position": "GK",
+          "number": 77,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "GK",
+          "number": 77,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": "BR",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7204440261": {
+      "robloxId": 7204440261,
+      "name": "cocojumbo13377",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "ŚO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5084041350": {
+      "robloxId": 5084041350,
+      "name": "snopek_niukeowski",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-ark-2102",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Arka Gdynia",
+          "scoreA": 2,
+          "scoreB": 12,
+          "playerTeam": "Arka Gdynia",
+          "position": "PO",
+          "number": 91,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Arka Gdynia",
+          "position": "PO",
+          "number": 91,
+          "country": null,
+          "role": "bench",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5764909486": {
+      "robloxId": 5764909486,
+      "name": "bombacla779",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "10010656801": {
+      "robloxId": 10010656801,
+      "name": "1jupiter5_2",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "PO",
+          "number": 69,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 9
+            },
+            {
+              "type": "yellow",
+              "minute": 9
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "10421649279": {
+      "robloxId": 10421649279,
+      "name": "mebebesita",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "SO",
+          "number": 75,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4802626531": {
+      "robloxId": 4802626531,
+      "name": "sasha_striker01",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "LO",
+          "number": 67,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 8
+            },
+            {
+              "type": "yellow",
+              "minute": 3
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "10418385971": {
+      "robloxId": 10418385971,
+      "name": "patryczek_ujb",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "SP",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "9313452392": {
+      "robloxId": 9313452392,
+      "name": "mleczko_196",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "PS",
+          "number": 17,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7806213506": {
+      "robloxId": 7806213506,
+      "name": "maslakostka",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 14
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 26
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4349739155": {
+      "robloxId": 4349739155,
+      "name": "2115xDeathZ2115",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-zaw-1502",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "ŚO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 20,
+          "minutesPlayed": 20,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "ŚO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 14
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "ŚO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 39
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "LO",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [
+            {
+              "minute": 1,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "10489846568": {
+      "robloxId": 10489846568,
+      "name": "alannowak141",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "98",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7485242616": {
+      "robloxId": 7485242616,
+      "name": "Celik12345674",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "96",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [
+            {
+              "minute": 51,
+              "isPenalty": false
+            },
+            {
+              "minute": 13,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 31
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5073201010": {
+      "robloxId": 5073201010,
+      "name": "ankaradamisjr",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-lec-2102",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Lechia Gdańsk",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Lechia Gdańsk",
+          "position": "7",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 33
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5285807281": {
+      "robloxId": 5285807281,
+      "name": "fistach_prime",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "LS",
+          "number": 98,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "9022813781": {
+      "robloxId": 9022813781,
+      "name": "kajetan_thebest",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚP",
+          "number": 96,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4470344092": {
+      "robloxId": 4470344092,
+      "name": "zim0wski",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-wis-1602",
+          "teamA": "Arka Gdynia",
+          "teamB": "Wisła Kraków",
+          "scoreA": 7,
+          "scoreB": 1,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚP",
+          "number": 64,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 47,
+          "minutesPlayed": 47,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4515494596": {
+      "robloxId": 4515494596,
+      "name": "Strzala_s",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "SO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 12
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5002512269": {
+      "robloxId": 5002512269,
+      "name": "kaxzik7",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "SO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 34
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5368457944": {
+      "robloxId": 5368457944,
+      "name": "wojan2134547",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "PO",
+          "number": 68,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5849571757": {
+      "robloxId": 5849571757,
+      "name": "Bombacla799",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Jagiellonia Białystok",
+          "position": "GK",
+          "number": 1,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "9922453314": {
+      "robloxId": 9922453314,
+      "name": "Mam_bana513",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-gro-1802",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Grom Nowy Staw",
+          "scoreA": 2,
+          "scoreB": 7,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "93",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 37,
+          "minutesPlayed": 37,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "OBRONA",
+          "number": 96,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 2
+            }
+          ],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4432719918": {
+      "robloxId": 4432719918,
+      "name": "Mbappesiema",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "PO",
+          "number": 9,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "ŚP",
+          "number": 6,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4328033320": {
+      "robloxId": 4328033320,
+      "name": "XKSE000",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-ark-oli-1902",
+          "teamA": "Arka Gdynia",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 6,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "LS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 14,
+          "minutesPlayed": 14,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "SP",
+          "number": 92,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5778713303": {
+      "robloxId": 5778713303,
+      "name": "Slpn_Kakaszka",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-zaw-uni-2202",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Widzew Łódź",
+          "scoreA": 7,
+          "scoreB": 0,
+          "playerTeam": "Widzew Łódź",
+          "position": "PS",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 27,
+          "minutesPlayed": 27,
+          "goals": [],
+          "cards": [
+            {
+              "type": "red",
+              "minute": 26
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4932735857": {
+      "robloxId": 4932735857,
+      "name": "Kraks2343",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-zaw-oli-1302",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 9,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "ŚP",
+          "number": 8,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 50,
+          "minutesPlayed": 50,
+          "goals": [
+            {
+              "minute": 22,
+              "isPenalty": false
+            }
+          ],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "ŚPO",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        },
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "10",
+          "number": null,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "10384150493": {
+      "robloxId": 10384150493,
+      "name": "oadwdwn",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-zaw-lec-1802",
+          "teamA": "Zawisza Bydgoszcz",
+          "teamB": "Lech Poznań",
+          "scoreA": 0,
+          "scoreB": 1,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "6009813461": {
+      "robloxId": 6009813461,
+      "name": "bobek315x",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "ŚO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5717851879": {
+      "robloxId": 5717851879,
+      "name": "mikallson_developa",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-oli-2202",
+          "teamA": "Wisła Kraków",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 0,
+          "scoreB": 3,
+          "playerTeam": "Górnik Zabrze",
+          "position": "PO",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 0,
+          "minutesPlayed": 0,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4404505756": {
+      "robloxId": 4404505756,
+      "name": "gruby2188",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Lech Poznań",
+          "position": "SO",
+          "number": 3,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4763390717": {
+      "robloxId": 4763390717,
+      "name": "TypowyBambol_143",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "SO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4494298607": {
+      "robloxId": 4494298607,
+      "name": "ziemniaczek_to",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "SP",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5021369888": {
+      "robloxId": 5021369888,
+      "name": "Francziszek96",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-lec-oli-1602",
+          "teamA": "Lech Poznań",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 11,
+          "scoreB": 0,
+          "playerTeam": "Górnik Zabrze",
+          "position": "PS",
+          "number": 10,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 34,
+          "minutesPlayed": 34,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 24
+            }
+          ],
+          "playedAt": "2026-02-11T00:08:00.548Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4773658122": {
+      "robloxId": 4773658122,
+      "name": "Adx4an120",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-gro-oli-1002",
+          "teamA": "Grom Nowy Staw",
+          "teamB": "Górnik Zabrze",
+          "scoreA": 4,
+          "scoreB": 1,
+          "playerTeam": "Grom Nowy Staw",
+          "position": "OBRONA",
+          "number": 5,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-10T18:51:52.918Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "7666140585": {
+      "robloxId": 7666140585,
+      "name": "iiNPCSigma",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-pog-sok-0902",
+          "teamA": "Pogoń Szczecin",
+          "teamB": "Sokół Olsztyn",
+          "scoreA": 2,
+          "scoreB": 9,
+          "playerTeam": "Pogoń Szczecin",
+          "position": "GK",
+          "number": 81,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 30,
+          "minutesPlayed": 30,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T19:54:36.989Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4419946880": {
+      "robloxId": 4419946880,
+      "name": "Radzio1921",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-jag-ark-0902",
+          "teamA": "Jagiellonia Białystok",
+          "teamB": "Arka Gdynia",
+          "scoreA": 0,
+          "scoreB": 6,
+          "playerTeam": "Arka Gdynia",
+          "position": "N",
+          "number": 18,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 40,
+          "minutesPlayed": 40,
+          "goals": [
+            {
+              "minute": 22,
+              "isPenalty": false
+            },
+            {
+              "minute": 20,
+              "isPenalty": false
+            },
+            {
+              "minute": 17,
+              "isPenalty": false
+            },
+            {
+              "minute": 6,
+              "isPenalty": false
+            }
+          ],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 22
+            }
+          ],
+          "playedAt": "2026-02-09T18:13:20.038Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "5359250807": {
+      "robloxId": 5359250807,
+      "name": "sukuna28263",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚRODKOWA OBRONA",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [
+            {
+              "type": "yellow",
+              "minute": 9
+            }
+          ],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "4430914535": {
+      "robloxId": 4430914535,
+      "name": "jkliraa",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Wisła Kraków",
+          "position": "ŚRODKOWA POMOC",
+          "number": 4,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    },
+    "6211796099": {
+      "robloxId": 6211796099,
+      "name": "Luner_SLPN",
+      "country": null,
+      "matches": [
+        {
+          "matchUuid": "tf-wis-zaw-0902",
+          "teamA": "Wisła Kraków",
+          "teamB": "Zawisza Bydgoszcz",
+          "scoreA": 0,
+          "scoreB": 7,
+          "playerTeam": "Zawisza Bydgoszcz",
+          "position": "PO",
+          "number": 2,
+          "country": null,
+          "role": "starter",
+          "substitutionIn": null,
+          "substitutionOut": null,
+          "startMinute": 0,
+          "endMinute": 12,
+          "minutesPlayed": 12,
+          "goals": [],
+          "cards": [],
+          "playedAt": "2026-02-09T17:20:40.069Z",
+          "tournamentId": 1,
+          "tournamentName": "Mecze Towarzyskie 25/26 PFF"
+        }
+      ]
+    }
+  }
+}
