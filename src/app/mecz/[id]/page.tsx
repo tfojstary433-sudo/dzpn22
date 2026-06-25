@@ -3,31 +3,28 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { matches, Match, teams, extraTeams, standings, friendlyMatchesData, findMatchById } from '@/lib/data';
-import { REPLIT_API_BASE_URL, API_ENDPOINTS } from '@/lib/constants';
-import { Navbar } from '@/components/navbar';
+import { teams, extraTeams, findMatchById } from '@/lib/data';
+import { REPLIT_API_BASE_URL } from '@/lib/constants';
+import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { useParams } from 'next/navigation';
-import { RobloxAvatar } from '@/components/roblox-avatar';
+import { Sun, ChevronLeft, BarChart2, Users, Table as TableIcon, MapPin, Flag, Trophy, MessageSquare, Newspaper, Calendar, Star, Video } from 'lucide-react';
 
-const isUuid = (v: string) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(v);
-const isNumeric = (v: string) => /^\d+$/.test(v);
-
-const normalizeTeamName = (name: string) =>
-  (name || '')
+const normalizeTeamName = (name: string) => {
+  if (!name) return '';
+  return name
     .toLowerCase()
+    .trim()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '')
-    .trim();
-
+    .replace(/\s+/g, '');
+};
 
 interface Goal {
   minute: number;
   player: string;
   team: string;
   isPenalty: boolean;
-  number?: number;
 }
 
 interface Card {
@@ -35,7 +32,6 @@ interface Card {
   player: string;
   team: string;
   type: 'yellow' | 'red';
-  number?: number;
 }
 
 interface Substitution {
@@ -43,1736 +39,1330 @@ interface Substitution {
   team: string;
   playerOut: string;
   playerIn: string;
-  numberOut?: number;
-  numberIn?: number;
 }
 
 interface MatchEvents {
   goals: Goal[];
   cards: Card[];
   substitutions: Substitution[];
-  cancelledGoals?: any[];
 }
 
 interface MatchApiData {
-  match: {
-    status: string;
-    uuid: string;
-    teamA: string;
-    teamB: string;
-    scoreA: number;
-    scoreB: number;
-    timer: string;
-    period: string;
-    isActive: boolean;
-    stats?: {
-      possessionA: number;
-      possessionB: number;
-      shotsA: number;
-      shotsB: number;
-      onTargetA?: number;
-      onTargetB?: number;
-      cornersA?: number;
-      cornersB?: number;
-      foulsA?: number;
-      foulsB?: number;
-      xgA?: number;
-      xgB?: number;
-    };
-    lineupA?: {
-      starters: Array<{ name: string; id: string; position?: string }>;
-      bench: Array<{ name: string; id: string; position?: string }>;
-      formation: string;
-    };
-    lineupB?: {
-      starters: Array<{ name: string; id: string; position?: string }>;
-      bench: Array<{ name: string; id: string; position?: string }>;
-      formation: string;
-    };
-  };
-  events: MatchEvents;
-  timeline?: Array<{
-    minute: number;
-    type: string;
-    player?: string;
-    team?: string;
-    content?: string;
-  }>;
+  id: number;
+  home_team_name: string;
+  away_team_name: string;
+  home_score: number;
+  away_score: number;
+  status: string;
+  round: number;
+  scheduled_at: string;
+  period?: string;
+  referee_name?: string;
+  venue_name?: string;
+  isActive?: boolean;
+  date_formatted?: string;
+  time_formatted?: string;
+  home_team_logo?: string;
+  away_team_logo?: string;
 }
 
-interface PlayerPosition {
-  x: string;
-  y: string;
-  color: string;
-}
-
-const getPlayerPositions = (formation: string, side: 'home' | 'away'): Record<string, PlayerPosition> => {
-  const positionsByRole: Record<string, Record<string, PlayerPosition>> = {
-    '4-4-2': {
-      GK0: side === 'home' ? {x: '8%', y: '50%', color: 'blue-600'} : {x: '92%', y: '50%', color: 'red-600'},
-      DEF0: side === 'home' ? {x: '20%', y: '15%', color: 'blue-600'} : {x: '80%', y: '15%', color: 'red-600'},
-      DEF1: side === 'home' ? {x: '20%', y: '35%', color: 'blue-600'} : {x: '80%', y: '35%', color: 'red-600'},
-      DEF2: side === 'home' ? {x: '20%', y: '65%', color: 'blue-600'} : {x: '80%', y: '65%', color: 'red-600'},
-      DEF3: side === 'home' ? {x: '20%', y: '85%', color: 'blue-600'} : {x: '80%', y: '85%', color: 'red-600'},
-      CM0: side === 'home' ? {x: '38%', y: '25%', color: 'blue-600'} : {x: '62%', y: '25%', color: 'red-600'},
-      CM1: side === 'home' ? {x: '38%', y: '45%', color: 'blue-600'} : {x: '62%', y: '45%', color: 'red-600'},
-      CM2: side === 'home' ? {x: '38%', y: '55%', color: 'blue-600'} : {x: '62%', y: '55%', color: 'red-600'},
-      CM3: side === 'home' ? {x: '38%', y: '75%', color: 'blue-600'} : {x: '62%', y: '75%', color: 'red-600'},
-      CAM0: side === 'home' ? {x: '55%', y: '35%', color: 'blue-600'} : {x: '45%', y: '35%', color: 'red-600'},
-      CAM1: side === 'home' ? {x: '55%', y: '65%', color: 'blue-600'} : {x: '45%', y: '65%', color: 'red-600'},
-      ST0: side === 'home' ? {x: '72%', y: '40%', color: 'blue-600'} : {x: '28%', y: '40%', color: 'red-600'},
-      ST1: side === 'home' ? {x: '72%', y: '60%', color: 'blue-600'} : {x: '28%', y: '60%', color: 'red-600'},
-    },
-    '4-3-3': {
-      GK0: side === 'home' ? {x: '8%', y: '50%', color: 'blue-600'} : {x: '92%', y: '50%', color: 'red-600'},
-      DEF0: side === 'home' ? {x: '20%', y: '12%', color: 'blue-600'} : {x: '80%', y: '12%', color: 'red-600'},
-      DEF1: side === 'home' ? {x: '20%', y: '35%', color: 'blue-600'} : {x: '80%', y: '35%', color: 'red-600'},
-      DEF2: side === 'home' ? {x: '20%', y: '65%', color: 'blue-600'} : {x: '80%', y: '65%', color: 'red-600'},
-      DEF3: side === 'home' ? {x: '20%', y: '88%', color: 'blue-600'} : {x: '80%', y: '88%', color: 'red-600'},
-      CM0: side === 'home' ? {x: '40%', y: '25%', color: 'blue-600'} : {x: '60%', y: '25%', color: 'red-600'},
-      CM1: side === 'home' ? {x: '40%', y: '50%', color: 'blue-600'} : {x: '60%', y: '50%', color: 'red-600'},
-      CM2: side === 'home' ? {x: '40%', y: '75%', color: 'blue-600'} : {x: '60%', y: '75%', color: 'red-600'},
-      ST0: side === 'home' ? {x: '70%', y: '18%', color: 'blue-600'} : {x: '30%', y: '18%', color: 'red-600'},
-      ST1: side === 'home' ? {x: '70%', y: '50%', color: 'blue-600'} : {x: '30%', y: '50%', color: 'red-600'},
-      ST2: side === 'home' ? {x: '70%', y: '82%', color: 'blue-600'} : {x: '30%', y: '82%', color: 'red-600'},
-    },
-    '3-5-2': {
-      GK0: side === 'home' ? {x: '8%', y: '50%', color: 'blue-600'} : {x: '92%', y: '50%', color: 'red-600'},
-      DEF0: side === 'home' ? {x: '20%', y: '25%', color: 'blue-600'} : {x: '80%', y: '25%', color: 'red-600'},
-      DEF1: side === 'home' ? {x: '20%', y: '50%', color: 'blue-600'} : {x: '80%', y: '50%', color: 'red-600'},
-      DEF2: side === 'home' ? {x: '20%', y: '75%', color: 'blue-600'} : {x: '80%', y: '75%', color: 'red-600'},
-      CM0: side === 'home' ? {x: '40%', y: '15%', color: 'blue-600'} : {x: '60%', y: '15%', color: 'red-600'},
-      CM1: side === 'home' ? {x: '40%', y: '35%', color: 'blue-600'} : {x: '60%', y: '35%', color: 'red-600'},
-      CM2: side === 'home' ? {x: '40%', y: '65%', color: 'blue-600'} : {x: '60%', y: '65%', color: 'red-600'},
-      CM3: side === 'home' ? {x: '40%', y: '85%', color: 'blue-600'} : {x: '60%', y: '85%', color: 'red-600'},
-      ST0: side === 'home' ? {x: '70%', y: '38%', color: 'blue-600'} : {x: '30%', y: '38%', color: 'red-600'},
-      ST1: side === 'home' ? {x: '70%', y: '62%', color: 'blue-600'} : {x: '30%', y: '62%', color: 'red-600'},
-    },
-  };
-  return positionsByRole[formation] || positionsByRole['4-4-2'];
+const formatMatchDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  const [day, month, year] = dateStr.split('.');
+  if (!day || !month || !year) return dateStr;
+  const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
 };
 
-const getSmartPositions = (positionType: string, count: number, xBase: string, side: 'home' | 'away'): PlayerPosition[] => {
-  const color = side === 'home' ? 'blue-600' : 'red-600';
-  const positions: PlayerPosition[] = [];
-  
-  if (count === 1) {
-    positions.push({ x: xBase, y: '50%', color });
-  } else if (count === 2) {
-    positions.push({ x: xBase, y: '33%', color });
-    positions.push({ x: xBase, y: '67%', color });
-  } else if (count === 3) {
-    positions.push({ x: xBase, y: '25%', color });
-    positions.push({ x: xBase, y: '50%', color });
-    positions.push({ x: xBase, y: '75%', color });
-  } else if (count === 4) {
-    positions.push({ x: xBase, y: '15%', color });
-    positions.push({ x: xBase, y: '38%', color });
-    positions.push({ x: xBase, y: '62%', color });
-    positions.push({ x: xBase, y: '85%', color });
-  } else if (count === 5) {
-    positions.push({ x: xBase, y: '12%', color });
-    positions.push({ x: xBase, y: '30%', color });
-    positions.push({ x: xBase, y: '50%', color });
-    positions.push({ x: xBase, y: '70%', color });
-    positions.push({ x: xBase, y: '88%', color });
-  }
-  
-  return positions;
-};
-
-const getHalfPitchPositions = (positionType: string, count: number, xBase: number, side: 'home' | 'away'): PlayerPosition[] => {
-  const color = side === 'home' ? 'blue-600' : 'red-600';
-  const positions: PlayerPosition[] = [];
-  
-  if (count === 0) {
-    return positions;
-  } else if (count === 1) {
-    positions.push({ x: `${xBase}%`, y: '50%', color });
-  } else if (count === 2) {
-    positions.push({ x: `${xBase}%`, y: '35%', color });
-    positions.push({ x: `${xBase}%`, y: '65%', color });
-  } else if (count === 3) {
-    positions.push({ x: `${xBase}%`, y: '25%', color });
-    positions.push({ x: `${xBase}%`, y: '50%', color });
-    positions.push({ x: `${xBase}%`, y: '75%', color });
-  } else if (count === 4) {
-    positions.push({ x: `${xBase}%`, y: '18%', color });
-    positions.push({ x: `${xBase}%`, y: '40%', color });
-    positions.push({ x: `${xBase}%`, y: '60%', color });
-    positions.push({ x: `${xBase}%`, y: '82%', color });
-  } else if (count === 5) {
-    positions.push({ x: `${xBase}%`, y: '15%', color });
-    positions.push({ x: `${xBase}%`, y: '32%', color });
-    positions.push({ x: `${xBase}%`, y: '50%', color });
-    positions.push({ x: `${xBase}%`, y: '68%', color });
-    positions.push({ x: `${xBase}%`, y: '85%', color });
-  } else if (count === 6) {
-    positions.push({ x: `${xBase}%`, y: '12%', color });
-    positions.push({ x: `${xBase}%`, y: '28%', color });
-    positions.push({ x: `${xBase}%`, y: '42%', color });
-    positions.push({ x: `${xBase}%`, y: '58%', color });
-    positions.push({ x: `${xBase}%`, y: '72%', color });
-    positions.push({ x: `${xBase}%`, y: '88%', color });
-  } else if (count === 7) {
-    positions.push({ x: `${xBase}%`, y: '10%', color });
-    positions.push({ x: `${xBase}%`, y: '23%', color });
-    positions.push({ x: `${xBase}%`, y: '37%', color });
-    positions.push({ x: `${xBase}%`, y: '50%', color });
-    positions.push({ x: `${xBase}%`, y: '63%', color });
-    positions.push({ x: `${xBase}%`, y: '77%', color });
-    positions.push({ x: `${xBase}%`, y: '90%', color });
-  } else {
-    for (let i = 0; i < count; i++) {
-      const y = 10 + (80 / Math.max(count - 1, 1)) * i;
-      positions.push({ x: `${xBase}%`, y: `${y}%`, color });
-    }
-  }
-  
-  return positions;
-};
-
-const calculateSmartPositions = (starters: Array<{name: string; position?: string}>, side: 'home' | 'away'): Array<PlayerPosition & { name: string }> => {
-  const color = side === 'home' ? 'blue-600' : 'red-600';
-  const result: Array<PlayerPosition & { name: string }> = [];
-  
-  if (!starters || starters.length === 0) return result;
-
-  // Static 4-3-3 positions
-  const formation433: PlayerPosition[] = [
-    { x: side === 'home' ? '8%' : '92%', y: '50%', color }, // GK
-    { x: side === 'home' ? '20%' : '80%', y: '12%', color }, // LB
-    { x: side === 'home' ? '20%' : '80%', y: '38%', color }, // CB
-    { x: side === 'home' ? '20%' : '80%', y: '62%', color }, // CB
-    { x: side === 'home' ? '20%' : '80%', y: '88%', color }, // RB
-    { x: side === 'home' ? '45%' : '55%', y: '25%', color }, // LCM
-    { x: side === 'home' ? '45%' : '55%', y: '50%', color }, // CM
-    { x: side === 'home' ? '45%' : '55%', y: '75%', color }, // RCM
-    { x: side === 'home' ? '75%' : '25%', y: '18%', color }, // LW
-    { x: side === 'home' ? '75%' : '25%', y: '50%', color }, // ST
-    { x: side === 'home' ? '75%' : '25%', y: '82%', color }, // RW
-  ];
-
-  starters.slice(0, 11).forEach((player, idx) => {
-    if (formation433[idx]) {
-      result.push({
-        ...formation433[idx],
-        name: player.name
-      });
-    }
-  });
-  
-  return result;
-};
-
-const GoalOverlay = ({ isVisible, team, player, logo, side }: { isVisible: boolean, team: string, player: string, logo?: string, side: 'home' | 'away' }) => {
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden pointer-events-none">
-      <div className={`absolute inset-0 animate-goal-bg-flash backdrop-blur-sm ${side === 'home' ? 'bg-blue-600/30' : 'bg-red-600/30'}`}></div>
-      
-      <div className="relative flex flex-col items-center justify-center text-center px-4">
-        <div className={`h-1 mb-8 rounded-full animate-goal-bar ${side === 'home' ? 'bg-blue-400 shadow-[0_0_20px_rgba(96,165,250,1)]' : 'bg-red-400 shadow-[0_0_20px_rgba(248,113,113,1)]'}`}></div>
-
-        {logo && (
-          <div className="mb-10 animate-goal-logo">
-            <div className="relative">
-              <div className={`absolute -inset-8 rounded-full blur-3xl ${side === 'home' ? 'bg-blue-500/40' : 'bg-red-500/40'}`}></div>
-              <Image 
-                src={logo} 
-                alt={team} 
-                width={220} 
-                height={220} 
-                className="object-contain relative z-10 w-40 h-40 md:w-56 md:h-56 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-              />
-            </div>
+const PlayerNode = ({ name, number, photo, color = 'blue', yellow, goal, isCaptain }: any) => (
+  <div className="flex flex-col items-center gap-2 group relative">
+    <div className="relative">
+      {/* Player Avatar with Glow */}
+      <div className={`relative w-14 h-14 md:w-20 md:h-20 rounded-full border-2 overflow-hidden z-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${
+        color === 'blue' ? 'border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 
+        (color === 'red' ? 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)]' : 
+        (color === 'yellow' ? 'border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.3)]' : 
+        'border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]'))
+      } bg-[#1a2333]`}>
+        {photo ? (
+          <Image src={photo} alt="" fill className="object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-white/5">
+             <Users className="w-8 h-8 text-white/10" />
           </div>
         )}
+      </div>
 
-        <div className="relative animate-goal-text">
-          <h1 className="text-[80px] md:text-[180px] font-[1000] uppercase italic tracking-tighter leading-none text-white drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]">
-            {side === 'home' ? 'GOOOOL!' : 'BRAMKA!'}
-          </h1>
-          
-          <div className="mt-4 flex flex-col items-center">
-            <span className={`text-2xl md:text-5xl font-black uppercase tracking-[0.2em] mb-2 ${side === 'home' ? 'text-blue-300' : 'text-red-300'}`}>
-              {team}
-            </span>
-            <div className="flex items-center gap-4">
-              <div className={`h-px w-12 md:w-24 ${side === 'home' ? 'bg-blue-400/50' : 'bg-red-400/50'}`}></div>
-              <span className="text-white/80 text-xl md:text-3xl font-bold uppercase tracking-widest">{player}</span>
-              <div className={`h-px w-12 md:w-24 ${side === 'home' ? 'bg-blue-400/50' : 'bg-red-400/50'}`}></div>
-            </div>
+      {/* Captain Badge */}
+      {isCaptain && (
+        <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-600 rounded-full border-2 border-[#0a0f1d] z-20 flex items-center justify-center shadow-lg">
+          <span className="text-[9px] font-black text-white italic">C</span>
+        </div>
+      )}
+
+      {/* Events */}
+      {yellow && (
+        <div className="absolute top-0 -left-2 w-3 h-4 bg-yellow-500 rounded-sm border border-black/50 z-30 shadow-glow animate-bounce"></div>
+      )}
+      {goal && (
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-white rounded-full border border-black/50 z-30 flex items-center justify-center shadow-2xl">
+          <div className="w-4 h-4 bg-black rounded-full"></div>
+        </div>
+      )}
+    </div>
+    
+    {/* Name Label - Updated to match requested style */}
+    <div className="flex flex-col items-center">
+      <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-4 py-1 flex items-center gap-2 transform transition-all group-hover:bg-blue-600/40 group-hover:border-blue-500/50">
+        <span className="text-blue-400 text-[10px] font-black italic">{number}</span>
+        <span className="text-white text-[10px] font-black uppercase tracking-wider whitespace-nowrap drop-shadow-md">
+          {name}
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
+const FootballPitch = ({ lineupData, homeTeam, awayTeam, apiData, liveData }: any) => {
+  const lineups = useMemo(() => {
+    return Array.isArray(lineupData) ? lineupData : (lineupData?.lineups || []);
+  }, [lineupData]);
+
+  if (lineups.length === 0) {
+    return (
+      <div className="bg-[#0c162d]/40 backdrop-blur-3xl border border-white/5 rounded-[48px] p-24 flex flex-col items-center justify-center text-center shadow-2xl min-h-[600px]">
+        <div className="w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-8 border border-blue-500/20">
+          <Users className="w-10 h-10 text-blue-500 animate-pulse" />
+        </div>
+        <h3 className="text-white font-black text-xl md:text-2xl uppercase tracking-[0.2em] mb-4 italic text-center leading-relaxed">
+          Brak informacji o składach,<br />wkrótce się pojawi.
+        </h3>
+      </div>
+    );
+  }
+
+  const isOfficial = useMemo(() => {
+    if (!apiData?.scheduled_at) return false;
+    const matchTime = new Date(apiData.scheduled_at).getTime();
+    const now = Date.now();
+    const diffMins = (matchTime - now) / (1000 * 60);
+    // If match is in progress or finished, it's definitely official
+    if (apiData.status === 'active' || apiData.status === 'live' || apiData.status === 'finished') return true;
+    return diffMins <= 20;
+  }, [apiData?.scheduled_at, apiData?.status]);
+
+  const getTeamLineup = (team: any) => {
+    return lineups.find((l: any) => 
+      String(l.team?.id) === String(team.id) ||
+      normalizeTeamName(l.team?.name || l.team_name) === normalizeTeamName(team.name) || 
+      normalizeTeamName(l.team?.short_name || l.team_name) === normalizeTeamName(team.name)
+    );
+  };
+
+  const homeLineup = getTeamLineup(homeTeam);
+  const awayLineup = getTeamLineup(awayTeam);
+
+  const renderTeamOnPitch = (lineup: any, side: 'left' | 'right') => {
+    if (!lineup) return null;
+
+    const gk = lineup.goalkeeper?.[0] || null;
+    const starters = lineup.starters || [];
+
+    const events = liveData?.events || [];
+    const getPlayerEvents = (player: any) => {
+      if (!player) return {};
+      const playerEvents = events.filter((e: any) => 
+        normalizeTeamName(e.player?.name) === normalizeTeamName(`${player.first_name} ${player.last_name}`) ||
+        normalizeTeamName(e.player?.name) === normalizeTeamName(player.last_name)
+      );
+      return {
+        goal: playerEvents.some((e: any) => e.type === 'goal'),
+        yellow: playerEvents.some((e: any) => e.type === 'yellow_card'),
+        red: playerEvents.some((e: any) => e.type === 'red_card'),
+      };
+    };
+
+    // Distribution for 2-1-2 Formation (5 field players)
+    // 1 GK
+    // 2 Defs (FIXO)
+    // 1 Mid (PIVOT)
+    // 2 Fwds (ALA)
+
+    const positions = {
+      gk: gk,
+      def: starters.slice(0, 2),
+      mid: starters.slice(2, 3),
+      fwd: starters.slice(3, 5)
+    };
+
+    return (
+      <div className={`absolute inset-y-0 w-1/2 ${side === 'left' ? 'left-0 border-r border-white/10' : 'right-0'}`}>
+        {/* Team Name Label on Pitch */}
+        <div className={`absolute top-6 ${side === 'left' ? 'left-8 text-left' : 'right-8 text-right'} z-30`}>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-white/30 text-[7px] font-black uppercase tracking-[0.3em] italic">{side === 'left' ? 'GOSPODARZE' : 'GOŚCIE'}</span>
+            <h4 className="text-white font-black text-lg uppercase tracking-tighter italic drop-shadow-lg leading-none">{side === 'left' ? homeTeam.name : awayTeam.name}</h4>
           </div>
         </div>
 
-        <div className={`h-1 mt-12 rounded-full animate-goal-bar ${side === 'home' ? 'bg-blue-400 shadow-[0_0_20px_rgba(96,165,250,1)]' : 'bg-red-400 shadow-[0_0_20px_rgba(248,113,113,1)]'}`}></div>
+        {/* Goalkeeper */}
+        <div className="absolute top-1/2 -translate-y-1/2" style={{ [side]: '8%' }}>
+          {positions.gk && (
+            <PlayerNode 
+              name={positions.gk.last_name} 
+              number={positions.gk.jersey_number} 
+              photo={positions.gk.photo_url} 
+              color="yellow" 
+              isCaptain={positions.gk.is_captain} 
+              {...getPlayerEvents(positions.gk)}
+            />
+          )}
+        </div>
+
+        {/* Defenders (FIXO) */}
+        <div className="absolute inset-y-0 flex flex-col justify-around py-24" style={{ [side]: '32%' }}>
+          {positions.def.map((p: any, i: number) => (
+            <PlayerNode 
+              key={i} 
+              name={p.last_name} 
+              number={p.jersey_number} 
+              photo={p.photo_url} 
+              color={side === 'left' ? 'blue' : 'red'} 
+              isCaptain={p.is_captain} 
+              {...getPlayerEvents(p)}
+            />
+          ))}
+        </div>
+
+        {/* Midfielder (PIVOT) */}
+        <div className="absolute top-1/2 -translate-y-1/2" style={{ [side]: '58%' }}>
+          {positions.mid.map((p: any, i: number) => (
+            <PlayerNode 
+              key={i} 
+              name={p.last_name} 
+              number={p.jersey_number} 
+              photo={p.photo_url} 
+              color={side === 'left' ? 'blue' : 'red'} 
+              isCaptain={p.is_captain} 
+              {...getPlayerEvents(p)}
+            />
+          ))}
+        </div>
+
+        {/* Forwards (ALA) */}
+        <div className="absolute inset-y-0 flex flex-col justify-around py-24" style={{ [side]: '82%' }}>
+          {positions.fwd.map((p: any, i: number) => (
+            <PlayerNode 
+              key={i} 
+              name={p.last_name} 
+              number={p.jersey_number} 
+              photo={p.photo_url} 
+              color={side === 'left' ? 'blue' : 'red'} 
+              isCaptain={p.is_captain} 
+              {...getPlayerEvents(p)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <div className="flex flex-col items-center gap-4">
+        <span className="text-blue-500 text-[10px] font-black uppercase tracking-[0.6em] italic animate-pulse">
+          {isOfficial ? 'Oficjalne Składy' : 'Prawdopodobne Składy'}
+        </span>
+        <div className="h-px w-64 bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
+      </div>
+
+      <div className="relative aspect-[16/9] md:aspect-[21/9] min-h-[600px] w-full bg-[#080c1a] rounded-[4rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.6)] overflow-hidden ring-1 ring-white/5 group/pitch">
+        {/* Professional Pitch Lines */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+        
+        {/* Grass Pattern Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/10 via-transparent to-red-900/10"></div>
+
+        {/* Outer Border */}
+        <div className="absolute inset-10 border-2 border-white/10 rounded-[3rem]"></div>
+        
+        {/* Halfway Line */}
+        <div className="absolute inset-y-10 left-1/2 -translate-x-1/2 w-0.5 bg-white/10"></div>
+        
+        {/* Center Circle */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 border-2 border-white/10 rounded-full flex items-center justify-center">
+           <div className="w-2 h-2 bg-white/20 rounded-full"></div>
+        </div>
+        
+        {/* Penalty Areas */}
+        <div className="absolute inset-y-[20%] left-10 w-32 border-2 border-l-0 border-white/10 rounded-r-[3rem] bg-white/[0.01]"></div>
+        <div className="absolute inset-y-[20%] right-10 w-32 border-2 border-r-0 border-white/10 rounded-l-[3rem] bg-white/[0.01]"></div>
+
+        {/* Players Layer */}
+        <div className="absolute inset-10 z-10">
+          {renderTeamOnPitch(homeLineup, 'left')}
+          {renderTeamOnPitch(awayLineup, 'right')}
+        </div>
+      </div>
+
+      {/* Substitutes Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         {[
+           { lineup: homeLineup, name: homeTeam.name, color: 'blue' },
+           { lineup: awayLineup, name: awayTeam.name, color: 'red' }
+         ].map((team, idx) => (
+           <div key={idx} className="bg-[#0a1121]/80 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-12 shadow-2xl transition-all hover:bg-[#0c162d]/90 hover:border-white/10">
+             <div className="flex items-center justify-between mb-10">
+               <div className="flex items-center gap-4">
+                 <div className={`w-2 h-8 rounded-full ${team.color === 'blue' ? 'bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)]'}`}></div>
+                 <h4 className="text-white font-black text-xl uppercase tracking-[0.2em] italic">{team.name}</h4>
+               </div>
+               <span className="text-white/20 font-black text-[10px] uppercase tracking-[0.4em]">REZERWOWI</span>
+             </div>
+             
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               {team.lineup?.substitutes?.length > 0 ? team.lineup.substitutes.map((p: any, i: number) => (
+                 <div key={i} className="flex items-center gap-4 bg-black/40 border border-white/5 rounded-2xl p-4 transition-all hover:border-blue-500/30 group/sub">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden relative border border-white/10 shrink-0 bg-[#1a2333]">
+                      {p.photo_url ? (
+                        <Image src={p.photo_url} alt="" fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center"><Users className="w-5 h-5 text-white/10" /></div>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-black text-[12px] uppercase tracking-tight">{p.first_name} {p.last_name}</span>
+                        {p.is_captain && <span className="bg-yellow-600 text-black text-[8px] font-black px-1.5 py-0.5 rounded italic">CAP</span>}
+                      </div>
+                      <span className={`${team.color === 'blue' ? 'text-blue-500' : 'text-red-500'} font-black text-[11px] tracking-[0.2em] italic`}>#{p.jersey_number}</span>
+                    </div>
+                 </div>
+               )) : (
+                 <div className="col-span-full py-8 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-3xl">
+                   <Users className="w-8 h-8 text-white/5 mb-3" />
+                   <span className="text-white/10 text-[10px] font-black uppercase tracking-[0.4em] italic text-center">Brak rezerwowych w protokole</span>
+                 </div>
+               )}
+             </div>
+           </div>
+         ))}
       </div>
     </div>
   );
 };
 
-export default function MatchDetail() {
-  const params = useParams();
-  const id = params.id as string;
-  
-  const match = findMatchById(id);
-  
-  const [activeTab, setActiveTab] = useState<'na-żywo' | 'relacja' | 'składy' | 'statystyki'>('relacja');
-  const [apiData, setApiData] = useState<MatchApiData | null>(null);
-  const [preMatchInfo, setPreMatchInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const isFirstFetch = useRef(true);
-  const hasAutoSwitched = useRef(false);
+const InfoItem = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-blue-500 text-[8px] font-black uppercase tracking-[0.3em] opacity-60">{label}</span>
+    <span className="text-white font-black text-sm tracking-tight">{value}</span>
+  </div>
+);
 
-  const allTeams = [...teams, ...extraTeams];
+const StatBox = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col items-center p-4 bg-white/[0.03] border border-white/5 rounded-2xl">
+    <div className="text-white font-black text-xl">{value}</div>
+    <div className="text-white/20 text-[7px] font-black text-center leading-tight mt-1 tracking-widest uppercase">{label}</div>
+  </div>
+);
 
-  const getHomeTeam = () => {
-    if (match?.homeTeam) return match.homeTeam;
-    if (apiData) {
-      const apiTeamA = apiData.match.teamA;
-      const found = allTeams.find(t => 
-        normalizeTeamName(t.name) === normalizeTeamName(apiTeamA) || 
-        normalizeTeamName(t.shortName) === normalizeTeamName(apiTeamA) ||
-        normalizeTeamName(t.id) === normalizeTeamName(apiTeamA)
-      );
-      if (found) return found;
-      return { name: apiData.match.teamA, shortName: apiData.match.teamA, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
-    }
-    if (preMatchInfo) {
-      const teamA = preMatchInfo.teamA || preMatchInfo.homeTeam || preMatchInfo.home;
-      const teamAName = typeof teamA === 'string' ? teamA : (teamA?.name || teamA?.shortName);
-      const found = allTeams.find(t => 
-        normalizeTeamName(t.name) === normalizeTeamName(teamAName) || 
-        normalizeTeamName(t.shortName) === normalizeTeamName(teamAName) ||
-        normalizeTeamName(t.id) === normalizeTeamName(teamAName)
-      );
-      if (found) return found;
-      return { name: teamAName, shortName: teamAName, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
-    }
-    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
-  };
-
-  const getAwayTeam = () => {
-    if (match?.awayTeam) return match.awayTeam;
-    if (apiData) {
-      const apiTeamB = apiData.match.teamB;
-      const found = allTeams.find(t => 
-        normalizeTeamName(t.name) === normalizeTeamName(apiTeamB) || 
-        normalizeTeamName(t.shortName) === normalizeTeamName(apiTeamB) ||
-        normalizeTeamName(t.id) === normalizeTeamName(apiTeamB)
-      );
-      if (found) return found;
-      return { name: apiData.match.teamB, shortName: apiData.match.teamB, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
-    }
-    if (preMatchInfo) {
-      const teamB = preMatchInfo.teamB || preMatchInfo.awayTeam || preMatchInfo.away;
-      const teamBName = typeof teamB === 'string' ? teamB : (teamB?.name || teamB?.shortName);
-      const found = allTeams.find(t => 
-        normalizeTeamName(t.name) === normalizeTeamName(teamBName) || 
-        normalizeTeamName(t.shortName) === normalizeTeamName(teamBName) ||
-        normalizeTeamName(t.id) === normalizeTeamName(teamBName)
-      );
-      if (found) return found;
-      return { name: teamBName, shortName: teamBName, logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
-    }
-    return { name: 'TBD', shortName: 'TBD', logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png', id: '' };
-  };
-
-  const homeTeam = getHomeTeam();
-  const awayTeam = getAwayTeam();
-
-  const homeStanding = standings.find(s => s.team?.id === homeTeam.id);
-  const awayStanding = standings.find(s => s.team?.id === awayTeam.id);
-
-  const homePosition = homeStanding?.position || '-';
-  const awayPosition = awayStanding?.position || '-';
-  const homePoints = homeStanding?.points || 0;
-  const awayPoints = awayStanding?.points || 0;
-
-  const isHomeTeam = useCallback((event: any) => {
-    if (!event || !event.team) return false;
-    const teamStr = event.team.toString().trim().toLowerCase();
-    const hName = homeTeam.name.toLowerCase().trim();
-    const hShort = homeTeam.shortName.toLowerCase().trim();
-    const apiTeamA = apiData?.match.teamA?.toLowerCase().trim();
-
-    return teamStr === 'home' ||
-           teamStr === 'gospodarz' ||
-           teamStr === 'team a' ||
-           teamStr === 'teama' ||
-           teamStr === apiTeamA ||
-           teamStr === hName ||
-           teamStr === hShort ||
-           hName.includes(teamStr) ||
-           teamStr.includes(hName) ||
-           (homeTeam.id && teamStr === homeTeam.id.toLowerCase());
-  }, [homeTeam.name, homeTeam.shortName, homeTeam.id, apiData?.match.teamA]);
-
-  const isAwayTeam = useCallback((event: any) => {
-    if (!event || !event.team) return false;
-    const teamStr = event.team.toString().trim().toLowerCase();
-    const aName = awayTeam.name.toLowerCase().trim();
-    const aShort = awayTeam.shortName.toLowerCase().trim();
-    const apiTeamB = apiData?.match.teamB?.toLowerCase().trim();
-
-    return teamStr === 'away' ||
-           teamStr === 'gość' ||
-           teamStr === 'team b' ||
-           teamStr === 'teamb' ||
-           teamStr === apiTeamB ||
-           teamStr === aName ||
-           teamStr === aShort ||
-           aName.includes(teamStr) ||
-           teamStr.includes(aName) ||
-           (awayTeam.id && teamStr === awayTeam.id.toLowerCase());
-  }, [awayTeam.name, awayTeam.shortName, awayTeam.id, apiData?.match.teamB]);
-
-  const calculatedScore = useMemo(() => {
-    if (!apiData?.events?.goals) return null;
-    return apiData.events.goals.reduce((acc, goal) => {
-      if (isHomeTeam(goal)) acc.scoreA++;
-      else if (isAwayTeam(goal)) acc.scoreB++;
-      return acc;
-    }, { scoreA: 0, scoreB: 0 });
-  }, [apiData?.events?.goals, isHomeTeam, isAwayTeam]);
-
-  // Check if match is finished based on localStorage
-  const [isMatchFinished, setIsMatchFinished] = useState(false);
-  const [isMatchActive, setIsMatchActive] = useState(false);
-  const [finishedMatchData, setFinishedMatchData] = useState<any>(null);
-
-  useEffect(() => {
-    // Load finished matches from localStorage
-    const stored = localStorage.getItem('finishedMatches');
-    if (stored) {
-      const finished = JSON.parse(stored);
-      setFinishedMatches((prev: any) => {
-        if (JSON.stringify(prev) === JSON.stringify(finished)) return prev;
-        return finished;
-      });
-      
-      const isFin = finished[id] || match?.status === 'finished';
-      if (isFin) {
-        setIsMatchFinished(true);
-        const matchStats = localStorage.getItem('matchStats');
-        if (matchStats) {
-          const stats = JSON.parse(matchStats);
-          setFinishedMatchData((prev: any) => {
-            const currentStats = stats[id] || null;
-            if (JSON.stringify(prev) === JSON.stringify(currentStats)) return prev;
-            return currentStats;
-          });
-        }
-      }
-    }
-  }, [id, match?.status]);
-
-  useEffect(() => {
-    const fetchMatchData = async () => {
-      if (isFirstFetch.current) {
-        setLoading(true);
-      }
-      setError(null);
-      try {
-        let loaded = false;
-
-        const [tournamentRes, scheduleRes] = await Promise.all([
-          fetch(`${REPLIT_API_BASE_URL}/api/tournament/1.json`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null),
-          fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' }).catch(() => null)
-        ]);
-
-        if (tournamentRes && tournamentRes.ok) {
-          const data = await tournamentRes.json();
-          const fixtures = data.fixtures || [];
-          
-          let found = fixtures.find((m: any) => m.matchUuid === id || m.uuid === id);
-          if (!found && isNumeric(id)) {
-            found = fixtures.find((m: any) => m.id?.toString() === id);
-          }
-          
-          if (found) {
-            setPreMatchInfo((prev: any) => {
-              const updated = {
-                ...found,
-                homeTeam: found.teamA?.name ? found.teamA : { name: found.teamA },
-                awayTeam: found.teamB?.name ? found.teamB : { name: found.teamB },
-                homeScore: found.scoreA,
-                awayScore: found.scoreB,
-                stadium: found.stadium || 'Ośrodek Treningowy PFF',
-                category: 'MECZE TOWARZYSKIE'
-              };
-              if (JSON.stringify(prev) === JSON.stringify(updated)) return prev;
-              return updated;
-            });
-          }
-        }
-
-        if (scheduleRes && scheduleRes.ok) {
-          const data = await scheduleRes.json();
-          const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
-          
-          let found = list.find((m: any) => m.matchUuid === id || m.uuid === id);
-          if (!found && isNumeric(id)) {
-            found = list.find((m: any) => m.id?.toString() === id);
-          }
-          
-          if (found) {
-            setPreMatchInfo((prev: any) => {
-              if (JSON.stringify(prev) === JSON.stringify(found)) return prev;
-              return found;
-            });
-          }
-        }
-
-        if (isUuid(id)) {
-          try {
-            const replitRes = await fetch(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-            if (replitRes.ok) {
-              const replitData = await replitRes.json();
-              setApiData(prev => {
-                if (JSON.stringify(prev) === JSON.stringify(replitData)) return prev;
-                return replitData;
-              });
-              loaded = true;
-            }
-          } catch {}
-        }
-
-        if (!loaded) {
-          try {
-            const response = await fetch(`/api/matches/${id}`, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-            if (response.ok) {
-              const data = await response.json();
-              setApiData(prev => {
-                if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
-                return data;
-              });
-              loaded = true;
-            }
-          } catch {}
-        }
-
-        try {
-          const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json', { cache: 'no-store' });
-          if (historyRes.ok) {
-            const historyData = await historyRes.json();
-            if (historyData.players) {
-              let historyMatch = null;
-              for (const p of Object.values(historyData.players) as any[]) {
-                const m = p.matches?.find((m: any) => m.matchUuid === id || m.id?.toString() === id);
-                if (m) {
-                  historyMatch = m;
-                  break;
-                }
-              }
-
-              if (historyMatch) {
-                const hScoreA = historyMatch.scoreA;
-                const hScoreB = historyMatch.scoreB;
-
-                setPreMatchInfo((prev: any) => {
-                  const updated = {
-                    ...(prev || {}),
-                    scoreA: hScoreA,
-                    scoreB: hScoreB,
-                    homeScore: hScoreA,
-                    awayScore: hScoreB,
-                    status: 'finished',
-                    teamA: historyMatch.teamA,
-                    teamB: historyMatch.teamB
-                  };
-                  if (JSON.stringify(prev) === JSON.stringify(updated)) return prev;
-                  return updated;
-                });
-                setIsMatchFinished(true);
-              }
-            }
-          }
-        } catch (e) {}
-
-      } catch (err: any) {
-        console.error('Error fetching match data:', err);
-        if (isFirstFetch.current) setError(err.message || 'Nie udało się pobrać danych meczu');
-      } finally {
-        if (isFirstFetch.current) {
-          setLoading(false);
-          isFirstFetch.current = false;
-        }
-      }
-    };
-
-    fetchMatchData();
-    const interval = setInterval(fetchMatchData, 10000);
-    return () => clearInterval(interval);
-  }, [id]); // Only depend on ID
-
-  useEffect(() => {
-    if (apiData) {
-      const status = apiData.match?.status?.toLowerCase();
-      const isActive = apiData.match?.isActive || status === 'active' || status === 'live';
-      const isFinished = status === 'finished' || status === 'played' || status === 'ft';
-
-      if (isActive) setIsMatchActive(true);
-      if (isFinished) {
-        setIsMatchFinished(true);
-        setIsMatchActive(false);
-      }
-    }
-  }, [apiData]);
-
-  useEffect(() => {
-    if (preMatchInfo && !isMatchActive && !isMatchFinished) {
-      const status = preMatchInfo.status?.toLowerCase();
-      const isFin = status === 'finished' || status === 'ft' || status === 'played';
-      const isActive = preMatchInfo.isActive || status === 'active' || status === 'live' || status === 'in_progress';
-      
-      if (isActive) setIsMatchActive(true);
-      if (isFin) setIsMatchFinished(true);
-    }
-  }, [preMatchInfo, isMatchActive, isMatchFinished]);
-
-  useEffect(() => {
-    if (isMatchFinished && !hasAutoSwitched.current) {
-      setActiveTab('relacja');
-      hasAutoSwitched.current = true;
-    } else if (isMatchActive && !hasAutoSwitched.current) {
-      setActiveTab('na-żywo');
-      hasAutoSwitched.current = true;
-    }
-  }, [isMatchFinished, isMatchActive]);
-
-  useEffect(() => {
-    // Don't run if match is active/finished or if we already have preMatchInfo from ID matching
-    const isPre = !isMatchActive && !isMatchFinished;
-    if (!isPre || (preMatchInfo && (preMatchInfo.matchUuid === id || preMatchInfo.id?.toString() === id))) return;
-
-    const fetchSchedule = async () => {
-      try {
-        const res = await fetch(API_ENDPOINTS.SCHEDULE, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : (Array.isArray(data?.fixtures) ? data.fixtures : (Array.isArray(data?.matches) ? data.matches : []));
-        
-        // Try to find by ID first
-        let found = list.find((m: any) => m.matchUuid === id || m.id?.toString() === id);
-        
-        // Fallback to team names matching
-        if (!found) {
-          const n = (s: string) => normalizeTeamName(s);
-          const homeKeys = [n(homeTeam.name), n(homeTeam.shortName), n(homeTeam.id)];
-          const awayKeys = [n(awayTeam.name), n(awayTeam.shortName), n(awayTeam.id)];
-          found = list.find((m: any) => {
-            const ta = n(m.teamA || m.homeTeam || m.home || m.host || '');
-            const tb = n(m.teamB || m.awayTeam || m.away || m.guest || '');
-            const homeOk = homeKeys.some(t => t && (t === ta || ta.includes(t) || t.includes(ta)));
-            const awayOk = awayKeys.some(t => t && (t === tb || tb.includes(t) || t.includes(tb)));
-            return homeOk && awayOk;
-          });
-        }
-        
-        if (found) {
-          setPreMatchInfo((prev: any) => {
-            if (JSON.stringify(prev) === JSON.stringify(found)) return prev;
-            return found;
-          });
-        }
-      } catch {}
-    };
-
-    fetchSchedule();
-  }, [isMatchActive, isMatchFinished, homeTeam.name, homeTeam.shortName, homeTeam.id, awayTeam.name, awayTeam.shortName, awayTeam.id, id, preMatchInfo]);
-
-  const [finishedMatches, setFinishedMatches] = useState<Record<string, boolean>>({});
-  const [showGoalAnimation, setShowGoalAnimation] = useState(false);
-  const [goalInfo, setGoalInfo] = useState<{ team: string; player: string; logo?: string; side: 'home' | 'away' } | null>(null);
-  const prevScoreRef = useRef({ scoreA: 0, scoreB: 0 });
-  const isInitialLoad = useRef(true);
-  const isPreMatch = !isMatchActive && !isMatchFinished;
-
-  useEffect(() => {
-    if (apiData && calculatedScore) {
-      if (isInitialLoad.current) {
-        prevScoreRef.current = calculatedScore;
-        isInitialLoad.current = false;
-        return;
-      }
-
-      const prev = prevScoreRef.current;
-      const isHomeGoalScored = calculatedScore.scoreA > prev.scoreA;
-      const isAwayGoalScored = calculatedScore.scoreB > prev.scoreB;
-
-      if (isHomeGoalScored || isAwayGoalScored) {
-        const isHome = isHomeGoalScored;
-        const relevantTeamGoals = apiData.events.goals.filter(g => isHome ? isHomeTeam(g) : isAwayTeam(g));
-        const latestGoal = relevantTeamGoals[relevantTeamGoals.length - 1];
-        
-        setGoalInfo({
-          team: isHome ? homeTeam.name : awayTeam.name,
-          player: latestGoal?.player || 'Zawodnik',
-          logo: isHome ? homeTeam.logo : awayTeam.logo,
-          side: isHome ? 'home' : 'away'
-        });
-        setShowGoalAnimation(true);
-        setTimeout(() => setShowGoalAnimation(false), 8000);
-      }
-      prevScoreRef.current = calculatedScore;
-    }
-  }, [apiData, calculatedScore, homeTeam, awayTeam, isHomeTeam, isAwayTeam]);
-
-  if (loading && !match) {
-    return (
-      <div className="flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-400 font-medium">Ładowanie danych meczu...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!match && !apiData && !preMatchInfo && !loading) {
-    return (
-      <div className="flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center py-20 text-center">
-          <div>
-            <p className="text-gray-400 text-lg mb-4">{error || 'Mecz nie znaleziony'}</p>
-            <Link href="/" className="text-blue-500 hover:text-blue-400 font-semibold">
-              Powrót do strony głównej
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'DATA NIEZNANA';
-    const date = new Date(dateString);
-    const days = ['NIEDZIELA', 'PONIEDZIAŁEK', 'WTOREK', 'ŚRODA', 'CZWARTEK', 'PIĄTEK', 'SOBOTA'];
-    return `${days[date.getDay()]}, ${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
-  };
-
-  const formatTime = (dateString?: string) => {
-    if (!dateString) return '--:--';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('pl-PL', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  // Build fallback events from finishedMatchData scorers when API has no events
-  const buildEventsFromFinished = (scorers: any[]): MatchEvents => {
-    const goals = (scorers || []).map((s: any) => ({
-      minute: typeof s.minute === 'number' ? s.minute : (typeof s.minute === 'string' && /^\d+$/.test(s.minute) ? parseInt(s.minute, 10) : undefined as any),
-      player: s.playerName,
-      team: s.teamId === homeTeam.id ? 'home' : 'away',
-      isPenalty: false,
-      number: s.number
-    }));
-    return { goals, cards: [], substitutions: [] };
-  };
-
-  const eventsData: MatchEvents | null = apiData?.events
-    ? apiData.events
-    : (finishedMatchData?.scorers ? buildEventsFromFinished(finishedMatchData.scorers) : null);
-
-  const scoreA = (isMatchFinished && preMatchInfo?.scoreA !== undefined) 
-    ? preMatchInfo.scoreA 
-    : (apiData?.match ? (calculatedScore?.scoreA ?? apiData.match.scoreA) : (finishedMatchData?.homeScore ?? preMatchInfo?.scoreA ?? preMatchInfo?.homeScore ?? match?.homeScore ?? 0));
-  const scoreB = (isMatchFinished && preMatchInfo?.scoreB !== undefined)
-    ? preMatchInfo.scoreB
-    : (apiData?.match ? (calculatedScore?.scoreB ?? apiData.match.scoreB) : (finishedMatchData?.awayScore ?? preMatchInfo?.scoreB ?? preMatchInfo?.awayScore ?? match?.awayScore ?? 0));
-
-  const hasScore = scoreA > 0 || scoreB > 0 || isMatchActive || isMatchFinished;
+const CompareStat = ({ label, val1, val2, color1 = 'bg-blue-600', color2 = 'bg-blue-400' }: any) => {
+  const v1 = Number(val1) || 0;
+  const v2 = Number(val2) || 0;
+  const total = v1 + v2 || 1;
+  const p1 = (v1 / total) * 100;
+  const p2 = (v2 / total) * 100;
 
   return (
-    <>
-      <GoalOverlay 
-        isVisible={showGoalAnimation}
-        team={goalInfo?.team || ''}
-        player={goalInfo?.player || ''}
-        logo={goalInfo?.logo}
-        side={goalInfo?.side || 'home'}
-      />
-      <Navbar />
+    <div className="space-y-4 group">
+      <div className="flex justify-between items-center px-2">
+        <span className="text-white font-black text-xl italic tabular-nums drop-shadow-lg transition-transform group-hover:scale-110">{val1}</span>
+        <span className="text-white/30 text-[9px] font-black tracking-[0.4em] uppercase group-hover:text-blue-500/60 transition-colors">{label}</span>
+        <span className="text-white font-black text-xl italic tabular-nums drop-shadow-lg transition-transform group-hover:scale-110">{val2}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-1.5 bg-white/[0.03] rounded-full overflow-hidden flex justify-end ring-1 ring-white/5">
+            <div className={`h-full ${color1} rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]`} style={{ width: `${p1}%` }}></div>
+        </div>
+        <div className="w-1.5 h-1.5 bg-white/10 rounded-full group-hover:bg-blue-500/40 transition-colors shadow-glow"></div>
+        <div className="flex-1 h-1.5 bg-white/[0.03] rounded-full overflow-hidden ring-1 ring-white/5">
+            <div className={`h-full ${color2} rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(96,165,250,0.4)]`} style={{ width: `${p2}%` }}></div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.6; }
-        }
-        @keyframes goal-shimmer {
-          0% { transform: translateX(-100%) skewX(-15deg); }
-          100% { transform: translateX(200%) skewX(-15deg); }
-        }
-        .animate-pulse-live {
-          animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        .animate-goal-shimmer {
-          animation: goal-shimmer 3s ease-in-out infinite;
-        }
-        @keyframes goal-bg-flash {
-          0% { opacity: 0; }
-          10%, 90% { opacity: 1; }
-          100% { opacity: 0; }
-        }
-        @keyframes goal-text-enter {
-          0% { transform: scale(0.5) translateY(100px); opacity: 0; filter: blur(20px); }
-          20% { transform: scale(1.2) translateY(-20px); opacity: 1; filter: blur(0px); }
-          30% { transform: scale(1) translateY(0); }
-          80% { transform: scale(1.05); opacity: 1; filter: blur(0px); }
-          100% { transform: scale(1.5) translateY(-50px); opacity: 0; filter: blur(20px); }
-        }
-        @keyframes goal-logo-enter {
-          0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-          25% { transform: scale(1.2) rotate(10deg); opacity: 1; }
-          35% { transform: scale(1) rotate(0deg); }
-          80% { transform: scale(1) rotate(0deg); opacity: 1; }
-          100% { transform: scale(0.5); opacity: 0; }
-        }
-        @keyframes goal-bar-expand {
-          0% { width: 0%; opacity: 0; }
-          20% { width: 100%; opacity: 1; }
-          80% { width: 100%; opacity: 1; }
-          100% { width: 0%; opacity: 0; }
-        }
-        .animate-goal-bg-flash {
-          animation: goal-bg-flash 8s forwards;
-        }
-        .animate-goal-text {
-          animation: goal-text-enter 8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-        }
-        .animate-goal-logo {
-          animation: goal-logo-enter 8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-        }
-        .animate-goal-bar {
-          animation: goal-bar-expand 8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-        }
-      `}</style>
+const FooterInfoItem = ({ icon: Icon, label, value }: any) => (
+  <div className="flex items-start gap-3">
+    <Icon className="w-5 h-5 text-blue-500/40" />
+    <div className="flex flex-col gap-1">
+      <span className="text-white/20 text-[7px] font-black uppercase tracking-widest">{label}</span>
+      <span className="text-white font-black text-[10px] leading-tight whitespace-pre-line">{value}</span>
+    </div>
+  </div>
+);
 
-      {(isMatchActive || isMatchFinished) ? (
-        <div className="relative min-h-screen bg-transparent text-white">
-          {/* Main Content */}
-          
-          <div className="relative z-10">
-            <div className="container mx-auto px-4 py-12">
-              <div className="max-w-6xl mx-auto">
-                {/* Header Section */}
-                <div className="flex justify-center mb-12">
-                  <div className="bg-[#0a101f]/60 backdrop-blur-xl border border-white/10 rounded-full px-10 py-4 flex items-center gap-4 shadow-2xl">
-                    <div className="relative flex items-center justify-center">
-                      {isMatchFinished ? (
-                        <div className="w-3 h-3 rounded-full bg-green-500 z-10 shadow-[0_0_15px_rgba(34,197,94,0.5)]"></div>
-                      ) : isMatchActive ? (
-                        <div className="w-3 h-3 rounded-full bg-blue-500 z-10 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-                      ) : (
-                        <div className="w-3 h-3 rounded-full bg-white/30"></div>
-                      )}
+const MatchRelacja = ({ liveData }: any) => {
+  const events = liveData?.events || [];
+  
+  if (events.length === 0) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-[3rem] bg-white/[0.01]">
+        <MessageSquare className="w-12 h-12 text-white/5 mb-6" />
+        <span className="text-white/20 text-xs font-black uppercase tracking-[0.4em] italic text-center px-12 leading-relaxed">
+          Brak komentarzy do tego meczu.<br />Relacja rozpocznie się wraz z gwizdkiem sędziego.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-12 max-w-2xl mx-auto pb-20">
+      {events.map((event: any, i: number) => (
+        <div key={i} className="relative">
+          <div className="flex items-center justify-between mb-4 px-2">
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full shadow-lg">
+               <span className="text-white font-black text-sm italic tabular-nums">{event.minute}'</span>
+            </div>
+            <h4 className="text-white font-black text-lg uppercase italic tracking-wider drop-shadow-md">{event.type_label}</h4>
+          </div>
+
+          <div className="bg-[#1a2333]/90 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group hover:bg-[#1a2333] transition-all duration-500">
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-6">
+                {/* Team Logo on Left */}
+                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white/10 shrink-0 bg-[#0c162d] shadow-2xl transition-transform group-hover:scale-105">
+                  {event.team?.logo_url ? (
+                    <Image src={event.team.logo_url} alt="" fill className="object-contain p-2" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white/5">
+                      <Shield className="w-6 h-6 text-white/10" />
                     </div>
-                    <span className="text-sm font-black uppercase tracking-[0.4em] text-white flex items-center gap-3">
-                      {isMatchFinished ? (
-                        <>
-                          <span className="text-white/60">ZAKOŃCZONY</span>
-                          <span className="w-px h-4 bg-white/20 mx-1"></span>
-                          WYNIK KOŃCOWY
-                        </>
-                      ) : isMatchActive ? (
-                        <>
-                          <span className="text-white/60">TRWA</span>
-                          <span className="w-px h-4 bg-white/20 mx-1"></span>
-                          {apiData?.match.timer || '00:00'} <span className="text-white/30 font-medium">|</span> {apiData?.match.period || 'MECZ TRWA'}
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-white/60">PRZED MECZEM</span>
-                          <span className="w-px h-4 bg-white/20 mx-1"></span>
-                          {preMatchInfo?.time ?? formatTime(preMatchInfo?.date ?? preMatchInfo?.dateTime ?? match?.date)} <span className="text-white/30 font-medium">|</span> {formatDate(preMatchInfo?.date ?? preMatchInfo?.dateTime ?? match?.date)}
-                        </>
-                      )}
-                    </span>
-                    {(match?.stadium || match?.category) && (
-                      <div className="hidden md:flex items-center gap-3 ml-4 pl-4 border-l border-white/10">
-                        {match.stadium && <span className="text-[10px] font-bold text-blue-400/60 uppercase tracking-widest">{match.stadium}</span>}
-                        {match.stadium && match.category && <span className="w-1 h-1 rounded-full bg-white/20"></span>}
-                        {match.category && <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{match.category}</span>}
-                      </div>
+                  )}
+                </div>
+                
+                {/* Player Name and Position in Middle */}
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-3">
+                    {event.player?.jersey_number && (
+                      <span className="text-blue-500 font-black text-base italic">#{event.player.jersey_number}</span>
                     )}
+                    <span className="text-white font-black text-xl md:text-2xl uppercase tracking-tighter italic leading-none">
+                      {event.player?.name || 'Zawodnik'}
+                    </span>
                   </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-4 md:gap-16 mb-20 relative">
-                  {/* Home Team */}
-                  <div className="flex flex-col items-center gap-6 w-[35%] group">
-                    <div className="relative">
-                      {homeTeam.logo && (
-                        <Image
-                          src={homeTeam.logo}
-                          alt={homeTeam.name}
-                          width={200}
-                          height={200}
-                          className="object-contain relative z-10 w-28 h-28 md:w-52 md:h-52 drop-shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-110"
-                        />
-                      )}
-                    </div>
-                    <h2 className="text-xl md:text-5xl font-black uppercase tracking-tighter text-center leading-none drop-shadow-2xl h-12 md:h-24 flex items-center justify-center">{homeTeam.name}</h2>
-                  </div>
-
-                  {/* Score Box */}
-                  <div className="relative z-20 shrink-0">
-                    <div className="bg-[#0a101f]/60 backdrop-blur-xl border border-white/10 rounded-[40px] px-8 md:px-16 py-8 md:py-12 flex flex-col items-center justify-center min-w-[160px] md:min-w-[340px] shadow-2xl relative overflow-hidden">
-                      <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.5em] text-white/40 mb-4 relative z-10">{isMatchFinished ? 'WYNIK KOŃCOWY' : isMatchActive ? 'WYNIK NA ŻYWO' : 'ZAPLANOWANY'}</span>
-                      <div className="text-6xl md:text-9xl font-black tracking-tighter flex items-center gap-4 md:gap-8 tabular-nums relative z-10">
-                        {(!isMatchFinished && !isMatchActive) ? (
-                          <span className="drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">
-                            {preMatchInfo?.time || formatTime(preMatchInfo?.date || preMatchInfo?.dateTime || match?.date)}
-                          </span>
-                        ) : (
-                          <>
-                            <span className="drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">{scoreA}</span>
-                            <span className="text-white/10">:</span>
-                            <span className="drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">{scoreB}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Away Team */}
-                  <div className="flex flex-col items-center gap-6 w-[35%] group">
-                    <div className="relative">
-                      {awayTeam.logo && (
-                        <Image
-                          src={awayTeam.logo}
-                          alt={awayTeam.name}
-                          width={200}
-                          height={200}
-                          className="object-contain relative z-10 w-28 h-28 md:w-52 md:h-52 drop-shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-110"
-                        />
-                      )}
-                    </div>
-                    <h2 className="text-xl md:text-5xl font-black uppercase tracking-tighter text-center leading-none drop-shadow-2xl h-12 md:h-24 flex items-center justify-center">{awayTeam.name}</h2>
-                  </div>
-                </div>
-
-                {/* Score Summary (Goals) */}
-                <div className="grid grid-cols-2 gap-12 md:gap-32 mb-20 max-w-5xl mx-auto">
-                  <div className="flex flex-col gap-3 items-end">
-                    {(finishedMatchData?.scorers || apiData?.events?.goals) && (finishedMatchData?.scorers ? finishedMatchData.scorers.filter((s: any) => s.teamId === homeTeam.id) : apiData?.events?.goals?.filter(g => isHomeTeam(g)) || []).map((goal: any, idx: number) => (
-                      <div key={idx} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
-                        <div className="flex flex-col items-end">
-                          <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-blue-400 transition-colors">{goal.playerName || goal.player}</span>
-                          <span className="text-white/20 text-[9px] font-black uppercase tracking-widest">GOL</span>
-                        </div>
-                        <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-blue-400 font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
-                          {goal.minute != null ? `${goal.minute}'` : ''}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col gap-3 items-start">
-                    {(finishedMatchData?.scorers || apiData?.events?.goals) && (finishedMatchData?.scorers ? finishedMatchData.scorers.filter((s: any) => s.teamId === awayTeam.id) : apiData?.events?.goals?.filter(g => isAwayTeam(g)) || []).map((goal: any, idx: number) => (
-                      <div key={idx} className="flex items-center gap-4 bg-transparent hover:bg-white/5 px-5 py-3 rounded-2xl border border-white/10 transition-all group cursor-default">
-                        <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-red-400 font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
-                          {goal.minute != null ? `${goal.minute}'` : ''}
-                        </div>
-                        <div className="flex flex-col items-start">
-                          <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-red-400 transition-colors">{goal.playerName || goal.player}</span>
-                          <span className="text-white/20 text-[9px] font-black uppercase tracking-widest">GOL</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Navigation Tabs */}
-                <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-12 bg-[#0a101f]/60 backdrop-blur-xl p-2 rounded-[24px] w-fit mx-auto border border-white/10 shadow-2xl">
-                  {[
-                    { id: 'relacja', label: 'RELACJA' },
-                    { id: 'składy', label: 'SKŁADY' },
-                    { id: 'statystyki', label: 'STATYSTYKI' }
-                  ].map((tab) => (
-                    <button 
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
-                      className={`px-8 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 ${
-                        activeTab === tab.id 
-                          ? 'bg-blue-600/40 text-white border border-blue-400/50 shadow-[0_0_30px_rgba(37,99,235,0.3)] scale-105' 
-                          : 'text-white/40 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
+                  <span className="text-white/40 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mt-1 italic">
+                    {event.player?.position_label || 'ZAWODNIK'}
+                  </span>
                 </div>
               </div>
 
-              {/* Stats Comparison Card */}
-              <div className="max-w-4xl mx-auto mt-12">
-                <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-2xl border border-white/10 relative">
-                  <div className="relative py-14 px-8">
-                    <div className="absolute left-12 top-1/2 -translate-y-1/2 opacity-10 hidden md:block">
-                      {homeTeam.logo && (
-                        <Image
-                          src={homeTeam.logo}
-                          alt={homeTeam.name}
-                          width={140}
-                          height={140}
-                          className="drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
-                        />
-                      )}
-                    </div>
-                    
-                    <div className="absolute right-12 top-1/2 -translate-y-1/2 opacity-10 hidden md:block">
-                      {awayTeam.logo && (
-                        <Image
-                          src={awayTeam.logo}
-                          alt={awayTeam.name}
-                          width={140}
-                          height={140}
-                          className="drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
-                        />
-                      )}
-                    </div>
-
-                    <h2 className="text-white text-xl font-black text-center mb-16 tracking-[0.5em] uppercase opacity-30">STATYSTYKI</h2>
-                    
-                    <div className="space-y-16 max-w-2xl mx-auto relative z-10">
-                      <div className="grid grid-cols-3 gap-8 items-center">
-                        <div className="text-blue-400 text-7xl font-black text-center tabular-nums transition-all hover:scale-110 drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]">{homePosition}</div>
-                        <div className="text-white/40 font-black text-[10px] tracking-[0.4em] text-center uppercase leading-tight">POZYCJA</div>
-                        <div className="text-blue-400 text-7xl font-black text-center tabular-nums transition-all hover:scale-110 drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]">{awayPosition}</div>
-                      </div>
-
-                      <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-
-                      <div className="grid grid-cols-3 gap-8 items-center">
-                        <div className="text-white text-7xl font-black text-center tabular-nums transition-all hover:scale-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">{homePoints}</div>
-                        <div className="text-white/40 font-black text-[10px] tracking-[0.4em] text-center uppercase leading-tight">PUNKTY</div>
-                        <div className="text-white text-7xl font-black text-center tabular-nums transition-all hover:scale-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">{awayPoints}</div>
-                      </div>
-                    </div>
-                  </div>
+              {/* Player Avatar with Event Badge on Right */}
+              <div className="relative">
+                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-white/10 bg-[#0c162d] flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.4)] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
+                   {event.player?.photo_url ? (
+                     <Image src={event.player.photo_url} alt="" fill className="object-cover" />
+                   ) : (
+                     <div className="w-full h-full flex items-center justify-center bg-white/5">
+                       <Users className="w-10 h-10 text-white/10" />
+                     </div>
+                   )}
+                </div>
+                
+                {/* Event Type Badge overlay */}
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#1a2333] shadow-2xl flex items-center justify-center z-20 overflow-hidden transform transition-transform group-hover:scale-110">
+                   {event.type === 'goal' && (
+                     <div className="w-full h-full bg-white flex items-center justify-center">
+                        <div className="w-5 h-5 md:w-6 md:h-6 bg-black rounded-full flex items-center justify-center border border-black">
+                           <div className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full opacity-10"></div>
+                        </div>
+                     </div>
+                   )}
+                   {event.type === 'yellow_card' && (
+                     <div className="w-full h-full bg-yellow-500 flex items-center justify-center">
+                        <div className="w-4 h-6 bg-yellow-400 border border-black/20 rounded-sm"></div>
+                     </div>
+                   )}
+                   {event.type === 'red_card' && (
+                     <div className="w-full h-full bg-red-600 flex items-center justify-center">
+                        <div className="w-4 h-6 bg-red-500 border border-black/20 rounded-sm"></div>
+                     </div>
+                   )}
+                   {event.type === 'substitution' && (
+                     <div className="w-full h-full bg-blue-600 flex flex-col items-center justify-center gap-0.5">
+                        <Plus className="w-3 h-3 text-white" />
+                        <X className="w-3 h-3 text-white/50" />
+                     </div>
+                   )}
                 </div>
               </div>
+            </div>
+            
+            {/* Background Accent Glow */}
+            <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] opacity-20 -z-0 transition-opacity group-hover:opacity-40 ${
+              event.type === 'goal' ? 'bg-blue-500' : (event.type === 'red_card' ? 'bg-red-500' : (event.type === 'yellow_card' ? 'bg-yellow-500' : 'bg-green-500'))
+            }`}></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-                {activeTab === 'relacja' && (
-                  <div className="max-w-5xl mx-auto mt-16">
-                    <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 shadow-2xl">
-                      <h3 className="text-blue-400 text-2xl font-black text-center mb-10 tracking-[0.2em] uppercase">RELACJA MECZOWA</h3>
-                      {eventsData && (eventsData.goals.length > 0 || eventsData.cards.length > 0 || eventsData.substitutions.length > 0) ? (
-                        <div className="space-y-10">
-                  {(() => {
-                    const sortedGoals = [...eventsData.goals].sort((a, b) => a.minute - b.minute);
-                    const goalScores = new Map<any, {scoreA: number, scoreB: number}>();
-                    let currentScoreA = 0;
-                    let currentScoreB = 0;
-                    
-                    sortedGoals.forEach((goal) => {
-                      if (isHomeTeam(goal)) {
-                        currentScoreA++;
-                      } else if (isAwayTeam(goal)) {
-                        currentScoreB++;
-                      }
-                      
-                      goalScores.set(goal, {
-                        scoreA: currentScoreA,
-                        scoreB: currentScoreB
-                      });
-                    });
-                    
-                    return [
-                      ...eventsData.goals.map((e, i) => ({...e, type: 'goal' as const, _id: `goal-${i}-${e.minute}-${e.player}`, original: e})),
-                      ...eventsData.cards.map((e, i) => ({...e, type: e.type, _id: `card-${i}-${e.minute}-${e.player}`})),
-                      ...eventsData.substitutions.map((e, i) => ({...e, type: 'substitution' as const, _id: `sub-${i}-${e.minute}-${e.playerIn}`})),
-                      ...(eventsData.cancelledGoals || []).map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `cancelled-${i}-${e.minute}`})),
-                      ...(apiData?.timeline || []).filter(e => e.type === 'goal_cancelled').map((e, i) => ({...e, type: 'goal_cancelled' as const, _id: `timeline-cancelled-${i}-${e.minute}`}))
-                    ].sort((a, b) => b.minute - a.minute).map((event: any) => {
-                      const isHomeEvent = isHomeTeam(event);
-                      const isAwayEvent = isAwayTeam(event);
-                      
-                      let scoringTeam = isHomeEvent ? homeTeam : awayTeam;
-                      
-                      // Fallback: if it's neither home nor away according to isHome/isAway, 
-                      // but event.team matches away better, or if it's just not matching at all,
-                      // try to find the team in our global teams list.
-                      if (!isHomeEvent && !isAwayEvent && event.team) {
-                        const tName = event.team.toString().toLowerCase().trim();
-                        const foundTeam = teams.find(t => 
-                          t.name.toLowerCase().includes(tName) || 
-                          t.shortName.toLowerCase() === tName ||
-                          t.id.toLowerCase() === tName
-                        );
-                        if (foundTeam) {
-                          scoringTeam = foundTeam;
-                        }
-                      }
-                      
-                      const teamLogo = scoringTeam.logo;
-                      
-                      if (event.type === 'goal') {
-                        const score = goalScores.get(event.original) || {scoreA: currentScoreA, scoreB: currentScoreB};
-                        
-                        return (
-                          <div key={event._id} className="relative overflow-hidden rounded-[32px] bg-transparent border border-white/10 shadow-2xl group">
-                            
-                            {/* Goal Shimmer Animation */}
-                            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent w-1/2 animate-goal-shimmer"></div>
-                            </div>
+const MVPSection = ({ liveData }: any) => {
+  const scorers = liveData?.goals || [];
+  // Get unique players with goals/assists, limit to 4
+  const mvpCandidates = useMemo(() => {
+    const candidates: any[] = [];
+    scorers.forEach((g: any) => {
+      if (g.player && !candidates.find(c => c.name === g.player.name)) {
+        candidates.push({ ...g.player, goals: scorers.filter((goal: any) => goal.player?.name === g.player.name).length });
+      }
+    });
+    return candidates.slice(0, 4);
+  }, [scorers]);
 
-                            <div className={`relative z-10 flex items-center gap-6 p-6 md:p-8 ${isHomeEvent ? 'flex-row' : 'flex-row-reverse'}`}>
-                              {/* Minute & Avatar */}
-                              <div className="relative shrink-0 flex items-center gap-6">
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/60 shadow-lg relative z-20">
-                                  {event.minute != null ? `${event.minute}'` : ''}
-                                </div>
-                                <Link href={`/gracz/${encodeURIComponent(event.player)}`} className="relative group/avatar">
-                                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl bg-white/5 relative z-10 transition-transform group-hover/avatar:scale-105">
-                                    <RobloxAvatar username={event.player} className="w-full h-full object-cover scale-110" />
-                                  </div>
-                                </Link>
-                              </div>
+  if (mvpCandidates.length === 0) return null;
 
-                              {/* Info */}
-                              <div className={`flex-1 flex flex-col gap-2 ${isHomeEvent ? 'items-start' : 'items-end'}`}>
-                                <div className={`flex items-center gap-3 ${isHomeEvent ? 'flex-row' : 'flex-row-reverse'}`}>
-                                  <div className="px-3 py-1 border border-white/10 bg-white/5 rounded-lg">
-                                    <span className="text-white/60 font-black text-[10px] uppercase tracking-widest">GOL</span>
-                                  </div>
-                                  <div className={`flex items-center gap-2 ${isHomeEvent ? 'flex-row' : 'flex-row-reverse'}`}>
-                                    <img src={teamLogo} alt="" className="w-5 h-5 object-contain opacity-60" />
-                                    <span className="text-white/40 font-black text-[10px] uppercase tracking-[0.2em]">{scoringTeam.shortName || scoringTeam.name}</span>
-                                  </div>
-                                </div>
-                                <h4 className={`text-white text-2xl md:text-5xl font-black tracking-tighter uppercase leading-tight group-hover:text-white transition-colors drop-shadow-2xl ${isHomeEvent ? 'text-left' : 'text-right'}`}>
-                                  <Link href={`/gracz/${encodeURIComponent(event.player)}`}>
-                                    {event.player}
-                                  </Link>
-                                </h4>
-                              </div>
-
-                              {/* Score Display */}
-                              <div className="shrink-0 flex flex-col items-center gap-2">
-                                <div className="bg-transparent border border-white/10 px-6 py-4 rounded-3xl shadow-2xl flex flex-col items-center justify-center min-w-[120px]">
-                                  <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">WYNIK</span>
-                                  <div className="text-3xl md:text-4xl font-black text-white tracking-tighter tabular-nums drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-                                    <span className="text-white">{score.scoreA}</span>
-                                    <span className="text-white/20 mx-1">:</span>
-                                    <span className="text-white">{score.scoreB}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      if (event.type === 'goal_cancelled') {
-                        return (
-                          <div key={event._id} className="relative overflow-hidden rounded-[32px] bg-transparent border border-white/10 shadow-2xl group grayscale-[0.3]">
-                            <div className={`relative z-10 flex items-center gap-6 p-6 md:p-8 ${isHomeEvent ? 'flex-row' : 'flex-row-reverse'}`}>
-                              <div className="relative shrink-0 flex items-center gap-6">
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/40 shadow-lg relative z-20">
-                                  {event.minute != null ? `${event.minute}'` : ''}
-                                </div>
-                                <div className="relative opacity-40">
-                                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-white/10 bg-white/5">
-                                    <RobloxAvatar username={event.player || ""} className="w-full h-full object-cover grayscale" />
-                                  </div>
-                                  <div className="absolute inset-0 flex items-center justify-center text-4xl">❌</div>
-                                </div>
-                              </div>
-
-                              <div className={`flex-1 flex flex-col gap-2 ${isHomeEvent ? 'items-start' : 'items-end'}`}>
-                                <div className={`flex items-center gap-3 ${isHomeEvent ? 'flex-row' : 'flex-row-reverse'}`}>
-                                  <div className="px-3 py-1 border border-white/10 bg-white/5 rounded-lg">
-                                    <span className="text-white/40 font-black text-[10px] uppercase tracking-widest">BRAMKA ANULOWANA</span>
-                                  </div>
-                                  <span className="text-white/20 font-black text-[10px] uppercase tracking-[0.2em]">VAR DECISION</span>
-                                </div>
-                                <h4 className={`text-white/40 text-2xl md:text-5xl font-black tracking-tighter uppercase leading-tight line-through decoration-4 ${isHomeEvent ? 'text-left' : 'text-right'}`}>
-                                  {event.player || "BRAMKA"}
-                                </h4>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-
-                    if (event.type === 'substitution') {
-                      return (
-                        <div key={event._id} className="relative overflow-hidden rounded-[32px] bg-transparent border border-white/10 p-6 md:p-8 flex items-center gap-6 transition-all hover:bg-white/[0.05] group">
-                          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/40 shadow-lg shrink-0">
-                            {event.minute != null ? `${event.minute}'` : ''}
-                          </div>
-                          
-                          <div className="flex items-center gap-4 flex-1">
-                            <div className="relative group/avatar shrink-0">
-                              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/10 shadow-xl bg-white/5 relative z-10">
-                                <RobloxAvatar username={event.playerIn} className="w-full h-full object-cover" />
-                              </div>
-                              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-black flex items-center justify-center text-white text-[10px] z-20">↑</div>
-                            </div>
-
-                            <div className="flex-1 flex flex-col gap-1">
-                              <div className="flex items-center gap-3">
-                                <span className="text-white font-black uppercase text-xl tracking-tight group-hover:text-white transition-colors">{event.playerIn}</span>
-                                <span className="text-green-400 font-black text-[8px] px-2 py-0.5 rounded border border-green-500/30 uppercase tracking-widest">WCHODZI</span>
-                              </div>
-                              <div className="flex items-center gap-3 opacity-30">
-                                <span className="text-white font-bold text-sm">{event.playerOut}</span>
-                                <span className="text-red-400 font-black text-[8px] px-2 py-0.5 rounded border border-red-500/30 uppercase tracking-widest">SCHODZI</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="p-3 border border-white/10 rounded-2xl shrink-0">
-                            <img src={teamLogo} alt="" className="w-8 h-8 object-contain grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div key={event._id} className="relative overflow-hidden rounded-[32px] bg-transparent p-6 md:p-8 flex items-center gap-6 transition-all hover:bg-white/[0.05] group border border-white/10">
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shrink-0 border border-white/10 bg-white/5 text-white/40">
-                          {event.minute != null ? `${event.minute}'` : ''}
-                        </div>
-                        
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="relative group/avatar shrink-0">
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/10 shadow-xl bg-white/5 relative z-10">
-                              <RobloxAvatar username={event.player} className="w-full h-full object-cover" />
-                            </div>
-                            <div className={`absolute -bottom-1 -right-1 w-6 h-8 rounded border-2 border-black z-20 ${
-                              event.type === 'yellow' ? 'bg-yellow-500' : 'bg-red-600'
-                            }`}></div>
-                          </div>
-
-                          <div className="flex-1">
-                            <h4 className="text-white font-black uppercase text-xl tracking-tight group-hover:text-white transition-colors mb-1">{event.player}</h4>
-                            <span className={`text-[9px] font-black uppercase px-3 py-1 rounded border shadow-lg ${
-                              event.type === 'yellow' 
-                                ? 'bg-yellow-500 border-yellow-400 text-black' 
-                                : 'bg-red-600 border-red-500 text-white'
-                            }`}>
-                              {event.type === 'yellow' ? 'ŻÓŁTA KARTKA' : 'CZERWONA KARTKA'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="p-3 border border-white/10 rounded-2xl shrink-0">
-                          <img src={teamLogo} alt="" className="w-8 h-8 object-contain grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-                        </div>
-                      ) : (
-                        <div className="text-center py-12">
-                          <p className="text-gray-500 italic">Oczekiwanie na wydarzenia meczowe...</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'składy' && (
-                  <div className="max-w-[1600px] mx-auto mt-8 px-4">
-                    <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                      
-                      {/* Home Team Column */}
-                      <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-2 lg:order-1">
-                        <div className="bg-transparent rounded-[30px] p-6 border border-white/10 shadow-2xl">
-                          <div className="flex items-center gap-4 mb-6">
-                            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-                              <img src={homeTeam.logo} alt="" className="w-8 h-8 object-contain opacity-60" />
-                            </div>
-                            <div>
-                              <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{homeTeam.name}</h4>
-                              <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em] mt-1">{apiData?.match.lineupA?.formation || 'N/A'}</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            {apiData?.match.lineupA ? (
-                              <>
-                                <div>
-                                  <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">WYJŚCIOWA JEDENASTKA</h5>
-                                  <div className="space-y-2">
-                                    {apiData.match.lineupA.starters?.map((p, idx) => (
-                                      <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group">
-                                        <div className="w-7 h-7 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                          <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors">{p.name}</span>
-                                        {p.position && <span className="text-[8px] font-black text-white/10 ml-auto uppercase">{p.position}</span>}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {apiData.match.lineupA.bench && apiData.match.lineupA.bench.length > 0 && (
-                                  <div className="pt-4 border-t border-white/10">
-                                    <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 ml-1">ŁAWKA REZERWOWYCH</h5>
-                                    <div className="space-y-2">
-                                      {apiData.match.lineupA.bench.map((p, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/5 hover:bg-white/5 transition-all group">
-                                          <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                            <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
-                                          </div>
-                                          <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors">{p.name}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </>
-                            ) : (
-                              <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
-                                <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Pitch Column */}
-                      <div className="w-full lg:flex-1 max-w-5xl order-1 lg:order-2">
-                        <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 md:p-8 border border-white/10 shadow-2xl relative overflow-hidden h-full">
-                          <h3 className="text-white/60 text-2xl font-black text-center mb-8 tracking-[0.2em] uppercase relative z-10">BOISKO</h3>
-                          
-                          <div className="relative aspect-[3/2] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
-                            <div className="absolute inset-0 bg-[#0a101f]/40">
-                              {/* Field Markings */}
-                              <div className="absolute inset-0 border-2 border-white/10"></div>
-                              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white/10"></div>
-                              
-                              {/* Center Circle */}
-                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/10 rounded-full flex items-center justify-center">
-                                <img 
-                                  src="https://i.ibb.co/TB027G07/czarnepff-1.png" 
-                                  alt="" 
-                                  className="w-20 h-20 object-contain opacity-10 brightness-0 invert pointer-events-none" 
-                                />
-                              </div>
-                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                              
-                              <div className="absolute top-1/2 left-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-l-0"></div>
-                              <div className="absolute top-1/2 left-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-l-0"></div>
-                              
-                              <div className="absolute top-1/2 right-3 -translate-y-1/2 w-16 h-44 border-2 border-white/20 border-r-0"></div>
-                              <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-20 border-2 border-white/20 border-r-0"></div>
-                              
-                              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
-                              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/20 rounded-full"></div>
-                              
-                              <div className="absolute top-1/2 left-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-                              <div className="absolute top-1/2 right-[11.5%] -translate-y-1/2 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-                              
-                              <svg className="absolute top-3 left-3 w-3 h-3" viewBox="0 0 10 10">
-                                <path d="M 0 10 Q 0 0 10 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                              </svg>
-                              <svg className="absolute top-3 right-3 w-3 h-3" viewBox="0 0 10 10">
-                                <path d="M 10 10 Q 10 0 0 0" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                              </svg>
-                              <svg className="absolute bottom-3 left-3 w-3 h-3" viewBox="0 0 10 10">
-                                <path d="M 0 0 Q 0 10 10 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                              </svg>
-                              <svg className="absolute bottom-3 right-3 w-3 h-3" viewBox="0 0 10 10">
-                                <path d="M 10 0 Q 10 10 0 10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5"/>
-                              </svg>
-                            </div>
-                            
-                            <div className="absolute inset-0 z-10 p-4 md:p-8 flex items-center justify-center">
-                              {apiData?.match.lineupA && apiData.match.lineupB ? (
-                                <div className="relative w-full h-full">
-                                  {(() => {
-                                    const homePositions = calculateSmartPositions(apiData.match.lineupA.starters, 'home');
-                                    const awayPositions = calculateSmartPositions(apiData.match.lineupB.starters, 'away');
-                                    
-                                    return [
-                                      ...homePositions.map(p => ({ ...p, team: 'home' })),
-                                      ...awayPositions.map(p => ({ ...p, team: 'away' }))
-                                    ].map((player, idx) => {
-                                      return (
-                                        <div 
-                                          key={`${player.team}-${idx}`} 
-                                          className="absolute flex flex-col items-center group cursor-pointer"
-                                          style={{ 
-                                            left: player.x, 
-                                            top: player.y,
-                                            transform: 'translate(-50%, -50%)',
-                                            zIndex: 20
-                                          }}
-                                        >
-                                          <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-white shadow-lg overflow-hidden transition-transform group-hover:scale-125 bg-gray-900`}>
-                                            <RobloxAvatar username={player.name} className="w-full h-full object-cover" />
-                                          </div>
-                                          <div className="mt-1 text-[8px] md:text-[10px] text-white font-black bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap border border-white/10 uppercase tracking-tighter">
-                                            {player.name.split(' ').pop()}
-                                          </div>
-                                        </div>
-                                      );
-                                    });
-                                  })()}
-                                </div>
-                              ) : (
-                                <div className="text-center bg-black/40 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10">
-                                  <p className="text-white/40 font-black text-xs uppercase tracking-widest">Składy niedostępne</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Away Team Column */}
-                      <div className="w-full lg:w-72 xl:w-80 shrink-0 space-y-6 order-3 lg:order-3">
-                        <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-6 border border-white/10 shadow-2xl">
-                          <div className="flex items-center gap-4 mb-6 lg:flex-row-reverse">
-                            <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center shadow-lg">
-                              <img src={awayTeam.logo} alt="" className="w-8 h-8 object-contain" />
-                            </div>
-                            <div className="lg:text-right">
-                              <h4 className="text-white font-black uppercase text-lg tracking-tight leading-none">{awayTeam.name}</h4>
-                              <p className="text-red-400/60 text-[9px] font-black uppercase tracking-[0.2em] mt-1">{apiData?.match.lineupB?.formation || 'N/A'}</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            {apiData?.match.lineupB ? (
-                              <>
-                                <div>
-                                  <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">WYJŚCIOWA JEDENASTKA</h5>
-                                  <div className="space-y-2">
-                                    {apiData.match.lineupB.starters?.map((p, idx) => (
-                                      <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/40 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-all group flex-row-reverse">
-                                        <div className="w-7 h-7 rounded-full border border-red-600/50 overflow-hidden bg-red-600/10 flex items-center justify-center shrink-0">
-                                          <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <span className="font-bold text-white/70 text-xs uppercase truncate group-hover:text-white transition-colors text-right">{p.name}</span>
-                                        {p.position && <span className="text-[8px] font-black text-white/10 mr-auto uppercase">{p.position}</span>}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {apiData.match.lineupB.bench && apiData.match.lineupB.bench.length > 0 && (
-                                  <div className="pt-4 border-t border-white/5">
-                                    <h5 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-3 lg:text-right mr-1">ŁAWKA REZERWOWYCH</h5>
-                                    <div className="space-y-2">
-                                      {apiData.match.lineupB.bench.map((p, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 bg-[#0a101f]/20 backdrop-blur-md p-2 rounded-xl border border-white/[0.02] hover:bg-white/5 transition-all group flex-row-reverse">
-                                          <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                            <RobloxAvatar username={p.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
-                                          </div>
-                                          <span className="font-medium text-white/40 text-[11px] uppercase truncate group-hover:text-white/70 transition-colors text-right">{p.name}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </>
-                            ) : (
-                              <div className="py-8 text-center bg-white/5 rounded-2xl border border-white/5">
-                                <p className="text-white/20 font-black text-[10px] uppercase tracking-widest">Składy niedostępne</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'statystyki' && (
-                  <div className="max-w-5xl mx-auto mt-16">
-                    <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-10 border border-white/10 shadow-2xl relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent opacity-30"></div>
-                      <h3 className="text-blue-400 text-2xl font-black text-center mb-12 tracking-[0.2em] uppercase relative z-10">STATYSTYKI DRUŻYNOWE</h3>
-                      {apiData?.match.stats ? (
-                        <div className="space-y-8 relative z-10">
-                          <StatBar label="POSIADANIE PIŁKI" valA={apiData.match.stats.possessionA} valB={apiData.match.stats.possessionB} suffix="%" />
-                          <StatBar label="STRZAŁY" valA={apiData.match.stats.shotsA} valB={apiData.match.stats.shotsB} />
-                          <StatBar label="STRZAŁY CELNE" valA={apiData.match.stats.onTargetA || 0} valB={apiData.match.stats.onTargetB || 0} />
-                          <StatBar label="RZUTY ROŻNE" valA={apiData.match.stats.cornersA || 0} valB={apiData.match.stats.cornersB || 0} />
-                          <StatBar label="FAULE" valA={apiData.match.stats.foulsA || 0} valB={apiData.match.stats.foulsB || 0} />
-                          <StatBar label="EXPECTED GOALS (xG)" valA={apiData.match.stats.xgA || 0} valB={apiData.match.stats.xgB || 0} />
-                        </div>
-                      ) : (
-                        <div className="text-center py-12 relative z-10">
-                          <p className="text-white/30 italic">
-                            {isMatchFinished ? 'Statystyki niedostępne' : 'Statystyki zostaną zaktualizowane po rozpoczęciu spotkania'}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+  return (
+    <div className="bg-[#0c162d]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-10 mt-12 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <h3 className="text-white font-black text-xl uppercase tracking-widest mb-10 text-center italic">
+        KTO BYŁ ZAWODNIKIEM MECZU?
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {mvpCandidates.map((p, i) => (
+          <div key={i} className="bg-black/40 border border-white/5 p-6 rounded-[2.5rem] flex flex-col items-center gap-4 group hover:border-blue-500/30 transition-all hover:bg-black/60 cursor-pointer">
+            <div className="relative w-20 h-20 rounded-[2rem] overflow-hidden border border-white/10 group-hover:scale-105 transition-transform">
+              {p.photo_url ? (
+                <Image src={p.photo_url} alt="" fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-white/5">
+                  <Users className="w-8 h-8 text-white/10" />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <span className="text-white font-black text-sm uppercase italic tracking-tight mb-1">{p.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-blue-500 text-[9px] font-black uppercase tracking-widest">{p.goals} GOLE</span>
+                <div className="w-1 h-1 bg-white/20 rounded-full"></div>
+                <div className="text-white/20 text-[9px] font-black uppercase tracking-widest">GŁOSUJ</div>
               </div>
             </div>
           </div>
-      ) : (
-        <div className="min-h-screen bg-transparent text-white">
-          {/* Main Background with Blue Glow */}
-          <div className="fixed inset-0 pointer-events-none z-0">
-            <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-[120px]"></div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const LiveView = ({ activeTab, homeTeam, awayTeam, apiData, eventsData, lineupData, liveData }: any) => {
+  const hasLineups = lineupData?.lineups && lineupData.lineups.length > 0;
+  const isMatchFinished = apiData?.status === 'finished' || apiData?.status === 'Zakończony';
+
+  return (
+    <div className="space-y-8">
+      {activeTab === 'składy' && (
+        hasLineups ? (
+          <FootballPitch lineupData={lineupData} homeTeam={homeTeam} awayTeam={awayTeam} apiData={apiData} liveData={liveData} />
+        ) : (
+          <div className="py-32 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[4rem] bg-white/[0.01] animate-in fade-in zoom-in duration-700">
+            <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center mb-8 relative">
+              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl animate-pulse"></div>
+              <Users className="w-10 h-10 text-blue-500/40 relative z-10" />
+            </div>
+            <h3 className="text-white/40 font-black text-xl md:text-2xl uppercase tracking-[0.4em] italic text-center px-12 leading-relaxed">
+              Brak informacji o składach,<br />wkrótce się pojawi.
+            </h3>
+          </div>
+        )
+      )}
+
+      {activeTab === 'relacja' && (
+        <div className="space-y-12">
+          <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/5 rounded-[40px] p-8 md:p-12 shadow-2xl">
+            <h3 className="text-white font-black text-xl uppercase tracking-widest italic mb-12">PRZEBIEG MECZU</h3>
+            <div className="relative pt-12 pb-4">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-white/10 rounded-full"></div>
+              <div className="flex justify-between relative">
+                {['0\'', '15\'', '23\'', '30\'', '45\'', '60\'', '67\'', '75\'', '90\''].map((t, i) => (
+                  <div key={i} className="relative flex flex-col items-center">
+                    <div className="absolute -top-[14px] w-2 h-2 rounded-full bg-white/20"></div>
+                    <span className="text-white/20 text-[10px] font-black mt-2 tracking-tighter">{t}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="absolute top-0 left-0 right-0 h-0">
+                 {/* Real events on timeline */}
+                 {(liveData?.events || []).map((event: any, i: number) => {
+                   const pos = Math.min((event.minute / 90) * 100, 100);
+                   return (
+                     <div key={i} className="absolute -top-4 flex flex-col items-center gap-2" style={{ left: `${pos}%` }}>
+                       {event.type === 'goal' && (
+                         <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center border-2 border-[#0a0f1d] z-10 shadow-lg animate-bounce">
+                           <div className="w-3 h-3 bg-black rounded-full"></div>
+                         </div>
+                       )}
+                       {event.type === 'yellow_card' && (
+                         <div className="w-4 h-5 rounded-sm bg-yellow-500 border border-black z-10 shadow-lg animate-pulse"></div>
+                       )}
+                       {event.type === 'red_card' && (
+                         <div className="w-4 h-5 rounded-sm bg-red-600 border border-black z-10 shadow-lg animate-pulse"></div>
+                       )}
+                       <span className="text-white font-black text-[10px] tabular-nums">{event.minute}'</span>
+                     </div>
+                   );
+                 })}
+              </div>
+            </div>
           </div>
           
-          <div className="relative z-10 container mx-auto px-4 py-8 md:py-16">
-            <div className="max-w-7xl mx-auto flex flex-col items-center">
-              
-              {/* Date Header Pill */}
-              <div className="mb-8 md:mb-12 relative">
-                <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full"></div>
-                <div className="relative px-8 md:px-12 py-2 md:py-3 bg-[#0a101f]/60 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-3 md:gap-5 shadow-2xl ring-1 ring-white/10">
-                  <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-blue-400 shadow-[0_0_10px_#60a5fa]"></div>
-                  <span className="text-white text-[10px] md:text-sm font-black uppercase tracking-[0.4em]">{formatDate(match?.date || preMatchInfo?.date)}</span>
-                  <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-blue-400 shadow-[0_0_10px_#60a5fa]"></div>
+          {isMatchFinished && <MVPSection liveData={liveData} />}
+        </div>
+      )}
+
+      {activeTab === 'komentarz' && (
+        <MatchRelacja liveData={liveData} />
+      )}
+    </div>
+  );
+};
+
+const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refereeData, allMatches, lineupData, liveData }: any) => {
+  const hasLineups = lineupData?.lineups && lineupData.lineups.length > 0;
+  const homeTeamData = apiTeams?.find((t: any) => normalizeTeamName(t.name) === normalizeTeamName(homeTeam.name) || normalizeTeamName(t.short_name) === normalizeTeamName(homeTeam.name));
+  const awayTeamData = apiTeams?.find((t: any) => normalizeTeamName(t.name) === normalizeTeamName(awayTeam.name) || normalizeTeamName(t.short_name) === normalizeTeamName(awayTeam.name));
+
+  const getStats = (teamData: any) => {
+    if (!teamData) return null;
+    const played = teamData.played_matches || [];
+    const won = played.filter((m: any) => m.result === 'W').length;
+    const drawn = played.filter((m: any) => m.result === 'D' || m.result === 'R').length;
+    const lost = played.filter((m: any) => m.result === 'L').length;
+    const goals_for = played.reduce((acc: number, m: any) => acc + (m.side === 'home' ? (m.home_score || 0) : (m.away_score || 0)), 0);
+    const goals_against = played.reduce((acc: number, m: any) => acc + (m.side === 'home' ? (m.away_score || 0) : (m.home_score || 0)), 0);
+    const points = won * 3 + drawn;
+
+    const players = teamData.players || [];
+    const foreign = players.filter((p: any) => p.nationality && normalizeTeamName(p.nationality) !== 'polska').length;
+    const polish = players.length - foreign;
+    const avg_age = players.length > 0 ? (players.reduce((acc: number, p: any) => {
+        if (!p.birth_date) return acc + 24;
+        const age = new Date().getFullYear() - new Date(p.birth_date).getFullYear();
+        return acc + age;
+    }, 0) / players.length).toFixed(1) : '24.5';
+
+    const shieldPlaceholder = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; 
+    const playerPlaceholder = 'https://i.ibb.co/X3p6rLzP/IMG-4839.png'; // Sylwetka zawodnika
+    const leagueLogo = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+
+    const getTeamLogo = (teamId: any, fallback: string) => {
+        if (!teamId) return fallback;
+        return `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+    };
+
+    const topScorer = players.length > 0 ? players[0] : null;
+
+    return {
+        played: played.length,
+        won,
+        drawn,
+        lost,
+        goals_for,
+        goals_against,
+        points,
+        squad_count: players.length,
+        polish_players: polish,
+        foreign_players: foreign,
+        avg_age,
+        top_scorer_name: topScorer ? `${topScorer.first_name || ''} ${topScorer.last_name || ''}`.trim() : 'N/A',
+        top_scorer_pos: topScorer?.position || 'N/A',
+        top_scorer_photo: topScorer?.photo_url || playerPlaceholder,
+        top_scorer_goals: topScorer?.goals_count || topScorer?.goals || 0,
+        recent_matches: played.slice(0, 5).map((m: any) => {
+            const opponentName = m.opponent_name || m.opponent?.name || '';
+            const team = apiTeams?.find?.((t: any) => normalizeTeamName(t.name) === normalizeTeamName(opponentName));
+            
+            return {
+                date: m.date || '?',
+                opponent: opponentName || '?',
+                opponent_logo: getTeamLogo(team?.id, m.opponent_logo_url || m.opponent?.logo_url || shieldPlaceholder),
+                league_logo: m.match_type === 'county_cup' ? 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png' : leagueLogo,
+                score: `${m.home_score || 0}:${m.away_score || 0}`,
+                result: m.result || '?'
+            };
+        })
+    };
+  };
+
+  const hStats = getStats(homeTeamData);
+  const aStats = getStats(awayTeamData);
+
+  const h2hMatches = useMemo(() => {
+    const leagueLogo = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+    const shieldPlaceholder = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+
+    const getTeamLogo = (teamId: any, fallback: string) => {
+        if (!teamId) return fallback;
+        return `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+    };
+
+    return allMatches?.filter((m: any) => {
+      const mHomeName = m.home_team_name || m.home_team?.name || '';
+      const mAwayName = m.away_team_name || m.away_team?.name || '';
+      const currentHomeName = homeTeam.name || '';
+      const currentAwayName = awayTeam.name || '';
+
+      return ((normalizeTeamName(mHomeName) === normalizeTeamName(currentHomeName) && normalizeTeamName(mAwayName) === normalizeTeamName(currentAwayName)) ||
+              (normalizeTeamName(mHomeName) === normalizeTeamName(currentAwayName) && normalizeTeamName(mAwayName) === normalizeTeamName(currentHomeName))) &&
+              String(m.id) !== String(apiData?.id);
+    }).map((m: any) => {
+      return {
+        ...m,
+        home_team_name: m.home_team_name || m.home_team?.name || 'TBD',
+        away_team_name: m.away_team_name || m.away_team?.name || 'TBD',
+        home_team_logo: getTeamLogo(m.home_team?.id, m.home_team_logo || shieldPlaceholder),
+        away_team_logo: getTeamLogo(m.away_team?.id, m.away_team_logo || shieldPlaceholder),
+        league_logo: m.match_type === 'county_cup' ? 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png' : leagueLogo,
+        home_score: m.home_score ?? m.score?.home ?? 0,
+        away_score: m.away_score ?? m.score?.away ?? 0,
+        date_formatted: m.date_formatted || (m.scheduled_at ? new Date(m.scheduled_at).toLocaleDateString("pl-PL") : '')
+      };
+    }) || [];
+  }, [allMatches, homeTeam.name, awayTeam.name, apiData?.id]);
+
+  const pastH2H = useMemo(() => h2hMatches.filter((m: any) => m.status === 'finished' || m.status === 'Zakończony'), [h2hMatches]);
+  const futureH2H = useMemo(() => h2hMatches.filter((m: any) => m.status === 'scheduled' || m.status === 'Zaplanowany' || !m.status), [h2hMatches]);
+
+  return (
+    <div className="space-y-12 pb-24">
+      {activeTab === 'składy' && (
+        hasLineups ? (
+          <FootballPitch lineupData={lineupData} homeTeam={homeTeam} awayTeam={awayTeam} apiData={apiData} liveData={liveData} />
+        ) : (
+          <div className="py-32 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[4rem] bg-white/[0.01] animate-in fade-in zoom-in duration-700">
+            <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center mb-8 relative">
+              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl animate-pulse"></div>
+              <Users className="w-10 h-10 text-blue-500/40 relative z-10" />
+            </div>
+            <h3 className="text-white/40 font-black text-xl md:text-2xl uppercase tracking-[0.4em] italic text-center px-12 leading-relaxed">
+              Brak informacji o składach,<br />wkrótce się pojawi.
+            </h3>
+          </div>
+        )
+      )}
+
+      {activeTab === 'zapowiedź' && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Lewa kolumna: Gospodarze */}
+            <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
+              <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-10 shadow-2xl ring-1 ring-white/5">
+                <div className="flex items-center justify-between mb-10">
+                  <h3 className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em]">OSTATNIE MECZE</h3>
+                  <div className="w-8 h-px bg-blue-500/30"></div>
+                </div>
+                <h4 className="text-white font-black text-2xl uppercase tracking-tighter mb-8 italic">{homeTeam.name}</h4>
+                <div className="space-y-5">
+                  {hStats?.recent_matches?.map((m: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between group p-3 rounded-2xl hover:bg-white/[0.02] transition-all relative overflow-hidden">
+                      <div className="flex items-center gap-4 relative z-10">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shadow-xl shrink-0 ${
+                          m.result === 'W' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : (m.result === 'L' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30')
+                        }`}>{m.result}</div>
+                        <span className="text-white font-black text-sm tabular-nums tracking-tighter italic">{m.score}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
+                        <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
+                        <div className="relative w-20 h-20 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
+                          <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                        </div>
+                        <div className="relative w-10 h-10 shrink-0 opacity-80">
+                          <Image src={m.league_logo} alt="" fill className="object-contain" />
+                        </div>
+                      </div>
+
+                      <div className="text-right relative z-10">
+                        <span className="text-white/20 text-[8px] font-black tracking-widest whitespace-nowrap">{m.date}</span>
+                      </div>
+                    </div>
+                  )) || <div className="text-white/10 text-xs font-black uppercase text-center py-4 italic">Brak danych historycznych</div>}
                 </div>
               </div>
 
-              {/* Match Card */}
-              <div className="w-full bg-[#0a101f]/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] md:rounded-[4rem] p-6 md:p-12 relative shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent rounded-[2rem] md:rounded-[4rem]"></div>
-                <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 relative z-10">
-                  {/* Home Team */}
-                  <div className="flex items-center gap-4 md:gap-6 lg:gap-10 flex-1 justify-center md:justify-end group w-full">
-                    <div className="flex flex-col items-center md:items-end order-2 md:order-1">
-                      <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase tracking-tighter leading-[0.8] md:leading-[0.85] text-center md:text-right transition-transform group-hover:scale-105">
-                        {homeTeam.name.split(' ').map((word: string, i: number) => (
-                          <div key={i} className="whitespace-nowrap">{word}</div>
-                        ))}
-                      </h2>
-                      <span className="text-blue-400/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-3 md:mt-4">GOSPODARZ</span>
-                    </div>
+              <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-10 shadow-2xl ring-1 ring-white/5 group hover:bg-[#0c162d]/80 transition-all">
+                <h3 className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em] mb-10">LIDER STRZELCÓW</h3>
+                <div className="flex items-center gap-8">
+                   <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-blue-600/20 to-transparent overflow-hidden relative border border-white/10 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                      <Image src={hStats?.top_scorer_photo || playerPlaceholder} alt="" fill className="object-cover scale-110" />
+                   </div>
+                   <div className="flex-1">
+                      <div className="text-white font-black text-xl uppercase italic tracking-tighter leading-none mb-2">{hStats?.top_scorer_name || 'BRAK DANYCH'}</div>
+                      <div className="text-blue-500 text-[10px] font-black uppercase tracking-[0.2em]">{hStats?.top_scorer_pos || 'NAPASTNIK'}</div>
+                   </div>
+                   <div className="text-right">
+                      <div className="text-4xl font-black text-white italic tracking-tighter drop-shadow-lg leading-none">{hStats?.top_scorer_name === 'N/A' ? 'N/A' : (hStats?.top_scorer_goals || 0)}</div>
+                      <div className="text-white/20 text-[8px] font-black uppercase tracking-widest mt-1">GOLE</div>
+                   </div>
+                </div>
+              </div>
+            </div>
 
-                    <div className="shrink-0 relative order-1 md:order-2">
-                      <div className="absolute -inset-6 md:-inset-10 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      {homeTeam.logo && (
-                        <Image
-                          src={homeTeam.logo}
-                          alt={homeTeam.name}
-                          width={180}
-                          height={180}
-                          className="w-20 h-20 md:w-32 lg:w-40 md:h-32 lg:h-40 object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.15)] relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6"
-                        />
-                      )}
-                    </div>
+            {/* Środkowa kolumna: Porównanie */}
+            <div className="bg-[#0c162d]/40 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-12 shadow-2xl ring-1 ring-white/5 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.03] to-transparent"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-16">
+                  {homeTeam.logo && <div className="relative w-16 h-16 transition-transform hover:scale-110"><Image src={homeTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" /></div>}
+                  <div className="flex flex-col items-center">
+                    <span className="text-white/20 text-[9px] font-black uppercase tracking-[0.5em] mb-2">PORÓWNANIE</span>
+                    <h3 className="text-blue-500 font-black text-xs uppercase tracking-[0.3em] text-center italic">SEZON 2026/27</h3>
                   </div>
+                  {awayTeam.logo && <div className="relative w-16 h-16 transition-transform hover:scale-110"><Image src={awayTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" /></div>}
+                </div>
+                <div className="space-y-10">
+                  <CompareStat label="MECZE" val1={hStats?.played || 0} val2={aStats?.played || 0} />
+                  <CompareStat label="ZWYCIĘSTWA" val1={hStats?.won || 0} val2={aStats?.won || 0} color1="bg-blue-600" color2="bg-blue-400" />
+                  <CompareStat label="REMISY" val1={hStats?.drawn || 0} val2={aStats?.drawn || 0} color1="bg-gray-600" color2="bg-gray-400" />
+                  <CompareStat label="PORAŻKI" val1={hStats?.lost || 0} val2={aStats?.lost || 0} color1="bg-red-600" color2="bg-red-400" />
+                  <CompareStat label="BRAMKI STRZELONE" val1={hStats?.goals_for || 0} val2={aStats?.goals_for || 0} color1="bg-blue-500" color2="bg-cyan-400" />
+                  <CompareStat label="BRAMKI STRACONE" val1={hStats?.goals_against || 0} val2={aStats?.goals_against || 0} color1="bg-indigo-600" color2="bg-purple-500" />
+                  <CompareStat label="PUNKTY" val1={hStats?.points || 0} val2={aStats?.points || 0} color1="bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]" color2="bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.4)]" />
+                </div>
+              </div>
+            </div>
 
-                  <div className="w-px h-32 md:h-40 bg-white/10 hidden md:block opacity-20 mx-2 lg:mx-4"></div>
-
-                  {/* Center Box */}
-                  <div className="flex flex-col items-center gap-6 px-2 md:px-4 order-first md:order-none w-full md:w-auto self-center">
-                    <div className="bg-[#0a101f]/80 backdrop-blur-2xl px-8 md:px-10 py-8 md:py-12 rounded-[2.5rem] md:rounded-[3.5rem] border border-white/10 flex flex-col items-center justify-center min-w-[240px] md:min-w-[280px] shadow-2xl relative group/box ring-1 ring-white/5">
-                      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent opacity-0 group-hover/box:opacity-100 transition-opacity rounded-[2.5rem] md:rounded-[3.5rem]"></div>
-                      
-                      <div className="flex flex-col items-center relative z-10 text-center">
-                        <div className="text-white font-[1000] text-6xl md:text-7xl lg:text-8xl tracking-tighter mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] leading-none">
-                          {match?.time || preMatchInfo?.time || formatTime(match?.date || preMatchInfo?.date)}
-                        </div>
-                        {match?.stadium && (
-                          <span className="text-[#00ccff] text-[10px] md:text-xs font-black uppercase tracking-[0.2em] block mb-2 px-4 max-w-[200px] md:max-w-xs mx-auto">
-                            {match.stadium}
-                          </span>
-                        )}
-                        {match?.category && (
-                          <span className="text-white/20 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] block">
-                            {match.category}
-                          </span>
-                        )}
+            {/* Prawa kolumna: Goście */}
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
+              <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-10 shadow-2xl ring-1 ring-white/5">
+                <div className="flex items-center justify-between mb-10">
+                  <h3 className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em]">OSTATNIE MECZE</h3>
+                  <div className="w-8 h-px bg-blue-500/30"></div>
+                </div>
+                <h4 className="text-white font-black text-2xl uppercase tracking-tighter mb-8 italic">{awayTeam.name}</h4>
+                <div className="space-y-5">
+                  {aStats?.recent_matches?.map((m: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between group p-3 rounded-2xl hover:bg-white/[0.02] transition-all relative overflow-hidden">
+                      <div className="flex items-center gap-4 relative z-10">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shadow-xl shrink-0 ${
+                          m.result === 'W' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : (m.result === 'L' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30')
+                        }`}>{m.result}</div>
+                        <span className="text-white font-black text-sm tabular-nums tracking-tighter italic">{m.score}</span>
                       </div>
                       
-                      {!id.startsWith('f') && !id.startsWith('c') && (
-                        <>
-                          <div className="w-12 h-px bg-white/20 my-4 md:my-6 relative z-10"></div>
+                      <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
+                        <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
+                        <div className="relative w-20 h-20 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
+                          <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                        </div>
+                        <div className="relative w-10 h-10 shrink-0 opacity-80">
+                          <Image src={m.league_logo} alt="" fill className="object-contain" />
+                        </div>
+                      </div>
 
-                          <div className="flex items-center gap-6 md:gap-8 relative z-10">
-                            <div className="flex flex-col items-center">
-                              <span className="text-white/40 text-[9px] md:text-[10px] font-black uppercase mb-1 md:mb-2">Poz.</span>
-                              <span className="text-blue-400 font-black text-lg md:text-2xl tracking-tight drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">#{homePosition}</span>
-                            </div>
-                            <div className="w-px h-8 md:h-10 bg-white/20"></div>
-                            <div className="flex flex-col items-center">
-                              <span className="text-white/40 text-[9px] md:text-[10px] font-black uppercase mb-1 md:mb-2">Poz.</span>
-                              <span className="text-blue-400 font-black text-lg md:text-2xl tracking-tight drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">#{awayPosition}</span>
-                            </div>
-                          </div>
-                        </>
-                      )}
+                      <div className="text-right relative z-10">
+                        <span className="text-white/20 text-[8px] font-black tracking-widest whitespace-nowrap">{m.date}</span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="w-px h-32 md:h-40 bg-white/10 hidden md:block opacity-20 mx-2 lg:mx-4"></div>
-
-                  {/* Away Team */}
-                  <div className="flex items-center gap-4 md:gap-6 lg:gap-10 flex-1 justify-center md:justify-start group w-full">
-                    <div className="shrink-0 relative">
-                      <div className="absolute -inset-6 md:-inset-10 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      {awayTeam.logo && (
-                        <Image
-                          src={awayTeam.logo}
-                          alt={awayTeam.name}
-                          width={180}
-                          height={180}
-                          className="w-20 h-20 md:w-32 lg:w-40 md:h-32 lg:h-40 object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.15)] relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
-                        />
-                      )}
-                    </div>
-
-                    <div className="flex flex-col items-center md:items-start">
-                      <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase tracking-tighter leading-[0.8] md:leading-[0.85] text-center md:text-left transition-transform group-hover:scale-105">
-                        {awayTeam.name.split(' ').map((word: string, i: number) => (
-                          <div key={i} className="whitespace-nowrap">{word}</div>
-                        ))}
-                      </h2>
-                      <span className="text-blue-400/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-3 md:mt-4">GOŚĆ</span>
-                    </div>
-                  </div>
+                  )) || <div className="text-white/10 text-xs font-black uppercase text-center py-4 italic">Brak danych historycznych</div>}
                 </div>
+              </div>
 
-                {/* Bottom Navigation */}
-                <div className="flex items-center justify-between mt-12 md:mt-16 pt-8 md:pt-10 border-t border-white/10 relative z-10 w-full px-2 md:px-12">
-                  <div className="flex items-center gap-4 group cursor-pointer opacity-20 hover:opacity-100 transition-all duration-500">
-                    <div className="relative">
-                      <div className="absolute -inset-2 bg-blue-500/10 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      {homeTeam.logo && (
-                        <Image src={homeTeam.logo} alt="" width={40} height={40} className="relative z-10 grayscale brightness-200 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-500" />
-                      )}
+              <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-10 shadow-2xl ring-1 ring-white/5 group hover:bg-[#0c162d]/80 transition-all">
+                <h3 className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em] mb-10 text-right">LIDER STRZELCÓW</h3>
+                <div className="flex items-center gap-8 flex-row-reverse">
+                   <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-blue-600/20 to-transparent overflow-hidden relative border border-white/10 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                      <Image src={aStats?.top_scorer_photo || playerPlaceholder} alt="" fill className="object-cover scale-110" />
+                   </div>
+                   <div className="flex-1 text-right">
+                      <div className="text-white font-black text-xl uppercase italic tracking-tighter leading-none mb-2">{aStats?.top_scorer_name || 'BRAK DANYCH'}</div>
+                      <div className="text-blue-500 text-[10px] font-black uppercase tracking-[0.2em]">{aStats?.top_scorer_pos || 'NAPASTNIK'}</div>
+                   </div>
+                   <div className="text-left">
+                      <div className="text-4xl font-black text-white italic tracking-tighter drop-shadow-lg leading-none">{aStats?.top_scorer_name === 'N/A' ? 'N/A' : (aStats?.top_scorer_goals || 0)}</div>
+                      <div className="text-white/20 text-[8px] font-black uppercase tracking-widest mt-1">GOLE</div>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-10 mt-12 shadow-2xl ring-1 ring-white/5 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <h3 className="text-white/20 text-[10px] font-black uppercase tracking-[0.8em] mb-12 text-center ml-[0.8em]">INFORMACJE O MECZU</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-2xl mx-auto">
+              <FooterInfoItem icon={Flag} label="SĘDZIA GŁÓWNY" value={refereeData?.referee?.name || apiData?.referee_name || "NIEOKREŚLONY"} />
+              <FooterInfoItem icon={Sun} label="POGODA" value={`Działdowo: 22°C\nSłonecznie`} />
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'h2h' && (
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Historia Gospodarzy */}
+            <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <h3 className="text-white font-black text-xl uppercase tracking-widest mb-10 flex items-center gap-6 italic relative z-10">
+                <div className="w-1.5 h-8 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+                HISTORIA MECZÓW: {homeTeam.name}
+              </h3>
+              <div className="space-y-5 relative z-10">
+                {hStats?.recent_matches?.map((m: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between group p-3 rounded-2xl hover:bg-white/[0.02] transition-all relative overflow-hidden">
+                    <div className="flex items-center gap-4 relative z-10">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shadow-xl shrink-0 ${
+                        m.result === 'W' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : (m.result === 'L' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30')
+                      }`}>{m.result}</div>
+                      <span className="text-white font-black text-sm tabular-nums tracking-tighter italic">{m.score}</span>
                     </div>
-                    <div className="hidden lg:flex flex-col">
-                      <span className="text-white text-[10px] font-black uppercase tracking-widest">{homeTeam.shortName || homeTeam.name}</span>
-                      <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">GOSPODARZ</span>
+                    
+                    <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
+                      <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
+                      <div className="relative w-10 h-10 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
+                        <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                      </div>
+                      <div className="relative w-6 h-6 shrink-0 opacity-80">
+                        <Image src={m.league_logo} alt="" fill className="object-contain" />
+                      </div>
+                    </div>
+
+                    <div className="text-right relative z-10">
+                      <span className="text-white/20 text-[8px] font-black tracking-widest whitespace-nowrap">{m.date}</span>
                     </div>
                   </div>
+                )) || <div className="text-white/10 text-xs font-black uppercase text-center py-8 italic">Brak danych</div>}
+              </div>
+            </div>
 
-                  <div className="flex items-center gap-6 md:gap-12">
-                    <button 
-                      onClick={() => setActiveTab('relacja')}
-                      className={`text-[11px] font-black uppercase tracking-[0.4em] transition-colors ${
-                        activeTab === 'relacja' ? 'text-blue-400' : 'text-white/30 hover:text-blue-400'
-                      }`}
-                    >
-                      Centrum
-                    </button>
-                    <div className="relative group/pff cursor-pointer">
-                      <div className="absolute -inset-4 bg-blue-500/10 blur-xl opacity-0 group-hover/pff:opacity-100 transition-opacity"></div>
+            {/* Historia Gości */}
+            <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <h3 className="text-white font-black text-xl uppercase tracking-widest mb-10 flex items-center gap-6 italic relative z-10">
+                <div className="w-1.5 h-8 bg-blue-400 rounded-full shadow-[0_0_15px_rgba(96,165,250,0.5)]"></div>
+                HISTORIA MECZÓW: {awayTeam.name}
+              </h3>
+              <div className="space-y-5 relative z-10">
+                {aStats?.recent_matches?.map((m: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between group p-3 rounded-2xl hover:bg-white/[0.02] transition-all relative overflow-hidden">
+                    <div className="flex items-center gap-4 relative z-10">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shadow-xl shrink-0 ${
+                        m.result === 'W' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : (m.result === 'L' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30')
+                      }`}>{m.result}</div>
+                      <span className="text-white font-black text-sm tabular-nums tracking-tighter italic">{m.score}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
+                      <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
+                      <div className="relative w-10 h-10 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
+                        <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                      </div>
+                      <div className="relative w-6 h-6 shrink-0 opacity-80">
+                        <Image src={m.league_logo} alt="" fill className="object-contain" />
+                      </div>
+                    </div>
+
+                    <div className="text-right relative z-10">
+                      <span className="text-white/20 text-[8px] font-black tracking-widest whitespace-nowrap">{m.date}</span>
+                    </div>
+                  </div>
+                )) || <div className="text-white/10 text-xs font-black uppercase text-center py-8 italic">Brak danych</div>}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.02] to-transparent"></div>
+            <h3 className="text-white font-black text-2xl uppercase tracking-widest mb-12 flex items-center gap-6 italic relative z-10">
+              <div className="w-2 h-10 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.4)]"></div>
+              BEZPOŚREDNIE STARRCIA (H2H)
+            </h3>
+            <div className="space-y-6 relative z-10">
+              {[...pastH2H, ...futureH2H].length > 0 ? [...pastH2H, ...futureH2H].map((m: any, i: number) => (
+                <div key={i} className="bg-[#0a1121]/60 border border-white/10 p-6 rounded-[2.5rem] flex items-center justify-between group hover:bg-[#0a1121]/80 transition-all relative overflow-hidden shadow-xl ring-1 ring-white/5">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="flex items-center gap-6 relative z-10 w-1/5">
+                    <div className="relative w-12 h-12 shrink-0 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                       <Image 
-                        src="https://i.ibb.co/xbrWSnb/Przezroczyste-PFF.png" 
-                        alt="PFF" 
-                        width={100} 
-                        height={40} 
-                        className="relative z-10 grayscale brightness-200 opacity-30 group-hover/pff:opacity-100 group-hover/pff:grayscale-0 group-hover/pff:brightness-100 transition-all duration-700 h-8 md:h-10 w-auto" 
+                        src={m.league_logo} 
+                        alt="" 
+                        fill 
+                        className="object-contain" 
                       />
                     </div>
-                    <button 
-                      onClick={() => setActiveTab('składy')}
-                      className={`text-[11px] font-black uppercase tracking-[0.4em] transition-colors ${
-                        activeTab === 'składy' ? 'text-blue-400' : 'text-white/30 hover:text-blue-400'
-                      }`}
-                    >
-                      Składy
-                    </button>
+                    <span className="text-blue-500 font-black text-[11px] uppercase italic tracking-widest whitespace-nowrap">KOLEJKA {m.round}</span>
                   </div>
 
-                  <div className="flex items-center gap-4 group cursor-pointer opacity-20 hover:opacity-100 transition-all duration-500">
-                    <div className="hidden lg:flex flex-col items-end text-right">
-                      <span className="text-white text-[10px] font-black uppercase tracking-widest">{awayTeam.shortName || awayTeam.name}</span>
-                      <span className="text-white/40 text-[8px] font-bold uppercase tracking-widest">GOŚĆ</span>
+                  <div className="flex items-center justify-center gap-10 flex-1 relative z-10 px-8">
+                    <div className="flex items-center gap-6 justify-end w-[42%] text-right group-hover:-translate-x-2 transition-transform duration-500">
+                       <span className="text-white font-black text-sm uppercase tracking-tighter truncate drop-shadow-lg">{m.home_team_name}</span>
+                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><Image src={m.home_team_logo} alt="" fill className="object-contain" /></div>
                     </div>
-                    <div className="relative">
-                      <div className="absolute -inset-2 bg-blue-500/10 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      {awayTeam.logo && (
-                        <Image src={awayTeam.logo} alt="" width={40} height={40} className="relative z-10 grayscale brightness-200 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-500" />
+                    
+                    <div className="flex flex-col items-center px-4 min-w-[100px]">
+                      <span className="text-blue-500/40 text-[8px] font-black tracking-[0.4em] mb-1 uppercase italic">VERSUS</span>
+                      {(m.status === 'finished' || m.status === 'Zakończony') ? (
+                        <span className="text-white font-black text-4xl tabular-nums italic drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">{m.home_score || 0}:{m.away_score || 0}</span>
+                      ) : (
+                        <div className="text-blue-500 font-black text-2xl italic tracking-tighter drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">VS</div>
                       )}
                     </div>
-                  </div>
-                </div>
 
-                {/* Tab Content for non-active matches */}
-                {activeTab === 'składy' && (
-                  <div className="w-full mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                      {/* Reuse the existing lineups logic but adapted for this layout if needed, 
-                          or just show a message if no data */}
-                      <div className="bg-[#0a101f]/60 backdrop-blur-xl rounded-[30px] p-8 border border-white/10 w-full max-w-4xl mx-auto text-center">
-                        <p className="text-white/30 italic">Składy zostaną ogłoszone przed rozpoczęciem meczu</p>
-                      </div>
+                    <div className="flex items-center gap-6 justify-start w-[42%] group-hover:translate-x-2 transition-transform duration-500">
+                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><Image src={m.away_team_logo} alt="" fill className="object-contain" /></div>
+                       <span className="text-white font-black text-sm uppercase tracking-tighter truncate drop-shadow-lg">{m.away_team_name}</span>
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Discord Redirect Section */}
-              <div className="mt-8 w-full max-w-6xl mx-auto">
-                <Link 
-                  href="https://discord.gg/R7y6ZnczP4" 
-                  target="_blank" 
-                  className="group relative flex items-center justify-center gap-4 bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/20 rounded-3xl p-6 transition-all duration-300 backdrop-blur-xl overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#5865F2]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="w-12 h-12 bg-[#5865F2] rounded-2xl flex items-center justify-center shadow-lg shadow-[#5865F2]/20 group-hover:scale-110 transition-transform duration-300">
-                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.069.069 0 0 0-.032.027C.533 9.048-.32 13.572.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.125-.094.249-.192.37-.291a.072.072 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.072.072 0 0 1 .078.01c.12.098.246.196.373.291a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.419-2.157 2.419z"/>
-                    </svg>
+                  <div className="text-right w-1/5 relative z-10">
+                    <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] italic">{m.date_formatted}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[#5865F2] text-[10px] font-black uppercase tracking-[0.3em] mb-1">Live Stream</span>
-                    <span className="text-white text-2xl font-black uppercase tracking-tight italic">OGLĄDAJ NA DISCORD</span>
-                  </div>
-                  <div className="ml-auto flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl group-hover:bg-white/10 transition-colors">
-                    <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Kliknij aby dołączyć</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                  </div>
-                </Link>
-              </div>
+                </div>
+              )) : <div className="text-white/20 italic uppercase text-xs font-black tracking-widest text-center py-12 bg-white/[0.02] rounded-[2rem] border border-white/5">Brak wspólnej historii meczów</div>}
             </div>
           </div>
         </div>
       )}
-
-      <Footer />
-    </>
+                  
+    </div>
   );
-}
+};
 
-function StatBar({ label, valA, valB, suffix = '' }: { label: string, valA: number, valB: number, suffix?: string }) {
-  const total = valA + valB || 1;
-  const percA = (valA / total) * 100;
+export default function MatchPage() {
+  const params = useParams();
+  const id = params.id as string;
+  const matchLocal = findMatchById(id);
+  
+  const [apiData, setApiData] = useState<MatchApiData | null>(null);
+  const [apiTeams, setApiTeams] = useState<any[]>([]);
+  const [allMatches, setAllMatches] = useState<any[]>([]);
+  const [refereeData, setRefereeData] = useState<any>(null);
+  const [lineupData, setLineupData] = useState<any>(null);
+  const [liveData, setLiveData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'zapowiedź' | 'składy' | 'relacja' | 'h2h' | 'komentarz'>('zapowiedź');
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [liveTimer, setLiveTimer] = useState({ minutes: 0, seconds: 0 });
+  
+  const isMatchActive = apiData?.status === 'active' || apiData?.status === 'live' || apiData?.status === 'W trakcie' || apiData?.isActive === true;
+  const isMatchFinished = apiData?.status === 'finished' || apiData?.status === 'Zakończony';
+  const isPreMatch = !isMatchActive && !isMatchFinished && (apiData?.status === 'scheduled' || apiData?.status === 'Zaplanowany' || !apiData?.status);
+
+  // Live Timer Effect
+  useEffect(() => {
+    if (!isMatchActive) return;
+    
+    // Sync with API minute if it changes
+    const startMin = parseInt(apiData?.minute || '0');
+    setLiveTimer(prev => {
+      // Avoid resetting seconds if the minute is still the same (polling sync)
+      if (prev.minutes === startMin && (prev.minutes !== 0 || prev.seconds !== 0)) return prev;
+      return { minutes: startMin, seconds: 0 };
+    });
+
+    const interval = setInterval(() => {
+      setLiveTimer(prev => {
+        if (prev.seconds >= 59) {
+          return { minutes: prev.minutes + 1, seconds: 0 };
+        }
+        return { ...prev, seconds: prev.seconds + 1 };
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isMatchActive, apiData?.minute]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [scheduleRes, lineupsRes, teamsRes, liveRes] = await Promise.all([
+          fetch(`${REPLIT_API_BASE_URL}/api/public/schedule?season_id=1`).catch(() => null),
+          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/lineups/all.json`).catch(() => null),
+          fetch(`${REPLIT_API_BASE_URL}/api/teams?season_id=1`).catch(() => null),
+          fetch(`${REPLIT_API_BASE_URL}/api/public/matches/${id}/live.json`).catch(() => null)
+        ]);
+
+        if (liveRes?.ok) {
+          const lData = await liveRes.json();
+          setLiveData(lData);
+        }
+
+        let tData = [];
+        if (teamsRes?.ok) {
+          tData = await teamsRes.json();
+          setApiTeams(tData);
+        }
+
+        let scheduleMatches = [];
+        if (scheduleRes?.ok) {
+          const sData = await scheduleRes.json();
+          scheduleMatches = sData.matches || [];
+          setAllMatches(scheduleMatches);
+        }
+
+        if (lineupsRes?.ok) {
+          const allLineupsData = await lineupsRes.json();
+          // The API returns an array directly, not an object with matches property
+          const matchEntry = Array.isArray(allLineupsData) 
+            ? allLineupsData.find((m: any) => String(m.match_id) === String(id))
+            : (allLineupsData.matches?.find((m: any) => String(m.match_id) === String(id)));
+          
+          if (matchEntry) {
+            setLineupData(matchEntry);
+          }
+        }
+
+        const matchSchedule = scheduleMatches.find((m: any) => String(m.id) === String(id));
+        
+        if (matchSchedule) {
+          const hId = matchSchedule.home_team?.id;
+          const aId = matchSchedule.away_team?.id;
+          
+          const hLogo = matchSchedule.home_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(hId))?.logo_url;
+          const aLogo = matchSchedule.away_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(aId))?.logo_url;
+
+          const finalApiData = {
+            ...matchSchedule,
+            home_team_name: matchSchedule.home_team?.name || 'TBD',
+            away_team_name: matchSchedule.away_team?.name || 'TBD',
+            home_team_logo: hLogo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+            away_team_logo: aLogo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+            home_score: matchSchedule.score?.home ?? 0,
+            away_score: matchSchedule.score?.away ?? 0,
+            date_formatted: matchSchedule.scheduled?.date,
+            time_formatted: matchSchedule.scheduled?.time,
+            venue_name: matchSchedule.venue?.name,
+            scheduled_at: matchSchedule.scheduled?.datetime_local
+          };
+          setApiData(finalApiData);
+        } else if (matchLocal) {
+          setApiData({
+            ...matchLocal,
+            home_team_name: matchLocal.homeTeam?.name,
+            away_team_name: matchLocal.awayTeam?.name,
+            home_team_logo: matchLocal.homeTeam?.logo,
+            away_team_logo: matchLocal.awayTeam?.logo,
+          } as any);
+        }
+      } catch (err) {
+        console.error('Error loading match data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+    const interval = setInterval(fetchAllData, 10000); // Poll every 10s
+    return () => clearInterval(interval);
+  }, [id, matchLocal]);
+
+  useEffect(() => {
+    if (isPreMatch) setActiveTab('zapowiedź');
+    else setActiveTab('składy');
+  }, [isPreMatch]);
+
+  useEffect(() => {
+    if (!isPreMatch || !apiData?.scheduled_at) return;
+    const timer = setInterval(() => {
+      const targetDate = new Date(apiData.scheduled_at).getTime();
+      const distance = targetDate - Date.now();
+      if (distance < 0) {
+        clearInterval(timer);
+        return;
+      }
+      setCountdown({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isPreMatch, apiData?.scheduled_at]);
+
+  const homeTeam = useMemo(() => {
+    return { 
+      name: apiData?.home_team_name || apiData?.home_team?.name || 'TBD', 
+      logo: apiData?.home_team_logo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+      id: apiData?.home_team?.id 
+    };
+  }, [apiData]);
+
+  const awayTeam = useMemo(() => {
+    return { 
+      name: apiData?.away_team_name || apiData?.away_team?.name || 'TBD', 
+      logo: apiData?.away_team_logo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+      id: apiData?.away_team?.id
+    };
+  }, [apiData]);
+
+  if (loading && !apiData) {
+    return (
+      <div className="flex flex-col min-h-screen bg-black relative overflow-hidden">
+        <MainNavbar />
+        <div className="fixed inset-0 z-0">
+          <Image src="https://i.ibb.co/YCB7X52/obraz-2026-06-13-150303737.png" alt="Stadium Background" fill className="object-cover brightness-[0.7]" priority />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/30 rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-red-600/20 rounded-full blur-[120px]" />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 relative z-10">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-white/40 font-black uppercase tracking-[0.3em] text-xs">Ładowanie danych...</span>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-end px-2">
-        <div className="flex flex-col items-start">
-          <span className="text-2xl font-black text-white tracking-tighter tabular-nums">{valA}{suffix}</span>
+    <>
+      <MainNavbar />
+      <main className="min-h-screen pt-44 pb-20 px-4 md:px-8 relative overflow-hidden bg-black selection:bg-blue-500/30">
+        <div className="fixed inset-0 z-0">
+          <Image src="https://i.ibb.co/YCB7X52/obraz-2026-06-13-150303737.png" alt="Stadium Background" fill className="object-cover brightness-[0.7]" priority />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/30 rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-red-600/20 rounded-full blur-[120px]" />
         </div>
-        <span className="text-blue-400/60 font-black text-[10px] md:text-xs tracking-[0.3em] uppercase mb-1">{label}</span>
-        <div className="flex flex-col items-end">
-          <span className="text-2xl font-black text-white tracking-tighter tabular-nums">{valB}{suffix}</span>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <Link href="/terminarz" className="inline-flex items-center gap-2 text-blue-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest mb-12 group">
+             <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+             WRÓĆ DO TERMINARZA
+          </Link>
+
+          <div className="bg-[#0a1121]/90 backdrop-blur-3xl border border-white/5 rounded-[48px] p-8 md:p-16 mb-12 relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.05] to-transparent opacity-50"></div>
+            <div className="relative z-10">
+              <div className="text-center text-blue-500/60 text-[10px] font-black uppercase tracking-[0.6em] mb-12 italic flex items-center justify-center gap-4">
+                <span className="w-12 h-px bg-blue-500/20"></span>
+                1 LIGA DZIAŁDOWSKA • KOLEJKA {apiData?.round || '?'}
+                <span className="w-12 h-px bg-blue-500/20"></span>
+              </div>
+              
+              <div className="flex items-center justify-center max-w-6xl mx-auto gap-8 md:gap-24">
+                <div className="flex flex-col items-center group">
+                  <div className="relative w-16 h-16 md:w-24 md:h-24 shrink-0 transition-all duration-700 group-hover:scale-110 group-hover:rotate-3">
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    {homeTeam.logo && <Image src={homeTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] relative z-10" />}
+                  </div>
+                  <h2 className="mt-6 text-white text-[10px] md:text-sm font-black uppercase tracking-[0.2em] italic group-hover:text-blue-500 transition-colors text-center max-w-[120px]">{homeTeam.name}</h2>
+                </div>
+
+                <div className="shrink-0 flex flex-col items-center">
+                  {isPreMatch ? (
+                    <div className="text-4xl md:text-[4rem] font-black text-blue-500 tracking-tighter italic opacity-90 select-none drop-shadow-[0_0_40px_rgba(59,130,246,0.4)] animate-pulse-slow">VS</div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-6">
+                      <div className="bg-[#0c162d]/80 border border-white/10 px-8 py-4 md:px-10 md:py-6 rounded-[3rem] flex flex-col items-center shadow-2xl backdrop-blur-2xl ring-1 ring-white/5 relative">
+                        <div className="text-4xl md:text-[4.5rem] font-black text-white tracking-tighter tabular-nums leading-none italic drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                          {liveData?.score ? `${liveData.score.home}:${liveData.score.away}` : `${apiData?.home_score ?? 0}:${apiData?.away_score ?? 0}`}
+                        </div>
+                        {isMatchActive && (
+                           <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-red-600 text-white px-5 py-2 rounded-full flex items-center gap-3 shadow-[0_0_30px_rgba(220,38,38,0.5)] border border-red-400/30 ring-4 ring-black/40">
+                             <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]"></div>
+                             <span className="text-[11px] font-black tracking-widest italic uppercase tabular-nums whitespace-nowrap">
+                               LIVE • {liveData?.time_display || `${String(liveTimer.minutes).padStart(2, '0')}:${String(liveTimer.seconds).padStart(2, '0')}'`}
+                             </span>
+                           </div>
+                        )}
+                      </div>
+                      {isMatchActive && (
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-red-500 text-[10px] font-black uppercase tracking-[0.5em] italic animate-pulse">NA ŻYWO</span>
+                          <span className="text-white/20 text-[8px] font-black uppercase tracking-[0.2em]">{liveData?.period_label || (apiData?.period === 'first_half' ? '1. POŁOWA' : (apiData?.period === 'halftime' ? 'PRZERWA' : '2. POŁOWA'))}</span>
+                        </div>
+                      )}
+                      {isMatchFinished && (
+                        <span className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] italic">ZAKOŃCZONY</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col items-center group">
+                  <div className="relative w-16 h-16 md:w-24 md:h-24 shrink-0 transition-all duration-700 group-hover:scale-110 group-hover:-rotate-3">
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    {awayTeam.logo && <Image src={awayTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] relative z-10" />}
+                  </div>
+                  <h2 className="mt-6 text-white text-[10px] md:text-sm font-black uppercase tracking-[0.2em] italic group-hover:text-blue-500 transition-colors text-center max-w-[120px]">{awayTeam.name}</h2>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center mt-20 gap-14">
+                <div className="flex flex-wrap justify-center items-center gap-12 text-blue-400/80 text-[11px] font-black uppercase tracking-[0.4em] border border-white/5 py-8 px-20 rounded-[3rem] bg-white/[0.02] backdrop-blur-2xl shadow-2xl ring-1 ring-white/5">
+                  <div className="flex items-center gap-4 group hover:text-white transition-all cursor-default">
+                    <Calendar className="w-4 h-4 text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    {apiData?.date_formatted ? `${formatMatchDate(apiData.date_formatted)}, ${apiData.time_formatted || '18:00'}` : (apiData?.scheduled_at ? `${new Date(apiData.scheduled_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}, 18:00` : 'ZAPLANOWANY')}
+                  </div>
+                  <div className="w-px h-6 bg-white/5"></div>
+                  <div className="flex items-center gap-4 group hover:text-white transition-all cursor-default">
+                    <MapPin className="w-4 h-4 text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    {apiData?.venue_name || 'STADION MIEJSKI, DZIAŁDOWO'}
+                  </div>
+                </div>
+
+                {isPreMatch && (
+                  <div className="flex flex-col items-center w-full max-w-4xl">
+                    <div className="text-white/10 text-[10px] font-black uppercase tracking-[1em] mb-12 ml-[1em]">DO ROZPOCZĘCIA MECZU POZOSTAŁO</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
+                      {[
+                        { val: countdown.days, label: 'DNI' },
+                        { val: countdown.hours, label: 'GODZ.' },
+                        { val: countdown.minutes, label: 'MIN.' },
+                        { val: countdown.seconds, label: 'SEK.' }
+                      ].map((t, i) => (
+                        <div key={i} className="flex flex-col items-center bg-[#0c162d]/60 border border-white/5 rounded-[2.5rem] px-12 py-10 shadow-2xl group hover:bg-[#0c162d]/80 transition-all relative overflow-hidden backdrop-blur-xl ring-1 ring-white/5">
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <span className="text-6xl md:text-7xl font-black text-white tracking-tighter mb-2 italic drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">{String(t.val).padStart(2, '0')}</span>
+                          <div className="h-px w-8 bg-blue-500/30 mb-2"></div>
+                          <span className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">{t.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="relative z-10 flex items-center justify-center mt-24 border-t border-white/5 pt-12">
+              <div className="flex items-center gap-4 md:gap-16 flex-wrap justify-center">
+                {(isPreMatch 
+                  ? [
+                    { id: 'zapowiedź', label: 'ZAPOWIEDŹ', icon: Calendar },
+                    { id: 'składy', label: 'SKŁADY', icon: Users },
+                    { id: 'h2h', label: 'H2H', icon: Trophy }
+                  ]
+                  : [
+                    { id: 'składy', label: 'SKŁADY', icon: Users },
+                    { id: 'relacja', label: 'PRZEBIEG MECZU', icon: Trophy },
+                    { id: 'komentarz', label: 'KOMENTARZ', icon: MessageSquare }
+                  ]
+                ).map(tab => (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex items-center gap-3 px-8 py-4 transition-all relative group rounded-2xl ${activeTab === tab.id ? 'text-white bg-blue-600/20 border border-blue-500/30' : 'text-white/30 hover:text-white'}`}>
+                    <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-blue-500' : 'text-white/20'}`} />
+                    <span className="font-black text-[10px] uppercase tracking-[0.25em]">{tab.label}</span>
+                    {activeTab === tab.id && <div className="absolute -bottom-[50px] left-0 right-0 h-1 bg-blue-500 rounded-full"></div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {isPreMatch ? (
+              <UpcomingView activeTab={activeTab} homeTeam={homeTeam} awayTeam={awayTeam} apiTeams={apiTeams} apiData={apiData} refereeData={refereeData} allMatches={allMatches} lineupData={lineupData} liveData={liveData} />
+            ) : (
+              <LiveView activeTab={activeTab} homeTeam={homeTeam} awayTeam={awayTeam} apiData={apiData} eventsData={{ goals: [], cards: [], substitutions: [] }} lineupData={lineupData} liveData={liveData} />
+            )}
+          </div>
         </div>
-      </div>
-      <div className="h-3 bg-white/5 rounded-full overflow-hidden flex border border-white/5 p-0.5 shadow-inner">
-        <div className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-1000 relative rounded-full" style={{ width: `${percA}%` }}>
-          <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-        </div>
-        <div className="h-full transition-all duration-1000" style={{ width: `${100 - percA}%` }}></div>
-      </div>
-    </div>
+      </main>
+      <Footer />
+    </>
   );
 }

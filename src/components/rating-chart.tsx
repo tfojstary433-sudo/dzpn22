@@ -26,12 +26,19 @@ export function RatingChart({ ratings, color }: RatingChartProps) {
   `;
 
   return (
-    <div className="w-full h-32 relative">
+    <div className="w-full h-full relative">
       <svg 
         viewBox={`0 0 ${width} ${height}`} 
         className="w-full h-full overflow-visible"
         preserveAspectRatio="none"
       >
+        <defs>
+          <linearGradient id={`gradient-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
         {/* Grid lines */}
         {[0, 2.5, 5, 7.5, 10].map((val) => {
           const y = height - (val / maxRating) * (height - 2 * padding) - padding;
@@ -43,17 +50,16 @@ export function RatingChart({ ratings, color }: RatingChartProps) {
               x2={width - padding} 
               y2={y} 
               stroke="white" 
-              strokeOpacity="0.05" 
-              strokeWidth="0.5" 
+              strokeOpacity="0.03" 
+              strokeWidth="1" 
             />
           );
         })}
 
         {/* Area fill */}
-        <polyline
-          points={areaPoints}
+        <polygon
+          points={`${padding},${height-padding} ${points} ${width-padding},${height-padding}`}
           fill={`url(#gradient-${color.replace('#', '')})`}
-          fillOpacity="0.1"
         />
 
         {/* Line */}
@@ -61,11 +67,9 @@ export function RatingChart({ ratings, color }: RatingChartProps) {
           points={points}
           fill="none"
           stroke={color}
-          strokeWidth="3"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="drop-shadow-[0_0_8px_rgba(0,204,255,0.5)]"
-          style={{ stroke: color }}
         />
 
         {/* Data points */}
@@ -77,20 +81,13 @@ export function RatingChart({ ratings, color }: RatingChartProps) {
               key={i}
               cx={x}
               cy={y}
-              r="4"
-              fill="#0a0a0a"
-              stroke={color}
-              strokeWidth="2"
+              r="2.5"
+              fill={color}
+              stroke="#111111"
+              strokeWidth="1.5"
             />
           );
         })}
-
-        <defs>
-          <linearGradient id={`gradient-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="1" />
-            <stop offset="100%" stopColor={color} stopOpacity="0" />
-          </linearGradient>
-        </defs>
       </svg>
     </div>
   );

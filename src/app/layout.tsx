@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, League_Gothic, Inter } from "next/font/google";
+import { Geist, Geist_Mono, League_Gothic, Inter, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import ClientBody from "./ClientBody";
 import Script from "next/script";
 import { SecurityProvider } from "@/components/security-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,13 +28,19 @@ const inter = Inter({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas-neue",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://pff24.pl"),
-  title: "PFF Roblox - Oficjalna Strona Federacji",
-  description: "Oficjalna strona Federacji PFF Roblox",
+  title: "1 Liga Działdowska - Oficjalna Strona",
+  description: "Oficjalna strona 1 Ligi Działdowskiej",
   icons: {
-    icon: "https://i.ibb.co/TB027G07/czarnepff-1.png",
-    apple: "https://i.ibb.co/TB027G07/czarnepff-1.png",
+    icon: "https://i.ibb.co/Rkz8MRSy/IMG-4837.png",
+    apple: "https://i.ibb.co/Rkz8MRSy/IMG-4837.png",
   },
 };
 
@@ -43,17 +50,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${leagueGothic.variable} ${inter.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${leagueGothic.variable} ${inter.variable} ${bebasNeue.variable}`}>
       <head>
         <Script
           crossOrigin="anonymous"
           src="//unpkg.com/same-runtime/dist/index.global.js"
         />
       </head>
-      <body suppressHydrationWarning className="antialiased min-h-screen font-inter">
-        <SecurityProvider>
-          <ClientBody>{children}</ClientBody>
-        </SecurityProvider>
+      <body suppressHydrationWarning className="antialiased min-h-screen font-bebas">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SecurityProvider>
+            <ClientBody>{children}</ClientBody>
+          </SecurityProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

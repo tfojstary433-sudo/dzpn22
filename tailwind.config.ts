@@ -52,9 +52,10 @@ export default {
         }
       },
       fontFamily: {
+        bebas: ['var(--font-bebas-neue)', 'sans-serif'],
         league: ['var(--font-league-gothic)', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
-        sans: ['var(--font-geist-sans)', 'sans-serif'],
+        sans: ['var(--font-bebas-neue)', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -78,6 +79,15 @@ export default {
         '2xl': '1536px',
       },
       },
+      keyframes: {
+        scan: {
+          '0%': { top: '-20%' },
+          '100%': { top: '120%' }
+        }
+      },
+      animation: {
+        scan: 'scan 8s linear infinite'
+      }
     }
   },
   plugins: [require("tailwindcss-animate")],

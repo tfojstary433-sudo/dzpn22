@@ -6,14 +6,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ uuid: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { uuid } = await params;
+    const { id } = await params;
 
-    // 1) Try Replit detailed endpoint by UUID first
+    // 1) Try Replit detailed endpoint by ID/UUID first
     try {
-      const res = await fetchWithTimeout(`${REPLIT_API_BASE_URL}/api/matches/${uuid}`, { cache: 'no-store', headers: { 'Accept': 'application/json' }, timeout: 3000 });
+      const res = await fetchWithTimeout(`${REPLIT_API_BASE_URL}/api/matches/${id}`, { cache: 'no-store', headers: { 'Accept': 'application/json' }, timeout: 3000 });
       if (res.ok) {
         const m = await res.json();
 
@@ -85,7 +85,7 @@ export async function GET(
 
         return Response.json({
           match: {
-            uuid: m.match?.uuid || m.uuid || uuid,
+            uuid: m.match?.uuid || m.uuid || id,
             isActive: m.match?.isActive ?? m.isActive ?? (m.match?.status === 'active' || m.status === 'active'),
             status: m.match?.status || m.status || 'active',
             teamA: teamAName,
@@ -113,7 +113,7 @@ export async function GET(
     if (liveMatch && liveMatch.active) {
       return Response.json({
         match: {
-          uuid,
+          uuid: id,
           isActive: true,
           status: 'active',
           teamA: liveMatch.teamA?.nazwa || 'Team A',

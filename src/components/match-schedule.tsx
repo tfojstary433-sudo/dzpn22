@@ -90,6 +90,12 @@ function MatchCard({ match, isLive = false, isFinished = false, liveData, finish
   const homePos = standings.find(s => s.team?.id === match.homeTeam.id)?.position || '-';
   const awayPos = standings.find(s => s.team?.id === match.awayTeam.id)?.position || '-';
 
+  const getLeagueLogo = (matchType?: string) => {
+    if (matchType === 'champions_cup') return 'https://i.ibb.co/4wpcgDRj/IMG-4837-2.png';
+    if (matchType === 'county_cup') return 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png';
+    return 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; // league
+  };
+
   return (
     <div className="mb-6 relative group max-w-5xl mx-auto">
       <Link href={`/mecz/${match.id || match.uuid}`}>
@@ -131,6 +137,9 @@ function MatchCard({ match, isLive = false, isFinished = false, liveData, finish
 
             {/* Score/Time Box */}
             <div className="flex flex-col items-center gap-3 min-w-[120px] md:min-w-[160px] z-20">
+              <div className="w-10 h-10 relative">
+                <img src={getLeagueLogo(match.match_type)} alt="" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]" />
+              </div>
               <div className="relative">
                 <div className="bg-black/20 backdrop-blur-md border border-white/10 px-8 py-4 md:px-10 md:py-5 rounded-[1.5rem] shadow-xl transition-all duration-500 group-hover:border-white/20 relative">
                   {isFinished ? (
@@ -258,6 +267,7 @@ export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
               awayScore: apiMatch.scoreB,
               time: apiMatch.timer,
               period: apiMatch.period,
+              match_type: (apiMatch as any).match_type,
               status: 'live',
               isLive: true,
               date: new Date().toISOString(),
@@ -301,6 +311,7 @@ export function MatchSchedule({ isInTab = false }: { isInTab?: boolean } = {}) {
               awayScore: fixture.awayScore || fixture.scoreB || 0,
               stadium: "Stadion",
               category: "Liga",
+              match_type: fixture.match_type,
               status: ((fixture.status === 'played' || fixture.status === 'finished' || fixture.isFinished || (fixture.homeScore > 0 || fixture.scoreA > 0 || fixture.awayScore > 0 || fixture.scoreB > 0)) ? 'finished' : 'upcoming') as 'finished' | 'upcoming'
             }));
             console.log('Mapped fixtures:', mappedFixtures.slice(0, 3));

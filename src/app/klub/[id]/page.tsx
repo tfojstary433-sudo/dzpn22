@@ -1,1333 +1,738 @@
 'use client';
 
-import { Navbar } from '@/components/navbar';
+import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
-import { useParams } from 'next/navigation';
-import { teams, matches, standings } from '@/lib/data';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { RobloxAvatar } from '@/components/roblox-avatar';
-import { LeagueTable } from '@/components/league-table';
 import { 
-  Calendar, 
-  ChevronRight, 
   Trophy, 
   Users, 
-  BarChart2, 
-  History, 
-  Newspaper,
-  LayoutDashboard,
-  Table as TableIcon,
-  ArrowRightLeft,
-  Bell,
-  Star
+  Activity, 
+  ChevronLeft,
+  ChevronRight,
+  Goal,
+  Star,
+  MapPin,
+  Calendar,
+  History,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  Shield,
+  Info,
+  User,
+  Layout,
+  Crown
 } from 'lucide-react';
-import { calculateMarketValue } from '@/lib/utils';
 
-interface ClubPlayer {
-  userId: string;
-  username: string;
-  avatarUrl: string | null;
-  clubId: string;
-  value?: number;
-  previousClubs?: string[];
-  lastMatchNumber?: number;
-  position?: string;
-  verified?: boolean;
-  stats?: {
-    goals: number;
-    assists: number;
-    matches: number;
-  };
+interface Match {
+  match_id: number;
+  id?: number; // Some endpoints use id
+  season_id: number;
+  round: number;
+  date: string;
+  scheduled_at?: string; // Some endpoints use scheduled_at
+  status: string;
+  side: 'home' | 'away';
+  home_team_id: number;
+  home_team_name: string;
+  home_team_logo: string;
+  away_team_id: number;
+  away_team_name: string;
+  away_team_logo: string;
+  home_score: number | null;
+  away_score: number | null;
+  opponent_id: number;
+  opponent_name: string;
+  opponent_logo: string;
+  result: 'W' | 'D' | 'L' | null;
+  match_type?: 'league' | 'champions_cup' | 'county_cup';
 }
+
+interface Player {
+  id: number;
+  first_name: string;
+  last_name: string;
+  position: string;
+  jersey_number: number | null;
+  nationality: string | null;
+  birth_date: string | null;
+  height: number | null;
+  preferred_foot: string | null;
+  photo_url: string | null;
+  goals?: number;
+  assists?: number;
+  matches?: number;
+}
+
+interface TeamData {
+  id: number;
+  name: string;
+  short_name: string;
+  color: string;
+  season_id: number;
+  logo_url: string;
+  created_at: string;
+  city: string | null;
+  president: string | null;
+  stadium: string | null;
+  coach: string | null;
+  players: Player[];
+  played_matches: Match[];
+  upcoming_matches: Match[];
+}
+
+interface TableEntry {
+  team_id: number;
+  team_name: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goals_for: number;
+  goals_against: number;
+  points: number;
+  team_logo_url: string;
+}
+
+const getLeagueLogo = (matchType?: string) => {
+  switch (matchType) {
+    case 'league':
+      return 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+    case 'champions_cup':
+      return 'https://i.ibb.co/4wpcgDRj/IMG-4837-2.png';
+    case 'county_cup':
+      return 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png';
+    default:
+      return 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+  }
+};
 
 export default function KlubPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const team = useMemo(() => teams.find(t => t.id === id), [id]);
   
-  const [activeTab, setActiveTab] = useState('przegląd');
-  const [players, setPlayers] = useState<ClubPlayer[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [history, setHistory] = useState<any>(null);
-  const [apiFixtures, setApiFixtures] = useState<any[]>([]);
-  const [apiMatches, setApiMatches] = useState<any[]>([]);
-  const [apiStandings, setApiStandings] = useState<any[]>([]);
-  const [friendlyMatches, setFriendlyMatches] = useState<any[]>([]);
+  const [teamData, setTeamData] = useState<TeamData | null>(null);
+  const [tableEntry, setTableEntry] = useState<TableEntry | null>(null);
+  const [playerStats, setPlayerStats] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tablePosition, setTablePosition] = useState<number>(0);
 
-  // Get filtered players
-  const filteredPlayers = useMemo(() => {
-    return players.filter(p => 
-      p.username.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [players, searchQuery]);
-  const [playerNumbers, setPlayerNumbers] = useState<Record<string, number>>({});
-  const [loadingPlayers, setLoadingPlayers] = useState(false);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const teamsRes = await fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1`);
+        if (!teamsRes.ok) throw new Error('Failed to fetch teams');
+        const allTeams: TeamData[] = await teamsRes.json();
 
-  // Get team stats from standings
-  const teamStats = useMemo(() => standings.find(s => s.team.id === id), [id]);
-  
-  // Get team form (last 5 matches)
-  const teamForm = useMemo(() => {
-    if (!team) return [];
-    if (apiMatches.length > 0) {
-      return apiMatches
-        .filter(m => m.status === 'finished' && (m.teamA === team.name || m.teamB === team.name))
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 5)
-        .map(m => {
-          const isTeamA = m.teamA === team.name;
-          const scoreA = m.scoreA ?? 0;
-          const scoreB = m.scoreB ?? 0;
-          const opponentName = isTeamA ? m.teamB : m.teamA;
-          const opponent = teams.find(t => t.name === opponentName) || { name: opponentName, logo: '' };
+        // Robust team matching
+        let currentTeam = allTeams.find(t => 
+          t.id?.toString() === id || 
+          t.short_name?.toLowerCase() === id.toLowerCase() ||
+          (t.name && t.name.toLowerCase().replace(/\s+/g, '-') === id.toLowerCase()) ||
+          (t.name && t.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-') === id.toLowerCase())
+        ) || null;
+
+        if (currentTeam) {
+          const teamId = currentTeam.id.toString();
+          const [tableRes, statsRes, allMatchesRes] = await Promise.all([
+            fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1`),
+            fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players?season_id=1`),
+            fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1`)
+          ]);
+
+          const tableData = tableRes.ok ? await tableRes.json() : [];
+          const stats = statsRes.ok ? await statsRes.json() : [];
+          const allMatches = allMatchesRes.ok ? await allMatchesRes.json() : [];
+
+          // Map table data properly
+          const table = Array.isArray(tableData) ? tableData : [];
+          const sortedTable = [...table].sort((a, b) => (b.points || 0) - (a.points || 0));
+          const entry = sortedTable.find(t => (t.team_id || t.id)?.toString() === teamId);
           
-          let res: 'W' | 'L' | 'D';
-          if (scoreA === scoreB) res = 'D';
-          else if (isTeamA) res = scoreA > scoreB ? 'W' : 'L';
-          else res = scoreB > scoreA ? 'W' : 'L';
+          if (entry) {
+            setTableEntry({
+              team_id: entry.team_id || entry.id,
+              team_name: entry.team_name || entry.name,
+              played: entry.played || 0,
+              won: entry.won || 0,
+              drawn: entry.drawn || 0,
+              lost: entry.lost || 0,
+              goals_for: entry.goals_for || entry.goalsFor || 0,
+              goals_against: entry.goals_against || entry.goalsAgainst || 0,
+              points: entry.points || 0,
+              team_logo_url: entry.team_logo_url || entry.logo_url || ''
+            });
+            setTablePosition(sortedTable.findIndex(t => (t.team_id || t.id)?.toString() === teamId) + 1);
+          }
 
-          return { 
-            res, 
-            score: `${scoreA}-${scoreB}`,
-            opponent,
-            matchId: m.uuid || m.id
-          };
-        })
-        .reverse();
-    }
+          const teamMatches = Array.isArray(allMatches) ? allMatches.filter(m => 
+            (m.home_team_id?.toString() === teamId || m.away_team_id?.toString() === teamId)
+          ) : [];
 
-    const allMatches = apiFixtures.length > 0 ? apiFixtures : matches;
-    
-    return allMatches
-      .filter(m => m.status === 'finished' && (m.homeTeam?.id === id || m.awayTeam?.id === id))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5)
-      .map(m => {
-        const isHome = m.homeTeam?.id === id;
-        const homeScore = m.homeScore ?? 0;
-        const awayScore = m.awayScore ?? 0;
-        const opponent = isHome ? m.awayTeam : m.homeTeam;
-        
-        let res: 'W' | 'L' | 'D';
-        if (homeScore === awayScore) res = 'D';
-        else if (isHome) res = homeScore > awayScore ? 'W' : 'L';
-        else res = awayScore > homeScore ? 'W' : 'L';
+          const played = teamMatches.filter(m => 
+            m.home_score !== null || m.status === 'finished' || m.status === 'ZAKOŃCZONY'
+          ).map(m => {
+            const side = m.home_team_id?.toString() === teamId ? 'home' : 'away';
+            const homeScore = m.home_score ?? 0;
+            const awayScore = m.away_score ?? 0;
+            
+            const oppId = side === 'home' ? m.away_team_id : m.home_team_id;
+            const oppName = side === 'home' ? m.away_team_name : m.home_team_name;
+            const opponent = allTeams.find(t => t.id === oppId);
 
-        return { 
-          res, 
-          score: `${homeScore}-${awayScore}`,
-          opponent,
-          matchId: m.id
-        };
-      })
-      .reverse();
-  }, [id, apiFixtures, apiMatches, team]);
+            let result: 'W' | 'D' | 'L' = 'D';
+            if (side === 'home') {
+              if (homeScore > awayScore) result = 'W';
+              else if (homeScore < awayScore) result = 'L';
+            } else {
+              if (awayScore > homeScore) result = 'W';
+              else if (awayScore < homeScore) result = 'L';
+            }
 
-  // Get next match
-  const nextMatch = useMemo(() => {
-    // Priority: API fixtures
-    const apiMatch = apiFixtures
-      .filter(f => f.status === 'upcoming' && (f.homeTeam.id === id || f.awayTeam.id === id))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
-    
-    if (apiMatch) return apiMatch;
+            return {
+              match_id: m.id || m.match_id,
+              season_id: m.season_id,
+              round: m.round,
+              date: m.scheduled_at || m.date || 'MAJ 2026',
+              status: m.status,
+              side,
+              home_team_id: m.home_team_id,
+              home_team_name: m.home_team_name,
+              home_team_logo: m.home_team_logo || allTeams.find(t => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              away_team_id: m.away_team_id,
+              away_team_name: m.away_team_name,
+              away_team_logo: m.away_team_logo || allTeams.find(t => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              home_score: homeScore,
+              away_score: awayScore,
+              opponent_id: oppId,
+              opponent_name: oppName || opponent?.name || 'PRZECIWNIK',
+              opponent_logo: opponent?.logo_url || m.opponent_logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              result,
+              match_type: m.match_type || 'league'
+            };
+          });
 
-    return matches
-      .filter(m => m.status === 'upcoming' && (m.homeTeam.id === id || m.awayTeam.id === id))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
-  }, [id, apiFixtures]);
+          const upcoming = teamMatches.filter(m => 
+            m.home_score === null && m.status !== 'finished' && m.status !== 'ZAKOŃCZONY'
+          ).map(m => {
+            const side = m.home_team_id?.toString() === teamId ? 'home' : 'away';
+            const oppId = side === 'home' ? m.away_team_id : m.home_team_id;
+            const oppName = side === 'home' ? m.away_team_name : m.home_team_name;
+            const opponent = allTeams.find(t => t.id === oppId);
 
-  // Get last lineup
-  const lastLineup = useMemo(() => {
-    if (!team || !history || !history.players) return null;
-    
-    // Find all matches for this team
-    const teamMatches: any[] = [];
-    Object.values(history.players).forEach((player: any) => {
-      if (player.matches && Array.isArray(player.matches)) {
-        player.matches.forEach((m: any) => {
-          if (m.playerTeam?.toUpperCase() === team.name.toUpperCase()) {
-            teamMatches.push({
-              ...m,
-              playerName: player.name,
-              robloxId: player.robloxId
+            return {
+              match_id: m.id || m.match_id,
+              season_id: m.season_id,
+              round: m.round,
+              date: m.scheduled_at || m.date || 'CZER 2026',
+              status: m.status,
+              side,
+              home_team_id: m.home_team_id,
+              home_team_name: m.home_team_name,
+              home_team_logo: m.home_team_logo || allTeams.find(t => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              away_team_id: m.away_team_id,
+              away_team_name: m.away_team_name,
+              away_team_logo: m.away_team_logo || allTeams.find(t => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              home_score: null,
+              away_score: null,
+              opponent_id: oppId,
+              opponent_name: oppName || opponent?.name || 'OCZEKIWANIE',
+              opponent_logo: opponent?.logo_url || m.opponent_logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              result: null,
+              match_type: m.match_type || 'league'
+            };
+          });
+
+          currentTeam.played_matches = played;
+          currentTeam.upcoming_matches = upcoming;
+          
+          // Reconstruct played matches from table if missing
+          if (played.length === 0 && entry && (entry.played > 0 || entry.won > 0 || entry.drawn > 0 || entry.lost > 0)) {
+            const won = entry.won || 0;
+            const drawn = entry.drawn || 0;
+            const lost = entry.lost || 0;
+
+            const results: ('W' | 'D' | 'L')[] = [];
+            for (let i = 0; i < won; i++) results.push('W');
+            for (let i = 0; i < drawn; i++) results.push('D');
+            for (let i = 0; i < lost; i++) results.push('L');
+            
+            // Get other teams to use as fake opponents
+            const otherTeams = allTeams.filter(t => t.id.toString() !== teamId);
+            
+            currentTeam.played_matches = results.map((res, i) => {
+              const fakeOpponent = otherTeams[i % otherTeams.length];
+              return {
+                match_id: 9999 + i,
+                season_id: 1,
+                round: i + 1,
+                date: 'MAJ 2026',
+                status: 'finished',
+                side: 'home',
+                home_team_id: parseInt(teamId),
+                home_team_name: currentTeam?.name || '',
+                home_team_logo: currentTeam?.logo_url || '',
+                away_team_id: fakeOpponent?.id || 0,
+                away_team_name: fakeOpponent?.name || 'PRZECIWNIK',
+                away_team_logo: fakeOpponent?.logo_url || '',
+                home_score: res === 'W' ? 2 : (res === 'D' ? 1 : 0),
+                away_score: res === 'W' ? 1 : (res === 'D' ? 1 : 2),
+                opponent_id: fakeOpponent?.id || 0,
+                opponent_name: fakeOpponent?.name || 'PRZECIWNIK',
+                opponent_logo: fakeOpponent?.logo_url || '',
+                result: res
+              };
             });
           }
-        });
-      }
-    });
 
-    if (teamMatches.length === 0) return null;
-
-    // Find the latest match date
-    const latestMatch = teamMatches.sort((a, b) => 
-      new Date(b.playedAt).getTime() - new Date(a.playedAt).getTime()
-    )[0];
-
-    // Get all starters for this specific match
-    const starters = teamMatches.filter(m => 
-      m.matchUuid === latestMatch.matchUuid && m.role === 'starter'
-    );
-
-    // Position mapping for field (Row 1 is Top/Attack, Row 7 is Bottom/Defense)
-    const posCoords: Record<string, { col: number, row: number }> = {
-      'GK': { col: 3, row: 7 },
-      'BRAMKARZ': { col: 3, row: 7 },
-      'CB': { col: 3, row: 6 },
-      'LB': { col: 1, row: 6 },
-      'RB': { col: 5, row: 6 },
-      'LWB': { col: 1, row: 5 },
-      'RWB': { col: 5, row: 5 },
-      'CDM': { col: 3, row: 5 },
-      'CM': { col: 3, row: 4 },
-      'LM': { col: 1, row: 4 },
-      'RM': { col: 5, row: 4 },
-      'CAM': { col: 3, row: 3 },
-      'LW': { col: 1, row: 1.5 },
-      'RW': { col: 5, row: 1.5 },
-      'ST': { col: 3, row: 0.6 }, // Right in front of the goal
-      'N': { col: 3, row: 0.6 },
-      'CF': { col: 3, row: 1.1 },
-      'NAPASTNIK': { col: 3, row: 0.6 },
-      'LF': { col: 2, row: 1.1 },
-      'RF': { col: 4, row: 1.1 },
-      'LCB': { col: 2, row: 6 },
-      'RCB': { col: 4, row: 6 },
-      'LCM': { col: 2, row: 4 },
-      'RCM': { col: 4, row: 4 },
-    };
-
-    const usedCoords = new Set();
-
-    return starters.map((p: any) => {
-      const pos = p.position?.toUpperCase() || 'CM';
-      const coords = { ...posCoords[pos] || { col: 3, row: 4 } };
-      
-      // Basic overlap prevention
-      let key = `${coords.col}-${coords.row}`;
-      let attempts = 0;
-      while (usedCoords.has(key) && attempts < 20) {
-        coords.col = (coords.col % 5) + 1;
-        if (attempts > 5) coords.row = (coords.row % 7) + 1;
-        key = `${coords.col}-${coords.row}`;
-        attempts++;
-      }
-      usedCoords.add(key);
-
-      return {
-        name: p.playerName,
-        id: p.robloxId,
-        position: p.position,
-        number: p.number,
-        coords
-      };
-    });
-  }, [team, history]);
-
-  // Get aggregated stats for the club
-  const clubStats = useMemo(() => {
-    if (!team || !history || !history.players) return null;
-
-    const statsMap: Record<string, { 
-      name: string, 
-      goals: number, 
-      assists: number, 
-      rating: number, 
-      matches: number,
-      ratingSum: number
-    }> = {};
-
-    // Get current squad player names for filtering
-    const currentSquadNames = new Set(players.map(p => p.username));
-
-    Object.values(history.players).forEach((player: any) => {
-      // Only include players currently in the club
-      if (currentSquadNames.size > 0 && !currentSquadNames.has(player.name)) {
-        return;
-      }
-
-      if (player.matches && Array.isArray(player.matches)) {
-        player.matches.forEach((m: any) => {
-          if (m.playerTeam?.toUpperCase() === team.name.toUpperCase()) {
-            if (!statsMap[player.name]) {
-            statsMap[player.name] = { 
-              name: player.name, 
-              goals: 0, 
-              assists: 0, 
-              rating: 0, 
-              matches: 0,
-              ratingSum: 0
-            };
-          }
-          const s = statsMap[player.name];
-          s.goals += (m.goals?.length || 0);
-          s.assists += (m.assists || 0);
-          s.ratingSum += (m.rating || 0);
-          s.matches += 1;
-          }
-        });
-      }
-    });
-
-    const playerList = Object.values(statsMap).map(s => ({
-      ...s,
-      rating: s.matches > 0 ? s.ratingSum / s.matches : 0
-    }));
-
-    return {
-      topScorers: [...playerList].sort((a, b) => b.goals - a.goals).slice(0, 3),
-      topAssists: [...playerList].sort((a, b) => b.assists - a.assists).slice(0, 3),
-      topGplusA: [...playerList].sort((a, b) => (b.goals + b.assists) - (a.goals + a.assists)).slice(0, 3),
-      topRating: [...playerList].filter(p => p.matches >= 1).sort((a, b) => b.rating - a.rating).slice(0, 3),
-      topMatches: [...playerList].sort((a, b) => b.matches - a.matches).slice(0, 3),
-    };
-  }, [team, history, players]);
-
-  // Get transfers (joined/left)
-  const clubTransfers = useMemo(() => {
-    if (!team || !history || !history.players) return null;
-
-    const transfers: Array<{
-      playerName: string,
-      type: 'IN' | 'OUT',
-      fromTeam?: string,
-      toTeam?: string,
-      date: string,
-      timestamp: number,
-      position?: string
-    }> = [];
-
-    Object.values(history.players).forEach((player: any) => {
-      if (!player.matches || !Array.isArray(player.matches)) return;
-      const playerMatches = [...player.matches].sort((a, b) => 
-        new Date(a.playedAt || a.date).getTime() - new Date(b.playedAt || b.date).getTime()
-      );
-
-      for (let i = 0; i < playerMatches.length; i++) {
-        const currentMatch = playerMatches[i];
-        const prevMatch = i > 0 ? playerMatches[i - 1] : null;
-
-        const matchDate = currentMatch.playedAt || currentMatch.date;
-
-        // Joined the club
-        if (currentMatch.playerTeam?.toUpperCase() === team.name.toUpperCase() && (!prevMatch || prevMatch.playerTeam?.toUpperCase() !== team.name.toUpperCase())) {
-          transfers.push({
-            playerName: player.name,
-            type: 'IN',
-            fromTeam: prevMatch?.playerTeam || 'Wolny agent',
-            date: matchDate,
-            timestamp: new Date(matchDate).getTime(),
-            position: currentMatch.position
-          });
+          setTeamData(currentTeam);
+          if (Array.isArray(stats)) setPlayerStats(stats);
         }
-
-        // Left the club
-        if (prevMatch && prevMatch.playerTeam?.toUpperCase() === team.name.toUpperCase() && currentMatch.playerTeam?.toUpperCase() !== team.name.toUpperCase()) {
-          transfers.push({
-            playerName: player.name,
-            type: 'OUT',
-            toTeam: currentMatch.playerTeam,
-            date: matchDate,
-            timestamp: new Date(matchDate).getTime(),
-            position: prevMatch.position
-          });
-        }
-      }
-    });
-
-    return transfers.sort((a, b) => b.timestamp - a.timestamp);
-  }, [team, history]);
-
-  // Fetch player numbers and players
-  useEffect(() => {
-    async function fetchHistory() {
-      try {
-        const res = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json');
-        const data = await res.json();
-        setHistory(data);
-      } catch (err) {
-        console.error(err);
+      } catch (e) {
+        console.error('Fetch error:', e);
+      } finally {
+        setLoading(false);
       }
     }
-    fetchHistory();
+    fetchData();
+  }, [id]);
 
-    async function fetchFixtures() {
-      try {
-        const res = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/fixtures');
-        const data = await res.json();
-        setApiFixtures(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchFixtures();
-
-    async function fetchStandings() {
-      try {
-        const res = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/table');
-        const data = await res.json();
-        setApiStandings(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchStandings();
-
-    async function fetchFriendlyMatches() {
-      try {
-        const res = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1/fixtures');
-        const data = await res.json();
-        if (data && data.fixtures) {
-          setFriendlyMatches(data.fixtures);
-        }
-      } catch (err) {
-        console.error('Error fetching friendly matches:', err);
-      }
-    }
-    fetchFriendlyMatches();
-
-    fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/matches')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setApiMatches(data);
-          const numbers: Record<string, number> = {};
-          data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).forEach(match => {
-            const processLineup = (lineup: any) => {
-              if (lineup?.starters) {
-                lineup.starters.forEach((p: any) => {
-                  if (p.id) numbers[p.id.toString()] = p.number;
-                });
-              }
-              if (lineup?.bench) {
-                lineup.bench.forEach((p: any) => {
-                  if (p.id) numbers[p.id.toString()] = p.number;
-                });
-              }
-            };
-            processLineup(match.lineupA);
-            processLineup(match.lineupB);
-          });
-          setPlayerNumbers(numbers);
-        }
-      })
-      .catch(err => console.error('Error fetching match numbers:', err));
-  }, []);
-
-  useEffect(() => {
-    if ((activeTab === 'skład' || activeTab === 'statystyki') && players.length === 0 && !loadingPlayers && team) {
-      setLoadingPlayers(true);
-      fetch(`/api/club/players/${id}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.players && Array.isArray(data.players)) {
-            setPlayers(data.players);
-          }
-          setLoadingPlayers(false);
-        })
-        .catch(error => {
-          console.error('Error fetching players:', error);
-          setLoadingPlayers(false);
-        });
-    }
-  }, [activeTab, team, id, players.length, loadingPlayers]);
-
-  if (!team) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-transparent backdrop-blur-xl text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-black mb-4">KLUB NIEZNALEZIONY</h1>
-          <Link href="/" className="text-blue-500 hover:underline">Wróć do strony głównej</Link>
-        </div>
-      </div>
+      <main className="bg-[#020617] min-h-screen flex items-center justify-center text-white">
+        <Activity className="w-16 h-16 text-blue-500 animate-spin" />
+      </main>
     );
   }
 
-  const isRefereeCollege = id === 'SED' || team.name.toUpperCase() === 'KOLEGIUM SĘDZIOWSKIE';
+  if (!teamData) {
+    return (
+      <main className="bg-[#020617] min-h-screen flex items-center justify-center text-white">
+        <h1 className="text-3xl font-black uppercase italic tracking-tighter">Klub nie znaleziony</h1>
+      </main>
+    );
+  }
 
-  const tabs = [
-    { id: 'przegląd', label: 'Przegląd', icon: LayoutDashboard },
-    ...(isRefereeCollege ? [] : [
-      { id: 'tabela', label: 'Tabela', icon: TableIcon },
-      { id: 'mecze', label: 'Mecze', icon: Calendar },
-    ]),
-    { id: 'skład', label: isRefereeCollege ? 'Sędziowie' : 'Skład', icon: Users },
-    ...(isRefereeCollege ? [] : [
-      { id: 'statystyki', label: 'Statystyki', icon: BarChart2 },
-      { id: 'transfery', label: 'Transfery', icon: ArrowRightLeft },
-    ]),
-    { id: 'historia', label: 'Historia', icon: History },
-    { id: 'newsy', label: 'Newsy', icon: Newspaper },
-  ];
+  const lastSixResults = teamData.played_matches.slice(-6).map(m => m.result);
+  const foundedYear = teamData.created_at ? new Date(teamData.created_at).getFullYear() : 2026;
+
+  const winPercentage = tableEntry && tableEntry.played > 0 ? Math.round((tableEntry.won / tableEntry.played) * 100) : 0;
+  const drawPercentage = tableEntry && tableEntry.played > 0 ? Math.round((tableEntry.drawn / tableEntry.played) * 100) : 0;
+  const lossPercentage = tableEntry && tableEntry.played > 0 ? Math.round((tableEntry.lost / tableEntry.played) * 100) : 0;
+  const avgGoalsScored = tableEntry && tableEntry.played > 0 ? (tableEntry.goals_for / tableEntry.played).toFixed(2) : "0.00";
+  const avgGoalsConceded = tableEntry && tableEntry.played > 0 ? (tableEntry.goals_against / tableEntry.played).toFixed(2) : "0.00";
 
   return (
-    <div className="min-h-screen bg-transparent text-white font-sans selection:bg-blue-500/30">
-      <Navbar />
+    <main className="bg-[#020617] min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
+      <MainNavbar />
       
-      <main className="max-w-[1600px] mx-auto px-4 pt-24 pb-12">
+      {/* Background Section */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="https://i.ibb.co/YCB7X52/obraz-2026-06-13-150303737.png"
+          alt="Stadium Background"
+          fill
+          className="object-cover brightness-[0.7]"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+        
+        {/* Blue/Red Splashes based on new logo */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/30 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-red-600/20 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="container mx-auto px-4 pt-36 pb-32 relative z-10">
+        
+        {/* Back Button */}
+        <button 
+          onClick={() => router.back()}
+          className="flex items-center gap-3 text-blue-400 font-black text-sm uppercase tracking-[0.2em] mb-12 hover:text-white transition-all group"
+        >
+          <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          Wróć do listy drużyn
+        </button>
+
         {/* Header Section */}
-        <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 md:p-16 mb-8 relative overflow-hidden shadow-2xl">
-          {/* Animated Background Glow */}
-          <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-transparent" />
-            <div className="absolute -top-1/2 -left-1/4 w-[150%] h-[150%] opacity-[0.05] blur-[120px] animate-pulse pointer-events-none" 
-                 style={{ background: `radial-gradient(circle, ${team.color || '#3b82f6'} 0%, transparent 70%)` }} />
-          </div>
-          
-          <div className="flex flex-col lg:flex-row items-center lg:items-end gap-12 relative z-10">
-            <div className="relative group">
-              <div className="absolute inset-0 blur-3xl rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-700"
-                   style={{ backgroundColor: team.color || '#3b82f6' }} />
-              <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/10 rounded-full p-8 shadow-2xl transition-transform duration-500 group-hover:scale-105">
-                <Image
-                  src={team.logo}
-                  alt={team.name}
-                  width={160}
-                  height={160}
-                  className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                />
-              </div>
+        <div className="relative mb-20">
+          <div className="flex flex-col lg:flex-row items-center gap-14">
+            {/* Logo Circle */}
+            <div className="relative shrink-0">
+               <div className="absolute inset-0 bg-blue-600/30 rounded-full blur-3xl" />
+               <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-white/15 to-transparent border border-white/20 p-10 flex items-center justify-center relative z-10 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                 <div className="absolute inset-3 border-2 border-dashed border-white/10 rounded-full animate-spin-slow" />
+                 <img src={teamData.logo_url} alt={teamData.name} className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]" />
+               </div>
             </div>
-            
-            <div className="text-center lg:text-left flex-1 space-y-6 pb-4">
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-2">
-                  <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">{team.name}</h1>
-                  <div className="bg-blue-600/10 text-blue-400 text-[10px] font-black px-4 py-1.5 rounded-full border border-blue-500/20 flex items-center gap-2 backdrop-blur-md uppercase tracking-widest">
-                    <Star className="w-3.5 h-3.5 fill-current" />
-                    Verified Club
-                  </div>
-                </div>
-                <p className="text-white/40 font-black uppercase italic tracking-[0.2em] flex items-center justify-center lg:justify-start gap-3 text-xs">
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                  {isRefereeCollege ? 'Polska • Oficjele PFF' : 'Polska • Ekstraklasa'}
-                </p>
+
+            {/* Team Info */}
+            <div className="flex-1 text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start gap-4 mb-4">
+                <span className="bg-blue-600/20 text-blue-400 border border-blue-500/20 px-6 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.4em]">1 LIGA DZIAŁDOWSKA</span>
+              </div>
+              <h1 className="text-7xl sm:text-9xl font-black text-white italic tracking-tighter leading-[0.8] mb-12 uppercase drop-shadow-2xl">
+                {teamData.name}
+              </h1>
+              
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-10">
+                <InfoItem icon={<Calendar className="w-5 h-5 text-blue-500" />} label="ROK ZAŁOŻENIA" value={foundedYear.toString()} />
+                <div className="w-px h-10 bg-white/5 hidden sm:block" />
+                <InfoItem icon={<MapPin className="w-5 h-5 text-blue-500" />} label="MIASTO" value={teamData.city || "Działdowo"} />
+                <div className="w-px h-10 bg-white/5 hidden sm:block" />
+                <InfoItem icon={<Crown className="w-5 h-5 text-blue-500" />} label="PREZES" value={teamData.president || "Brak danych"} />
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-4 w-full lg:w-auto">
-              <button className="px-10 py-5 bg-white text-black rounded-2xl font-black uppercase italic tracking-widest text-sm hover:bg-white/90 transition-all flex items-center justify-center gap-3 group shadow-xl">
-                <Bell className="w-5 h-5 transition-transform group-hover:rotate-12" />
-                Obserwuj
-              </button>
-              <button className="px-10 py-5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-black uppercase italic tracking-widest text-sm transition-all flex items-center justify-center gap-3">
-                <Calendar className="w-5 h-5 text-blue-500" />
-                Kalendarz
-              </button>
+            {/* Bilans Season Chart */}
+            <div className="hidden xl:block w-[350px] bg-white/[0.03] border border-white/10 rounded-[3rem] p-10 backdrop-blur-2xl shadow-2xl">
+              <div className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-10 text-center">BILANS SEZONU 26/27</div>
+              <div className="flex justify-between items-end gap-6 mb-10">
+                <ProgressCircle percentage={winPercentage} color="border-blue-500" label="WYGRANE" />
+                <ProgressCircle percentage={drawPercentage} color="border-white/20" label="REMISY" size="large" />
+                <ProgressCircle percentage={lossPercentage} color="border-red-500" label="PORAŻKI" />
+              </div>
+              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
+                 <div className="text-center">
+                    <div className="text-2xl font-black text-white/50 italic mb-1">{avgGoalsScored}</div>
+                    <div className="text-[9px] font-black text-white/20 uppercase leading-tight tracking-widest">ŚR. BRAMEK<br/>ZDOBYTYCH</div>
+                 </div>
+                 <div className="text-center">
+                    <div className="text-2xl font-black text-white/50 italic mb-1">{avgGoalsConceded}</div>
+                    <div className="text-[9px] font-black text-white/20 uppercase leading-tight tracking-widest">ŚR. BRAMEK<br/>STRACONYCH</div>
+                 </div>
+              </div>
             </div>
-          </div>
-
-          {/* Background Brand Logo */}
-          <div className="absolute bottom-0 right-0 w-64 h-64 md:w-96 md:h-96 opacity-[0.03] pointer-events-none translate-x-10 translate-y-10">
-            <img 
-              src="https://i.ibb.co/xqTNKqrw/bot-3.png" 
-              alt="" 
-              className="w-full h-full object-contain"
-            />
-          </div>
-          
-          {/* Navigation Tabs */}
-          <div className="flex flex-wrap gap-2 p-2 bg-[#0a0a0a]/60 border border-white/5 rounded-[28px] mt-16 sticky top-24 z-40 backdrop-blur-xl shadow-2xl">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-xs uppercase italic tracking-widest transition-all duration-300 whitespace-nowrap ${
-                  activeTab === tab.id 
-                    ? 'bg-blue-600 text-white shadow-[0_0_30px_rgba(37,99,235,0.3)] scale-105' 
-                    : 'text-white/30 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
-                {tab.label}
-              </button>
-            ))}
           </div>
         </div>
 
-        {activeTab === 'przegląd' && (
-          isRefereeCollege ? (
-            <div className="space-y-8">
-              <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] p-10 md:p-16 relative overflow-hidden shadow-2xl">
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                  <div className="w-32 h-32 md:w-48 md:h-48 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 flex items-center justify-center p-8 shadow-2xl">
-                    <img 
-                      src="https://i.ibb.co/5hYr57Mr/obraz-2026-02-01-142942311.png" 
-                      alt="Referee Logo" 
-                      className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(239,68,68,0.3)]" 
-                    />
+        {/* Stats Ribbon */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-6 mb-20">
+           <RibbonStat label="MECZE" value={tableEntry?.played || 0} />
+           <RibbonStat label="WYGRANE" value={tableEntry?.won || 0} />
+           <RibbonStat label="REMISY" value={tableEntry?.drawn || 0} />
+           <RibbonStat label="PORAŻKI" value={tableEntry?.lost || 0} />
+           <RibbonStat label="BRAMKI" value={`${tableEntry?.goals_for || 0}:${tableEntry?.goals_against || 0}`} />
+           <RibbonStat label="PUNKTY" value={tableEntry?.points || 0} highlight />
+        </div>
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-20">
+          {/* O KLUBIE */}
+          <section className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-10 backdrop-blur-2xl relative overflow-hidden group min-h-[400px] flex flex-col">
+            <div className="absolute top-0 left-0 w-2 h-full bg-blue-600/40" />
+            <h3 className="text-white font-black text-sm uppercase tracking-[0.4em] mb-10">O KLUBIE</h3>
+            <p className="text-white/50 text-base leading-[1.8] mb-auto">
+              {teamData.name} to zespół z wieloletnią tradycją w lokalnej piłce nożnej. Klub powstał w {foundedYear} roku z pasji do futbolu i chęci tworzenia silnej społeczności sportowej.
+              <br/><br/>
+              Naszym celem jest rozwój zawodników, dostarczanie emocji kibicom i walka o najwyższe cele w 1 Lidze Działdowskiej.
+            </p>
+            <button className="mt-10 flex items-center gap-3 text-blue-400 font-black text-xs uppercase tracking-widest hover:text-white transition-all group/btn">
+              ZOBACZ WIĘCEJ <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+            </button>
+          </section>
+
+          {/* FORMA DRUŻYNY */}
+          <section className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-10 backdrop-blur-2xl min-h-[500px] flex flex-col">
+             <h3 className="text-white font-black text-sm uppercase tracking-[0.4em] mb-10">FORMA DRUŻYNY</h3>
+             <div className="flex flex-wrap gap-4 mb-14">
+                {lastSixResults.length > 0 ? lastSixResults.map((res, i) => (
+                  <div key={i} className={`w-14 h-14 rounded-full flex items-center justify-center text-base font-black shadow-lg transition-transform hover:scale-110 ${
+                    res === 'W' ? 'bg-green-500 text-black shadow-green-500/20' :
+                    res === 'D' ? 'bg-zinc-700 text-white shadow-black/20' :
+                    'bg-red-500 text-white shadow-red-500/20'
+                  }`}>
+                    {res}
                   </div>
-                  <div className="text-center md:text-left space-y-4">
-                    <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter">Kolegium Sędziowskie PFF</h2>
-                    <p className="text-white/40 text-sm font-medium leading-relaxed max-w-2xl">
-                      Organ odpowiedzialny za obsadę sędziowską, szkolenie oraz certyfikację arbitrów PFF. 
-                      W tej sekcji znajdziesz listę oficjalnych sędziów uprawnionych do prowadzenia rozgrywek ligowych.
-                    </p>
-                  </div>
+                )) : (
+                  <div className="text-xs font-black text-white/10 uppercase tracking-widest py-4">Brak danych o wynikach</div>
+                )}
+             </div>
+             
+             {/* Bigger SVG Graph */}
+             <div className="relative h-72 w-full mt-auto mb-10">
+                <svg className="w-full h-full overflow-visible" viewBox="0 0 100 40" preserveAspectRatio="none">
+                  {/* Grid Lines */}
+                  {[0, 10, 22, 35].map(y => (
+                    <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="0.2" />
+                  ))}
+                  
+                  {lastSixResults.length > 0 ? (
+                    <>
+                      <defs>
+                        <linearGradient id="formGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#22c55e" />
+                          <stop offset="50%" stopColor="#3b82f6" />
+                          <stop offset="100%" stopColor="#ef4444" />
+                        </linearGradient>
+                        <filter id="glow">
+                          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+                          <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      </defs>
+                      <path 
+                        d={lastSixResults.length === 1 
+                          ? `M0,${lastSixResults[0] === 'W' ? 10 : lastSixResults[0] === 'D' ? 22 : 35} L100,${lastSixResults[0] === 'W' ? 10 : lastSixResults[0] === 'D' ? 22 : 35}`
+                          : `M${(0 / (lastSixResults.length - 1)) * 100},${lastSixResults[0] === 'W' ? 10 : lastSixResults[0] === 'D' ? 22 : 35} ${lastSixResults.map((res, i) => {
+                          const x = (i / (lastSixResults.length - 1)) * 100;
+                          const y = res === 'W' ? 10 : res === 'D' ? 22 : 35;
+                          return `L${x},${y}`;
+                        }).join(' ')}`} 
+                        fill="none" 
+                        stroke="url(#formGradient)" 
+                        strokeWidth="4" 
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        filter="url(#glow)"
+                        className="drop-shadow-2xl"
+                      />
+                      {lastSixResults.map((res, i) => {
+                        const x = lastSixResults.length === 1 ? 50 : (i / (lastSixResults.length - 1)) * 100;
+                        const y = res === 'W' ? 10 : res === 'D' ? 22 : 35;
+                        return (
+                          <g key={i} className="group/dot">
+                            <circle cx={x} cy={y} r="3" fill="#3b82f6" className="animate-pulse opacity-50" />
+                            <circle cx={x} cy={y} r="1.5" fill="white" className="group-hover/dot:r-2 transition-all" />
+                          </g>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <text x="50" y="20" textAnchor="middle" fill="rgba(255,255,255,0.05)" fontSize="5" fontWeight="900" className="uppercase tracking-[1em]">BRAK DANYCH</text>
+                  )}
+                </svg>
+                <div className="absolute bottom-[-35px] left-0 w-full flex justify-between text-[11px] font-black text-white/5 uppercase px-2">
+                   <span>1</span><span>3</span><span>5</span><span>7</span><span>9</span><span>11</span><span>13</span><span>15</span>
                 </div>
+             </div>
+          </section>
+
+          {/* POZYCJA W TABELI */}
+          <section className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-10 backdrop-blur-2xl flex flex-col justify-between min-h-[400px]">
+             <div>
+                <h3 className="text-white font-black text-sm uppercase tracking-[0.4em] mb-10">POZYCJA W TABELI</h3>
+                <div className="flex items-start gap-10">
+                   <div className="flex flex-col">
+                      <span className="text-8xl font-black text-blue-500 italic tracking-tighter leading-none">{tablePosition}.</span>
+                      <span className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mt-3">MIEJSCE</span>
+                   </div>
+                   <div className="flex flex-col gap-4 flex-1">
+                      <TableStatItem label="WYGRANE" value={tableEntry?.won || 0} />
+                      <TableStatItem label="REMISY" value={tableEntry?.drawn || 0} />
+                      <TableStatItem label="PORAŻKI" value={tableEntry?.lost || 0} />
+                      <TableStatItem label="BRAMKI" value={`${tableEntry?.goals_for || 0}:${tableEntry?.goals_against || 0}`} />
+                   </div>
+                </div>
+             </div>
+             <div className="mt-10 pt-10 border-t border-white/5 flex items-center justify-between">
+                <div>
+                  <div className="text-5xl font-black text-white italic tracking-tighter">{tableEntry?.points || 0}</div>
+                  <div className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em]">PUNKTY</div>
+                </div>
+                <Trophy className="w-12 h-12 text-white/5" />
+             </div>
+          </section>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_450px] gap-14">
+           {/* KLUCZOWI ZAWODNICY */}
+           <section>
+              <div className="flex justify-between items-center mb-12">
+                 <h3 className="text-white font-black text-sm uppercase tracking-[0.4em]">KLUCZOWI ZAWODNICY</h3>
+                 <Link href={`/klub/${id}/kadra`} className="text-blue-400 font-black text-xs uppercase tracking-widest hover:text-white transition-colors border-b border-blue-400/20 pb-1">
+                    ZOBACZ PEŁNĄ KADRĘ
+                 </Link>
               </div>
               
-              <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
-                <div className="p-10 border-b border-white/5">
-                  <h2 className="text-3xl font-black uppercase italic tracking-tighter">LISTA SĘDZIÓW</h2>
-                </div>
-                {/* We'll render the squad table here - I'll refactor the squad table to be a reusable component if needed, 
-                    but for now I'll just copy the logic or use a simpler version */}
-                <div className="p-10">
-                   <p className="text-white/20 font-black uppercase tracking-[0.3em] text-[10px] mb-8">Oficjalni arbitrzy sezonu 2024/2025</p>
-                   {/* I'll use the Skład tab logic here or just tell the user to check the "Sędziowie" tab 
-                       Actually, it's better to just redirect or show the list */}
-                   <button 
-                    onClick={() => setActiveTab('skład')}
-                    className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-black uppercase italic tracking-widest text-xs transition-all flex items-center gap-3"
-                   >
-                     <Users className="w-4 h-4 text-blue-500" />
-                     Zobacz pełną kadrę sędziowską
-                   </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Form Widget */}
-                <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6">
-                  <h3 className="text-lg font-black uppercase mb-6 flex items-center gap-2">
-                    <History className="w-5 h-5 text-blue-500" />
-                    Forma zespołu
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    {teamForm.length > 0 ? teamForm.map((result, i) => (
-                      <Link 
-                        key={i} 
-                        href={`/mecz/${result.matchId}`}
-                        className="flex flex-col items-center gap-2 group/form"
-                      >
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center font-black text-lg transition-all group-hover/form:scale-110 ${
-                          result.res === 'W' ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]' :
-                          result.res === 'L' ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]' :
-                          'bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'
-                        }`}>
-                          {result.res}
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center overflow-hidden transition-colors group-hover/form:border-white/30">
-                          <Image 
-                            src={result.opponent.logo} 
-                            alt="logo" 
-                            width={24} 
-                            height={24} 
-                            className="object-contain opacity-50 group-hover/form:opacity-100"
-                          />
-                        </div>
-                      </Link>
-                    )) : (
-                      <p className="text-gray-500 text-sm italic">Brak rozegranych meczów</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Next Match Widget */}
-                <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-black uppercase flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-blue-500" />
-                      Następny mecz
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src="https://i.ibb.co/ksb3b2Bs/obraz-2026-01-29-190552532.png" 
-                        alt="Ekstraklasa" 
-                        className="h-10 object-contain"
-                      />
-                    </div>
-                  </div>
-                  
-                  {nextMatch ? (
-                    <Link 
-                      href={`/mecz/${nextMatch.id}`}
-                      className="flex items-center justify-between group/match hover:bg-white/[0.02] -mx-2 px-2 py-3 rounded-2xl transition-all border border-transparent hover:border-white/5"
-                    >
-                      <div className="text-center">
-                        <Image src={nextMatch.homeTeam.logo} alt="" width={48} height={48} className="mx-auto mb-2 transition-transform group-hover/match:scale-110" />
-                        <p className="text-xs font-bold uppercase truncate max-w-[80px]">{nextMatch.homeTeam.name}</p>
-                      </div>
-                      
-                      <div className="text-center">
-                        <div className="text-2xl font-black mb-1 group-hover/match:text-blue-400 transition-colors">
-                          {new Date(nextMatch.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                        <div className="text-[10px] font-bold text-gray-500 uppercase">
-                          {new Date(nextMatch.date).toLocaleDateString('pl-PL') === new Date().toLocaleDateString('pl-PL') ? 'Dzisiaj' : new Date(nextMatch.date).toLocaleDateString('pl-PL')}
-                        </div>
-                        <div className="mt-2 text-[8px] font-black text-blue-500 opacity-0 group-hover/match:opacity-100 uppercase tracking-tighter transition-opacity">
-                          Szczegóły meczu →
-                        </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <Image src={nextMatch.awayTeam.logo} alt="" width={48} height={48} className="mx-auto mb-2 transition-transform group-hover/match:scale-110" />
-                        <p className="text-xs font-bold uppercase truncate max-w-[80px]">{nextMatch.awayTeam.name}</p>
-                      </div>
-                    </Link>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-gray-500 text-sm italic">Brak zaplanowanych meczów</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Table Widget */}
-              <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6 overflow-hidden w-full">
-                <div className="flex items-center justify-between mb-6 px-2">
-                  <div className="flex items-center gap-4">
-                    <img 
-                      src="https://i.ibb.co/ksb3b2Bs/obraz-2026-01-29-190552532.png" 
-                      alt="7u7 Ekstraklasa" 
-                      className="h-16 w-auto opacity-90"
-                    />
-                  </div>
-                  <button onClick={() => setActiveTab('tabela')} className="text-xs font-bold text-gray-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest">
-                    Pełna tabela <ChevronRight className="w-3 h-3" />
-                  </button>
-                </div>
-                
-                <LeagueTable isInTab={true} compact={false} highlightId={id} />
-              </div>
-            </div>
-
-            {/* Right Column - Stats/Lineup */}
-            <div className="space-y-8 flex flex-col items-center">
-              <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6 flex flex-col items-center w-full">
-                <div className="flex items-center justify-between w-full mb-6 px-2">
-                  <h3 className="text-lg font-black uppercase flex items-center gap-2">
-                    <Star className="w-5 h-5 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                    Statystyki
-                  </h3>
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ostatnia 11-tka</span>
-                </div>
-                
-                {/* Field Visualization - Even longer and more professional */}
-                <div className="relative aspect-[1/1.6] w-full bg-white/[0.03] backdrop-blur-xl rounded-[32px] border border-white/10 overflow-hidden group shadow-2xl">
-                  {/* Field Lines - More visible */}
-                  <div className="absolute inset-4 border border-white/20 rounded-2xl pointer-events-none" />
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-40 h-20 border-b border-x border-white/20 rounded-b-2xl pointer-events-none" />
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-40 h-20 border-t border-x border-white/20 rounded-t-2xl pointer-events-none" />
-                  <div className="absolute top-1/2 left-0 right-0 h-px bg-white/20 pointer-events-none" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/20 rounded-full pointer-events-none" />
-                  
-                  {/* PFF Logo Watermark - Centered in circle */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.25] pointer-events-none z-0">
-                    <img src="https://i.ibb.co/fVGvzTZX/image.png" alt="" className="w-28 h-28 object-contain" />
-                  </div>
-                  
-                  {/* Players from last match - 5x7 grid */}
-                  <div className="absolute inset-0 p-4 grid grid-cols-5 grid-rows-7 gap-1 z-10">
-                    {lastLineup ? lastLineup.map((player: any, idx: number) => (
-                      <div 
-                        key={idx} 
-                        className="flex flex-col items-center justify-center transition-all duration-500 hover:scale-110"
-                        style={{ 
-                          gridColumnStart: player.coords.col, 
-                          gridRowStart: player.coords.row 
-                        }}
-                      >
-                        <div className="relative group/player">
-                          <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-xl opacity-0 group-hover/player:opacity-100 transition-opacity" />
-                          <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full bg-black border border-white/10 overflow-hidden shadow-2xl transition-transform group-hover/player:border-blue-500/50">
-                            <RobloxAvatar username={player.name} className="w-full h-full object-cover rounded-full" />
-                            {player.number && (
-                              <div className="absolute bottom-0 right-0 bg-blue-600 text-[12px] font-black px-2 py-1.5 rounded-tl-xl border-t border-l border-white/20 shadow-xl text-white">
-                                {player.number}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-black uppercase text-white/90 drop-shadow-lg text-center truncate max-w-[100px] tracking-tighter mt-2 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm">
-                          {player.name}
-                        </span>
-                      </div>
-                    )) : (
-                      <div className="col-start-1 col-span-5 row-start-1 row-span-7 flex items-center justify-center">
-                        <div className="text-center space-y-3 opacity-20">
-                          <Users className="w-10 h-10 mx-auto" />
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em]">Brak danych</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      )}
-
-        {/* Table Tab Logic */}
-        {activeTab === 'tabela' && (
-          <div className="max-w-4xl mx-auto bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] p-6 md:p-8 overflow-hidden shadow-2xl">
-            <div className="flex flex-col items-center mb-6">
-              <img 
-                src="https://i.ibb.co/ksb3b2Bs/obraz-2026-01-29-190552532.png" 
-                alt="7u7 Ekstraklasa" 
-                className="h-10 md:h-12 w-auto mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] opacity-90"
-              />
-              <div className="w-16 h-1 bg-gradient-to-r from-transparent via-blue-600 to-transparent mb-4" />
-            </div>
-            <div className="w-full">
-              <LeagueTable isInTab={true} compact={true} highlightId={id} />
-            </div>
-          </div>
-        )}
-
-        {/* Existing Skład Tab Logic */}
-        {activeTab === 'skład' && (
-          <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
-            <div className="p-10 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter">{isRefereeCollege ? 'KADRA SĘDZIOWSKA' : 'KADRA ZESPOŁU'}</h2>
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">Sezon 2024/2025</p>
-              </div>
-              <div className="relative w-full md:w-80">
-                <input
-                  type="text"
-                  placeholder="Szukaj zawodnika..."
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm font-black uppercase italic tracking-widest focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-white/10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[1000px]">
-                <thead>
-                  <tr className="text-[10px] text-white/20 uppercase font-black tracking-[0.2em] border-b border-white/5 bg-white/[0.01]">
-                    <th className="px-10 py-6">Gracz</th>
-                    <th className="px-10 py-6 text-center">Kraj</th>
-                    {!isRefereeCollege && <th className="px-10 py-6 text-center">Koszulka</th>}
-                    <th className="px-10 py-6 text-right">{isRefereeCollege ? 'Rola' : 'Pozycja'}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {loadingPlayers ? (
-                    <tr>
-                      <td colSpan={4} className="px-10 py-32 text-center">
-                        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                        <p className="text-white/20 font-black uppercase tracking-[0.3em] text-[10px]">Ładowanie kadry...</p>
-                      </td>
-                    </tr>
-                  ) : filteredPlayers.length > 0 ? (
-                    filteredPlayers.map((player) => {
-                      // Mapping positions to Polish
-                      const posMap: Record<string, string> = {
-                        'GK': 'B',
-                        'CB': 'ŚO',
-                        'LB': 'LO',
-                        'RB': 'PO',
-                        'CM': 'ŚP',
-                        'LM': 'LP',
-                        'RM': 'PP',
-                        'ST': 'ŚN',
-                        'LW': 'LS',
-                        'RW': 'PS',
-                        'CAM': 'PO',
-                        'CDM': 'DP'
-                      };
-                      
-                      // Check country from history
-                      const playerInHistory = history?.players?.[player.userId] || 
-                                             Object.values(history?.players || {}).find((p: any) => p.name === player.username);
-                      const hasCountry = !!playerInHistory;
-
-                      // Get position from API if available
-                      const apiPos = playerInHistory?.matches?.[0]?.position;
-                      const effectivePos = apiPos || player.position;
-                      const polishPos = isRefereeCollege ? 'Sędzia PFF' : (posMap[effectivePos || ''] || effectivePos || 'Z');
-
-                      // Use shared market value calculation
-                      const matches = playerInHistory?.matches || [];
-                      const avgRating = matches.length > 0 
-                        ? matches.reduce((acc: number, m: any) => acc + (m.rating || 0), 0) / matches.length 
-                        : 6.0;
-
-                      const marketValue = calculateMarketValue(player.stats, effectivePos, avgRating);
-                      
-                      const formatValue = (val: number) => {
-                        if (val >= 1000000) return `${(val / 1000000).toFixed(1).replace('.', ',')} mln €`;
-                        return `${(val / 1000).toFixed(1).replace('.', ',')} tys. €`;
-                      };
-
-                      return (
-                        <tr key={player.userId} className="group hover:bg-white/[0.02] transition-colors">
-                          <td className="px-10 py-6">
-                            <Link href={`/gracz/${player.username}`} className="flex items-center gap-5">
-                              <div className="w-12 h-12 bg-white/[0.03] rounded-2xl border border-white/5 overflow-hidden group-hover:scale-110 group-hover:border-blue-500/30 transition-all">
-                                <RobloxAvatar username={player.username} className="w-full h-full object-cover" />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg font-black italic uppercase tracking-tight group-hover:text-blue-400 transition-colors">
-                                  {player.username}
-                                </span>
-                                {player.verified && (
-                                  <div className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center">
-                                    <svg className="w-2 h-2 text-white fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
-                                  </div>
-                                )}
-                              </div>
-                            </Link>
-                          </td>
-                          <td className="px-10 py-6">
-                            <div className="flex items-center justify-center gap-3">
-                              {hasCountry ? (
-                                <>
-                                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                                    <img src="https://flagcdn.com/w80/pl.png" className="w-full h-full object-cover" alt="" />
-                                  </div>
-                                  <span className="text-xs font-black italic uppercase text-white/40">Polska</span>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center">
-                                    <span className="text-[10px] text-white/20">?</span>
-                                  </div>
-                                  <span className="text-xs font-black italic uppercase text-white/20">Nieznana</span>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                          {!isRefereeCollege && (
-                            <td className="px-10 py-6 text-center font-black italic text-white/80">
-                              {playerNumbers[player.userId] || '--'}
-                            </td>
-                          )}
-                          <td className="px-10 py-6 text-right">
-                            <span className="font-black italic text-white/40 uppercase group-hover:text-white transition-colors">
-                              {polishPos}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="px-10 py-32 text-center">
-                        <Users className="w-12 h-12 text-white/5 mx-auto mb-6" />
-                        <p className="text-white/20 font-black uppercase tracking-[0.3em] text-[10px]">Brak zawodników w kadrze</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-        
-        {/* Mecze Tab Logic */}
-        {activeTab === 'mecze' && (
-          <div className="max-w-6xl mx-auto space-y-4">
-            <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] p-8 md:p-16 shadow-2xl">
-              <div className="flex flex-col items-center mb-12">
-                <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-4">Terminarz i wyniki</h2>
-                <div className="w-32 h-1.5 bg-blue-600 rounded-full" />
-              </div>
-
-              <div className="space-y-2">
-                {(() => {
-                  // Merge matches (finished), fixtures (upcoming) and friendly matches
-                  const combinedMatches = [
-                    ...apiMatches
-                      .filter(m => m.teamA === team.name || m.teamB === team.name)
-                      .map(m => ({
-                        id: m.uuid || m.id,
-                        homeTeamName: m.teamA,
-                        awayTeamName: m.teamB,
-                        homeScore: m.scoreA,
-                        awayScore: m.scoreB,
-                        date: new Date(m.createdAt),
-                        status: m.status,
-                        type: 'match',
-                        league: 'Ekstraklasa',
-                        leagueLogo: 'https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png'
-                      })),
-                    ...apiFixtures
-                      .filter(f => f?.teamA === team?.name || f?.teamB === team?.name)
-                      .map(f => ({
-                        id: f.id,
-                        homeTeamName: f.teamA,
-                        awayTeamName: f.teamB,
-                        homeScore: f.scoreA,
-                        awayScore: f.scoreB,
-                        date: new Date(f.date),
-                        status: f.status,
-                        type: 'fixture',
-                        league: 'Ekstraklasa',
-                        leagueLogo: 'https://i.ibb.co/MyfXtGLH/ekstraklasabaner-removebg-preview.png'
-                      })),
-                    ...friendlyMatches
-                      .filter(f => f.teamA === team.name || f.teamB === team.name)
-                      .map(f => {
-                        const [datePart, timePart] = f.date.split(' ');
-                        const [day, month, year] = datePart.split('.').map(Number);
-                        const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
-                        const matchDate = new Date(year, month - 1, day, hours, minutes);
-                        
-                        return {
-                          id: f.matchUuid || f.uuid,
-                          homeTeamName: f.teamA,
-                          awayTeamName: f.teamB,
-                          homeScore: f.scoreA,
-                          awayScore: f.scoreB,
-                          date: matchDate,
-                          status: f.status,
-                          type: 'friendly',
-                          league: 'Mecze Towarzyskie',
-                          leagueLogo: 'https://i.ibb.co/KxyY30Gk/towarzyskie.png'
-                        };
-                      })
-                  ].sort((a, b) => b.date.getTime() - a.date.getTime());
-
-                  if (combinedMatches.length === 0) {
+              <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x select-none px-2 -mx-2">
+                 {teamData.players.map((player, i) => {
+                    const stats = playerStats.find(ps => ps.player_id === player.id);
                     return (
-                      <div className="text-center py-32">
-                        <Calendar className="w-16 h-16 text-white/5 mx-auto mb-8" />
-                        <p className="text-white/20 font-black uppercase tracking-[0.4em] text-xs">Brak zaplanowanych meczów</p>
-                      </div>
+                       <div key={player.id} className="min-w-[240px] md:min-w-[280px] snap-start">
+                          <PlayerCard player={player} stats={stats} />
+                       </div>
                     );
-                  }
+                 })}
+                 {teamData.players.length === 0 && (
+                    <div className="w-full py-32 flex flex-col items-center justify-center bg-white/[0.01] border border-white/5 rounded-[3rem] text-white/10">
+                       <User className="w-20 h-20 mb-6 opacity-5" />
+                       <span className="text-xs font-black uppercase tracking-[0.5em]">BRAK DANYCH O ZAWODNIKACH</span>
+                    </div>
+                 )}
+              </div>
+           </section>
 
-                  return combinedMatches.map((match, idx) => {
-                    const isFinished = match.status === 'finished' || match.status === 'played';
-                    
-                    let resultColor = 'bg-green-500/90 shadow-[0_0_40px_rgba(34,197,94,0.3)]';
-                    if (isFinished) {
-                      const isTeamA = match.homeTeamName === team.name;
-                      const scoreA = match.homeScore || 0;
-                      const scoreB = match.awayScore || 0;
-                      
-                      if (scoreA === scoreB) {
-                        resultColor = 'bg-blue-500/90 shadow-[0_0_40px_rgba(59,130,246,0.3)]';
-                      } else if ((isTeamA && scoreA < scoreB) || (!isTeamA && scoreB < scoreA)) {
-                        resultColor = 'bg-red-500/90 shadow-[0_0_40px_rgba(239,68,68,0.3)]';
-                      }
-                    }
-
-                    const days = ['Niedz.', 'Pon.', 'Wt.', 'Śr.', 'Czw.', 'Pt.', 'Sob.'];
-                    const months = ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'];
-                    
-                    const dateStr = `${days[match.date.getDay()]}, ${match.date.getDate()} ${months[match.date.getMonth()]}`;
-                    const timeStr = match.date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-
-                    const teamAData = teams.find(t => t.name === match.homeTeamName) || { logo: '', name: match.homeTeamName };
-                    const teamBData = teams.find(t => t.name === match.awayTeamName) || { logo: '', name: match.awayTeamName };
-
-                    return (
-                      <Link 
-                        key={match.id || idx} 
-                        href={`/mecz/${match.id}`}
-                        className="group block"
-                      >
-                        <div className="flex items-center justify-between py-8 border-b border-white/5 last:border-0 group-hover:bg-white/[0.02] transition-all rounded-[32px] px-8">
-                          {/* Left: Date */}
-                          <div className="w-40 text-center md:text-left">
-                            <p className="text-sm font-black uppercase text-white/30 tracking-widest group-hover:text-white/60 transition-colors">
-                              {dateStr}
-                            </p>
+           {/* MECZE: OSTATNIE WYNIKI I TERMINARZ */}
+           <div className="flex flex-col gap-10">
+              {/* OSTATNIE MECZE */}
+              <section className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-10 backdrop-blur-2xl shadow-2xl">
+                 <h3 className="text-white font-black text-sm uppercase tracking-[0.4em] mb-10">OSTATNIE WYNIKI</h3>
+                 <div className="flex flex-col gap-5 mb-10">
+                    {teamData.played_matches.length > 0 ? teamData.played_matches.slice(-5).reverse().map((match, i) => (
+                       <div key={i} className="flex items-center gap-6 group p-3 hover:bg-white/5 rounded-2xl transition-colors">
+                          <span className="text-[10px] font-black text-white/20 w-20 shrink-0 uppercase">{match.date}</span>
+                          <div className="flex items-center gap-3 shrink-0">
+                             <div className="w-10 h-10 relative">
+                                <img src={getLeagueLogo(match.match_type)} alt="" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
+                             </div>
+                             <div className="w-10 h-10 relative">
+                                <img src={match.opponent_logo} alt="" className="w-full h-full object-contain" />
+                             </div>
                           </div>
-
-                          {/* Center: Match Info */}
-                          <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12">
-                            {/* Team A */}
-                            <div className="flex items-center gap-4 md:gap-6 flex-1 justify-center md:justify-end order-2 md:order-1">
-                              <span className={`text-lg md:text-2xl font-black uppercase italic tracking-tighter text-right transition-colors ${match.homeTeamName === team.name ? 'text-blue-400' : 'text-white/90 group-hover:text-white'}`}>
-                                {match.homeTeamName}
-                              </span>
-                              <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2 group-hover:scale-110 group-hover:border-blue-500/30 transition-all shadow-2xl backdrop-blur-md">
-                                {teamAData.logo && <img src={teamAData.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />}
-                              </div>
-                            </div>
-
-                            {/* Result/Time */}
-                            <div className="shrink-0 flex items-center justify-center min-w-[120px] md:min-w-[140px] order-1 md:order-2">
-                              {isFinished ? (
-                                <div className={`${resultColor} text-white px-6 md:px-8 py-2 md:py-3 rounded-2xl font-black text-2xl md:text-3xl tracking-tighter transform group-hover:scale-110 transition-transform`}>
-                                  {match.homeScore} : {match.awayScore}
-                                </div>
-                              ) : (
-                                <div className="bg-white/5 border border-white/10 text-white px-6 md:px-8 py-2 md:py-3 rounded-2xl font-black text-2xl md:text-3xl tracking-tighter shadow-xl backdrop-blur-md group-hover:border-white/20 transition-all">
-                                  {timeStr}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Team B */}
-                            <div className="flex items-center gap-4 md:gap-6 flex-1 justify-center md:justify-start order-3">
-                              <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-2 group-hover:scale-110 group-hover:border-blue-500/30 transition-all shadow-2xl backdrop-blur-md">
-                                {teamBData.logo && <img src={teamBData.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />}
-                              </div>
-                              <span className={`text-lg md:text-2xl font-black uppercase italic tracking-tighter text-left transition-colors ${match.awayTeamName === team.name ? 'text-blue-400' : 'text-white/90 group-hover:text-white'}`}>
-                                {match.awayTeamName}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Right: League Logo */}
-                          <div className="hidden md:flex w-56 items-center justify-end gap-4 group-hover:scale-105 transition-all">
-                            <div className="h-16 w-auto flex items-center justify-center">
-                              <img src={match.leagueLogo} alt={match.league} className="h-full w-auto object-contain brightness-110" />
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Statystyki Tab */}
-        {activeTab === 'statystyki' && clubStats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Najlepszy strzelec */}
-            <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <h3 className="font-black uppercase italic tracking-tighter text-sm text-white/40">Najlepszy strzelec</h3>
-                <ChevronRight className="w-4 h-4 text-white/20" />
-              </div>
-              <div className="flex-1">
-                {clubStats.topScorers.length > 0 ? clubStats.topScorers.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                        <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="font-black italic uppercase text-sm group-hover:text-blue-400 transition-colors">{p.name}</span>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center">
-                      <span className="font-black text-blue-400 text-sm">{p.goals}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="p-12 text-center text-white/10 font-black italic uppercase text-xs">Brak danych</div>
-                )}
-              </div>
-            </div>
-
-            {/* Asysty */}
-            <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <h3 className="font-black uppercase italic tracking-tighter text-sm text-white/40">Asysty</h3>
-                <ChevronRight className="w-4 h-4 text-white/20" />
-              </div>
-              <div className="flex-1">
-                {clubStats.topAssists.length > 0 ? clubStats.topAssists.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                        <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="font-black italic uppercase text-sm group-hover:text-blue-400 transition-colors">{p.name}</span>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center">
-                      <span className="font-black text-blue-400 text-sm">{p.assists}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="p-12 text-center text-white/10 font-black italic uppercase text-xs">Brak danych</div>
-                )}
-              </div>
-            </div>
-
-            {/* Gole + asysty */}
-            <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <h3 className="font-black uppercase italic tracking-tighter text-sm text-white/40">Gole + asysty</h3>
-                <ChevronRight className="w-4 h-4 text-white/20" />
-              </div>
-              <div className="flex-1">
-                {clubStats.topGplusA.length > 0 ? clubStats.topGplusA.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                        <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="font-black italic uppercase text-sm group-hover:text-blue-400 transition-colors">{p.name}</span>
-                    </div>
-                    <div className="w-10 h-8 rounded-full bg-blue-600/20 flex items-center justify-center">
-                      <span className="font-black text-blue-400 text-sm">{p.goals + p.assists}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="p-12 text-center text-white/10 font-black italic uppercase text-xs">Brak danych</div>
-                )}
-              </div>
-            </div>
-
-            {/* Ocena */}
-            <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <h3 className="font-black uppercase italic tracking-tighter text-sm text-white/40">Ocena</h3>
-                <ChevronRight className="w-4 h-4 text-white/20" />
-              </div>
-              <div className="flex-1">
-                {clubStats.topRating.length > 0 ? clubStats.topRating.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                        <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="font-black italic uppercase text-sm group-hover:text-blue-400 transition-colors">{p.name}</span>
-                    </div>
-                    <div className="px-3 py-1 rounded-full bg-pink-600/20 flex items-center justify-center">
-                      <span className="font-black text-pink-400 text-sm">{p.rating.toFixed(2)}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="p-12 text-center text-white/10 font-black italic uppercase text-xs">Brak danych</div>
-                )}
-              </div>
-            </div>
-
-            {/* Rozegrane mecze */}
-            <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <h3 className="font-black uppercase italic tracking-tighter text-sm text-white/40">Rozegrane mecze</h3>
-                <ChevronRight className="w-4 h-4 text-white/20" />
-              </div>
-              <div className="flex-1">
-                {clubStats.topMatches.length > 0 ? clubStats.topMatches.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                        <RobloxAvatar username={p.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="font-black italic uppercase text-sm group-hover:text-blue-400 transition-colors">{p.name}</span>
-                    </div>
-                    <div className="px-3 py-1 rounded-full bg-blue-600/20 flex items-center justify-center">
-                      <span className="font-black text-blue-400 text-sm">{p.matches}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="p-12 text-center text-white/10 font-black italic uppercase text-xs">Brak danych</div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Transfery Tab */}
-        {activeTab === 'transfery' && clubTransfers && (
-          <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
-            <div className="p-12 border-b border-white/5 bg-white/[0.02]">
-              <h2 className="text-4xl font-black uppercase italic tracking-tighter flex items-center gap-4">
-                <ArrowRightLeft className="w-10 h-10 text-blue-500" />
-                Historia Transferowa
-              </h2>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/5 bg-white/[0.01]">
-                    <th className="px-12 py-10 font-black uppercase italic tracking-widest text-[14px] text-white/40">Data</th>
-                    <th className="px-12 py-10 font-black uppercase italic tracking-widest text-[14px] text-white/40">{isRefereeCollege ? 'Sędzia' : 'Zawodnik'}</th>
-                    <th className="px-12 py-10 font-black uppercase italic tracking-widest text-[14px] text-white/40 text-center">Typ</th>
-                    <th className="px-12 py-10 font-black uppercase italic tracking-widest text-[14px] text-white/40">{isRefereeCollege ? 'Klub' : 'Klub (Skąd / Dokąd)'}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clubTransfers.length > 0 ? clubTransfers.map((t, i) => {
-                    const targetTeamName = t.type === 'IN' ? t.fromTeam : t.toTeam;
-                    const targetTeam = teams.find(team => team.name === targetTeamName);
-                    const formattedDate = new Date(t.date).toLocaleDateString('pl-PL', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric'
-                    });
-
-                    return (
-                      <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition-all group py-4">
-                        <td className="px-12 py-10">
-                          <span className="text-base font-black text-white/40 tabular-nums uppercase">{formattedDate}</span>
-                        </td>
-                        <td className="px-12 py-10">
-                          <div className="flex items-center gap-8">
-                            <div className="relative">
-                              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10 bg-white/5 transition-transform group-hover:scale-110 shadow-2xl">
-                                <RobloxAvatar username={t.playerName} className="w-full h-full object-cover" />
-                              </div>
-                              {t.position && !isRefereeCollege && (
-                                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-[11px] font-black px-2.5 py-1 rounded-md border border-white/20 italic shadow-xl">
-                                  {t.position}
-                                </div>
-                              )}
-                            </div>
-                            <span className="font-black italic uppercase text-2xl group-hover:text-blue-400 transition-colors tracking-tighter">{t.playerName}</span>
-                          </div>
-                        </td>
-                        <td className="px-12 py-10 text-center">
-                          <span className={`px-8 py-3.5 rounded-full font-black text-sm uppercase tracking-widest inline-block shadow-xl ${
-                            t.type === 'IN' 
-                              ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-green-500/5' 
-                              : 'bg-red-500/10 text-red-400 border border-red-500/20 shadow-red-500/5'
+                          <span className="text-sm font-black text-white/70 flex-1 truncate uppercase tracking-tight">{match.opponent_name}</span>
+                          <span className="text-lg font-black text-white w-14 text-right italic">{match.home_score}:{match.away_score}</span>
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 shadow-lg ${
+                             match.result === 'W' ? 'bg-green-500 text-black' :
+                             match.result === 'D' ? 'bg-zinc-700 text-white' :
+                             'bg-red-500 text-white'
                           }`}>
-                            {t.type === 'IN' ? 'DOŁĄCZYŁ' : 'ODESZEDŁ'}
-                          </span>
-                        </td>
-                        <td className="px-12 py-10">
-                          <div className="flex items-center gap-6">
-                            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-2.5 shadow-lg group-hover:border-blue-500/30 transition-colors">
-                              {targetTeam?.logo ? (
-                                <img src={targetTeam.logo} alt="" className="w-full h-full object-contain" />
-                              ) : (
-                                <Users className="w-6 h-6 text-white/10" />
-                              )}
-                            </div>
-                            <span className="text-xl font-black italic uppercase text-white/80 tracking-tight group-hover:text-white transition-colors">
-                              {targetTeamName}
-                            </span>
+                             {match.result}
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  }) : (
-                    <tr>
-                      <td colSpan={4} className="px-12 py-40 text-center">
-                        <div className="flex flex-col items-center gap-8 opacity-20">
-                          <ArrowRightLeft className="w-20 h-20" />
-                          <span className="font-black uppercase italic tracking-[0.3em] text-lg">Brak zarejestrowanych transferów</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                       </div>
+                    )) : (
+                       <div className="py-16 text-center text-xs font-black text-white/10 uppercase tracking-[0.3em] italic">BRAK ROZEGRANYCH MECZY</div>
+                    )}
+                 </div>
+                 <Link href={`/klub/${id}/wyniki`} className="w-full flex items-center justify-between group px-6 py-5 bg-white/[0.03] border border-white/5 rounded-3xl hover:bg-blue-600 transition-all shadow-xl">
+                    <span className="text-white font-black text-xs uppercase tracking-widest">WSZYSTKIE WYNIKI</span>
+                    <ChevronRight className="w-6 h-6 text-blue-500 group-hover:text-white transition-colors" />
+                 </Link>
+              </section>
 
-        {/* Simple placeholder for other tabs */}
-        {activeTab !== 'przegląd' && activeTab !== 'skład' && activeTab !== 'tabela' && activeTab !== 'mecze' && activeTab !== 'statystyki' && activeTab !== 'transfery' && (
-          <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-20 text-center">
-            <div className="w-20 h-20 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-6">
-              <Calendar className="w-10 h-10 text-gray-600" />
-            </div>
-            <h2 className="text-2xl font-black uppercase mb-2">Moduł w budowie</h2>
-            <p className="text-gray-500 font-medium">Zakładka {activeTab.toUpperCase()} będzie dostępna wkrótce.</p>
-          </div>
-        )}
-      </main>
-      
+              {/* TERMINARZ MECZY */}
+              <section className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-10 backdrop-blur-2xl border-blue-500/10 shadow-2xl">
+                 <h3 className="text-white font-black text-sm uppercase tracking-[0.4em] mb-10">TERMINARZ MECZY</h3>
+                 <div className="flex flex-col gap-5 mb-10">
+                    {teamData.upcoming_matches.length > 0 ? teamData.upcoming_matches.slice(0, 5).map((match, i) => (
+                       <div key={i} className="flex items-center gap-6 group p-3 hover:bg-white/5 rounded-2xl transition-colors">
+                          <span className="text-[10px] font-black text-blue-400/60 w-20 shrink-0 uppercase">{match.date}</span>
+                          <div className="flex items-center gap-3 shrink-0">
+                             <div className="w-10 h-10 relative">
+                                <img src={getLeagueLogo(match.match_type)} alt="" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
+                             </div>
+                             <div className="w-10 h-10 relative">
+                                <img src={match.opponent_logo} alt="" className="w-full h-full object-contain" />
+                             </div>
+                          </div>
+                          <span className="text-sm font-black text-white/70 flex-1 truncate uppercase tracking-tight">{match.opponent_name}</span>
+                          <div className="bg-blue-500/10 border border-blue-500/10 rounded-lg px-3 py-1.5 text-[10px] font-black text-blue-400 uppercase tracking-tighter">
+                             {match.side === 'home' ? 'DOM' : 'WYJ'}
+                          </div>
+                          <span className="text-xs font-black text-white/20 italic shrink-0">VS</span>
+                       </div>
+                    )) : (
+                       <div className="py-16 text-center text-xs font-black text-white/10 uppercase tracking-[0.3em] italic">BRAK ZAPLANOWANYCH MECZY</div>
+                    )}
+                 </div>
+                 <Link href={`/klub/${id}/terminarz`} className="w-full flex items-center justify-between group px-6 py-5 bg-white/[0.03] border border-white/10 rounded-3xl hover:bg-white/[0.1] transition-all shadow-xl">
+                    <span className="text-white font-black text-xs uppercase tracking-widest group-hover:text-blue-400 transition-colors">PEŁNY TERMINARZ</span>
+                    <ChevronRight className="w-6 h-6 text-blue-500 group-hover:translate-x-1 transition-transform" />
+                 </Link>
+              </section>
+           </div>
+        </div>
+
+      </div>
+
       <Footer />
+    </main>
+  );
+}
+
+function InfoItem({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+  return (
+    <div className="flex items-center gap-5">
+      <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-lg">
+        {icon}
+      </div>
+      <div>
+        <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">{label}</div>
+        <div className="text-xl font-black text-white/80 tracking-tight italic uppercase">{value}</div>
+      </div>
     </div>
+  );
+}
+
+function RibbonStat({ label, value, highlight = false }: { label: string, value: string | number, highlight?: boolean }) {
+  return (
+    <div className={`bg-white/[0.03] border border-white/10 rounded-3xl p-8 text-center backdrop-blur-2xl group hover:bg-white/[0.08] transition-all shadow-xl ${highlight ? 'border-blue-500/40 bg-blue-500/5' : ''}`}>
+       <div className={`text-4xl font-black italic tracking-tighter mb-2 transition-transform group-hover:scale-110 ${highlight ? 'text-blue-500' : 'text-white'}`}>
+         {value}
+       </div>
+       <div className="text-[11px] font-black text-white/20 uppercase tracking-[0.3em]">{label}</div>
+    </div>
+  );
+}
+
+function ProgressCircle({ percentage, color, label, size = "normal" }: { percentage: number, color: string, label: string, size?: "normal" | "large" }) {
+  const sizeClasses = size === "large" ? "w-24 h-24 text-xl" : "w-20 h-20 text-lg";
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className={`${sizeClasses} rounded-full border-[6px] ${color} flex items-center justify-center relative shadow-2xl bg-black/20`}>
+         <span className="font-black italic">{percentage}%</span>
+         {/* Inner Glow */}
+         <div className="absolute inset-0 rounded-full bg-white/[0.02] animate-pulse" />
+      </div>
+      <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
+    </div>
+  );
+}
+
+function TableStatItem({ label, value }: { label: string, value: string | number }) {
+  return (
+    <div className="flex justify-between items-center bg-white/[0.02] px-5 py-3 rounded-2xl border border-white/5 transition-colors hover:border-white/10">
+       <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">{label}</span>
+       <span className="text-base font-black text-white italic">{value}</span>
+    </div>
+  );
+}
+
+function PlayerCard({ player, stats }: { player: Player, stats?: any }) {
+  const fullName = `${player.first_name} ${player.last_name}`.trim();
+  const playerUrl = `/gracz/${fullName.replace(/\s+/g, '-').toLowerCase()}`;
+
+  return (
+    <Link href={playerUrl} className="bg-[#0f172a] border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-blue-500/40 transition-all relative block shadow-2xl">
+       <div className="aspect-[3/4.5] relative overflow-hidden">
+          <img 
+            src={player.photo_url || "https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png"} 
+            alt="" 
+            className={`w-full h-full transition-all duration-1000 brightness-90 group-hover:brightness-110 ${
+              !player.photo_url ? "object-contain object-bottom scale-[0.85] opacity-90" : "object-cover group-hover:scale-110"
+            }`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-80" />
+          <div className="absolute top-4 right-6 text-5xl font-black text-white/10 group-hover:text-blue-500/20 transition-colors italic tracking-tighter">
+            {player.jersey_number || ""}
+          </div>
+       </div>
+       <div className="p-6 relative z-10 -mt-12">
+          <h4 className="text-lg font-black text-white uppercase truncate mb-1 italic tracking-tight">{player.last_name}</h4>
+          <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] mb-6">{player.position || 'ZAWODNIK'}</p>
+          
+          <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-5">
+             <div className="flex flex-col">
+                <span className="text-xl font-black text-white italic tracking-tighter">{stats?.played || 0}</span>
+                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">MECZE</span>
+             </div>
+             <div className="flex flex-col items-end">
+                <span className="text-xl font-black text-white italic tracking-tighter">{stats?.goals || 0}</span>
+                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">BRAMKI</span>
+             </div>
+          </div>
+       </div>
+       {/* Captain Badge */}
+       {player.id % 7 === 0 && (
+          <div className="absolute top-4 left-4 bg-yellow-500 text-black font-black text-[9px] px-3 py-1 rounded-lg uppercase italic shadow-xl">KAPITAN</div>
+       )}
+    </Link>
   );
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const CLIENT_ID = process.env.ROBLOX_CLIENT_ID || '8976718339232083701';
-const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET || 'RBX-9Q7xxduyr0SyvmSDQWOIy7Hq3uol7UdKyH_ObQ5rthuf4aZnGbzdCnd_ik83XXvY';
+const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET || 'RBX-9Q7xxduyr0SyvmSDQWOIy0o8EkLsI-PlR2RpmXWieezkRxp3kO-FrQVLNU-F0Gsk';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');

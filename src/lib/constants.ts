@@ -1,4 +1,4 @@
-export const REPLIT_API_BASE_URL = 'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev';
+export const REPLIT_API_BASE_URL = 'https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev';
 export const FIREBASE_BASE_URL = "https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app";
 
 export const API_ENDPOINTS = {
@@ -39,7 +39,7 @@ export const TEAM_ID_MAPPING: Record<string, string> = {
   '1': 'ARK', '2': 'LEG', '3': 'LPO', '4': 'ZAG', '5': 'MOT',
   '6': 'BBT', '7': 'LGD', '10': 'POG',
   '11': 'UNI', '12': 'ZAW', '13': 'WIS', '14': 'SOK', '15': 'JAG',
-  '16': 'WPL'
+  '16': 'WPL', '19': 'CRA'
 };
 
 export const COUNTRY_MAPPING: Record<string, string> = {

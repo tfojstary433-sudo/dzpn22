@@ -22,6 +22,11 @@ export interface Team {
     titles?: { count: number; years: string };
     viceTitles?: { count: number; years: string };
     cups?: { count: number; years: string };
+    friendlyMatches?: {
+      firstPlace?: { count: number; years: string };
+      secondPlace?: { count: number; years: string };
+      thirdPlace?: { count: number; years: string };
+    };
   };
 }
 
@@ -52,6 +57,15 @@ export interface Standing {
   points: number;
 }
 
+export interface PlayerAchievement {
+  tournament: string;
+  season: string;
+  place: number;
+  matchUuid?: string;
+  awardedAt: string;
+  teamName?: string;
+}
+
 export interface Player {
   name: string;
   team: Team;
@@ -60,6 +74,7 @@ export interface Player {
   assists?: number;
   playerId?: number;
   avatarUrl?: string;
+  achievements?: PlayerAchievement[];
 }
 
 export interface PlayerStat {
@@ -89,7 +104,12 @@ export const teams: Team[] = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/5/55/Herb_Zawiszy_Bydgoszcz.png',
     color: '#1e40af',
     founded: '13.12.2025',
-    stadium: 'Stadion Miejski w Bydgoszczy'
+    stadium: 'Stadion Miejski w Bydgoszczy',
+    achievements: {
+      friendlyMatches: {
+        firstPlace: { count: 1, years: '25/26' }
+      }
+    }
   } as any,
   { 
     id: 'ARK', 
@@ -98,7 +118,12 @@ export const teams: Team[] = [
     logo: 'https://arka.gdynia.pl/files/herb/arka_gdynia_mzks_kolor.png',
     color: '#facc15',
     founded: '13.12.2025',
-    stadium: 'Stadion Miejski w Gdyni'
+    stadium: 'Stadion Miejski w Gdyni',
+    achievements: {
+      friendlyMatches: {
+        secondPlace: { count: 1, years: '25/26' }
+      }
+    }
   } as any,
   { 
     id: 'LEG', 
@@ -125,7 +150,12 @@ export const teams: Team[] = [
     logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b7/Lechia_Gda%C5%84sk_logo.svg/1200px-Lechia_Gda%C5%84sk_logo.svg.png',
     color: '#16a34a',
     founded: '14.12.2025',
-    stadium: 'Stadion Energa w Gdańsku'
+    stadium: 'Stadion Energa w Gdańsku',
+    achievements: {
+      friendlyMatches: {
+        thirdPlace: { count: 1, years: '25/26' }
+      }
+    }
   } as any,
   { 
     id: 'WID', 
@@ -228,7 +258,15 @@ export const teams: Team[] = [
     color: '#ef4444',
     founded: '01.01.2026',
     president: 'Zarząd PFF',
-    stadium: 'PFF Arena'
+    stadium: 'Stadion PFF Arena'
+  } as any,
+  { 
+    id: 'CRA', 
+    name: 'KS Cracovia', 
+    shortName: 'Cracovia', 
+    logo: 'https://i.ibb.co/fG2cXc2S/cracovia.png',
+    color: '#dc2626',
+    stadium: 'Stadion im. Józefa Piłsudskiego'
   } as any,
 ];
 
@@ -250,6 +288,7 @@ export const clubToFirebaseKey: { [key: string]: string } = {
   'JAG': 'Club 15', // Jagiellonia Białystok
   'WPL': 'Club 16', // Wisła Płock
   'BBT': 'Club 17', // Bruk-Bet Termalica
+  'CRA': 'Club 19', // KS Cracovia
   'SED': 'Referee', // Sędziowie
   'MED': 'Media'     // Media
 };
@@ -290,7 +329,67 @@ export interface Article {
 
 export const newsArticles: Article[] = [];
 
-export const friendlyMatchesData: any[] = [];
+export const friendlyMatchesData: any[] = [
+  {
+    round: 'PÓŁFINAŁY',
+    matches: [
+      {
+        id: 'sf1',
+        homeTeam: teams.find(t => t.id === 'ARK'),
+        awayTeam: teams.find(t => t.id === 'LGD'),
+        homeScore: 0,
+        awayScore: 0,
+        status: 'finished',
+        round: 'PÓŁFINAŁ',
+        category: 'FAZA PUCHAROWA',
+        date: '01.03.2026'
+      },
+      {
+        id: 'sf2',
+        homeTeam: teams.find(t => t.id === 'ZAW'),
+        awayTeam: teams.find(t => t.id === 'SOK'),
+        homeScore: 0,
+        awayScore: 0,
+        status: 'finished',
+        round: 'PÓŁFINAŁ',
+        category: 'FAZA PUCHAROWA',
+        date: '01.03.2026'
+      }
+    ]
+  },
+  {
+    round: 'MECZ O 3. MIEJSCE',
+    matches: [
+      {
+        id: '3rd',
+        homeTeam: teams.find(t => t.id === 'LGD'),
+        awayTeam: teams.find(t => t.id === 'SOK'),
+        homeScore: 6,
+        awayScore: 1,
+        status: 'finished',
+        round: 'MECZ O 3. MIEJSCE',
+        category: 'FAZA PUCHAROWA',
+        date: '04.03.2026'
+      }
+    ]
+  },
+  {
+    round: 'FINAŁ',
+    matches: [
+      {
+        id: 'final',
+        homeTeam: teams.find(t => t.id === 'ZAW'),
+        awayTeam: teams.find(t => t.id === 'ARK'),
+        homeScore: 3,
+        awayScore: 0,
+        status: 'finished',
+        round: 'FINAŁ',
+        category: 'FAZA PUCHAROWA',
+        date: '04.03.2026'
+      }
+    ]
+  }
+];
 
 export const sneakPeeks: SneakPeak[] = [
   {
@@ -310,7 +409,7 @@ export const sneakPeeks: SneakPeak[] = [
   {
     id: 3,
     title: 'Przeciek nowego interfejsu',
-    image: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    image: 'https://i.ibb.co/23XPPB9m/system-administration-3.png',
     type: 'image',
     date: '2026-01-09',
   }

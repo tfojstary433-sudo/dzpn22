@@ -1,6 +1,6 @@
 'use client';
 
-import { Navbar } from '@/components/navbar';
+import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { newsArticles as staticNewsArticles } from '@/lib/data';
 import { CreateArticleButton } from '@/components/create-article-modal';
@@ -72,16 +72,26 @@ export default function NewsListPage() {
   const otherArticles = filteredArticles.slice(1);
 
   return (
-    <div className="min-h-screen text-white selection:bg-blue-500 selection:text-white relative overflow-hidden">
-      {/* Abstract Background Decorations */}
-      <div className="absolute top-0 left-0 w-full h-screen pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute top-[20%] right-[-5%] w-[30%] h-[30%] bg-blue-400/5 blur-[100px] rounded-full" />
-        <div className="absolute bottom-[10%] left-[20%] w-[25%] h-[25%] bg-blue-500/5 blur-[80px] rounded-full" />
+    <main className="bg-[#020617] min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
+      <MainNavbar />
+      
+      {/* Background Section */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="https://i.ibb.co/YCB7X52/obraz-2026-06-13-150303737.png"
+          alt="Stadium Background"
+          fill
+          className="object-cover brightness-[0.7]"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+        
+        {/* Blue/Red Splashes based on new logo */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/30 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-red-600/20 rounded-full blur-[120px]" />
       </div>
-      <Navbar />
 
-      <main className="pt-32 pb-40 relative z-10">
+      <div className="relative z-10 pt-44 pb-40">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">

@@ -10,21 +10,53 @@ interface RobloxAvatarProps {
 
 const avatarCache = new Map<string, string>();
 
+export async function seedAvatarCache(usernames: string[]) {
+  const toFetch = usernames.filter(u => u && !avatarCache.has(u.trim()));
+  if (toFetch.length === 0) return;
+
+  try {
+    const response = await fetch('/api/roblox/avatar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usernames: toFetch })
+    });
+    if (response.ok) {
+      const { data } = await response.json();
+      Object.entries(data).forEach(([username, result]: [string, any]) => {
+        avatarCache.set(username.trim(), result.avatarUrl);
+      });
+    }
+  } catch (error) {
+    console.error('Failed to seed avatar cache', error);
+  }
+}
+
 export function RobloxAvatar({ username, className, style }: RobloxAvatarProps) {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(avatarCache.get(username.trim()) || null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     if (!username) return;
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) return;
 
-    const fetchAvatar = async () => {
-      const trimmedUsername = username.trim();
-      if (!trimmedUsername) return;
-      
+    if (avatarCache.has(trimmedUsername)) {
+      setAvatarUrl(avatarCache.get(trimmedUsername)!);
+      return;
+    }
+    
+    // Check cache every 100ms for 2 seconds to see if it was seeded
+    let checks = 0;
+    const interval = setInterval(() => {
       if (avatarCache.has(trimmedUsername)) {
         setAvatarUrl(avatarCache.get(trimmedUsername)!);
-        return;
+        clearInterval(interval);
       }
+      if (++checks > 20) clearInterval(interval);
+    }, 100);
+
+    const fetchAvatar = async () => {
+      if (avatarCache.has(trimmedUsername)) return;
       
       try {
         const response = await fetch(`/api/roblox/avatar?username=${encodeURIComponent(trimmedUsername)}`, {
@@ -41,6 +73,7 @@ export function RobloxAvatar({ username, className, style }: RobloxAvatarProps) 
     };
 
     fetchAvatar();
+    return () => clearInterval(interval);
   }, [username]);
 
   if (!avatarUrl) {

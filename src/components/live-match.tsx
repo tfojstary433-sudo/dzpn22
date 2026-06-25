@@ -123,7 +123,7 @@ export function LiveMatch() {
 
   const getTeamLogo = (teamName: string) => {
     const team = getTeamData(teamName);
-    return team?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+    return team?.logo || 'https://i.ibb.co/23XPPB9m/system-administration-3.png';
   };
 
   const handleCopyUuid = () => {

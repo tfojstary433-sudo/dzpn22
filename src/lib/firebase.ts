@@ -226,3 +226,14 @@ export async function grantUserProducts(userId: string, products: string[]): Pro
     return false;
   }
 }
+
+export async function getVerifiedPlayers(): Promise<Record<string, { discordId: string; discordUser: string }>> {
+  try {
+    const response = await fetch(`${FIREBASE_BASE_URL}/VerifiedPlayers.json`);
+    if (!response.ok) return {};
+    return await response.json() || {};
+  } catch (error) {
+    console.error('Error fetching verified players from Firebase:', error);
+    return {};
+  }
+}

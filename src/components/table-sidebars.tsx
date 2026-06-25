@@ -87,7 +87,7 @@ export const SponsorsSidebar = memo(function SponsorsSidebar() {
     { src: "https://i.ibb.co/gL0mLH1m/Clash-MMALogo.png", alt: "Clash MMA" },
     { src: "https://i.ibb.co/XxHbj8Cd/04be6464-9300-4243-b4ee-6054050870e7.png", alt: "Sponsor 2" },
     { src: "https://i.ibb.co/MxFqjSYj/7u7logo-1.png", alt: "7u7" },
-    { src: "https://i.ibb.co/xbrWSnb/Przezroczyste-PFF.png", alt: "PFF" },
+    { src: "https://i.ibb.co/23XPPB9m/system-administration-3.png", alt: "PFF" },
   ];
 
   return (

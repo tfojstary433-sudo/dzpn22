@@ -5,11 +5,46 @@ import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { teams, friendlyMatchesData, extraTeams, cupMatchesData } from '@/lib/data';
-import { Navbar } from '@/components/navbar';
+import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 
 function TurniejeContent() {
-  const [activeTournament, setActiveTournament] = useState<'towarzyskie'>('towarzyskie');
+  const [activeTournament, setActiveTournament] = useState<'towarzyskie' | 'puchar'>('towarzyskie');
+  const [isLocked, setIsLocked] = useState(true);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawResult, setDrawResult] = useState<any[]>([]);
+
+  const lockDate = new Date('2026-06-30T14:55:00');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      if (now >= lockDate) {
+        setIsLocked(false);
+        clearInterval(timer);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const startDraw = () => {
+    setIsDrawing(true);
+    // Simulate drawing animation
+    setTimeout(() => {
+      const shuffled = [...teams].filter(t => t.id !== 'SED').sort(() => 0.5 - Math.random());
+      const pairs = [];
+      for (let i = 0; i < shuffled.length; i += 2) {
+        if (shuffled[i + 1]) {
+          pairs.push({
+            home: shuffled[i],
+            away: shuffled[i + 1]
+          });
+        }
+      }
+      setDrawResult(pairs);
+      setIsDrawing(false);
+    }, 5000);
+  };
   
   const [challongeData, setChallongeData] = useState<any>(null);
   const [tableData, setTableData] = useState<any>(null);
@@ -271,6 +306,11 @@ function TurniejeContent() {
       if (knockoutData.final && knockoutData.final.id) {
         knockoutMatches.push(knockoutData.final);
       }
+    }
+
+    // Fallback to friendlyMatchesData for historical matches
+    if (knockoutMatches.length === 0 && friendlyMatchesData.length > 0) {
+      return friendlyMatchesData;
     }
 
     // Fallback to fixtures if still empty
@@ -580,7 +620,33 @@ function TurniejeContent() {
         </div>
 
         <div className="relative z-10">
-            <div key="friendly-section" className="pb-20">
+            <div className="container mx-auto px-4 pt-32 pb-8">
+              <div className="flex justify-center gap-4">
+                <button 
+                  onClick={() => setActiveTournament('towarzyskie')}
+                  className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest transition-all ${
+                    activeTournament === 'towarzyskie' 
+                      ? 'bg-[#00ccff] text-black shadow-[0_0_20px_rgba(0,204,255,0.4)]' 
+                      : 'bg-white/5 text-white/40 hover:bg-white/10'
+                  }`}
+                >
+                  Mecze Towarzyskie
+                </button>
+                <button 
+                  onClick={() => setActiveTournament('puchar')}
+                  className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest transition-all ${
+                    activeTournament === 'puchar' 
+                      ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)]' 
+                      : 'bg-white/5 text-white/40 hover:bg-white/10'
+                  }`}
+                >
+                  Puchar Powiatu
+                </button>
+              </div>
+            </div>
+
+            {activeTournament === 'towarzyskie' ? (
+              <div key="friendly-section" className="pb-20">
               {/* Friendly Hero */}
               <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-[#00ccff]/10 to-transparent z-0" />
@@ -597,16 +663,39 @@ function TurniejeContent() {
                     </div>
 
                     {/* Central Logo */}
-                    <div className="relative group shrink-0">
-                      <div className="absolute inset-0 bg-[#00ccff]/20 blur-[50px] rounded-full scale-110 opacity-40 group-hover:opacity-80 transition-opacity duration-700" />
-                      <Image 
-                        src="https://i.ibb.co/9960T9N2/obraz-2026-01-13-020503777.png" 
-                        alt="Mecze Towarzyskie" 
-                        width={600} 
-                        height={200} 
-                        className="relative w-full max-w-[240px] md:max-w-[380px] lg:max-w-[450px] h-auto drop-shadow-[0_0_20px_rgba(0,204,255,0.3)] transition-transform duration-500 hover:scale-105"
-                        priority
-                      />
+                    <div className="flex flex-col items-center gap-6">
+                      <div className="relative group shrink-0">
+                        <div className="absolute inset-0 bg-[#00ccff]/20 blur-[50px] rounded-full scale-110 opacity-40 group-hover:opacity-80 transition-opacity duration-700" />
+                        <Image 
+                          src="https://i.ibb.co/9960T9N2/obraz-2026-01-13-020503777.png" 
+                          alt="Mecze Towarzyskie" 
+                          width={600} 
+                          height={200} 
+                          className="relative w-full max-w-[240px] md:max-w-[380px] lg:max-w-[450px] h-auto drop-shadow-[0_0_20px_rgba(0,204,255,0.3)] transition-transform duration-500 hover:scale-105"
+                          priority
+                        />
+                      </div>
+                      
+                      {/* Previous Season Winner Info */}
+                      <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl backdrop-blur-md animate-float">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#00ccff]/20 to-transparent rounded-xl flex items-center justify-center border border-[#00ccff]/20">
+                          <Image 
+                            src="https://i.ibb.co/N6MvSMh1/PUCHAR-POLSKI.png" 
+                            alt="Puchar" 
+                            width={24} 
+                            height={24} 
+                            className="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(0,204,255,0.5)]"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] leading-tight">Zwycięzca Sezonu 25/26</span>
+                          <span className="text-white font-black uppercase tracking-tight text-sm">
+                            <span className="text-[#00ccff]">Zawisza Bydgoszcz</span> 
+                            <span className="mx-2 text-white/20">vs</span> 
+                            <span className="text-white/60">Arka Gdynia</span>
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Right Side Text */}
@@ -625,6 +714,127 @@ function TurniejeContent() {
               </div>
 
               <div className="container mx-auto px-4 -mt-10 relative z-20 mb-12">
+                {/* Tournament Summary Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                  <div className="lg:col-span-3 bg-black/40 backdrop-blur-xl border border-white/10 p-6 rounded-3xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#00ccff]/5 blur-[100px] -mr-32 -mt-32 transition-all group-hover:bg-[#00ccff]/10" />
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-[#00ccff]/10 rounded-2xl border border-[#00ccff]/20">
+                          <svg className="w-6 h-6 text-[#00ccff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">Podsumowanie Sezonu 25/26</h3>
+                          <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Kluczowe statystyki turnieju</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[#00ccff] text-3xl font-black italic tracking-tighter">134</span>
+                          <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Gole Ogółem</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-white text-3xl font-black italic tracking-tighter">18</span>
+                          <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Mecze Rozegrane</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[#00ccff] text-3xl font-black italic tracking-tighter">7.44</span>
+                          <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Średnia Goli</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-white text-3xl font-black italic tracking-tighter">142</span>
+                          <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Zawodników</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-8 pt-8 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <h4 className="text-[#00ccff] text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-[#00ccff] rounded-full animate-pulse" />
+                            Najlepsi Strzelcy
+                          </h4>
+                          <div className="space-y-3">
+                            {[
+                              { name: 'kozak_21', team: 'Arka Gdynia', goals: 8 },
+                              { name: 'cytruseqzjarany', team: 'Zawisza Bydgoszcz', goals: 6 },
+                              { name: 'XAYONXD', team: 'Arka Gdynia', goals: 6 },
+                            ].map((s, idx) => (
+                              <div key={idx} className="flex items-center justify-between group/item">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-white/20 font-black italic text-sm italic">#{idx+1}</span>
+                                  <div className="flex flex-col">
+                                    <span className="text-white font-black uppercase tracking-tight text-xs group-hover/item:text-[#00ccff] transition-colors">{s.name}</span>
+                                    <span className="text-white/30 text-[9px] font-bold uppercase tracking-widest">{s.team}</span>
+                                  </div>
+                                </div>
+                                <span className="text-white font-black italic">{s.goals} <small className="text-[10px] text-white/30 uppercase not-italic">GOLI</small></span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="text-[#00ccff] text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-[#00ccff] rounded-full animate-pulse" />
+                            Najlepszy Bramkarz
+                          </h4>
+                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 group/gk hover:border-[#00ccff]/30 transition-all">
+                            <div className="w-12 h-12 bg-[#00ccff]/10 rounded-xl flex items-center justify-center border border-[#00ccff]/20">
+                              <svg className="w-6 h-6 text-[#00ccff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                              </svg>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-white font-black uppercase tracking-tight text-sm group-hover/gk:text-[#00ccff] transition-colors">Pan_Jacus2</span>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">2 Czyste konta</span>
+                                <div className="w-1 h-1 bg-white/10 rounded-full" />
+                                <span className="text-[#00ccff] text-[10px] font-black uppercase tracking-widest">MVP OBRONY</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-[#00ccff] to-[#0088aa] p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity" />
+                    <div className="absolute -right-8 -bottom-8 w-32 h-32 opacity-20 transform rotate-12 group-hover:scale-110 transition-transform">
+                       <Image 
+                         src="https://i.ibb.co/N6MvSMh1/PUCHAR-POLSKI.png" 
+                         alt="" 
+                         width={128} 
+                         height={128} 
+                         className="w-full h-full object-contain"
+                       />
+                    </div>
+
+                    <div className="relative z-10">
+                      <span className="bg-black/20 text-white text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full backdrop-blur-md">Mistrz Turnieju</span>
+                      <div className="mt-4">
+                        <h4 className="text-black text-2xl font-black uppercase tracking-tighter leading-none">Zawisza<br/>Bydgoszcz</h4>
+                        <p className="text-black/60 text-[10px] font-black uppercase tracking-widest mt-2">Pokonali Arkę Gdynia 3:0 w finale</p>
+                      </div>
+                    </div>
+
+                    <div className="relative z-10 mt-8 pt-6 border-t border-black/10">
+                      <div className="flex items-center justify-between text-black font-black uppercase tracking-widest text-[10px]">
+                        <span>Porażki</span>
+                        <span>0</span>
+                      </div>
+                      <div className="flex items-center justify-between text-black font-black uppercase tracking-widest text-[10px] mt-2">
+                        <span>Zwycięstwa</span>
+                        <span>Wszystkie</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex gap-2 max-w-2xl mx-auto">
                   <button 
                     onClick={() => setFriendlyTab('schedule')}
@@ -1325,8 +1535,87 @@ function TurniejeContent() {
                       </table>
                     </div>
                   </div>
+              </div>
+            ) : (
+              <div key="puchar-section" className="container mx-auto px-4 py-20">
+                <div className="relative h-[40vh] flex flex-col items-center justify-center overflow-hidden mb-12 rounded-[4rem] border border-white/10 bg-gradient-to-br from-red-600/20 to-black/60 shadow-2xl">
+                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.1)_0%,transparent_70%)]" />
+                   <h1 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter text-white mb-4 drop-shadow-[0_0_30px_rgba(220,38,38,0.5)]">
+                     PUCHAR POWIATU
+                   </h1>
+                   <p className="text-white/40 font-black uppercase tracking-[0.5em] text-xs">Sezon 2026 • Turniej Główny</p>
+                </div>
+
+                {isLocked ? (
+                  <div className="flex flex-col items-center justify-center py-32 bg-white/[0.02] border border-white/5 rounded-[4rem] backdrop-blur-xl">
+                    <div className="w-24 h-24 bg-red-600/10 rounded-full flex items-center justify-center mb-8 relative">
+                       <div className="absolute inset-0 bg-red-600/20 rounded-full blur-2xl animate-pulse" />
+                       <svg className="w-10 h-10 text-red-600 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                       </svg>
+                    </div>
+                    <h3 className="text-white font-black text-2xl md:text-4xl uppercase italic tracking-tighter mb-4">TURNIEJ ZABLOKOWANY</h3>
+                    <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-center max-w-md px-8">
+                      Oficjalne losowanie par Pucharu Powiatu odbędzie się<br/>
+                      <span className="text-red-500 font-black">30 czerwca 2026 o godzinie 14:55</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-12">
+                    {drawResult.length === 0 && !isDrawing && (
+                      <div className="flex justify-center">
+                        <button 
+                          onClick={startDraw}
+                          className="px-12 py-6 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest rounded-2xl transition-all transform hover:scale-105 shadow-[0_10px_30px_rgba(220,38,38,0.4)]"
+                        >
+                          ROZPOCZNIJ LOSOWANIE
+                        </button>
+                      </div>
+                    )}
+
+                    {isDrawing && (
+                      <div className="flex flex-col items-center justify-center py-32 gap-8">
+                        <div className="relative w-32 h-32">
+                          <div className="absolute inset-0 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin" />
+                          <div className="absolute inset-0 border-4 border-red-600/10 border-b-red-600 rounded-full animate-spin-reverse" />
+                        </div>
+                        <div className="text-center">
+                          <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white animate-pulse">TRWA LOSOWANIE...</h2>
+                          <p className="text-white/40 font-bold uppercase tracking-[0.3em] mt-2">Maszyna losująca wybiera pary</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {drawResult.length > 0 && !isDrawing && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                        {drawResult.map((pair, idx) => (
+                          <div key={idx} className="bg-white/[0.03] border border-white/10 p-8 rounded-[3rem] group hover:bg-white/[0.06] hover:border-red-600/30 transition-all flex items-center justify-between">
+                             <div className="flex flex-col items-center gap-4 flex-1">
+                                <div className="w-16 h-16 bg-black/40 rounded-2xl p-3 border border-white/5 group-hover:scale-110 transition-transform">
+                                  <Image src={pair.home.logo} alt="" width={64} height={64} className="w-full h-full object-contain" />
+                                </div>
+                                <span className="text-xs font-black uppercase tracking-tight text-center">{pair.home.name}</span>
+                             </div>
+
+                             <div className="px-8 flex flex-col items-center">
+                                <span className="text-red-600 font-black text-2xl italic">VS</span>
+                                <span className="text-white/20 text-[8px] font-black uppercase tracking-widest mt-2">1/8 FINAŁU</span>
+                             </div>
+
+                             <div className="flex flex-col items-center gap-4 flex-1">
+                                <div className="w-16 h-16 bg-black/40 rounded-2xl p-3 border border-white/5 group-hover:scale-110 transition-transform">
+                                  <Image src={pair.away.logo} alt="" width={64} height={64} className="w-full h-full object-contain" />
+                                </div>
+                                <span className="text-xs font-black uppercase tracking-tight text-center">{pair.away.name}</span>
+                             </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
+            )}
       </div>
       <Footer />
     </div>

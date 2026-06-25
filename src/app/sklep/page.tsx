@@ -1,6 +1,6 @@
 'use client';
 
-import { Navbar } from '@/components/navbar';
+import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { RobloxAvatar } from '@/components/roblox-avatar';
 import Image from 'next/image';
@@ -157,7 +157,7 @@ function FallingTokens({ isSuccess }: { isSuccess: boolean }) {
   }, [isSuccess]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[15] overflow-hidden">
       {items.map(item => (
         <img
           key={item.id}
@@ -347,57 +347,29 @@ export default function SklepPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-white font-inter relative overflow-hidden">
-      <Navbar />
+    <main className="bg-[#020617] min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
+      <MainNavbar />
       
-      {/* Background Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-400/10 blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-cyan-500/10 blur-[120px] pointer-events-none -z-10" />
+      {/* Background Section */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="https://i.ibb.co/YCB7X52/obraz-2026-06-13-150303737.png"
+          alt="Stadium Background"
+          fill
+          className="object-cover brightness-[0.4] scale-105"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/80 via-[#020617]/40 to-[#020617]/90" />
+        
+        {/* Animated Glows */}
+        <div className="absolute top-1/4 -left-20 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 -right-20 w-[800px] h-[800px] bg-red-600/5 rounded-full blur-[120px] animate-pulse delay-1000" />
+      </div>
 
       {/* Falling Tokens Animation */}
       <FallingTokens isSuccess={purchaseSuccess} />
 
-      {/* Cart Modal */}
-      {showCart && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCart(false)} />
-          <div className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
-              <h3 className="text-2xl font-black uppercase tracking-tight">Twój Koszyk</h3>
-              <button onClick={() => setShowCart(false)} className="text-white/40 hover:text-white">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4">
-              {cart.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <img src={item.logo || item.image} alt="" className="w-16 h-16 object-contain" />
-                  <div className="flex-1">
-                    <h4 className="font-black uppercase text-sm">{item.name}</h4>
-                    <p className="text-xs text-white/40">{item.description || (item.regularTokens ? `${item.regularTokens} tokenów` : '')}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-black text-blue-400">{item.pln || `${item.price} Tokenów`}</p>
-                    <div className="flex items-center gap-2 mt-2 justify-end">
-                      <button 
-                        onClick={() => {
-                          if (item.quantity > 1) {
-                            updateCart(cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity - 1 } : i));
-                          } else {
-                            removeFromCart(item.id);
-                          }
-                        }}
-                        className="w-6 h-6 flex items-center justify-center bg-white/5 rounded-md hover:bg-white/10 border border-white/10"
-                      >
-                        -
-                      </button>
-                      <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                      <button 
-                        onClick={() => updateCart(cart.map(i => i.id === item.id ? { ...i, quantity: (i.quantity || 1) + 1 } : i))}
+      <div className="relative z-10 pt-44">
                         className="w-6 h-6 flex items-center justify-center bg-white/5 rounded-md hover:bg-white/10 border border-white/10"
                       >
                         +

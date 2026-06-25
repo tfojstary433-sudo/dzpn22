@@ -77,3 +77,73 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const { usernames } = await request.json();
+
+    if (!usernames || !Array.isArray(usernames)) {
+      return NextResponse.json({ error: 'Usernames array is required' }, { status: 400 });
+    }
+
+    const results: { [key: string]: { avatarUrl: string; robloxId: string } } = {};
+    const toFetch: string[] = [];
+
+    // Check cache first
+    usernames.forEach(username => {
+      const cached = cache.get(username);
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        results[username] = { avatarUrl: cached.url, robloxId: cached.robloxId };
+      } else {
+        toFetch.push(username);
+      }
+    });
+
+    if (toFetch.length === 0) {
+      return NextResponse.json({ data: results });
+    }
+
+    // 1. Get user IDs in batch
+    const userRes = await fetch('https://users.roblox.com/v1/usernames/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ usernames: toFetch, excludeBannedUsers: false }),
+    });
+
+    const userData = await userRes.json();
+    if (!userData.data || userData.data.length === 0) {
+      return NextResponse.json({ data: results });
+    }
+
+    const idToUsername: { [key: number]: string } = {};
+    const robloxIds: number[] = [];
+
+    userData.data.forEach((u: any) => {
+      idToUsername[u.id] = u.requestedUsername;
+      robloxIds.push(u.id);
+    });
+
+    // 2. Get avatar headshots in batch
+    const thumbRes = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${robloxIds.join(',')}&size=150x150&format=Png`, {
+      next: { revalidate: 3600 }
+    });
+    const thumbData = await thumbRes.json();
+
+    if (thumbData.data) {
+      thumbData.data.forEach((t: any) => {
+        const username = idToUsername[t.targetId];
+        if (username) {
+          const result = { avatarUrl: t.imageUrl, robloxId: t.targetId.toString() };
+          results[username] = result;
+          cache.set(username, { url: t.imageUrl, robloxId: t.targetId.toString(), timestamp: Date.now() });
+        }
+      });
+    }
+
+    return NextResponse.json({ data: results });
+
+  } catch (error) {
+    console.error('Error fetching batch Roblox avatars:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

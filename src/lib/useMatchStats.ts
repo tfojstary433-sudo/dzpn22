@@ -35,7 +35,7 @@ export function getTeamLogo(teamId: string | number, teamName?: string): string 
     if (teamByName) return teamByName.logo;
   }
   
-  return 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+  return 'https://i.ibb.co/23XPPB9m/system-administration-3.png';
 }
 
 export function getTeamColor(teamId: string | number, teamName?: string): string {

@@ -27,7 +27,7 @@ function getTeamFromName(teamName: string) {
     id: 'UNK',
     name: teamName || 'TBD',
     shortName: (teamName || 'TBD').substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: 'https://i.ibb.co/23XPPB9m/system-administration-3.png',
     color: '#3b82f6'
   };
 }
@@ -98,11 +98,11 @@ export function ScheduleTableOverlay({
             const matchInSchedule = fixtures.find(m => {
               const ta = normalize(apiMatch.teamA);
               const tb = normalize(apiMatch.teamB);
-              const ha = [normalize(m.homeTeam?.name), normalize(m.homeTeam?.shortName), normalize(m.homeTeam?.id)];
-              const aa = [normalize(m.awayTeam?.name), normalize(m.awayTeam?.shortName), normalize(m.awayTeam?.id)];
+              const ha = [normalize(m.homeTeam?.name), normalize(m.homeTeam?.shortName), normalize(m.homeTeam?.id)].filter(Boolean);
+              const aa = [normalize(m.awayTeam?.name), normalize(m.awayTeam?.shortName), normalize(m.awayTeam?.id)].filter(Boolean);
               
-              const homeOk = ha.some(h => h && (h === ta || ta.includes(h) || h.includes(ta)));
-              const awayOk = aa.some(a => a && (a === tb || tb.includes(a) || a.includes(tb)));
+              const homeOk = ha.some(h => h === ta || (h.length > 3 && (ta.includes(h) || h.includes(ta))));
+              const awayOk = aa.some(a => a === tb || (a.length > 3 && (tb.includes(a) || a.includes(tb))));
               return homeOk && awayOk;
             });
             
@@ -134,12 +134,12 @@ export function ScheduleTableOverlay({
                 date: new Date().toISOString(),
                 homeTeam: {
                   shortName: apiMatch.teamA?.substring(0, 3).toUpperCase() || 'HOM',
-                  logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+                  logo: 'https://i.ibb.co/23XPPB9m/system-administration-3.png',
                   score: apiMatch.scoreA ?? 0
                 },
                 awayTeam: {
                   shortName: apiMatch.teamB?.substring(0, 3).toUpperCase() || 'AWA',
-                  logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+                  logo: 'https://i.ibb.co/23XPPB9m/system-administration-3.png',
                   score: apiMatch.scoreB ?? 0
                 }
               });
