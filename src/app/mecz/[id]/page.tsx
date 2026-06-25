@@ -653,13 +653,18 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
         return acc + age;
     }, 0) / players.length).toFixed(1) : '24.5';
 
-    const shieldPlaceholder = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; 
+    const shieldPlaceholder = 'https://i.ibb.co/qN9VvN1/shield-placeholder.png'; 
     const playerPlaceholder = 'https://i.ibb.co/X3p6rLzP/IMG-4839.png'; // Sylwetka zawodnika
-    const leagueLogo = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+    const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
 
     const getTeamLogo = (teamId: any, fallback: string) => {
-        if (!teamId) return fallback;
-        return `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+        if (!teamId) return shieldPlaceholder;
+        return `https://league-builder.replit.app/api/teams/${teamId}/logo`;
+    };
+
+    const getPlayerPhoto = (player: any) => {
+        if (!player?.photo_url || player.photo_url.includes('imgbb.com')) return playerPlaceholder;
+        return player.photo_url;
     };
 
     const topScorer = players.length > 0 ? players[0] : null;
@@ -678,7 +683,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
         avg_age,
         top_scorer_name: topScorer ? `${topScorer.first_name || ''} ${topScorer.last_name || ''}`.trim() : 'N/A',
         top_scorer_pos: topScorer?.position || 'N/A',
-        top_scorer_photo: topScorer?.photo_url || playerPlaceholder,
+        top_scorer_photo: getPlayerPhoto(topScorer),
         top_scorer_goals: topScorer?.goals_count || topScorer?.goals || 0,
         recent_matches: played.slice(0, 5).map((m: any) => {
             const opponentName = m.opponent_name || m.opponent?.name || '';
@@ -687,7 +692,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
             return {
                 date: m.date || '?',
                 opponent: opponentName || '?',
-                opponent_logo: getTeamLogo(team?.id, m.opponent_logo_url || m.opponent?.logo_url || shieldPlaceholder),
+                opponent_logo: getTeamLogo(team?.id, shieldPlaceholder),
                 league_logo: m.match_type === 'county_cup' ? 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png' : leagueLogo,
                 score: `${m.home_score || 0}:${m.away_score || 0}`,
                 result: m.result || '?'
@@ -700,12 +705,12 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
   const aStats = getStats(awayTeamData);
 
   const h2hMatches = useMemo(() => {
-    const leagueLogo = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
-    const shieldPlaceholder = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+    const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
+    const shieldPlaceholder = 'https://i.ibb.co/qN9VvN1/shield-placeholder.png';
 
     const getTeamLogo = (teamId: any, fallback: string) => {
         if (!teamId) return fallback;
-        return `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+        return `https://league-builder.replit.app/api/teams/${teamId}/logo`;
     };
 
     return allMatches?.filter((m: any) => {
@@ -776,10 +781,10 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                       
                       <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
                         <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
-                        <div className="relative w-20 h-20 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
+                        <div className="relative w-24 h-24 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
                           <Image src={m.opponent_logo} alt="" fill className="object-contain" />
                         </div>
-                        <div className="relative w-10 h-10 shrink-0 opacity-80">
+                        <div className="relative w-12 h-12 shrink-0 opacity-80">
                           <Image src={m.league_logo} alt="" fill className="object-contain" />
                         </div>
                       </div>
@@ -854,10 +859,10 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                       
                       <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
                         <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
-                        <div className="relative w-20 h-20 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
+                        <div className="relative w-24 h-24 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
                           <Image src={m.opponent_logo} alt="" fill className="object-contain" />
                         </div>
-                        <div className="relative w-10 h-10 shrink-0 opacity-80">
+                        <div className="relative w-12 h-12 shrink-0 opacity-80">
                           <Image src={m.league_logo} alt="" fill className="object-contain" />
                         </div>
                       </div>

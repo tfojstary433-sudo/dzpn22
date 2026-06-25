@@ -14,6 +14,7 @@ interface Match {
   id: number;
   home_team: Team | null;
   away_team: Team | null;
+  round?: number;
 }
 
 export function CountyCupDraw() {
@@ -24,10 +25,14 @@ export function CountyCupDraw() {
   const [isHandDrawing, setIsHandDrawing] = useState(false);
   const [currentDrawnTeam, setCurrentDrawnTeam] = useState<Team | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [apiTeams, setApiTeams] = useState<any[]>([]);
 
-  const drawDate = useMemo(() => new Date('2026-06-25T15:06:00'), []);
+  const drawDate = useMemo(() => new Date('2026-06-30T17:00:00'), []);
 
   useEffect(() => {
+    const isAlreadyFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+    if (isAlreadyFinished) return;
+
     const checkTime = () => {
       const now = new Date();
       if (now >= drawDate && !isFinished && !isActive) {
@@ -55,25 +60,38 @@ export function CountyCupDraw() {
     }, 1000);
   };
 
+  const getTeamLogo = (teamId: any) => {
+    if (!teamId) return 'https://i.ibb.co/gFm0wL5C/IMG-4837-3.png';
+    const team = apiTeams.find(t => String(t.id) === String(teamId));
+    return team?.logo_url || `https://league-builder.replit.app/api/teams/${teamId}/logo`;
+  };
+
   const startDrawingProcess = async () => {
     setIsDrawing(true);
     try {
+      // Fetch teams first for logos
+      const teamsRes = await fetch('https://league-builder.replit.app/api/teams?season_id=1');
+      if (teamsRes.ok) {
+        const teamsData = await teamsRes.json();
+        setApiTeams(teamsData);
+      }
+
       const res = await fetch('https://league-builder.replit.app/api/public/schedule/cup.json');
       const data = await res.json();
-      const cupMatches = data.matches.filter((m: any) => m.match_type === 'county_cup' && (m.home_team || m.away_team));
       
-      // Animation sequence for each match
+      // Use ALL matches from the API
+      const cupMatches = data.matches;
+      
+      // Initialize revealed matches with the correct number of slots
+      setRevealedMatches(new Array(cupMatches.length).fill(null).map((_, i) => ({
+        id: i,
+        home_team: null,
+        away_team: null
+      })));
+      
       for (let i = 0; i < cupMatches.length; i++) {
         const match = cupMatches[i];
         
-        // Prepare slot in grid
-        setRevealedMatches(prev => {
-          const newMatches = [...prev];
-          newMatches[i] = { ...match, home_team: null, away_team: null };
-          return newMatches;
-        });
-
-        // Draw Home Team
         if (match.home_team) {
           await performHandDraw(match.home_team);
           setRevealedMatches(prev => {
@@ -81,11 +99,17 @@ export function CountyCupDraw() {
             newMatches[i] = { ...newMatches[i], home_team: match.home_team };
             return newMatches;
           });
+        } else {
+           // Skip drawing if no team, but show the slot
+           setRevealedMatches(prev => {
+            const newMatches = [...prev];
+            newMatches[i] = { ...newMatches[i], home_team: { id: 0, name: 'TBD' } };
+            return newMatches;
+          });
         }
 
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 400));
 
-        // Draw Away Team
         if (match.away_team) {
           await performHandDraw(match.away_team);
           setRevealedMatches(prev => {
@@ -93,13 +117,20 @@ export function CountyCupDraw() {
             newMatches[i] = { ...newMatches[i], away_team: match.away_team };
             return newMatches;
           });
+        } else {
+          setRevealedMatches(prev => {
+            const newMatches = [...prev];
+            newMatches[i] = { ...newMatches[i], away_team: { id: 0, name: 'TBD' } };
+            return newMatches;
+          });
         }
         
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 600));
       }
       
       setIsDrawing(false);
       setIsFinished(true);
+      localStorage.setItem('county_cup_draw_finished', 'true');
     } catch (e) {
       console.error('Draw process error:', e);
     }
@@ -108,9 +139,9 @@ export function CountyCupDraw() {
   const performHandDraw = async (team: Team) => {
     setIsHandDrawing(true);
     setCurrentDrawnTeam(null);
-    await new Promise(r => setTimeout(r, 1500)); // Hand moving to basket
+    await new Promise(r => setTimeout(r, 1200));
     setCurrentDrawnTeam(team);
-    await new Promise(r => setTimeout(r, 2000)); // Hand showing team
+    await new Promise(r => setTimeout(r, 1800));
     setIsHandDrawing(false);
     setCurrentDrawnTeam(null);
   };
@@ -119,17 +150,15 @@ export function CountyCupDraw() {
 
   return (
     <div className="fixed inset-0 z-[100] bg-[#020617]/98 backdrop-blur-3xl flex flex-col items-center justify-center p-4 animate-in fade-in duration-1000">
-      {/* Premium Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]" />
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px] animate-pulse delay-1000" />
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl flex flex-col items-center">
-        {/* Header */}
-        <div className="mb-12 text-center animate-in slide-in-from-top-12 duration-1000">
-          <div className="relative w-32 h-32 md:w-48 md:h-48 mx-auto mb-8">
+      <div className="relative z-10 w-full max-w-7xl flex flex-col items-center">
+        <div className="mb-8 text-center animate-in slide-in-from-top-12 duration-1000">
+          <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-6">
              <Image 
                src="https://i.ibb.co/gFm0wL5C/IMG-4837-3.png" 
                alt="Puchar Powiatu" 
@@ -147,7 +176,6 @@ export function CountyCupDraw() {
           </div>
         </div>
 
-        {/* Countdown Phase */}
         {countdown !== null && (
           <div className="flex flex-col items-center gap-8 animate-in zoom-in duration-500 mt-12">
             <span className="text-blue-500/40 text-xs font-black uppercase tracking-[0.8em] animate-pulse">PRZYGOTUJ SIĘ</span>
@@ -157,105 +185,87 @@ export function CountyCupDraw() {
           </div>
         )}
 
-        {/* Drawing Animation (The "Soccer Ball" Reveal) */}
         {isHandDrawing && (
-          <div className="fixed inset-0 z-[110] flex flex-col items-center justify-center pointer-events-none animate-in fade-in duration-300">
+          <div className="fixed inset-0 z-[110] flex flex-col items-center justify-center pointer-events-none animate-in fade-in duration-300 bg-black/40 backdrop-blur-sm">
             <div className="relative flex flex-col items-center">
-              {/* Soccer Ball Container */}
-              <div className={`relative w-72 h-72 md:w-96 md:h-96 transition-all duration-1000 ${currentDrawnTeam ? 'scale-110' : 'scale-90 opacity-50'}`}>
-                {/* Soccer Ball Background Image */}
+              <div className={`relative w-80 h-80 md:w-[30rem] md:h-[30rem] transition-all duration-1000 ${currentDrawnTeam ? 'scale-110' : 'scale-90 opacity-50'}`}>
                 <Image 
                   src="https://emojigraph.org/media/openmoji/soccer-ball_26bd.png" 
                   alt="" 
                   fill 
-                  className={`object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.2)] ${!currentDrawnTeam ? 'animate-spin-slow' : 'animate-bounce-short'}`}
-                  onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
+                  className={`object-contain drop-shadow-[0_0_60px_rgba(255,255,255,0.3)] ${!currentDrawnTeam ? 'animate-spin-slow' : 'animate-bounce-short'}`}
                 />
                 
-                {/* Inner Content (Team Logo) */}
                 <div className="absolute inset-0 flex items-center justify-center pt-4">
-                  {currentDrawnTeam ? (
+                  {currentDrawnTeam && (
                     <div className="flex flex-col items-center animate-in zoom-in duration-500">
-                      <div className="relative w-28 h-28 md:w-36 md:h-36 mb-4 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                      <div className="relative w-32 h-32 md:w-44 md:h-44 mb-6 drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]">
                         <Image 
-                          src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${currentDrawnTeam.id}/logo`} 
+                          src={getTeamLogo(currentDrawnTeam.id)} 
                           alt="" 
                           fill 
                           className="object-contain"
-                          onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
                         />
                       </div>
-                      <span className="text-xl md:text-3xl font-black text-white italic uppercase tracking-tighter text-center bg-black/60 px-4 py-1 rounded-full backdrop-blur-md border border-white/20">
+                      <span className="text-2xl md:text-4xl font-black text-white italic uppercase tracking-tighter text-center bg-black/80 px-8 py-2 rounded-full border-2 border-white/20 shadow-2xl">
                         {currentDrawnTeam.name}
                       </span>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-4 bg-black/40 p-6 rounded-full backdrop-blur-sm border border-white/10">
-                      <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-                      <span className="text-white font-black uppercase tracking-widest text-[10px]">LOSOWANIE...</span>
+                  )}
+                  {!currentDrawnTeam && (
+                    <div className="flex flex-col items-center gap-4 bg-black/60 p-8 rounded-full backdrop-blur-md border border-white/10">
+                      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+                      <span className="text-white font-black uppercase tracking-widest text-xs">LOSOWANIE...</span>
                     </div>
                   )}
                 </div>
               </div>
-              {/* Hand Line Visual */}
-              <div className="w-1 h-48 bg-gradient-to-b from-transparent via-white/40 to-transparent blur-[2px] animate-draw-line" />
+              <div className="w-1 h-64 bg-gradient-to-b from-transparent via-white/60 to-transparent blur-[2px] animate-draw-line" />
             </div>
           </div>
         )}
 
-        {/* Revealed Results Grid */}
         {(isDrawing || isFinished) && (
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-12 duration-1000 mt-8 max-h-[50vh] overflow-y-auto p-4 scrollbar-hide">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in slide-in-from-bottom-12 duration-1000 mt-4 max-h-[55vh] overflow-y-auto p-4 scrollbar-hide">
             {revealedMatches.map((match, idx) => (
               <div 
                 key={idx} 
-                className={`bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[3rem] transition-all duration-700 flex items-center justify-between group shadow-2xl relative overflow-hidden ${
+                className={`bg-[#0c162d]/80 backdrop-blur-2xl border border-white/5 p-6 rounded-[2.5rem] transition-all duration-700 flex items-center justify-between group shadow-xl relative overflow-hidden ${
                   idx === revealedMatches.length - 1 && isDrawing ? 'ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)] bg-blue-500/10' : ''
                 }`}
               >
-                {/* Background Decor */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl -mr-12 -mt-12" />
+                <div className="absolute top-0 left-0 px-3 py-1 bg-white/5 rounded-br-2xl text-[8px] font-black text-white/20 uppercase tracking-widest">
+                  MECZ {idx + 1}
+                </div>
 
-                {/* Home */}
-                <div className="flex flex-col items-center gap-4 flex-1">
-                   <div className={`relative w-20 h-20 bg-black/40 rounded-2xl p-3 border border-white/10 shadow-2xl transition-all duration-700 ${!match.home_team ? 'opacity-20 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
-                      {match.home_team ? (
-                        <Image 
-                          src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${match.home_team.id}/logo`} 
-                          alt="" 
-                          fill
-                          className="object-contain p-2"
-                          onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
-                        />
-                      ) : (
-                        <Image src="https://i.ibb.co/rK2KV1FN/IMG-4837-1.png" alt="" fill className="object-contain opacity-20 p-2" />
-                      )}
+                <div className="flex flex-col items-center gap-3 flex-1 mt-2">
+                   <div className={`relative w-16 h-16 bg-black/40 rounded-2xl p-2 border border-white/10 shadow-2xl transition-all duration-700 ${!match.home_team ? 'opacity-10 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
+                      <Image 
+                        src={getTeamLogo(match.home_team?.id)} 
+                        alt="" 
+                        fill
+                        className="object-contain p-1.5"
+                      />
                    </div>
-                   <span className={`text-[11px] font-black uppercase tracking-tight text-center transition-colors ${!match.home_team ? 'text-white/20' : 'text-white'}`}>
+                   <span className={`text-[10px] font-black uppercase tracking-tight text-center transition-colors line-clamp-1 ${!match.home_team ? 'text-white/10' : 'text-white'}`}>
                      {match.home_team?.name || '???'}
                    </span>
                 </div>
 
-                <div className="px-6 flex flex-col items-center shrink-0">
-                   <div className="text-blue-500 font-black text-lg italic tracking-tighter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">VS</div>
+                <div className="px-4 flex flex-col items-center shrink-0">
+                   <div className="text-blue-500 font-black text-sm italic tracking-tighter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">VS</div>
                 </div>
 
-                {/* Away */}
-                <div className="flex flex-col items-center gap-4 flex-1">
-                   <div className={`relative w-20 h-20 bg-black/40 rounded-2xl p-3 border border-white/10 shadow-2xl transition-all duration-700 ${!match.away_team ? 'opacity-20 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
-                      {match.away_team ? (
-                        <Image 
-                          src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${match.away_team.id}/logo`} 
-                          alt="" 
-                          fill
-                          className="object-contain p-2"
-                          onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
-                        />
-                      ) : (
-                        <Image src="https://i.ibb.co/rK2KV1FN/IMG-4837-1.png" alt="" fill className="object-contain opacity-20 p-2" />
-                      )}
+                <div className="flex flex-col items-center gap-3 flex-1 mt-2">
+                   <div className={`relative w-16 h-16 bg-black/40 rounded-2xl p-2 border border-white/10 shadow-2xl transition-all duration-700 ${!match.away_team ? 'opacity-10 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
+                      <Image 
+                        src={getTeamLogo(match.away_team?.id)} 
+                        alt="" 
+                        fill
+                        className="object-contain p-1.5"
+                      />
                    </div>
-                   <span className={`text-[11px] font-black uppercase tracking-tight text-center transition-colors ${!match.away_team ? 'text-white/20' : 'text-white'}`}>
+                   <span className={`text-[10px] font-black uppercase tracking-tight text-center transition-colors line-clamp-1 ${!match.away_team ? 'text-white/10' : 'text-white'}`}>
                      {match.away_team?.name || '???'}
                    </span>
                 </div>
@@ -267,7 +277,7 @@ export function CountyCupDraw() {
         {isFinished && (
           <button 
             onClick={() => setIsActive(false)}
-            className="mt-12 px-16 py-5 bg-blue-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-700 transition-all transform hover:scale-105 shadow-[0_10px_40px_rgba(37,99,235,0.4)] animate-in zoom-in duration-500"
+            className="mt-8 px-16 py-5 bg-blue-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-700 transition-all transform hover:scale-105 shadow-[0_10px_40px_rgba(37,99,235,0.4)] animate-in zoom-in duration-500"
           >
             ZAKOŃCZ I WRÓĆ DO STRONY
           </button>
@@ -284,7 +294,7 @@ export function CountyCupDraw() {
         }
         @keyframes draw-line {
           0% { height: 0; opacity: 0; }
-          50% { height: 256px; opacity: 1; }
+          50% { height: 300px; opacity: 1; }
           100% { height: 0; opacity: 0; }
         }
         .animate-draw-line {
@@ -295,14 +305,14 @@ export function CountyCupDraw() {
           to { transform: rotate(360deg); }
         }
         .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
+          animation: spin-slow 10s linear infinite;
         }
         @keyframes bounce-short {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
+          50% { transform: translateY(-30px); }
         }
         .animate-bounce-short {
-          animation: bounce-short 0.5s ease-in-out infinite;
+          animation: bounce-short 0.4s ease-in-out infinite;
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

@@ -21,10 +21,10 @@ export function LandingHero() {
         if (response.ok) {
           const data = await response.json();
           setStats({
-            teams: data.teams?.toString() || '10',
-            players: data.players?.toString() || '48',
-            rounds: data.seasons?.toString() || '3',
-            matches: data.matches?.total?.toString() || '48'
+            teams: data.teams?.toString() || '14',
+            players: data.players?.toString() || '182',
+            rounds: data.venues?.toString() || '3',
+            matches: data.matches?.total?.toString() || '182'
           });
         }
       } catch (error) {
