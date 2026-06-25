@@ -58,7 +58,7 @@ export function CountyCupDraw() {
   const startDrawingProcess = async () => {
     setIsDrawing(true);
     try {
-      const res = await fetch('https://league-builder.replit.app/api/public/schedule/cup.json');
+      const res = await fetch('https://league-builder.replit.app/api/public/schedule?type=county_cup');
       const data = await res.json();
       const cupMatches = data.matches.filter((m: any) => m.match_type === 'county_cup' && (m.home_team || m.away_team));
       
@@ -66,27 +66,36 @@ export function CountyCupDraw() {
       for (let i = 0; i < cupMatches.length; i++) {
         const match = cupMatches[i];
         
+        // Prepare slot in grid
+        setRevealedMatches(prev => {
+          const newMatches = [...prev];
+          newMatches[i] = { ...match, home_team: null, away_team: null };
+          return newMatches;
+        });
+
         // Draw Home Team
         if (match.home_team) {
           await performHandDraw(match.home_team);
           setRevealedMatches(prev => {
             const newMatches = [...prev];
-            newMatches[i] = { ...match, away_team: null };
+            newMatches[i] = { ...newMatches[i], home_team: match.home_team };
             return newMatches;
           });
         }
+
+        await new Promise(r => setTimeout(r, 500));
 
         // Draw Away Team
         if (match.away_team) {
           await performHandDraw(match.away_team);
           setRevealedMatches(prev => {
             const newMatches = [...prev];
-            newMatches[i] = { ...match };
+            newMatches[i] = { ...newMatches[i], away_team: match.away_team };
             return newMatches;
           });
         }
         
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 800));
       }
       
       setIsDrawing(false);
@@ -148,85 +157,107 @@ export function CountyCupDraw() {
           </div>
         )}
 
-        {/* Drawing Animation (The "Hand" Reveal) */}
+        {/* Drawing Animation (The "Soccer Ball" Reveal) */}
         {isHandDrawing && (
           <div className="fixed inset-0 z-[110] flex flex-col items-center justify-center pointer-events-none animate-in fade-in duration-300">
             <div className="relative flex flex-col items-center">
-              <div className={`w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-b from-blue-600/20 to-transparent border border-blue-500/20 flex items-center justify-center backdrop-blur-2xl transition-all duration-1000 ${currentDrawnTeam ? 'scale-125' : 'scale-75 opacity-50'}`}>
-                {currentDrawnTeam ? (
-                  <div className="flex flex-col items-center animate-in zoom-in duration-500">
-                    <div className="relative w-32 h-32 md:w-40 md:h-40 mb-6 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                      <Image 
-                        src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${currentDrawnTeam.id}/logo`} 
-                        alt="" 
-                        fill 
-                        className="object-contain"
-                        onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
-                      />
+              {/* Soccer Ball Container */}
+              <div className={`relative w-72 h-72 md:w-96 md:h-96 transition-all duration-1000 ${currentDrawnTeam ? 'scale-110' : 'scale-90 opacity-50'}`}>
+                {/* Soccer Ball Background Image */}
+                <Image 
+                  src="https://i.ibb.co/6R0pT8H/ball.png" 
+                  alt="" 
+                  fill 
+                  className={`object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.2)] ${!currentDrawnTeam ? 'animate-spin-slow' : 'animate-bounce-short'}`}
+                  onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
+                />
+                
+                {/* Inner Content (Team Logo) */}
+                <div className="absolute inset-0 flex items-center justify-center pt-4">
+                  {currentDrawnTeam ? (
+                    <div className="flex flex-col items-center animate-in zoom-in duration-500">
+                      <div className="relative w-28 h-28 md:w-36 md:h-36 mb-4 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                        <Image 
+                          src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${currentDrawnTeam.id}/logo`} 
+                          alt="" 
+                          fill 
+                          className="object-contain"
+                          onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
+                        />
+                      </div>
+                      <span className="text-xl md:text-3xl font-black text-white italic uppercase tracking-tighter text-center bg-black/60 px-4 py-1 rounded-full backdrop-blur-md border border-white/20">
+                        {currentDrawnTeam.name}
+                      </span>
                     </div>
-                    <span className="text-2xl md:text-4xl font-black text-white italic uppercase tracking-tighter text-center">
-                      {currentDrawnTeam.name}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
-                    <span className="text-blue-500 font-black uppercase tracking-widest text-[10px]">WYCIĄGANIE...</span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex flex-col items-center gap-4 bg-black/40 p-6 rounded-full backdrop-blur-sm border border-white/10">
+                      <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                      <span className="text-white font-black uppercase tracking-widest text-[10px]">LOSOWANIE...</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              {/* Hand Visual Shadow */}
-              <div className="w-px h-64 bg-gradient-to-b from-transparent via-blue-500/50 to-transparent blur-sm animate-draw-line" />
+              {/* Hand Line Visual */}
+              <div className="w-1 h-48 bg-gradient-to-b from-transparent via-white/40 to-transparent blur-[2px] animate-draw-line" />
             </div>
           </div>
         )}
 
         {/* Revealed Results Grid */}
         {(isDrawing || isFinished) && (
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-12 duration-1000 mt-8 max-h-[50vh] overflow-y-auto pr-4 scrollbar-hide">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-12 duration-1000 mt-8 max-h-[50vh] overflow-y-auto p-4 scrollbar-hide">
             {revealedMatches.map((match, idx) => (
               <div 
                 key={idx} 
-                className={`bg-white/[0.02] border border-white/5 p-6 rounded-[2.5rem] transition-all duration-700 flex items-center justify-between group ${
-                  idx === revealedMatches.length - 1 && isDrawing ? 'ring-1 ring-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] bg-blue-500/5' : ''
+                className={`bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[3rem] transition-all duration-700 flex items-center justify-between group shadow-2xl relative overflow-hidden ${
+                  idx === revealedMatches.length - 1 && isDrawing ? 'ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)] bg-blue-500/10' : ''
                 }`}
               >
+                {/* Background Decor */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl -mr-12 -mt-12" />
+
                 {/* Home */}
-                <div className="flex flex-col items-center gap-3 flex-1">
-                   <div className={`w-12 h-12 bg-black/40 rounded-xl p-2 border border-white/5 shadow-xl transition-all duration-500 ${!match.home_team ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
-                      {match.home_team && (
+                <div className="flex flex-col items-center gap-4 flex-1">
+                   <div className={`relative w-20 h-20 bg-black/40 rounded-2xl p-3 border border-white/10 shadow-2xl transition-all duration-700 ${!match.home_team ? 'opacity-20 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
+                      {match.home_team ? (
                         <Image 
                           src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${match.home_team.id}/logo`} 
                           alt="" 
-                          width={48} 
-                          height={48} 
-                          className="w-full h-full object-contain"
+                          fill
+                          className="object-contain p-2"
                           onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
                         />
+                      ) : (
+                        <Image src="https://i.ibb.co/rK2KV1FN/IMG-4837-1.png" alt="" fill className="object-contain opacity-20 p-2" />
                       )}
                    </div>
-                   <span className="text-[9px] font-black uppercase tracking-tight text-center text-white/80 line-clamp-1">{match.home_team?.name || '...'}</span>
+                   <span className={`text-[11px] font-black uppercase tracking-tight text-center transition-colors ${!match.home_team ? 'text-white/20' : 'text-white'}`}>
+                     {match.home_team?.name || '???'}
+                   </span>
                 </div>
 
-                <div className="px-4 flex flex-col items-center">
-                   <span className="font-black text-xs text-blue-500 italic">VS</span>
+                <div className="px-6 flex flex-col items-center shrink-0">
+                   <div className="text-blue-500 font-black text-lg italic tracking-tighter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">VS</div>
                 </div>
 
                 {/* Away */}
-                <div className="flex flex-col items-center gap-3 flex-1">
-                   <div className={`w-12 h-12 bg-black/40 rounded-xl p-2 border border-white/5 shadow-xl transition-all duration-500 ${!match.away_team ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
-                      {match.away_team && (
+                <div className="flex flex-col items-center gap-4 flex-1">
+                   <div className={`relative w-20 h-20 bg-black/40 rounded-2xl p-3 border border-white/10 shadow-2xl transition-all duration-700 ${!match.away_team ? 'opacity-20 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
+                      {match.away_team ? (
                         <Image 
                           src={`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${match.away_team.id}/logo`} 
                           alt="" 
-                          width={48} 
-                          height={48} 
-                          className="w-full h-full object-contain"
+                          fill
+                          className="object-contain p-2"
                           onError={(e: any) => { e.target.src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png' }}
                         />
+                      ) : (
+                        <Image src="https://i.ibb.co/rK2KV1FN/IMG-4837-1.png" alt="" fill className="object-contain opacity-20 p-2" />
                       )}
                    </div>
-                   <span className="text-[9px] font-black uppercase tracking-tight text-center text-white/80 line-clamp-1">{match.away_team?.name || '...'}</span>
+                   <span className={`text-[11px] font-black uppercase tracking-tight text-center transition-colors ${!match.away_team ? 'text-white/20' : 'text-white'}`}>
+                     {match.away_team?.name || '???'}
+                   </span>
                 </div>
               </div>
             ))}
@@ -258,6 +289,20 @@ export function CountyCupDraw() {
         }
         .animate-draw-line {
           animation: draw-line 3.5s infinite;
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+        @keyframes bounce-short {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
+        .animate-bounce-short {
+          animation: bounce-short 0.5s ease-in-out infinite;
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
