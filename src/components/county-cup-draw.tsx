@@ -58,7 +58,7 @@ export function CountyCupDraw() {
   const startDrawingProcess = async () => {
     setIsDrawing(true);
     try {
-      const res = await fetch('https://league-builder.replit.app/api/public/schedule?type=county_cup');
+      const res = await fetch('https://league-builder.replit.app/api/public/schedule/cup.json');
       const data = await res.json();
       const cupMatches = data.matches.filter((m: any) => m.match_type === 'county_cup' && (m.home_team || m.away_team));
       
@@ -165,7 +165,7 @@ export function CountyCupDraw() {
               <div className={`relative w-72 h-72 md:w-96 md:h-96 transition-all duration-1000 ${currentDrawnTeam ? 'scale-110' : 'scale-90 opacity-50'}`}>
                 {/* Soccer Ball Background Image */}
                 <Image 
-                  src="https://i.ibb.co/6R0pT8H/ball.png" 
+                  src="https://emojigraph.org/media/openmoji/soccer-ball_26bd.png" 
                   alt="" 
                   fill 
                   className={`object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.2)] ${!currentDrawnTeam ? 'animate-spin-slow' : 'animate-bounce-short'}`}
