@@ -10,6 +10,21 @@ import { Footer } from '@/components/footer';
 import { useParams } from 'next/navigation';
 import { Sun, ChevronLeft, BarChart2, Users, Table as TableIcon, MapPin, Flag, Trophy, MessageSquare, Newspaper, Calendar, Star, Video } from 'lucide-react';
 
+const shieldPlaceholder = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'; 
+const playerPlaceholder = 'https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png'; 
+const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
+
+const getSafeTeamLogo = (teamId: any, fallback?: string, apiTeams?: any[]) => {
+    if (fallback && !fallback.includes('league-builder.replit.app')) return fallback;
+    if (!teamId) return shieldPlaceholder;
+    return `${REPLIT_API_BASE_URL}/api/teams/${teamId}/logo`;
+};
+
+const getSafePlayerPhoto = (player: any) => {
+    if (!player?.photo_url || player.photo_url.includes('imgbb.com') || player.photo_url.includes('ibb.co')) return 'https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png';
+    return player.photo_url;
+};
+
 const normalizeTeamName = (name: string) => {
   if (!name) return '';
   return name
@@ -84,13 +99,7 @@ const PlayerNode = ({ name, number, photo, color = 'blue', yellow, goal, isCapta
         (color === 'yellow' ? 'border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.3)]' : 
         'border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]'))
       } bg-[#1a2333]`}>
-        {photo ? (
-          <Image src={photo} alt="" fill className="object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-white/5">
-             <Users className="w-8 h-8 text-white/10" />
-          </div>
-        )}
+        <img src={getSafePlayerPhoto({ photo_url: photo })} alt="" className="w-full h-full object-cover" />
       </div>
 
       {/* Captain Badge */}
@@ -324,11 +333,7 @@ const FootballPitch = ({ lineupData, homeTeam, awayTeam, apiData, liveData }: an
                {team.lineup?.substitutes?.length > 0 ? team.lineup.substitutes.map((p: any, i: number) => (
                  <div key={i} className="flex items-center gap-4 bg-black/40 border border-white/5 rounded-2xl p-4 transition-all hover:border-blue-500/30 group/sub">
                     <div className="w-12 h-12 rounded-xl overflow-hidden relative border border-white/10 shrink-0 bg-[#1a2333]">
-                      {p.photo_url ? (
-                        <Image src={p.photo_url} alt="" fill className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center"><Users className="w-5 h-5 text-white/10" /></div>
-                      )}
+                      <Image src={getSafePlayerPhoto(p)} alt="" fill className="object-cover" />
                     </div>
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
@@ -434,7 +439,7 @@ const MatchRelacja = ({ liveData }: any) => {
                 {/* Team Logo on Left */}
                 <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white/10 shrink-0 bg-[#0c162d] shadow-2xl transition-transform group-hover:scale-105">
                   {event.team?.logo_url ? (
-                    <Image src={event.team.logo_url} alt="" fill className="object-contain p-2" />
+                    <img src={event.team.logo_url} alt="" className="w-full h-full object-contain p-2" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-white/5">
                       <Shield className="w-6 h-6 text-white/10" />
@@ -653,19 +658,8 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
         return acc + age;
     }, 0) / players.length).toFixed(1) : '24.5';
 
-    const shieldPlaceholder = 'https://i.ibb.co/qN9VvN1/shield-placeholder.png'; 
-    const playerPlaceholder = 'https://i.ibb.co/X3p6rLzP/IMG-4839.png'; // Sylwetka zawodnika
-    const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
-
-    const getTeamLogo = (teamId: any, fallback: string) => {
-        if (!teamId) return shieldPlaceholder;
-        return `https://league-builder.replit.app/api/teams/${teamId}/logo`;
-    };
-
-    const getPlayerPhoto = (player: any) => {
-        if (!player?.photo_url || player.photo_url.includes('imgbb.com')) return playerPlaceholder;
-        return player.photo_url;
-    };
+    const getTeamLogo = (teamId: any, fallback: string) => getSafeTeamLogo(teamId, fallback, apiTeams);
+    const getPlayerPhoto = (player: any) => getSafePlayerPhoto(player);
 
     const topScorer = players.length > 0 ? players[0] : null;
 
@@ -705,13 +699,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
   const aStats = getStats(awayTeamData);
 
   const h2hMatches = useMemo(() => {
-    const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
-    const shieldPlaceholder = 'https://i.ibb.co/qN9VvN1/shield-placeholder.png';
-
-    const getTeamLogo = (teamId: any, fallback: string) => {
-        if (!teamId) return fallback;
-        return `https://league-builder.replit.app/api/teams/${teamId}/logo`;
-    };
+    const getTeamLogo = (teamId: any, fallback: string) => getSafeTeamLogo(teamId, fallback, apiTeams);
 
     return allMatches?.filter((m: any) => {
       const mHomeName = m.home_team_name || m.home_team?.name || '';
@@ -723,19 +711,28 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
               (normalizeTeamName(mHomeName) === normalizeTeamName(currentAwayName) && normalizeTeamName(mAwayName) === normalizeTeamName(currentHomeName))) &&
               String(m.id) !== String(apiData?.id);
     }).map((m: any) => {
+      const hName = m.home_team_name || m.home_team?.name || 'TBD';
+      const aName = m.away_team_name || m.away_team?.name || 'TBD';
+      const hTeam = apiTeams?.find?.((t: any) => normalizeTeamName(t.name) === normalizeTeamName(hName) || normalizeTeamName(t.short_name) === normalizeTeamName(hName));
+      const aTeam = apiTeams?.find?.((t: any) => normalizeTeamName(t.name) === normalizeTeamName(aName) || normalizeTeamName(t.short_name) === normalizeTeamName(aName));
+
+      // Prefer ID from any available source
+      const homeId = m.home_team?.id || m.home_team_id || hTeam?.id;
+      const awayId = m.away_team?.id || m.away_team_id || aTeam?.id;
+
       return {
         ...m,
-        home_team_name: m.home_team_name || m.home_team?.name || 'TBD',
-        away_team_name: m.away_team_name || m.away_team?.name || 'TBD',
-        home_team_logo: getTeamLogo(m.home_team?.id, m.home_team_logo || shieldPlaceholder),
-        away_team_logo: getTeamLogo(m.away_team?.id, m.away_team_logo || shieldPlaceholder),
+        home_team_name: hName,
+        away_team_name: aName,
+        home_team_logo: getSafeTeamLogo(homeId),
+        away_team_logo: getSafeTeamLogo(awayId),
         league_logo: m.match_type === 'county_cup' ? 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png' : leagueLogo,
         home_score: m.home_score ?? m.score?.home ?? 0,
         away_score: m.away_score ?? m.score?.away ?? 0,
         date_formatted: m.date_formatted || (m.scheduled_at ? new Date(m.scheduled_at).toLocaleDateString("pl-PL") : '')
       };
     }) || [];
-  }, [allMatches, homeTeam.name, awayTeam.name, apiData?.id]);
+  }, [allMatches, homeTeam.name, awayTeam.name, apiData?.id, apiTeams]);
 
   const pastH2H = useMemo(() => h2hMatches.filter((m: any) => m.status === 'finished' || m.status === 'Zakończony'), [h2hMatches]);
   const futureH2H = useMemo(() => h2hMatches.filter((m: any) => m.status === 'scheduled' || m.status === 'Zaplanowany' || !m.status), [h2hMatches]);
@@ -782,10 +779,10 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                       <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
                         <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
                         <div className="relative w-24 h-24 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
-                          <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                          <img src={m.opponent_logo} alt="" className="w-full h-full object-contain" />
                         </div>
                         <div className="relative w-12 h-12 shrink-0 opacity-80">
-                          <Image src={m.league_logo} alt="" fill className="object-contain" />
+                          <img src={m.league_logo} alt="" className="w-full h-full object-contain" />
                         </div>
                       </div>
 
@@ -820,12 +817,12 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
               <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.03] to-transparent"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-16">
-                  {homeTeam.logo && <div className="relative w-16 h-16 transition-transform hover:scale-110"><Image src={homeTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" /></div>}
+                  {homeTeam.logo && <div className="relative w-16 h-16 transition-transform hover:scale-110"><img src={homeTeam.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" /></div>}
                   <div className="flex flex-col items-center">
                     <span className="text-white/20 text-[9px] font-black uppercase tracking-[0.5em] mb-2">PORÓWNANIE</span>
                     <h3 className="text-blue-500 font-black text-xs uppercase tracking-[0.3em] text-center italic">SEZON 2026/27</h3>
                   </div>
-                  {awayTeam.logo && <div className="relative w-16 h-16 transition-transform hover:scale-110"><Image src={awayTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" /></div>}
+                  {awayTeam.logo && <div className="relative w-16 h-16 transition-transform hover:scale-110"><img src={awayTeam.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" /></div>}
                 </div>
                 <div className="space-y-10">
                   <CompareStat label="MECZE" val1={hStats?.played || 0} val2={aStats?.played || 0} />
@@ -860,10 +857,10 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                       <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
                         <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
                         <div className="relative w-24 h-24 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
-                          <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                          <img src={m.opponent_logo} alt="" className="w-full h-full object-contain" />
                         </div>
                         <div className="relative w-12 h-12 shrink-0 opacity-80">
-                          <Image src={m.league_logo} alt="" fill className="object-contain" />
+                          <img src={m.league_logo} alt="" className="w-full h-full object-contain" />
                         </div>
                       </div>
 
@@ -927,10 +924,10 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                     <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
                       <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
                       <div className="relative w-10 h-10 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
-                        <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                        <img src={m.opponent_logo} alt="" className="w-full h-full object-contain" />
                       </div>
                       <div className="relative w-6 h-6 shrink-0 opacity-80">
-                        <Image src={m.league_logo} alt="" fill className="object-contain" />
+                        <img src={m.league_logo} alt="" className="w-full h-full object-contain" />
                       </div>
                     </div>
 
@@ -962,10 +959,10 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                     <div className="flex items-center gap-3 flex-1 px-4 justify-center relative z-10">
                       <span className="text-white/60 text-[11px] font-black uppercase tracking-tight truncate max-w-[100px] group-hover:text-white transition-colors text-right">{m.opponent}</span>
                       <div className="relative w-10 h-10 shrink-0 shadow-2xl transition-transform group-hover:scale-110">
-                        <Image src={m.opponent_logo} alt="" fill className="object-contain" />
+                        <img src={m.opponent_logo} alt="" className="w-full h-full object-contain" />
                       </div>
                       <div className="relative w-6 h-6 shrink-0 opacity-80">
-                        <Image src={m.league_logo} alt="" fill className="object-contain" />
+                        <img src={m.league_logo} alt="" className="w-full h-full object-contain" />
                       </div>
                     </div>
 
@@ -1004,7 +1001,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                   <div className="flex items-center justify-center gap-10 flex-1 relative z-10 px-8">
                     <div className="flex items-center gap-6 justify-end w-[42%] text-right group-hover:-translate-x-2 transition-transform duration-500">
                        <span className="text-white font-black text-sm uppercase tracking-tighter truncate drop-shadow-lg">{m.home_team_name}</span>
-                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><Image src={m.home_team_logo} alt="" fill className="object-contain" /></div>
+                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><img src={m.home_team_logo} alt="" className="w-full h-full object-contain" /></div>
                     </div>
                     
                     <div className="flex flex-col items-center px-4 min-w-[100px]">
@@ -1017,7 +1014,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                     </div>
 
                     <div className="flex items-center gap-6 justify-start w-[42%] group-hover:translate-x-2 transition-transform duration-500">
-                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><Image src={m.away_team_logo} alt="" fill className="object-contain" /></div>
+                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><img src={m.away_team_logo} alt="" className="w-full h-full object-contain" /></div>
                        <span className="text-white font-black text-sm uppercase tracking-tighter truncate drop-shadow-lg">{m.away_team_name}</span>
                     </div>
                   </div>
@@ -1126,15 +1123,15 @@ export default function MatchPage() {
           const hId = matchSchedule.home_team?.id;
           const aId = matchSchedule.away_team?.id;
           
-          const hLogo = matchSchedule.home_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(hId))?.logo_url;
-          const aLogo = matchSchedule.away_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(aId))?.logo_url;
+          let hLogo = matchSchedule.home_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(hId))?.logo_url;
+          let aLogo = matchSchedule.away_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(aId))?.logo_url;
 
           const finalApiData = {
             ...matchSchedule,
             home_team_name: matchSchedule.home_team?.name || 'TBD',
             away_team_name: matchSchedule.away_team?.name || 'TBD',
-            home_team_logo: hLogo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
-            away_team_logo: aLogo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+            home_team_logo: hLogo || `${REPLIT_API_BASE_URL}/api/teams/${hId}/logo`,
+            away_team_logo: aLogo || `${REPLIT_API_BASE_URL}/api/teams/${aId}/logo`,
             home_score: matchSchedule.score?.home ?? 0,
             away_score: matchSchedule.score?.away ?? 0,
             date_formatted: matchSchedule.scheduled?.date,
@@ -1191,18 +1188,18 @@ export default function MatchPage() {
   const homeTeam = useMemo(() => {
     return { 
       name: apiData?.home_team_name || apiData?.home_team?.name || 'TBD', 
-      logo: apiData?.home_team_logo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+      logo: getSafeTeamLogo(apiData?.home_team?.id, apiData?.home_team_logo, apiTeams),
       id: apiData?.home_team?.id 
     };
-  }, [apiData]);
+  }, [apiData, apiTeams]);
 
   const awayTeam = useMemo(() => {
     return { 
       name: apiData?.away_team_name || apiData?.away_team?.name || 'TBD', 
-      logo: apiData?.away_team_logo || 'https://i.ibb.co/qN9VvN1/shield-placeholder.png',
+      logo: getSafeTeamLogo(apiData?.away_team?.id, apiData?.away_team_logo, apiTeams),
       id: apiData?.away_team?.id
     };
-  }, [apiData]);
+  }, [apiData, apiTeams]);
 
   if (loading && !apiData) {
     return (
@@ -1253,7 +1250,7 @@ export default function MatchPage() {
                 <div className="flex flex-col items-center group">
                   <div className="relative w-16 h-16 md:w-24 md:h-24 shrink-0 transition-all duration-700 group-hover:scale-110 group-hover:rotate-3">
                     <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    {homeTeam.logo && <Image src={homeTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] relative z-10" />}
+                    {homeTeam.logo && <img src={homeTeam.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] relative z-10" />}
                   </div>
                   <h2 className="mt-6 text-white text-[10px] md:text-sm font-black uppercase tracking-[0.2em] italic group-hover:text-blue-500 transition-colors text-center max-w-[120px]">{homeTeam.name}</h2>
                 </div>
@@ -1292,7 +1289,7 @@ export default function MatchPage() {
                 <div className="flex flex-col items-center group">
                   <div className="relative w-16 h-16 md:w-24 md:h-24 shrink-0 transition-all duration-700 group-hover:scale-110 group-hover:-rotate-3">
                     <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    {awayTeam.logo && <Image src={awayTeam.logo} alt="" fill className="object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] relative z-10" />}
+                    {awayTeam.logo && <img src={awayTeam.logo} alt="" className="w-full h-full object-contain drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] relative z-10" />}
                   </div>
                   <h2 className="mt-6 text-white text-[10px] md:text-sm font-black uppercase tracking-[0.2em] italic group-hover:text-blue-500 transition-colors text-center max-w-[120px]">{awayTeam.name}</h2>
                 </div>

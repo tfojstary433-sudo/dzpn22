@@ -303,6 +303,6 @@ export default function NewsDetailPage() {
       </article>
 
       <Footer />
-    </div>
+    </main>
   );
 }

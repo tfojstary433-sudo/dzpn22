@@ -72,10 +72,20 @@ function TabelaContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<'league' | 'county_cup' | 'champions_cup'>('league');
+  const [showCup, setShowCup] = useState(false);
 
   useEffect(() => {
+    const drawDate = new Date('2026-06-30T17:00:00');
+    const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+    const canShow = new Date() >= drawDate || isFinished;
+    setShowCup(canShow);
+
     if (tabParam === 'champions_cup' || tabParam === 'county_cup' || tabParam === 'league') {
-      setActiveTab(tabParam as any);
+      if (tabParam === 'county_cup' && !canShow) {
+        setActiveTab('league');
+      } else {
+        setActiveTab(tabParam as any);
+      }
     }
   }, [tabParam]);
 

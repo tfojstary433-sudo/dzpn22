@@ -14,14 +14,28 @@ export function MainNavbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ teams: any[], players: any[] }>({ teams: [], players: [] });
   const [searching, setSearching] = useState(false);
+  const [showCup, setShowCup] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
+    
+    const checkCupTime = () => {
+      const drawDate = new Date('2026-06-30T17:00:00');
+      const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+      setShowCup(new Date() >= drawDate || isFinished);
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    checkCupTime();
+    const interval = setInterval(checkCupTime, 10000);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
@@ -68,7 +82,7 @@ export function MainNavbar() {
     { href: '/tabela', label: 'TABELA' },
     { href: '/terminarz', label: 'TERMINARZ' },
     { href: '/tabela?tab=champions_cup', label: 'PUCHAR MISTRZÓW' },
-    { href: '/tabela?tab=county_cup', label: 'PUCHAR POWIATU' },
+    ...(showCup ? [{ href: '/tabela?tab=county_cup', label: 'PUCHAR POWIATU' }] : []),
   ];
 
   return (

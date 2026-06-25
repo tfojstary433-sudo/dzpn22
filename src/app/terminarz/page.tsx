@@ -52,41 +52,47 @@ export default function TerminarzPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'terminarz' | 'wyniki' | 'live'>('terminarz');
   const [visibleRounds, setVisibleRounds] = useState(3);
-  
-  // Filter States
+  const [showCup, setShowCup] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [selectedRound, setSelectedRound] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  
-  const [appliedFilters, setAppliedFilters] = useState({ 
-    team: 'all', 
-    round: 'all', 
-    month: 'all', 
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1));
+  const [appliedFilters, setAppliedFilters] = useState({
+    team: 'all',
+    round: 'all',
+    month: 'all',
     day: null as number | null,
     year: 2026
   });
 
-  // Calendar State
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1));
+  useEffect(() => {
+    const drawDate = new Date('2026-06-30T17:00:00');
+    const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+    setShowCup(new Date() >= drawDate || isFinished);
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const drawDate = new Date('2026-06-30T17:00:00');
+        const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+        const canShowCup = new Date() >= drawDate || isFinished;
+
         const [leagueRes, cupRes, teamsRes, liveRes] = await Promise.all([
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/schedule?type=league'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/schedule?type=county_cup'),
+          canShowCup ? fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/schedule?type=county_cup') : Promise.resolve({ json: () => ({ matches: [] }) }),
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1'),
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches/live')
         ]);
         const leagueData = await leagueRes.json();
-        const cupData = await cupRes.json();
+        const cupData = await (cupRes as any).json();
         const teamsData = await teamsRes.json();
         const liveData = await liveRes.json();
 
         setTeams(teamsData);
         
-        const allMatchData = [...(leagueData.matches || []), ...(cupData.matches || [])];
+        const allMatchData = [...(leagueData.matches || []), ...(canShowCup ? (cupData.matches || []) : [])];
         
         const mappedMatches = allMatchData.map((m: any) => ({
           id: m.id,
@@ -103,12 +109,12 @@ export default function TerminarzPage() {
           date_formatted: m.scheduled?.date || '',
           time_formatted: m.scheduled?.time || '18:00',
           venue_name: m.venue?.name || '',
-          home_team_logo: m.home_team?.logo_url || teamsData.find((t: any) => t.id === m.home_team?.id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
-          away_team_logo: m.away_team?.logo_url || teamsData.find((t: any) => t.id === m.away_team?.id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+          home_team_logo: m.home_team?.logo_url || teamsData.find((t: any) => t.id === m.home_team?.id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png',
+          away_team_logo: m.away_team?.logo_url || teamsData.find((t: any) => t.id === m.away_team?.id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'
         }));
         setAllMatches(mappedMatches);
 
-        setLiveMatches(liveData.map((m: any) => {
+        setLiveMatches(liveData.filter((m: any) => canShowCup || m.match_type !== 'county_cup').map((m: any) => {
           const scheduleMatch = allMatchData.find((sm: any) => sm.id === m.id);
           return {
             ...m,
@@ -116,8 +122,8 @@ export default function TerminarzPage() {
             venue_name: scheduleMatch?.venue?.name || '',
             date_formatted: scheduleMatch?.scheduled?.date || '',
             time_formatted: scheduleMatch?.scheduled?.time || '',
-            home_team_logo: teamsData.find((t: any) => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
-            away_team_logo: teamsData.find((t: any) => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png'
+            home_team_logo: teamsData.find((t: any) => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png',
+            away_team_logo: teamsData.find((t: any) => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'
           };
         }));
       } catch (e) { console.error(e); } finally { setLoading(false); }
