@@ -14,7 +14,7 @@ function TurniejeContent() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawResult, setDrawResult] = useState<any[]>([]);
 
-  const lockDate = new Date('2026-06-30T14:55:00');
+  const lockDate = new Date('2026-06-25T15:06:00');
 
   useEffect(() => {
     const timer = setInterval(() => {
