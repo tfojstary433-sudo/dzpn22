@@ -16,7 +16,12 @@ const playerPlaceholder = 'https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.p
 const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
 
 const getSafeTeamLogo = (teamId: any, fallback?: string, apiTeams?: any[]) => {
-    if (fallback && !fallback.includes('league-builder.replit.app')) return fallback;
+    if (apiTeams && teamId) {
+        const team = apiTeams.find(t => String(t.id) === String(teamId));
+        if (team?.logo_url) return team.logo_url;
+        if (team?.team_logo_url) return team.team_logo_url;
+    }
+    if (fallback && !fallback.includes('replit.app') && !fallback.includes('replit.dev')) return fallback;
     if (!teamId) return shieldPlaceholder;
     return `${REPLIT_API_BASE_URL}/api/teams/${teamId}/logo`;
 };
@@ -788,8 +793,8 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
         ...m,
         home_team_name: hName,
         away_team_name: aName,
-        home_team_logo: getSafeTeamLogo(homeId, m.home_team?.logo_url || m.home_team_logo),
-        away_team_logo: getSafeTeamLogo(awayId, m.away_team?.logo_url || m.away_team_logo),
+        home_team_logo: getSafeTeamLogo(homeId, m.home_team?.logo_url || m.home_team_logo, apiTeams),
+        away_team_logo: getSafeTeamLogo(awayId, m.away_team?.logo_url || m.away_team_logo, apiTeams),
         league_logo: m.match_type === 'county_cup' ? 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png' : leagueLogo,
         home_score: m.home_score ?? m.score?.home ?? 0,
         away_score: m.away_score ?? m.score?.away ?? 0,
