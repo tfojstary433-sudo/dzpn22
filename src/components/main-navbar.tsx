@@ -203,7 +203,7 @@ export function MainNavbar() {
           </div>
 
           {/* Social Icons & Mobile Toggle */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <div className="hidden md:flex items-center gap-4">
               <Link href="https://www.facebook.com/profile.php?id=61573191964716" target="_blank" className="text-white hover:text-blue-500 transition-colors">
                 <Facebook className="w-5 h-5" />
@@ -214,14 +214,117 @@ export function MainNavbar() {
             </div>
 
             <button 
-              className="xl:hidden text-white p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden text-white p-2 hover:bg-white/5 rounded-full transition-colors"
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                if (mobileMenuOpen) setMobileMenuOpen(false);
+              }}
+            >
+              <Search className="w-6 h-6" />
+            </button>
+
+            <button 
+              className="xl:hidden text-white p-2 hover:bg-white/5 rounded-full transition-colors"
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+                if (searchOpen) setSearchOpen(false);
+              }}
             >
               {mobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Overlay */}
+      {searchOpen && (
+        <div className="lg:hidden fixed inset-0 bg-[#020617] z-[102] p-6 animate-in slide-in-from-top duration-300">
+           <div className="flex flex-col gap-6 pt-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-black italic text-white uppercase tracking-tighter">Wyszukiwarka</h2>
+                <button onClick={() => setSearchOpen(false)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="w-8 h-8" />
+                </button>
+              </div>
+
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500" />
+                <input 
+                  type="text" 
+                  autoFocus
+                  placeholder="SZUKAJ DRUŻYNY LUB ZAWODNIKA..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-xs font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500 transition-all uppercase tracking-widest"
+                />
+              </div>
+
+              <div className="flex flex-col gap-4 overflow-y-auto max-h-[60vh]">
+                {searching ? (
+                  <div className="py-20 flex flex-col items-center gap-4">
+                    <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Szukanie...</span>
+                  </div>
+                ) : (searchQuery.length >= 2 && searchResults.teams.length === 0 && searchResults.players.length === 0) ? (
+                  <div className="py-20 text-center">
+                    <p className="text-white/20 text-xs font-bold uppercase tracking-widest">Brak wyników dla "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <>
+                    {searchResults.teams.length > 0 && (
+                      <div className="flex flex-col gap-3">
+                        <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] px-2">DRUŻYNY</span>
+                        {searchResults.teams.map((t) => (
+                          <Link 
+                            key={t.team_id}
+                            href={`/klub/${t.team_id}`}
+                            onClick={() => setSearchOpen(false)}
+                            className="flex items-center gap-4 p-4 bg-white/[0.03] border border-white/5 rounded-2xl active:scale-[0.98] transition-all"
+                          >
+                            <div className="w-12 h-12 rounded-xl bg-white/[0.05] p-2 flex items-center justify-center border border-white/10">
+                              <img src={t.team_logo_url} alt="" className="w-full h-full object-contain" />
+                            </div>
+                            <span className="text-sm font-black text-white italic uppercase">{t.team_name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchResults.players.length > 0 && (
+                      <div className="flex flex-col gap-3 mt-4">
+                        <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] px-2">ZAWODNICY</span>
+                        {searchResults.players.map((p) => {
+                          const fullName = `${p.first_name} ${p.last_name}`.trim();
+                          return (
+                            <Link 
+                              key={p.id}
+                              href={`/gracz/${fullName.replace(/\s+/g, '-').toLowerCase()}`}
+                              onClick={() => setSearchOpen(false)}
+                              className="flex items-center gap-4 p-4 bg-white/[0.03] border border-white/5 rounded-2xl active:scale-[0.98] transition-all"
+                            >
+                              <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 border border-white/10 relative">
+                                <Image 
+                                  src={p.photo_url || "https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png"} 
+                                  alt="" 
+                                  fill
+                                  className={cn("object-cover", !p.photo_url ? "scale-110" : "scale-150")}
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                 <span className="text-sm font-black text-white italic uppercase">{fullName}</span>
+                                 <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{p.current_team_name || 'Wolny Agent'}</span>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+           </div>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (

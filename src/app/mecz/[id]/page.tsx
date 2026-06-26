@@ -788,8 +788,8 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
         ...m,
         home_team_name: hName,
         away_team_name: aName,
-        home_team_logo: getSafeTeamLogo(homeId),
-        away_team_logo: getSafeTeamLogo(awayId),
+        home_team_logo: getSafeTeamLogo(homeId, m.home_team?.logo_url || m.home_team_logo),
+        away_team_logo: getSafeTeamLogo(awayId, m.away_team?.logo_url || m.away_team_logo),
         league_logo: m.match_type === 'county_cup' ? 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png' : leagueLogo,
         home_score: m.home_score ?? m.score?.home ?? 0,
         away_score: m.away_score ?? m.score?.away ?? 0,
@@ -1043,15 +1043,15 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
             <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.02] to-transparent"></div>
             <h3 className="text-white font-black text-2xl uppercase tracking-widest mb-12 flex items-center gap-6 italic relative z-10">
               <div className="w-2 h-10 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.4)]"></div>
-              BEZPOŚREDNIE STARRCIA (H2H)
+              BEZPOŚREDNIE STARCIA (H2H)
             </h3>
             <div className="space-y-6 relative z-10">
               {[...pastH2H, ...futureH2H].length > 0 ? [...pastH2H, ...futureH2H].map((m: any, i: number) => (
-                <div key={i} className="bg-[#0a1121]/60 border border-white/10 p-6 rounded-[2.5rem] flex items-center justify-between group hover:bg-[#0a1121]/80 transition-all relative overflow-hidden shadow-xl ring-1 ring-white/5">
+                <div key={i} className="bg-[#0a1121]/60 border border-white/10 p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between group hover:bg-[#0a1121]/80 transition-all relative overflow-hidden shadow-xl ring-1 ring-white/5 gap-6 md:gap-0">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   
-                  <div className="flex items-center gap-6 relative z-10 w-1/5">
-                    <div className="relative w-12 h-12 shrink-0 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                  <div className="flex items-center gap-4 md:gap-6 relative z-10 w-full md:w-1/5 justify-between md:justify-start">
+                    <div className="relative w-10 h-10 md:w-12 md:h-12 shrink-0 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                       <Image 
                         src={m.league_logo} 
                         alt="" 
@@ -1059,31 +1059,32 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
                         className="object-contain" 
                       />
                     </div>
-                    <span className="text-blue-500 font-black text-[11px] uppercase italic tracking-widest whitespace-nowrap">KOLEJKA {m.round}</span>
+                    <span className="text-blue-500 font-black text-[9px] md:text-[11px] uppercase italic tracking-widest whitespace-nowrap">KOLEJKA {m.round}</span>
+                    <span className="md:hidden text-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic">{m.date_formatted}</span>
                   </div>
 
-                  <div className="flex items-center justify-center gap-10 flex-1 relative z-10 px-8">
-                    <div className="flex items-center gap-6 justify-end w-[42%] text-right group-hover:-translate-x-2 transition-transform duration-500">
-                       <span className="text-white font-black text-sm uppercase tracking-tighter truncate drop-shadow-lg">{m.home_team_name}</span>
-                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><img src={m.home_team_logo} alt="" className="w-full h-full object-contain" /></div>
+                  <div className="flex items-center justify-center gap-4 md:gap-10 flex-1 relative z-10 w-full px-0 md:px-8">
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-2 md:gap-6 justify-end w-[40%] md:w-[42%] text-center md:text-right group-hover:-translate-x-1 md:group-hover:-translate-x-2 transition-transform duration-500">
+                       <span className="text-white font-black text-[10px] md:text-sm uppercase tracking-tighter truncate w-full drop-shadow-lg">{m.home_team_name}</span>
+                       <div className="relative w-14 h-14 md:w-24 md:h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><img src={m.home_team_logo} alt="" className="w-full h-full object-contain" /></div>
                     </div>
                     
-                    <div className="flex flex-col items-center px-4 min-w-[100px]">
-                      <span className="text-blue-500/40 text-[8px] font-black tracking-[0.4em] mb-1 uppercase italic">VERSUS</span>
+                    <div className="flex flex-col items-center px-2 md:px-4 min-w-[60px] md:min-w-[100px]">
+                      <span className="text-blue-500/40 text-[7px] md:text-[8px] font-black tracking-[0.3em] md:tracking-[0.4em] mb-0.5 md:mb-1 uppercase italic">VS</span>
                       {(m.status === 'finished' || m.status === 'Zakończony') ? (
-                        <span className="text-white font-black text-4xl tabular-nums italic drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">{m.home_score || 0}:{m.away_score || 0}</span>
+                        <span className="text-white font-black text-xl md:text-4xl tabular-nums italic drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">{m.home_score || 0}:{m.away_score || 0}</span>
                       ) : (
-                        <div className="text-blue-500 font-black text-2xl italic tracking-tighter drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">VS</div>
+                        <div className="text-blue-500 font-black text-lg md:text-2xl italic tracking-tighter drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">VS</div>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-6 justify-start w-[42%] group-hover:translate-x-2 transition-transform duration-500">
-                       <div className="relative w-24 h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><img src={m.away_team_logo} alt="" className="w-full h-full object-contain" /></div>
-                       <span className="text-white font-black text-sm uppercase tracking-tighter truncate drop-shadow-lg">{m.away_team_name}</span>
+                    <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 justify-start w-[40%] md:w-[42%] text-center md:text-left group-hover:translate-x-1 md:group-hover:translate-x-2 transition-transform duration-500">
+                       <div className="relative w-14 h-14 md:w-24 md:h-24 shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110"><img src={m.away_team_logo} alt="" className="w-full h-full object-contain" /></div>
+                       <span className="text-white font-black text-[10px] md:text-sm uppercase tracking-tighter truncate w-full drop-shadow-lg">{m.away_team_name}</span>
                     </div>
                   </div>
 
-                  <div className="text-right w-1/5 relative z-10">
+                  <div className="hidden md:block text-right w-1/5 relative z-10">
                     <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] italic">{m.date_formatted}</span>
                   </div>
                 </div>

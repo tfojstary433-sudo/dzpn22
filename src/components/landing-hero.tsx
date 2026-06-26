@@ -59,37 +59,37 @@ export function LandingHero() {
           <div className="flex flex-col gap-6 text-center lg:text-left">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col">
-                <h1 className="text-white font-league text-7xl md:text-9xl lg:text-[11rem] leading-[0.75] tracking-[-0.04em] uppercase italic drop-shadow-2xl">
+                <h1 className="text-white font-league text-6xl md:text-9xl lg:text-[11rem] leading-[0.8] md:leading-[0.75] tracking-[-0.04em] uppercase italic drop-shadow-2xl">
                   TWOJE BOISKO,
                 </h1>
-                <h1 className="text-blue-500 font-league text-7xl md:text-9xl lg:text-[11rem] leading-[0.75] tracking-[-0.04em] uppercase italic drop-shadow-2xl">
+                <h1 className="text-blue-500 font-league text-6xl md:text-9xl lg:text-[11rem] leading-[0.8] md:leading-[0.75] tracking-[-0.04em] uppercase italic drop-shadow-2xl">
                   TWOJA LIGA!
                 </h1>
               </div>
               <div className="flex items-center justify-center lg:justify-start gap-4 mt-2">
-                <div className="h-px w-12 bg-blue-500/50 hidden md:block" />
-                <p className="text-[10px] font-black tracking-[0.4em] text-white/40 uppercase italic">
+                <div className="h-px w-8 md:w-12 bg-blue-500/50 hidden sm:block" />
+                <p className="text-[8px] md:text-[10px] font-black tracking-[0.3em] md:tracking-[0.4em] text-white/40 uppercase italic px-4 md:px-0">
                   Istniejemy od 2024 roku • 10.04.2026 wznowiono prace nad ligą
                 </p>
               </div>
             </div>
             
-            <p className="text-gray-200 text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="text-gray-200 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium px-4 md:px-0">
               Emocje, rywalizacja i pasja – wszystko, co kochasz w piłce nożnej, 
               znajdziesz właśnie tutaj. <span className="text-red-500 font-black cursor-pointer hover:text-red-400 transition-colors border-b-2 border-red-500 pb-0.5">Dołącz do gry!</span>
             </p>
 
-            <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-6">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mt-6 px-4 md:px-0">
               <Link 
                 href="https://docs.google.com/forms/d/1HS7HHptyLKqg-4zKCB86upFlCNDP-QoFU0_Z1wEz3yw/edit#response=ACYDBNisR6-x5AAYQ3c_V4Ihs5qIakoKW4cGODIKdlkyCZUviG7U_VG4jJFgn1IVLthOFAItutaj" 
                 target="_blank"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-black px-10 py-5 rounded-xl flex items-center gap-3 transition-all transform hover:scale-105 uppercase tracking-tighter shadow-[0_10px_30px_rgba(37,99,235,0.4)]"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 md:px-10 py-4 md:py-5 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 uppercase tracking-tighter shadow-[0_10px_30px_rgba(37,99,235,0.4)]"
               >
-                <Calendar className="w-6 h-6" />
+                <Calendar className="w-5 h-5 md:w-6 md:h-6" />
                 ZAPISZ DRUŻYNĘ
               </Link>
-              <button className="bg-transparent border-2 border-white/30 hover:bg-white hover:text-black text-white font-black px-10 py-5 rounded-xl flex items-center gap-3 transition-all transform hover:scale-105 uppercase tracking-tighter backdrop-blur-sm">
-                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-current border-b-[6px] border-b-transparent ml-1" />
+              <button className="bg-transparent border-2 border-white/30 hover:bg-white hover:text-black text-white font-black px-8 md:px-10 py-4 md:py-5 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 uppercase tracking-tighter backdrop-blur-sm">
+                <div className="w-0 h-0 border-t-[5px] md:border-t-[6px] border-t-transparent border-l-[8px] md:border-l-[10px] border-l-current border-b-[5px] md:border-b-[6px] border-b-transparent ml-1" />
                 ZOBACZ WIĘCEJ
               </button>
             </div>
