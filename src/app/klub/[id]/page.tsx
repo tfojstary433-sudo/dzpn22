@@ -561,6 +561,24 @@ export default function KlubPage() {
                        </div>
                     );
                  })}
+                 
+                 {/* ZOBACZ PEŁNĄ KADRĘ CARD */}
+                 {teamData.players.length > 0 && (
+                    <div className="min-w-[240px] md:min-w-[280px] snap-start">
+                       <Link 
+                         href={`/klub/${id}/kadra`}
+                         className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white/[0.02] border-2 border-dashed border-white/10 rounded-[2.5rem] group hover:bg-blue-600/10 hover:border-blue-500/30 transition-all p-8 text-center"
+                       >
+                          <div className="w-20 h-20 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                             <Users className="w-10 h-10 text-blue-500" />
+                          </div>
+                          <h4 className="text-xl font-black text-white italic uppercase tracking-tighter mb-4 group-hover:text-blue-400 transition-colors">ZOBACZ PEŁNĄ KADRĘ</h4>
+                          <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center gap-2">
+                             LISTA ZAWODNIKÓW <ChevronRight className="w-4 h-4" />
+                          </div>
+                       </Link>
+                    </div>
+                 )}
                  {teamData.players.length === 0 && (
                     <div className="w-full py-32 flex flex-col items-center justify-center bg-white/[0.01] border border-white/5 rounded-[3rem] text-white/10">
                        <User className="w-20 h-20 mb-6 opacity-5" />
@@ -729,10 +747,6 @@ function PlayerCard({ player, stats }: { player: Player, stats?: any }) {
              </div>
           </div>
        </div>
-       {/* Captain Badge */}
-       {player.id % 7 === 0 && (
-          <div className="absolute top-4 left-4 bg-yellow-500 text-black font-black text-[9px] px-3 py-1 rounded-lg uppercase italic shadow-xl">KAPITAN</div>
-       )}
     </Link>
   );
 }
