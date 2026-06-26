@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
+import { CountyCupDraw } from '@/components/county-cup-draw';
 import { 
   Trophy, Calendar, ChevronRight, Loader2, Goal, Activity, CircleDot, Users,
   Layout, Award, Shield
@@ -74,10 +75,54 @@ function TabelaContent() {
   const [activeTab, setActiveTab] = useState<'league' | 'county_cup' | 'champions_cup'>('league');
   const [showCup, setShowCup] = useState(false);
 
+  const [tableData, setTableData] = useState<TableTeam[]>([]);
+  const [allTeams, setAllTeams] = useState<any[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
+  const [stats, setStats] = useState<StatsSummary | null>(null);
+  const [playerStats, setPlayerStats] = useState<PlayerStat[]>([]);
+  const [cupPlayerStats, setCupPlayerStats] = useState<PlayerStat[]>([]);
+  const [countyCupPlayerStats, setCountyCupPlayerStats] = useState<any[]>([]);
+  const [cupMatches, setCupMatches] = useState<Match[]>([]);
+  const [countyCupMatches, setCountyCupMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const totalGoals = useMemo(() => {
+    return tableData.reduce((acc, team) => acc + team.goals_for, 0);
+  }, [tableData]);
+
+  function getTeamNameById(teamId: number) {
+    const team = tableData.find(t => t.team_id === teamId) || allTeams.find(t => (t.team_id || t.id) === teamId);
+    return team?.team_name || team?.name || `Team ${teamId}`;
+  }
+
+  function getTeamLogoById(teamId: number) {
+    const team = tableData.find(t => t.team_id === teamId) || allTeams.find(t => (t.team_id || t.id) === teamId);
+    return team?.team_logo_url || team?.logo_url || `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+  }
+
+  function getTeamPositionById(teamId: number) {
+    if (!tableData || tableData.length === 0) return 'N/A';
+    const index = tableData.findIndex(t => t.team_id === teamId);
+    return index !== -1 ? `${index + 1}. MIEJSCE` : 'N/A';
+  }
+
+  function getLeagueLogo(type?: string) {
+    if (type === 'county_cup') return 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
+    if (type === 'champions_cup') return 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
+    return 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
+  }
+
+  const [isFinished, setIsFinished] = useState(false);
+
   useEffect(() => {
     const drawDate = new Date('2026-06-30T17:00:00');
-    const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
-    const canShow = new Date() >= drawDate || isFinished;
+    const now = new Date();
+    const finished = localStorage.getItem('county_cup_draw_finished_3006_1700') === 'true';
+    setIsFinished(finished);
+    
+    // Show link from 17:00
+    const canShow = now >= drawDate;
     setShowCup(canShow);
 
     if (tabParam === 'champions_cup' || tabParam === 'county_cup' || tabParam === 'league') {
@@ -86,22 +131,27 @@ function TabelaContent() {
       } else {
         setActiveTab(tabParam as any);
       }
+    } else {
+      setActiveTab('league');
     }
   }, [tabParam]);
-
-  const [tableData, setTableData] = useState<TableTeam[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
-  const [stats, setStats] = useState<StatsSummary | null>(null);
-  const [playerStats, setPlayerStats] = useState<PlayerStat[]>([]);
-  const [cupPlayerStats, setCupPlayerStats] = useState<PlayerStat[]>([]);
-  const [cupMatches, setCupMatches] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [tableRes, matchesRes, upcomingRes, statsRes, playersStatsRes, playersRes, cupRes, cupPlayersStatsRes] = await Promise.all([
+        const [
+          tableRes, 
+          matchesRes, 
+          upcomingRes, 
+          statsRes, 
+          playersStatsRes, 
+          playersRes, 
+          cupRes, 
+          cupPlayersStatsRes,
+          countyCupRes,
+          countyCupStatsRes,
+          teamsRes
+        ] = await Promise.all([
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1'),
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1&status=finished'),
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1&status=scheduled'),
@@ -109,7 +159,10 @@ function TabelaContent() {
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players?season_id=1'),
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/players'),
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players')
+          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players'),
+          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/brackets/1?type=county_cup'),
+          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/cup/stats/players.json'),
+          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams')
         ]);
         
         const tableJson = await tableRes.json();
@@ -120,20 +173,52 @@ function TabelaContent() {
         const playersJson = await playersRes.json();
         const cupMatchesJson = await cupRes.json();
         const cupPlayersStatsJson = await cupPlayersStatsRes.json();
+        const countyCupJson = await countyCupRes.json();
+        const countyCupStatsJson = await countyCupStatsRes.json();
+        const teamsJson = await teamsRes.json();
 
-        if (Array.isArray(cupMatchesJson)) {
-          setCupMatches(cupMatchesJson.filter(m => m.match_type === 'champions_cup' || m.match_type === 'county_cup'));
+        // 1. Teams and Table Data
+        if (Array.isArray(teamsJson)) {
+          setAllTeams(teamsJson);
         }
 
-        if (Array.isArray(tableJson)) {
+        if (Array.isArray(tableJson) && tableJson.length > 0) {
           setTableData([...tableJson].sort((a, b) => b.points - a.points));
+        } else if (Array.isArray(teamsJson)) {
+          const leagueTeams = teamsJson.filter((t: any) => t.season_id === 1 && !t.is_cup_only);
+          setTableData(leagueTeams.map((t: any) => ({
+            team_id: t.id,
+            team_name: t.name,
+            played: t.played || 0,
+            won: t.won || 0,
+            drawn: t.drawn || 0,
+            lost: t.lost || 0,
+            goals_for: t.goals_for || 0,
+            goals_against: t.goals_against || 0,
+            points: t.points || 0,
+            team_logo_url: t.logo_url
+          })).sort((a, b) => b.points - a.points));
         }
-        if (Array.isArray(matchesJson)) {
-          setMatches([...matchesJson].reverse());
+
+        // 2. County Cup matches from brackets API
+        if (countyCupJson && Array.isArray(countyCupJson.rounds)) {
+          const allCountyMatches: any[] = [];
+          countyCupJson.rounds.forEach((r: any) => {
+            if (r.matches) {
+              allCountyMatches.push(...r.matches.map((m: any) => ({
+                ...m,
+                match_type: 'county_cup',
+                round: m.round || r.round
+              })));
+            }
+          });
+          setCountyCupMatches(allCountyMatches);
         }
-        if (Array.isArray(upcomingJson)) {
-          setUpcomingMatches(upcomingJson);
-        }
+
+        // 3. Other data
+        if (Array.isArray(cupMatchesJson)) setCupMatches(cupMatchesJson);
+        if (Array.isArray(matchesJson)) setMatches([...matchesJson].reverse());
+        if (Array.isArray(upcomingJson)) setUpcomingMatches(upcomingJson);
         if (statsJson) setStats(statsJson);
         
         if (Array.isArray(playersStatsJson) && Array.isArray(playersJson)) {
@@ -143,7 +228,7 @@ function TabelaContent() {
               ...ps,
               photo_url: playerInfo?.photo_url
             };
-          });
+          }).filter((p: any) => (p.goals > 0 || p.assists > 0));
           setPlayerStats(mergedPlayers.sort((a, b) => b.goals - a.goals));
         }
 
@@ -152,10 +237,23 @@ function TabelaContent() {
             const playerInfo = playersJson.find((p: any) => p.id === ps.player_id);
             return {
               ...ps,
-              photo_url: playerInfo?.photo_url
+              photo_url: playerInfo?.photo_url,
+              match_type: ps.match_type || 'champions_cup'
             };
-          });
+          }).filter((p: any) => (p.goals > 0 || p.assists > 0));
           setCupPlayerStats(mergedCupPlayers);
+        }
+
+        if (countyCupStatsJson && Array.isArray(countyCupStatsJson.players)) {
+          const mergedCountyCupPlayers = countyCupStatsJson.players.map((ps: any) => {
+            const playerInfo = playersJson.find((p: any) => p.id === ps.player_id);
+            return {
+              ...ps,
+              photo_url: playerInfo?.photo_url,
+              match_type: 'county_cup'
+            };
+          }).filter((p: any) => (p.goals > 0 || p.assists > 0));
+          setCountyCupPlayerStats(mergedCountyCupPlayers);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -166,26 +264,16 @@ function TabelaContent() {
     fetchData();
   }, []);
 
-  const getTeamNameById = (teamId: number) => {
-    return tableData.find(t => t.team_id === teamId)?.team_name || `Team ${teamId}`;
-  };
+  const currentCupMatches = useMemo(() => {
+    if (activeTab === 'county_cup') return countyCupMatches;
+    if (activeTab === 'champions_cup') return cupMatches.filter(m => m.match_type === 'champions_cup');
+    return [];
+  }, [activeTab, countyCupMatches, cupMatches]);
 
-  const getTeamPositionById = (teamId: number) => {
-    const idx = tableData.findIndex(t => t.team_id === teamId);
-    return idx !== -1 ? `#${idx + 1}` : '-';
-  };
-
-  const totalGoals = tableData.reduce((acc, team) => acc + team.goals_for, 0);
-
-  const getTeamLogoById = (teamId: number) => {
-    return tableData.find(t => t.team_id === teamId)?.team_logo_url;
-  };
-
-  const getLeagueLogo = (matchType?: string) => {
-    if (matchType === 'champions_cup') return 'https://i.ibb.co/4wpcgDRj/IMG-4837-2.png';
-    if (matchType === 'county_cup') return 'https://i.ibb.co/qMzPb2kp/IMG-4837-3.png';
-    return 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; // league
-  };
+  const currentCupPlayerStats = useMemo(() => {
+    const stats = activeTab === 'county_cup' ? countyCupPlayerStats : cupPlayerStats.filter(p => p.match_type === 'champions_cup');
+    return stats.filter(p => (p.goals > 0 || p.assists > 0));
+  }, [activeTab, countyCupPlayerStats, cupPlayerStats]);
 
   if (loading) {
     return (
@@ -578,17 +666,18 @@ function TabelaContent() {
         ) : (
           <div className="flex flex-col gap-12 w-full">
             <TournamentBracket 
-              matches={cupMatches.filter(m => m.match_type === activeTab)} 
+              matches={currentCupMatches} 
               getLogo={getTeamLogoById}
+              getName={getTeamNameById}
               type={activeTab}
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
               <Card title="TOP STRZELCY" icon={<Goal className="w-5 h-5 text-blue-400" />}>
-                {cupPlayerStats.filter(p => p.match_type === activeTab && p.goals > 0).length > 0 ? (
+                {currentCupPlayerStats.filter(p => p.goals > 0).length > 0 ? (
                   <div className="flex flex-col gap-0 -mx-10 -mb-10">
-                    {cupPlayerStats
-                      .filter(p => p.match_type === activeTab && p.goals > 0)
+                    {currentCupPlayerStats
+                      .filter(p => p.goals > 0)
                       .sort((a, b) => b.goals - a.goals)
                       .slice(0, 5)
                       .map((p, i) => (
@@ -637,10 +726,10 @@ function TabelaContent() {
               </Card>
 
               <Card title="TOP ASYSTENCI" icon={<Users className="w-5 h-5 text-blue-400" />}>
-                {cupPlayerStats.filter(p => p.match_type === activeTab && p.assists > 0).length > 0 ? (
+                {currentCupPlayerStats.filter(p => p.assists > 0).length > 0 ? (
                   <div className="flex flex-col gap-0 -mx-10 -mb-10">
-                    {cupPlayerStats
-                      .filter(p => p.match_type === activeTab && p.assists > 0)
+                    {currentCupPlayerStats
+                      .filter(p => p.assists > 0)
                       .sort((a, b) => b.assists - a.assists)
                       .slice(0, 5)
                       .map((p, i) => (
@@ -689,10 +778,10 @@ function TabelaContent() {
               </Card>
 
               <Card title="PUNKTACJA KANADYJSKA" icon={<Trophy className="w-5 h-5 text-yellow-500" />}>
-                {cupPlayerStats.filter(p => p.match_type === activeTab && (p.goals + p.assists) > 0).length > 0 ? (
+                {currentCupPlayerStats.filter(p => (p.goals + p.assists) > 0).length > 0 ? (
                   <div className="flex flex-col gap-0 -mx-10 -mb-10">
-                    {cupPlayerStats
-                      .filter(p => p.match_type === activeTab && (p.goals + p.assists) > 0)
+                    {currentCupPlayerStats
+                      .filter(p => (p.goals + p.assists) > 0)
                       .sort((a, b) => (b.goals + b.assists) - (a.goals + a.assists))
                       .slice(0, 5)
                       .map((p, i) => (
@@ -749,7 +838,7 @@ function TabelaContent() {
   );
 }
 
-function TournamentBracket({ matches, getLogo, type }: { matches: Match[], getLogo: (id: number) => string | undefined, type: string }) {
+function TournamentBracket({ matches, getLogo, getName, type }: { matches: Match[], getLogo: (id: number) => string | undefined, getName: (id: number) => string, type: string }) {
   const rounds = useMemo(() => {
     const grouped = matches.reduce((acc: { [key: number]: Match[] }, match) => {
       const round = match.round || 1;
@@ -769,7 +858,7 @@ function TournamentBracket({ matches, getLogo, type }: { matches: Match[], getLo
     }
     
     return Object.entries(grouped)
-      .sort(([a], [b]) => Number(a) - Number(b))
+      .sort(([a], [b]) => Number(b) - Number(a))
       .map(([round, roundMatches]) => ({
         name: roundNames[round] || `Runda ${round}`,
         matches: roundMatches
@@ -787,67 +876,69 @@ function TournamentBracket({ matches, getLogo, type }: { matches: Match[], getLo
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center overflow-x-auto pb-12 px-4 scrollbar-hide py-10">
-      {rounds.map((round, roundIdx) => (
-        <div key={roundIdx} className="flex flex-col gap-12 min-w-[320px]">
-          <div className="text-center">
-             <span className="text-[12px] font-black text-blue-500 uppercase tracking-[0.5em] italic shrink-0">{round.name}</span>
-          </div>
-          
-          <div className={cn(
-            "flex flex-col gap-12 h-full justify-around",
-            roundIdx === 1 ? "pt-16 pb-16" : 
-            roundIdx === 2 ? "pt-32 pb-32" : 
-            roundIdx === 3 ? "pt-48 pb-48" : ""
-          )}>
-            {round.matches.map((match, mIdx) => (
-              <div key={mIdx} className="relative">
-                <Link 
-                  href={`/mecz/${match.id}`}
-                  className="block bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.05] hover:border-blue-500/30 transition-all duration-500 shadow-2xl group w-full"
-                >
-                  <div className="flex flex-col">
-                    <BracketTeam 
-                      name={match.home_team_name} 
-                      logo={getLogo(match.home_team_id)} 
-                      score={match.home_score} 
-                      isWinner={match.status === 'finished' && match.home_score > match.away_score} 
-                    />
-                    <div className="h-px bg-white/5 w-full" />
-                    <BracketTeam 
-                      name={match.away_team_name} 
-                      logo={getLogo(match.away_team_id)} 
-                      score={match.away_score} 
-                      isWinner={match.status === 'finished' && match.away_score > match.home_score} 
-                    />
-                  </div>
-                  
-                  {match.status === 'finished' ? (
-                    <div className="bg-blue-600/10 py-2 px-4 flex items-center justify-center border-t border-white/5">
-                      <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest italic">Wynik końcowy</span>
+    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 lg:p-12 shadow-2xl">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center overflow-x-auto pb-12 px-4 scrollbar-hide py-10">
+        {rounds.map((round, roundIdx) => (
+          <div key={roundIdx} className="flex flex-col gap-12 min-w-[320px]">
+            <div className="text-center">
+               <span className="text-[12px] font-black text-blue-500 uppercase tracking-[0.5em] italic shrink-0">{round.name}</span>
+            </div>
+            
+            <div className={cn(
+              "flex flex-col gap-12 h-full justify-around",
+              roundIdx === 1 ? "pt-16 pb-16" : 
+              roundIdx === 2 ? "pt-32 pb-32" : 
+              roundIdx === 3 ? "pt-48 pb-48" : ""
+            )}>
+              {round.matches.map((match, mIdx) => (
+                <div key={mIdx} className="relative">
+                  <Link 
+                    href={`/mecz/${match.id}`}
+                    className="block bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.05] hover:border-blue-500/30 transition-all duration-500 shadow-2xl group w-full"
+                  >
+                    <div className="flex flex-col">
+                      <BracketTeam 
+                        name={((match as any).home_team?.name || match.home_team_name || getName(match.home_team_id))?.trim()} 
+                        logo={(match as any).home_team?.logo_url || getLogo(match.home_team_id)} 
+                        score={match.home_score} 
+                        isWinner={match.status === 'finished' && match.home_score > match.away_score} 
+                      />
+                      <div className="h-px bg-white/5 w-full" />
+                      <BracketTeam 
+                        name={((match as any).away_team?.name || match.away_team_name || getName(match.away_team_id))?.trim()} 
+                        logo={(match as any).away_team?.logo_url || getLogo(match.away_team_id)} 
+                        score={match.away_score} 
+                        isWinner={match.status === 'finished' && match.away_score > match.home_score} 
+                      />
                     </div>
-                  ) : (
-                    <div className="bg-white/5 py-2 px-4 flex items-center justify-center border-t border-white/5">
-                      <span className="text-[8px] font-black text-white/30 uppercase tracking-widest italic">
-                        {match.scheduled_at ? (
-                          <>
-                            {new Date(match.scheduled_at).toLocaleDateString()} @ {new Date(match.scheduled_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </>
-                        ) : 'Termin do ustalenia'}
-                      </span>
-                    </div>
-                  )}
-                </Link>
+                    
+                    {match.status === 'finished' ? (
+                      <div className="bg-blue-600/10 py-2 px-4 flex items-center justify-center border-t border-white/5">
+                        <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest italic">Wynik końcowy</span>
+                      </div>
+                    ) : (
+                      <div className="bg-white/5 py-2 px-4 flex items-center justify-center border-t border-white/5">
+                        <span className="text-[8px] font-black text-white/30 uppercase tracking-widest italic">
+                          {match.scheduled_at ? (
+                            <>
+                              {new Date(match.scheduled_at).toLocaleDateString()} @ {new Date(match.scheduled_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </>
+                          ) : 'Termin do ustalenia'}
+                        </span>
+                      </div>
+                    )}
+                  </Link>
 
-                {/* Vertical Connector lines - simplified for robust layout */}
-                {roundIdx < rounds.length - 1 && (
-                  <div className="hidden lg:block absolute -right-8 top-1/2 w-8 h-px bg-white/20" />
-                )}
-              </div>
-            ))}
+                  {/* Horizontal Connector lines - pointing to the right */}
+                  {roundIdx < rounds.length - 1 && (
+                    <div className="hidden lg:block absolute -right-8 top-1/2 w-8 h-px bg-white/20" />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -867,9 +958,9 @@ function BracketTeam({ name, logo, score, isWinner }: { name: string, logo?: str
         </div>
         <span className={cn(
           "text-sm font-black uppercase tracking-tight italic truncate transition-all duration-500",
-          isWinner ? "text-white scale-105 origin-left" : "text-white/40"
+          isWinner ? "text-white scale-105 origin-left" : "text-white/60"
         )}>
-          {name}
+          {name || 'DRUŻYNA TBD'}
         </span>
       </div>
       <div className={cn(

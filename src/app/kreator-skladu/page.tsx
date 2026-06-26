@@ -230,7 +230,7 @@ export default function SquadBuilderPage() {
   };
 
   return (
-    <main className="bg-[#020617] min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
+    <div className="bg-[#020617] min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
       <MainNavbar />
       
       {/* Background Section */}
@@ -437,6 +437,7 @@ export default function SquadBuilderPage() {
       </main>
 
       <Footer />
+    </div>
     </div>
   );
 }

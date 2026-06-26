@@ -68,7 +68,7 @@ export default function TerminarzPage() {
 
   useEffect(() => {
     const drawDate = new Date('2026-06-30T17:00:00');
-    const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+    const isFinished = localStorage.getItem('county_cup_draw_finished_3006_1700') === 'true';
     setShowCup(new Date() >= drawDate || isFinished);
   }, []);
 
@@ -76,7 +76,7 @@ export default function TerminarzPage() {
     async function fetchData() {
       try {
         const drawDate = new Date('2026-06-30T17:00:00');
-        const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
+        const isFinished = localStorage.getItem('county_cup_draw_finished_3006_1700') === 'true';
         const canShowCup = new Date() >= drawDate || isFinished;
 
         const [leagueRes, cupRes, teamsRes, liveRes] = await Promise.all([
@@ -133,12 +133,37 @@ export default function TerminarzPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const calculateMinute = (startTimestamp: string) => {
-    if (!startTimestamp) return '1\'';
-    const start = new Date(startTimestamp).getTime();
+  const calculateMinute = (match: any) => {
+    if (!match) return '1\'';
+    
+    if (match.period === 'halftime' || match.status === 'halftime' || match.period === 'break' || match.status === 'break') {
+      return 'PRZERWA';
+    }
+
+    if (match.minute) return `${match.minute}'`;
+
     const now = new Date().getTime();
-    const diff = Math.floor((now - start) / 60000);
-    return diff > 90 ? '90+\'' : diff < 0 ? '1\'' : `${diff}'`;
+    
+    if (match.period === 'second_half' && match.second_half_at) {
+      const secondHalfStart = new Date(match.second_half_at).getTime();
+      const diff = Math.floor((now - secondHalfStart) / 60000);
+      const minute = 45 + diff;
+      return minute > 90 ? `90+${minute - 90}'` : `${minute}'`;
+    }
+    
+    if (match.start_timestamp) {
+      const start = new Date(match.start_timestamp).getTime();
+      const diff = Math.floor((now - start) / 60000);
+      const minute = diff + 1;
+      
+      if (match.period === 'first_half' && minute > 45) {
+        return `45+${minute - 45}'`;
+      }
+      
+      return minute > 90 ? `90+${minute - 90}'` : `${minute < 1 ? 1 : minute}'`;
+    }
+    
+    return '1\'';
   };
 
   const filteredMatches = useMemo(() => {
@@ -284,8 +309,10 @@ export default function TerminarzPage() {
                               <img src={m.home_team_logo} className="w-14 h-14 object-contain" alt="" />
                             </Link>
                             <div className="flex flex-col items-center gap-3 transition-all hover:scale-105 active:scale-95 relative z-10">
-                                <div className="bg-red-600 text-white text-sm font-black px-6 py-2 rounded-full animate-pulse tracking-[0.2em] shadow-[0_0_25px_rgba(220,38,38,0.6)] border-2 border-white/20">
-                                    {calculateMinute(m.start_timestamp || '')}
+                                <div className="bg-red-600 text-white text-sm font-black px-6 py-2 rounded-full animate-pulse tracking-[0.2em] shadow-[0_0_25px_rgba(220,38,38,0.6)] border-2 border-white/20 uppercase">
+                                    <span className={calculateMinute(m) === 'PRZERWA' ? 'text-yellow-400' : ''}>
+                                        {calculateMinute(m)}
+                                    </span>
                                 </div>
                                 <div className="bg-red-600/10 border border-red-500/40 px-10 py-5 rounded-[2.5rem] flex flex-col items-center shadow-[inset_0_0_30px_rgba(239,68,68,0.15)] backdrop-blur-md group-hover:bg-red-600/20">
                                     <span className="text-5xl font-black italic tracking-tighter text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.6)]">

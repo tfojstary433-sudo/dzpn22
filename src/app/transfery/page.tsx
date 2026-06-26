@@ -388,6 +388,6 @@ export default function TransferyPage() {
 
       <DateBar />
       <Footer />
-    </>
+    </main>
   );
 }

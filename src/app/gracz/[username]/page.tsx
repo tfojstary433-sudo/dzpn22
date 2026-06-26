@@ -64,7 +64,11 @@ export default function GraczPage() {
     async function fetchPlayerData() {
       try {
         setLoading(true);
-        const decodedUsername = decodeURIComponent(username).replace(/-/g, ' ').trim().toLowerCase();
+        const decodedUsername = decodeURIComponent(username)
+          .replace(/-/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toLowerCase();
         
         const [playersRes, statsRes, teamsRes] = await Promise.all([
           fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/players'),
@@ -80,9 +84,20 @@ export default function GraczPage() {
           const players = await playersRes.json();
           const stats = statsRes.ok ? await statsRes.json() : [];
 
+          const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+          const target = normalize(decodedUsername);
+
           const foundPlayer = players.find((p: any) => {
-            const fullName = `${p.first_name} ${p.last_name}`.trim().toLowerCase();
-            return fullName === decodedUsername;
+            const first = normalize(p.first_name || '');
+            const last = normalize(p.last_name || '');
+            const full = `${first} ${last}`.trim();
+            const lastFirst = `${last} ${first}`.trim();
+            
+            return full === target || 
+                   lastFirst === target || 
+                   last === target ||
+                   full.replace(/\s+/g, '-') === username.toLowerCase() ||
+                   last.replace(/\s+/g, '-') === username.toLowerCase();
           });
 
           if (foundPlayer) {

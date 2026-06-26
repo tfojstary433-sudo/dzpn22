@@ -30,12 +30,16 @@ export function CountyCupDraw() {
   const drawDate = useMemo(() => new Date('2026-06-30T17:00:00'), []);
 
   useEffect(() => {
-    const isAlreadyFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
-    if (isAlreadyFinished) return;
-
     const checkTime = () => {
+      const isAlreadyFinished = localStorage.getItem('county_cup_draw_finished_3006_1700') === 'true';
+      if (isAlreadyFinished) {
+        setIsActive(false);
+        return;
+      }
+
       const now = new Date();
       if (now >= drawDate && !isFinished && !isActive) {
+        console.log('Starting draw process at', now);
         setIsActive(true);
         startCountdown();
       }
@@ -60,27 +64,37 @@ export function CountyCupDraw() {
     }, 1000);
   };
 
-  const getTeamLogo = (teamId: any) => {
+  const getTeamLogo = (teamId: any, teamObj?: any) => {
+    if (teamObj?.logo_url) return teamObj.logo_url;
     if (!teamId) return 'https://i.ibb.co/gFm0wL5C/IMG-4837-3.png';
-    const team = apiTeams.find(t => String(t.id) === String(teamId));
-    return team?.logo_url || `https://league-builder.replit.app/api/teams/${teamId}/logo`;
+    const team = apiTeams.find(t => String(t.team_id || t.id) === String(teamId));
+    return team?.team_logo_url || team?.logo_url || `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
   };
 
   const startDrawingProcess = async () => {
     setIsDrawing(true);
     try {
-      // Fetch teams first for logos
-      const teamsRes = await fetch('https://league-builder.replit.app/api/teams?season_id=1');
+      // Fetch teams first for logos from the full teams list
+      const teamsRes = await fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams');
       if (teamsRes.ok) {
         const teamsData = await teamsRes.json();
-        setApiTeams(teamsData);
+        setApiTeams(Array.isArray(teamsData) ? teamsData : []);
       }
 
-      const res = await fetch('https://league-builder.replit.app/api/public/schedule/cup.json');
+      const res = await fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/brackets/1?type=county_cup');
       const data = await res.json();
       
-      // Use ALL matches from the API
-      const cupMatches = data.matches;
+      // Extract all matches from all rounds to show full draw
+      const cupMatches: any[] = [];
+      if (data.rounds && Array.isArray(data.rounds)) {
+        // Use the round with the most matches (usually the starting round)
+        const sortedRounds = [...data.rounds].sort((a: any, b: any) => (b.matches?.length || 0) - (a.matches?.length || 0));
+        const drawRound = sortedRounds[0];
+        
+        if (drawRound && drawRound.matches) {
+          cupMatches.push(...drawRound.matches);
+        }
+      }
       
       // Initialize revealed matches with the correct number of slots
       setRevealedMatches(new Array(cupMatches.length).fill(null).map((_, i) => ({
@@ -130,7 +144,7 @@ export function CountyCupDraw() {
       
       setIsDrawing(false);
       setIsFinished(true);
-      localStorage.setItem('county_cup_draw_finished', 'true');
+      localStorage.setItem('county_cup_draw_finished_3006_1700', 'true');
     } catch (e) {
       console.error('Draw process error:', e);
     }
@@ -241,7 +255,7 @@ export function CountyCupDraw() {
                 <div className="flex flex-col items-center gap-3 flex-1 mt-2">
                    <div className={`relative w-16 h-16 bg-black/40 rounded-2xl p-2 border border-white/10 shadow-2xl transition-all duration-700 ${!match.home_team ? 'opacity-10 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
                       <Image 
-                        src={getTeamLogo(match.home_team?.id)} 
+                        src={getTeamLogo(match.home_team?.id, match.home_team)} 
                         alt="" 
                         fill
                         className="object-contain p-1.5"
@@ -259,7 +273,7 @@ export function CountyCupDraw() {
                 <div className="flex flex-col items-center gap-3 flex-1 mt-2">
                    <div className={`relative w-16 h-16 bg-black/40 rounded-2xl p-2 border border-white/10 shadow-2xl transition-all duration-700 ${!match.away_team ? 'opacity-10 scale-90 blur-sm' : 'opacity-100 scale-100'}`}>
                       <Image 
-                        src={getTeamLogo(match.away_team?.id)} 
+                        src={getTeamLogo(match.away_team?.id, match.away_team)} 
                         alt="" 
                         fill
                         className="object-contain p-1.5"

@@ -148,7 +148,17 @@ export function LiveMatch() {
             <span className="text-xs font-black uppercase tracking-[0.25em] text-white/90 flex items-center gap-2">
               <span className="text-red-500 animate-pulse font-black">NA ŻYWO</span>
               <span className="w-px h-3 bg-white/20 mx-1"></span>
-              {match.timer} <span className="text-white/40 font-medium">|</span> {match.period}
+              {match.period === 'halftime' || match.status === 'halftime' ? (
+                <span className="text-yellow-500 animate-pulse font-black uppercase tracking-widest">PRZERWA</span>
+              ) : (
+                <>
+                  {match.timer}
+                  {match.addedTime > 0 && (
+                    <span className="text-red-500 ml-1">+{match.addedTime}'</span>
+                  )}
+                </>
+              )}
+              <span className="text-white/40 font-medium ml-1">|</span> {(match.period === 'halftime' || match.status === 'halftime') ? 'HALFTIME' : match.period}
             </span>
           </div>
         </div>

@@ -8,7 +8,8 @@ import { REPLIT_API_BASE_URL } from '@/lib/constants';
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { useParams } from 'next/navigation';
-import { Sun, ChevronLeft, BarChart2, Users, Table as TableIcon, MapPin, Flag, Trophy, MessageSquare, Newspaper, Calendar, Star, Video } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Sun, ChevronLeft, BarChart2, Users, Table as TableIcon, MapPin, Flag, Trophy, MessageSquare, Newspaper, Calendar, Star, Video, Plus, X } from 'lucide-react';
 
 const shieldPlaceholder = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'; 
 const playerPlaceholder = 'https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png'; 
@@ -408,7 +409,7 @@ const FooterInfoItem = ({ icon: Icon, label, value }: any) => (
   </div>
 );
 
-const MatchRelacja = ({ liveData }: any) => {
+const MatchRelacja = ({ liveData, allPlayers }: any) => {
   const events = liveData?.events || [];
   
   if (events.length === 0) {
@@ -422,95 +423,155 @@ const MatchRelacja = ({ liveData }: any) => {
     );
   }
 
+  const findPlayerData = (eventPlayer: any) => {
+    if (!eventPlayer) return null;
+    if (typeof eventPlayer === 'object' && eventPlayer.photo_url && eventPlayer.name) return eventPlayer;
+    
+    const searchName = (eventPlayer.name || eventPlayer.player_name || (typeof eventPlayer === 'string' ? eventPlayer : '')).toLowerCase().trim();
+    if (!searchName) return eventPlayer;
+
+    const found = allPlayers?.find((p: any) => {
+      const fullName = `${p.first_name} ${p.last_name}`.toLowerCase().trim();
+      return fullName === searchName || p.last_name.toLowerCase().trim() === searchName;
+    });
+
+    if (found) {
+      return {
+        ...eventPlayer,
+        name: `${found.first_name} ${found.last_name}`,
+        photo_url: found.photo_url,
+        jersey_number: found.jersey_number
+      };
+    }
+    return eventPlayer;
+  };
+
   return (
     <div className="space-y-12 max-w-2xl mx-auto pb-20">
-      {events.map((event: any, i: number) => (
-        <div key={i} className="relative">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full shadow-lg">
-               <span className="text-white font-black text-sm italic tabular-nums">{event.minute}'</span>
-            </div>
-            <h4 className="text-white font-black text-lg uppercase italic tracking-wider drop-shadow-md">{event.type_label}</h4>
-          </div>
+      {events.map((event: any, i: number) => {
+        const isSubstitution = event.type === 'substitution';
+        const rawPlayerIn = event.player_in || (isSubstitution ? event.player : null);
+        const rawPlayerOut = event.player_out;
+        
+        const playerIn = findPlayerData(rawPlayerIn);
+        const playerOut = findPlayerData(rawPlayerOut);
+        const eventPlayer = findPlayerData(event.player);
 
-          <div className="bg-[#1a2333]/90 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group hover:bg-[#1a2333] transition-all duration-500">
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-6">
-                {/* Team Logo on Left */}
-                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white/10 shrink-0 bg-[#0c162d] shadow-2xl transition-transform group-hover:scale-105">
-                  {event.team?.logo_url ? (
-                    <img src={event.team.logo_url} alt="" className="w-full h-full object-contain p-2" />
+        return (
+          <div key={i} className="relative">
+            <div className="flex items-center justify-between mb-4 px-2">
+              <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full shadow-lg">
+                 <span className="text-white font-black text-sm italic tabular-nums">{event.minute}'</span>
+              </div>
+              <h4 className="text-white font-black text-lg uppercase italic tracking-wider drop-shadow-md">{event.type_label}</h4>
+            </div>
+
+            <div className="bg-[#1a2333]/90 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group hover:bg-[#1a2333] transition-all duration-500">
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-6 flex-1">
+                  {/* Team Logo on Left */}
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white/10 shrink-0 bg-[#0c162d] shadow-2xl transition-transform group-hover:scale-105">
+                    {event.team?.logo_url ? (
+                      <img src={event.team.logo_url} alt="" className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-white/5">
+                        <Shield className="w-6 h-6 text-white/10" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {isSubstitution ? (
+                    <div className="flex flex-col gap-6 flex-1">
+                      <div className="flex items-center gap-4 bg-green-500/5 rounded-2xl p-3 border border-green-500/10">
+                        <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-green-500/30 bg-[#0c162d] shrink-0 shadow-lg">
+                          <Image src={getSafePlayerPhoto(playerIn)} alt="" fill className="object-cover" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white font-black text-xl uppercase italic leading-none">{playerIn?.name || playerIn?.player_name || 'Wchodzi'}</span>
+                          <span className="text-green-500 text-[10px] font-black uppercase tracking-widest mt-1.5 flex items-center gap-2">
+                            <Plus className="w-3 h-3" /> WCHODZI
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 bg-red-500/5 rounded-2xl p-3 border border-red-500/10 opacity-80">
+                        <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-red-500/30 bg-[#0c162d] shrink-0 shadow-lg">
+                          <Image src={getSafePlayerPhoto(playerOut)} alt="" fill className="object-cover" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white/60 font-black text-xl uppercase italic leading-none">{playerOut?.name || playerOut?.player_name || 'Schodzi'}</span>
+                          <span className="text-red-500 text-[10px] font-black uppercase tracking-widest mt-1.5 flex items-center gap-2">
+                            <X className="w-3 h-3" /> SCHODZI
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-white/5">
-                      <Shield className="w-6 h-6 text-white/10" />
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-3">
+                        {eventPlayer?.jersey_number && (
+                          <span className="text-blue-500 font-black text-base italic">#{eventPlayer.jersey_number}</span>
+                        )}
+                        <span className="text-white font-black text-xl md:text-2xl uppercase tracking-tighter italic leading-none">
+                          {eventPlayer?.name || 'Zawodnik'}
+                        </span>
+                      </div>
+                      <span className="text-white/40 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mt-1 italic">
+                        {eventPlayer?.position_label || 'ZAWODNIK'}
+                      </span>
                     </div>
                   )}
                 </div>
-                
-                {/* Player Name and Position in Middle */}
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-3">
-                    {event.player?.jersey_number && (
-                      <span className="text-blue-500 font-black text-base italic">#{event.player.jersey_number}</span>
-                    )}
-                    <span className="text-white font-black text-xl md:text-2xl uppercase tracking-tighter italic leading-none">
-                      {event.player?.name || 'Zawodnik'}
-                    </span>
-                  </div>
-                  <span className="text-white/40 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mt-1 italic">
-                    {event.player?.position_label || 'ZAWODNIK'}
-                  </span>
-                </div>
-              </div>
 
-              {/* Player Avatar with Event Badge on Right */}
-              <div className="relative">
-                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-white/10 bg-[#0c162d] flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.4)] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
-                   {event.player?.photo_url ? (
-                     <Image src={event.player.photo_url} alt="" fill className="object-cover" />
-                   ) : (
-                     <div className="w-full h-full flex items-center justify-center bg-white/5">
-                       <Users className="w-10 h-10 text-white/10" />
-                     </div>
-                   )}
-                </div>
-                
-                {/* Event Type Badge overlay */}
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#1a2333] shadow-2xl flex items-center justify-center z-20 overflow-hidden transform transition-transform group-hover:scale-110">
-                   {event.type === 'goal' && (
-                     <div className="w-full h-full bg-white flex items-center justify-center">
-                        <div className="w-5 h-5 md:w-6 md:h-6 bg-black rounded-full flex items-center justify-center border border-black">
-                           <div className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full opacity-10"></div>
-                        </div>
-                     </div>
-                   )}
-                   {event.type === 'yellow_card' && (
-                     <div className="w-full h-full bg-yellow-500 flex items-center justify-center">
-                        <div className="w-4 h-6 bg-yellow-400 border border-black/20 rounded-sm"></div>
-                     </div>
-                   )}
-                   {event.type === 'red_card' && (
-                     <div className="w-full h-full bg-red-600 flex items-center justify-center">
-                        <div className="w-4 h-6 bg-red-500 border border-black/20 rounded-sm"></div>
-                     </div>
-                   )}
-                   {event.type === 'substitution' && (
-                     <div className="w-full h-full bg-blue-600 flex flex-col items-center justify-center gap-0.5">
-                        <Plus className="w-3 h-3 text-white" />
-                        <X className="w-3 h-3 text-white/50" />
-                     </div>
-                   )}
-                </div>
+                {!isSubstitution && (
+                  <div className="relative">
+                    <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-white/10 bg-[#0c162d] flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.4)] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
+                       {eventPlayer?.photo_url ? (
+                         <Image src={eventPlayer.photo_url} alt="" fill className="object-cover" />
+                       ) : (
+                         <div className="w-full h-full flex items-center justify-center bg-white/5">
+                           <Users className="w-10 h-10 text-white/10" />
+                         </div>
+                       )}
+                    </div>
+                    
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#1a2333] shadow-2xl flex items-center justify-center z-20 overflow-hidden transform transition-transform group-hover:scale-110">
+                       {event.type === 'goal' && (
+                         <div className="w-full h-full bg-white flex items-center justify-center">
+                            <div className="w-5 h-5 md:w-6 md:h-6 bg-black rounded-full flex items-center justify-center border border-black">
+                               <div className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full opacity-10"></div>
+                            </div>
+                         </div>
+                       )}
+                       {event.type === 'yellow_card' && (
+                         <div className="w-full h-full bg-yellow-500 flex items-center justify-center">
+                            <div className="w-4 h-6 bg-yellow-400 border border-black/20 rounded-sm"></div>
+                         </div>
+                       )}
+                       {event.type === 'red_card' && (
+                         <div className="w-full h-full bg-red-600 flex items-center justify-center">
+                            <div className="w-4 h-6 bg-red-500 border border-black/20 rounded-sm"></div>
+                         </div>
+                       )}
+                    </div>
+                  </div>
+                )}
+
+                {isSubstitution && (
+                  <div className="flex flex-col items-center justify-center bg-blue-600/20 border border-blue-500/30 rounded-2xl p-4 shadow-2xl gap-3">
+                     <Plus className="w-5 h-5 text-green-500 animate-pulse" />
+                     <div className="w-px h-6 bg-white/10"></div>
+                     <X className="w-5 h-5 text-red-500" />
+                  </div>
+                )}
               </div>
+              
+              <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] opacity-20 -z-0 transition-opacity group-hover:opacity-40 ${
+                event.type === 'goal' ? 'bg-blue-500' : (event.type === 'red_card' ? 'bg-red-500' : (event.type === 'yellow_card' ? 'bg-yellow-500' : 'bg-green-500'))
+              }`}></div>
             </div>
-            
-            {/* Background Accent Glow */}
-            <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] opacity-20 -z-0 transition-opacity group-hover:opacity-40 ${
-              event.type === 'goal' ? 'bg-blue-500' : (event.type === 'red_card' ? 'bg-red-500' : (event.type === 'yellow_card' ? 'bg-yellow-500' : 'bg-green-500'))
-            }`}></div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
@@ -562,7 +623,7 @@ const MVPSection = ({ liveData }: any) => {
   );
 };
 
-const LiveView = ({ activeTab, homeTeam, awayTeam, apiData, eventsData, lineupData, liveData }: any) => {
+const LiveView = ({ activeTab, homeTeam, awayTeam, apiData, eventsData, lineupData, liveData, allPlayers }: any) => {
   const hasLineups = lineupData?.lineups && lineupData.lineups.length > 0;
   const isMatchFinished = apiData?.status === 'finished' || apiData?.status === 'Zakończony';
 
@@ -628,7 +689,7 @@ const LiveView = ({ activeTab, homeTeam, awayTeam, apiData, eventsData, lineupDa
       )}
 
       {activeTab === 'komentarz' && (
-        <MatchRelacja liveData={liveData} />
+        <MatchRelacja liveData={liveData} allPlayers={allPlayers} />
       )}
     </div>
   );
@@ -1040,6 +1101,7 @@ export default function MatchPage() {
   
   const [apiData, setApiData] = useState<MatchApiData | null>(null);
   const [apiTeams, setApiTeams] = useState<any[]>([]);
+  const [allPlayers, setAllPlayers] = useState<any[]>([]);
   const [allMatches, setAllMatches] = useState<any[]>([]);
   const [refereeData, setRefereeData] = useState<any>(null);
   const [lineupData, setLineupData] = useState<any>(null);
@@ -1049,16 +1111,51 @@ export default function MatchPage() {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [liveTimer, setLiveTimer] = useState({ minutes: 0, seconds: 0 });
   
-  const isMatchActive = apiData?.status === 'active' || apiData?.status === 'live' || apiData?.status === 'W trakcie' || apiData?.isActive === true;
-  const isMatchFinished = apiData?.status === 'finished' || apiData?.status === 'Zakończony';
+  const isMatchActive = apiData?.status === 'active' || apiData?.status === 'live' || apiData?.status === 'W trakcie' || apiData?.isActive === true || liveData?.status === 'live' || liveData?.status === 'active';
+  const isMatchFinished = apiData?.status === 'finished' || apiData?.status === 'Zakończony' || liveData?.status === 'finished';
   const isPreMatch = !isMatchActive && !isMatchFinished && (apiData?.status === 'scheduled' || apiData?.status === 'Zaplanowany' || !apiData?.status);
+
+  const calculateMatchTime = useCallback(() => {
+    const data = liveData || apiData;
+    if (!data) return null;
+    
+    if (data.period === 'halftime' || data.status === 'halftime' || data.period === 'break' || data.status === 'break') {
+      return 'PRZERWA';
+    }
+
+    if (data.minute) return `${data.minute}'`;
+
+    const now = new Date().getTime();
+    
+    if (data.period === 'second_half' && data.second_half_at) {
+      const secondHalfStart = new Date(data.second_half_at).getTime();
+      const diff = Math.floor((now - secondHalfStart) / 60000);
+      const minute = 45 + diff;
+      return minute > 90 ? `90+${minute - 90}'` : `${minute}'`;
+    }
+    
+    if (data.start_timestamp) {
+      const start = new Date(data.start_timestamp).getTime();
+      const diff = Math.floor((now - start) / 60000);
+      const minute = diff + 1;
+      
+      if (data.period === 'first_half' && minute > 45) {
+        return `45+${minute - 45}'`;
+      }
+      
+      return minute > 90 ? `90+${minute - 90}'` : `${minute < 1 ? 1 : minute}'`;
+    }
+    
+    return liveTimer.minutes > 0 ? `${liveTimer.minutes}'` : '1\'';
+  }, [liveData, apiData, liveTimer]);
 
   // Live Timer Effect
   useEffect(() => {
-    if (!isMatchActive) return;
+    const isHalftime = apiData?.status === 'halftime' || apiData?.period === 'halftime' || liveData?.status === 'halftime' || liveData?.period === 'halftime';
+    if (!isMatchActive || isHalftime) return;
     
     // Sync with API minute if it changes
-    const startMin = parseInt(apiData?.minute || '0');
+    const startMin = parseInt(apiData?.minute || liveData?.minute || '0');
     setLiveTimer(prev => {
       // Avoid resetting seconds if the minute is still the same (polling sync)
       if (prev.minutes === startMin && (prev.minutes !== 0 || prev.seconds !== 0)) return prev;
@@ -1080,12 +1177,17 @@ export default function MatchPage() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [scheduleRes, lineupsRes, teamsRes, liveRes] = await Promise.all([
+        const [scheduleRes, lineupsRes, teamsRes, liveRes, playersRes] = await Promise.all([
           fetch(`${REPLIT_API_BASE_URL}/api/public/schedule?season_id=1`).catch(() => null),
           fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/lineups/all.json`).catch(() => null),
           fetch(`${REPLIT_API_BASE_URL}/api/teams?season_id=1`).catch(() => null),
-          fetch(`${REPLIT_API_BASE_URL}/api/public/matches/${id}/live.json`).catch(() => null)
+          fetch(`${REPLIT_API_BASE_URL}/api/public/matches/${id}/live.json`).catch(() => null),
+          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/players`).catch(() => null)
         ]);
+
+        if (playersRes?.ok) {
+          setAllPlayers(await playersRes.json());
+        }
 
         if (liveRes?.ok) {
           const lData = await liveRes.json();
@@ -1261,6 +1363,13 @@ export default function MatchPage() {
                   ) : (
                     <div className="flex flex-col items-center gap-6">
                       <div className="bg-[#0c162d]/80 border border-white/10 px-8 py-4 md:px-10 md:py-6 rounded-[3rem] flex flex-col items-center shadow-2xl backdrop-blur-2xl ring-1 ring-white/5 relative">
+                        {isMatchActive && !(liveData?.status === 'halftime' || liveData?.period === 'halftime' || apiData?.period === 'halftime' || apiData?.status === 'halftime') && (
+                          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(220,38,38,0.4)] border border-red-400/30 flex items-center justify-center animate-bounce-slow">
+                            <span className={cn("text-sm font-black italic tracking-widest tabular-nums", calculateMatchTime() === 'PRZERWA' ? 'text-yellow-400' : '')}>
+                              {calculateMatchTime()}
+                            </span>
+                          </div>
+                        )}
                         <div className="text-4xl md:text-[4.5rem] font-black text-white tracking-tighter tabular-nums leading-none italic drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">
                           {liveData?.score ? `${liveData.score.home}:${liveData.score.away}` : `${apiData?.home_score ?? 0}:${apiData?.away_score ?? 0}`}
                         </div>
@@ -1268,7 +1377,7 @@ export default function MatchPage() {
                            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-red-600 text-white px-5 py-2 rounded-full flex items-center gap-3 shadow-[0_0_30px_rgba(220,38,38,0.5)] border border-red-400/30 ring-4 ring-black/40">
                              <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]"></div>
                              <span className="text-[11px] font-black tracking-widest italic uppercase tabular-nums whitespace-nowrap">
-                               LIVE • {liveData?.time_display || `${String(liveTimer.minutes).padStart(2, '0')}:${String(liveTimer.seconds).padStart(2, '0')}'`}
+                               LIVE • <span className={calculateMatchTime() === 'PRZERWA' ? 'text-yellow-500 animate-pulse' : ''}>{calculateMatchTime()}</span>
                              </span>
                            </div>
                         )}
@@ -1359,7 +1468,7 @@ export default function MatchPage() {
             {isPreMatch ? (
               <UpcomingView activeTab={activeTab} homeTeam={homeTeam} awayTeam={awayTeam} apiTeams={apiTeams} apiData={apiData} refereeData={refereeData} allMatches={allMatches} lineupData={lineupData} liveData={liveData} />
             ) : (
-              <LiveView activeTab={activeTab} homeTeam={homeTeam} awayTeam={awayTeam} apiData={apiData} eventsData={{ goals: [], cards: [], substitutions: [] }} lineupData={lineupData} liveData={liveData} />
+              <LiveView activeTab={activeTab} homeTeam={homeTeam} awayTeam={awayTeam} apiData={apiData} eventsData={{ goals: [], cards: [], substitutions: [] }} lineupData={lineupData} liveData={liveData} allPlayers={allPlayers} />
             )}
           </div>
         </div>

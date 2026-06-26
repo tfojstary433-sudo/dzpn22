@@ -369,12 +369,52 @@ export default function SklepPage() {
       {/* Falling Tokens Animation */}
       <FallingTokens isSuccess={purchaseSuccess} />
 
-      <div className="relative z-10 pt-44">
-                        className="w-6 h-6 flex items-center justify-center bg-white/5 rounded-md hover:bg-white/10 border border-white/10"
+      {showCart && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCart(false)} />
+          <div className="relative w-full max-w-2xl bg-[#0a0f1e] border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <h2 className="text-2xl font-black uppercase">Twój Koszyk</h2>
+              <button onClick={() => setShowCart(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4">
+              {cart.map((item) => (
+                <div key={item.id} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                  <img src={item.logo || item.image} alt="" className="w-16 h-16 object-contain" />
+                  <div className="flex-1">
+                    <h4 className="font-bold uppercase text-sm">{item.name}</h4>
+                    <p className="text-blue-400 font-black">{item.pln || `${item.price} Tokenów`}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center bg-black/40 rounded-lg border border-white/10">
+                      <button 
+                        onClick={() => {
+                          const newQty = (item.quantity || 1) - 1;
+                          if (newQty <= 0) removeFromCart(item.id);
+                          else updateCart(cart.map(i => i.id === item.id ? { ...i, quantity: newQty } : i));
+                        }}
+                        className="w-8 h-8 flex items-center justify-center hover:bg-white/5 transition-all text-white/40 hover:text-white"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center font-bold text-sm">{item.quantity || 1}</span>
+                      <button 
+                        onClick={() => updateCart(cart.map(i => i.id === item.id ? { ...i, quantity: (item.quantity || 1) + 1 } : i))}
+                        className="w-8 h-8 flex items-center justify-center hover:bg-white/5 transition-all text-white/40 hover:text-white"
                       >
                         +
                       </button>
                     </div>
+                    <button onClick={() => removeFromCart(item.id)} className="p-2 text-red-500/50 hover:text-red-500 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -695,6 +735,6 @@ export default function SklepPage() {
       )}
 
       <Footer />
-    </div>
+    </main>
   );
 }

@@ -72,6 +72,7 @@ export default function NewsListPage() {
   const otherArticles = filteredArticles.slice(1);
 
   return (
+    <>
     <main className="bg-[#020617] min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
       <MainNavbar />
       
@@ -262,9 +263,9 @@ export default function NewsListPage() {
             </div>
           )}
         </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
+      </div>
+    </main>
+    <Footer />
+  </>
+);
 }

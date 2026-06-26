@@ -24,8 +24,10 @@ export function MainNavbar() {
     
     const checkCupTime = () => {
       const drawDate = new Date('2026-06-30T17:00:00');
-      const isFinished = localStorage.getItem('county_cup_draw_finished') === 'true';
-      setShowCup(new Date() >= drawDate || isFinished);
+      const now = new Date();
+      
+      // Show link from 17:00
+      setShowCup(now >= drawDate);
     };
 
     window.addEventListener('scroll', handleScroll);
