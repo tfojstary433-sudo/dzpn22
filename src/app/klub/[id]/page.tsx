@@ -542,9 +542,9 @@ export default function KlubPage() {
         </div>
 
         {/* Bottom Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_450px] gap-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] xl:grid-cols-[1fr_450px] gap-14">
            {/* KLUCZOWI ZAWODNICY */}
-           <section>
+           <section className="min-w-0">
               <div className="flex justify-between items-center mb-12">
                  <h3 className="text-white font-black text-sm uppercase tracking-[0.4em]">KLUCZOWI ZAWODNICY</h3>
                  <Link href={`/klub/${id}/kadra`} className="text-blue-400 font-black text-xs uppercase tracking-widest hover:text-white transition-colors border-b border-blue-400/20 pb-1">
@@ -553,7 +553,7 @@ export default function KlubPage() {
               </div>
               
               <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x select-none px-2 -mx-2">
-                 {teamData.players.slice(0, 4).map((player, i) => {
+                 {teamData.players.slice(0, 3).map((player, i) => {
                     const stats = playerStats.find(ps => ps.player_id === player.id);
                     return (
                        <div key={player.id} className="min-w-[240px] md:min-w-[280px] snap-start">
@@ -580,7 +580,7 @@ export default function KlubPage() {
                     </div>
                  )}
                  {teamData.players.length === 0 && (
-                    <div className="w-full py-32 flex flex-col items-center justify-center bg-white/[0.01] border border-white/5 rounded-[3rem] text-white/10">
+                    <div className="w-full py-32 flex flex-col items-center justify-center bg-white/[0.01] border border-white/5 rounded-[3rem] text-white/10 min-w-full">
                        <User className="w-20 h-20 mb-6 opacity-5" />
                        <span className="text-xs font-black uppercase tracking-[0.5em]">BRAK DANYCH O ZAWODNIKACH</span>
                     </div>
@@ -589,7 +589,7 @@ export default function KlubPage() {
            </section>
 
            {/* MECZE: OSTATNIE WYNIKI I TERMINARZ */}
-           <div className="flex flex-col gap-10">
+           <div className="flex flex-col gap-10 w-full lg:w-[400px] xl:w-[450px]">
               {/* OSTATNIE MECZE */}
               <section className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-10 backdrop-blur-2xl shadow-2xl">
                  <h3 className="text-white font-black text-sm uppercase tracking-[0.4em] mb-10">OSTATNIE WYNIKI</h3>
