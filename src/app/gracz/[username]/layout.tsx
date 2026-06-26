@@ -27,9 +27,10 @@ async function getPlayerData(username: string): Promise<PlayerData | null> {
   }
 }
 
-export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
-  const player = await getPlayerData(params.username);
-  const username = decodeURIComponent(params.username);
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+  const { username } = await params;
+  const player = await getPlayerData(username);
+  const decodedUsername = decodeURIComponent(username);
 
   if (!player) {
     return {

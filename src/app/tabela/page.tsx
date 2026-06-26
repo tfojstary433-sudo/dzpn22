@@ -54,6 +54,7 @@ interface PlayerStat {
   team_id: number;
   goals: number;
   assists: number;
+  match_type?: string;
   photo_url?: string | null;
 }
 

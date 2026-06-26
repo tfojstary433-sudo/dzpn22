@@ -161,7 +161,7 @@ export default function LeaguePage() {
 
     return Object.entries(groups).sort((a, b) => {
       const getMatchDate = (m: any) => {
-        let d = new Date(m.date || m.playedAt || Date.now());
+        const d = new Date(m.date || m.playedAt || Date.now());
         if (m.matchUuid && /-\d{4}$/.test(m.matchUuid)) {
           const datePart = m.matchUuid.split('-').pop();
           if (datePart && datePart.length === 4) {
@@ -299,7 +299,7 @@ export default function LeaguePage() {
             const isTeamInLeague = (clubName: string) => {
               if (!clubName) return false;
               const normalized = clubName.toLowerCase();
-              return leagueTeamNames.some(name => normalized.includes(name) || name.includes(normalized.replace(/◂|\| pff/g, '').trim()));
+              return leagueTeamNames.some((name: string) => normalized.includes(name) || name.includes(normalized.replace(/◂|\| pff/g, '').trim()));
             };
 
             const contractTransfers = apiTransfers.filter((t: any) => {

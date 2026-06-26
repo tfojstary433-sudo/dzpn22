@@ -130,7 +130,7 @@ export default function KlubPage() {
         const allTeams: TeamData[] = await teamsRes.json();
 
         // Robust team matching
-        let currentTeam = allTeams.find(t => 
+        const currentTeam = allTeams.find(t => 
           t.id?.toString() === id || 
           t.short_name?.toLowerCase() === id.toLowerCase() ||
           (t.name && t.name.toLowerCase().replace(/\s+/g, '-') === id.toLowerCase()) ||
@@ -177,7 +177,7 @@ export default function KlubPage() {
           const played = teamMatches.filter(m => 
             m.home_score !== null || m.status === 'finished' || m.status === 'ZAKOŃCZONY'
           ).map(m => {
-            const side = m.home_team_id?.toString() === teamId ? 'home' : 'away';
+            const side: 'home' | 'away' = m.home_team_id?.toString() === teamId ? 'home' : 'away';
             const homeScore = m.home_score ?? 0;
             const awayScore = m.away_score ?? 0;
             
@@ -220,7 +220,7 @@ export default function KlubPage() {
           const upcoming = teamMatches.filter(m => 
             m.home_score === null && m.status !== 'finished' && m.status !== 'ZAKOŃCZONY'
           ).map(m => {
-            const side = m.home_team_id?.toString() === teamId ? 'home' : 'away';
+            const side: 'home' | 'away' = m.home_team_id?.toString() === teamId ? 'home' : 'away';
             const oppId = side === 'home' ? m.away_team_id : m.home_team_id;
             const oppName = side === 'home' ? m.away_team_name : m.home_team_name;
             const opponent = allTeams.find(t => t.id === oppId);
@@ -273,7 +273,7 @@ export default function KlubPage() {
                 round: i + 1,
                 date: 'MAJ 2026',
                 status: 'finished',
-                side: 'home',
+                side: 'home' as const,
                 home_team_id: parseInt(teamId),
                 home_team_name: currentTeam?.name || '',
                 home_team_logo: currentTeam?.logo_url || '',

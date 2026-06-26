@@ -615,7 +615,7 @@ export default function TeamPanelPage() {
     const type = formData.get('type') as string;
     const title = formData.get('title') as string;
     
-    let body: any = {
+    const body: any = {
       type,
       title: title || '',
       description: formData.get('description'),

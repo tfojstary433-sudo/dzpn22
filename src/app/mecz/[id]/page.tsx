@@ -76,6 +76,9 @@ interface MatchApiData {
   referee_name?: string;
   venue_name?: string;
   isActive?: boolean;
+  minute?: string;
+  home_team?: { id: number; name: string; logo_url: string };
+  away_team?: { id: number; name: string; logo_url: string };
   date_formatted?: string;
   time_formatted?: string;
   home_team_logo?: string;
@@ -138,6 +141,16 @@ const FootballPitch = ({ lineupData, homeTeam, awayTeam, apiData, liveData }: an
     return Array.isArray(lineupData) ? lineupData : (lineupData?.lineups || []);
   }, [lineupData]);
 
+  const isOfficial = useMemo(() => {
+    if (!apiData?.scheduled_at) return false;
+    const matchTime = new Date(apiData.scheduled_at).getTime();
+    const now = Date.now();
+    const diffMins = (matchTime - now) / (1000 * 60);
+    // If match is in progress or finished, it's definitely official
+    if (apiData.status === 'active' || apiData.status === 'live' || apiData.status === 'finished') return true;
+    return diffMins <= 20;
+  }, [apiData?.scheduled_at, apiData?.status]);
+
   if (lineups.length === 0) {
     return (
       <div className="bg-[#0c162d]/40 backdrop-blur-3xl border border-white/5 rounded-[48px] p-24 flex flex-col items-center justify-center text-center shadow-2xl min-h-[600px]">
@@ -150,16 +163,6 @@ const FootballPitch = ({ lineupData, homeTeam, awayTeam, apiData, liveData }: an
       </div>
     );
   }
-
-  const isOfficial = useMemo(() => {
-    if (!apiData?.scheduled_at) return false;
-    const matchTime = new Date(apiData.scheduled_at).getTime();
-    const now = Date.now();
-    const diffMins = (matchTime - now) / (1000 * 60);
-    // If match is in progress or finished, it's definitely official
-    if (apiData.status === 'active' || apiData.status === 'live' || apiData.status === 'finished') return true;
-    return diffMins <= 20;
-  }, [apiData?.scheduled_at, apiData?.status]);
 
   const getTeamLineup = (team: any) => {
     return lineups.find((l: any) => 
@@ -1225,8 +1228,8 @@ export default function MatchPage() {
           const hId = matchSchedule.home_team?.id;
           const aId = matchSchedule.away_team?.id;
           
-          let hLogo = matchSchedule.home_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(hId))?.logo_url;
-          let aLogo = matchSchedule.away_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(aId))?.logo_url;
+          const hLogo = matchSchedule.home_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(hId))?.logo_url;
+          const aLogo = matchSchedule.away_team?.logo_url || tData?.find?.((t: any) => String(t.id) === String(aId))?.logo_url;
 
           const finalApiData = {
             ...matchSchedule,
