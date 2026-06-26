@@ -553,7 +553,7 @@ export default function KlubPage() {
               </div>
               
               <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x select-none px-2 -mx-2">
-                 {teamData.players.map((player, i) => {
+                 {teamData.players.slice(0, 4).map((player, i) => {
                     const stats = playerStats.find(ps => ps.player_id === player.id);
                     return (
                        <div key={player.id} className="min-w-[240px] md:min-w-[280px] snap-start">
