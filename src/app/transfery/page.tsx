@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { DateBar } from '@/components/date-bar';
@@ -383,7 +384,6 @@ export default function TransferyPage() {
               )}
             </div>
           </div>
-        </div>
       </div>
 
       <DateBar />

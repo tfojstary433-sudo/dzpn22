@@ -57,6 +57,29 @@ interface PlayerStat {
   photo_url?: string | null;
 }
 
+const TopStatItem = ({ icon, label, value }: any) => (
+  <div className="flex flex-col items-center bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 shadow-xl backdrop-blur-md">
+    <div className="mb-2">{icon}</div>
+    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">{label}</span>
+    <span className="text-2xl font-black text-white italic tabular-nums">{value}</span>
+  </div>
+);
+
+const Card = ({ title, icon, children }: any) => (
+  <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden group">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors" />
+    <div className="flex items-center gap-4 mb-8 relative z-10">
+      <div className="p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20">
+        {icon}
+      </div>
+      <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">{title}</h3>
+    </div>
+    <div className="relative z-10">
+      {children}
+    </div>
+  </div>
+);
+
 export default function TabelaPage() {
   return (
     <Suspense fallback={
@@ -973,41 +996,11 @@ function BracketTeam({ name, logo, score, isWinner }: { name: string, logo?: str
   );
 }
 
-function TopStatItem({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) {
-  return (
-    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center min-w-[150px] shadow-2xl relative overflow-hidden group hover:bg-white/[0.06] transition-all duration-300 hover:-translate-y-1">
-      <div className="mb-4 p-3 rounded-xl bg-blue-600/5 border border-blue-500/10 group-hover:scale-110 group-hover:bg-blue-600/10 transition-all duration-500">
-        {icon}
-      </div>
-      <div className="flex flex-col relative z-10">
-        <span className="text-3xl font-black text-white leading-none tracking-tighter italic drop-shadow-md">{value}</span>
-        <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter mt-2">{label}</span>
-      </div>
-    </div>
-  );
-}
-
 function MVPStat({ label, value }: { label: string, value: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
         <span className="text-2xl font-black text-white italic">{value}</span>
         <span className="text-[9px] font-bold text-white/20 uppercase tracking-[0.2em]">{label}</span>
-    </div>
-  );
-}
-
-function Card({ title, icon, children }: { title: string, icon: React.ReactNode, children: React.ReactNode }) {
-  return (
-    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.4)] relative overflow-hidden group hover:bg-white/[0.06] transition-all duration-500">
-      {/* Subtle shine effect */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-      
-      <h3 className="text-blue-500 font-black text-[12px] uppercase tracking-[0.3em] mb-10 flex items-center gap-5 border-b border-white/5 pb-8">
-         <span className="p-3 bg-blue-600/5 rounded-xl border border-blue-500/10 shadow-lg">{icon}</span> {title}
-      </h3>
-      <div className="relative z-10">
-        {children}
-      </div>
     </div>
   );
 }

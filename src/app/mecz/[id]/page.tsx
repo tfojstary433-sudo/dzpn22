@@ -9,7 +9,7 @@ import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Sun, ChevronLeft, BarChart2, Users, Table as TableIcon, MapPin, Flag, Trophy, MessageSquare, Newspaper, Calendar, Star, Video, Plus, X } from 'lucide-react';
+import { Sun, ChevronLeft, BarChart2, Users, Table as TableIcon, MapPin, Flag, Trophy, MessageSquare, Newspaper, Calendar, Star, Video, Plus, X, Shield } from 'lucide-react';
 
 const shieldPlaceholder = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'; 
 const playerPlaceholder = 'https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png'; 

@@ -14,7 +14,7 @@ function TurniejeContent() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawResult, setDrawResult] = useState<any[]>([]);
 
-  const lockDate = new Date('2026-06-25T15:06:00');
+  const lockDate = new Date('2026-06-30T17:00:00');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,10 +57,10 @@ function TurniejeContent() {
         setLoading(true);
         try {
           const endpoints = [
-            'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1.json',
-            'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1/knockout.json',
-            'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1/table.json',
-            'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/1/scorers.json'
+            'https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/cup/matches.json',
+            'https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/brackets/1?type=county_cup',
+            'https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1',
+            'https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/cup/stats/players.json'
           ];
 
           // Use a faster proxy or direct fetch if possible, fallback to allorigins
@@ -1068,330 +1068,140 @@ function TurniejeContent() {
                   )}
                 </div>
               )}
-            </div>
-        </div>
 
-              <div className="container mx-auto px-4">
-                {friendlyTab === 'schedule' ? (
-                  <>
-                    {/* Featured Next Match */}
-                    <div className="mb-20 relative z-20">
-                      {activeFriendlyMatches[0]?.matches[0] ? (
-                        <Link href={`/mecz/${activeFriendlyMatches[0].matches[0].id}`}>
-                          <div className="bg-gradient-to-br from-[#00ccff]/20 to-black border border-[#00ccff]/30 rounded-[2.5rem] p-8 md:p-12 overflow-hidden group hover:border-[#00ccff]/60 transition-all duration-500">
-                            <div className="absolute top-0 right-0 p-8">
-                              <div className="px-4 py-1 bg-[#00ccff] text-black font-black italic rounded-full text-sm animate-pulse">
-                                NAJBLIŻSZY MECZ
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-                              <div className="flex-1 flex flex-col items-center gap-4">
-                                <div className="relative">
-                                  <div className="absolute inset-0 bg-white/20 blur-3xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  <Image src={activeFriendlyMatches[0].matches[0].homeTeam.logo} alt="" width={150} height={150} className="relative w-32 h-32 md:w-40 md:h-40 object-contain" />
-                                </div>
-                                <span className="text-2xl font-black uppercase tracking-tight">{activeFriendlyMatches[0].matches[0].homeTeam.name}</span>
-                              </div>
-                              
-                              <div className="flex flex-col items-center gap-6">
-                                <div className="flex flex-col items-center">
-                                  <span className="text-white/40 font-bold uppercase tracking-widest text-sm mb-2">{activeFriendlyMatches[0].matches[0].date}</span>
-                                  <div className="text-6xl md:text-7xl font-[1000] italic text-white bg-white/5 px-10 py-4 rounded-3xl border border-white/10">
-                                    {activeFriendlyMatches[0].matches[0].status === 'finished' ? (
+              {friendlyTab === 'table' && (
+                <div className="container mx-auto px-4 max-w-7xl space-y-12">
+                  {loading ? (
+                    <div className="flex flex-col items-center py-20">
+                      <div className="w-12 h-12 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin mb-4" />
+                      <span className="text-[#00ccff] font-black uppercase tracking-widest">Pobieranie danych...</span>
+                    </div>
+                  ) : !challongeData ? (
+                    <div className="flex flex-col items-center py-20 bg-white/5 rounded-3xl border border-white/10">
+                      <span className="text-red-500 font-black uppercase tracking-widest mb-4 text-center px-4">Błąd połączenia z bazą danych</span>
+                      <button 
+                        onClick={() => window.location.reload()}
+                        className="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+                      >
+                        Spróbuj ponownie
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-12 pb-20">
+                      {/* Grupa A */}
+                      {groupA.length > 0 && (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between px-2">
+                            <h2 className="text-xl font-black uppercase tracking-tight text-white/90">GRUPA A</h2>
+                          </div>
+                          <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="border-b border-white/5 bg-white/[0.02]">
+                                  <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
+                                  <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">DRUŻYNA</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">M</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">R</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">P</th>
+                                  <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PKT</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {groupA.map((row: any, i: number) => (
+                                  <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
+                                    <td className="py-4 px-6">
+                                      <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
+                                    </td>
+                                    <td className="py-4 px-6">
                                       <div className="flex items-center gap-4">
-                                        <span className="text-[#00ccff]">{activeFriendlyMatches[0].matches[0].homeScore}</span>
-                                        <span className="text-white/20">-</span>
-                                        <span className="text-[#00ccff]">{activeFriendlyMatches[0].matches[0].awayScore}</span>
+                                        <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                        <span className={`text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
                                       </div>
-                                    ) : (
-                                      activeFriendlyMatches[0].matches[0].time
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="text-center">
-                                  <span className="block text-[#00ccff] font-black uppercase tracking-tighter mb-1">{activeFriendlyMatches[0].matches[0].stadium}</span>
-                                  <span className="text-white/20 font-bold uppercase text-xs">{activeFriendlyMatches[0].matches[0].category}</span>
-                                </div>
-                              </div>
-
-                              <div className="flex-1 flex flex-col items-center gap-4">
-                                <div className="relative">
-                                  <div className="absolute inset-0 bg-white/20 blur-3xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  <Image src={activeFriendlyMatches[0].matches[0].awayTeam.logo} alt="" width={150} height={150} className="relative w-32 h-32 md:w-40 md:h-40 object-contain" />
-                                </div>
-                                <span className="text-2xl font-black uppercase tracking-tight">{activeFriendlyMatches[0].matches[0].awayTeam.name}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      ) : (
-                        <div className="text-center py-20 bg-white/5 border border-white/10 rounded-[2.5rem]">
-                          <span className="text-white/20 font-black uppercase tracking-[0.3em]">Brak zaplanowanych meczów</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* All Upcoming Friendlies */}
-                    <div className="space-y-20">
-                      {activeFriendlyMatches.map((round, idx) => (
-                        <div key={idx}>
-                          <div className="flex items-center gap-6 mb-12">
-                            <div className="w-2 h-10 bg-[#00ccff] rounded-full shadow-[0_0_20px_rgba(0,204,255,0.5)]" />
-                            <h2 className="text-4xl font-black uppercase tracking-tighter italic">{round.round}</h2>
-                            <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent" />
-                          </div>
-                          
-                          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            {round.matches.map((match: any) => (
-                              <Link key={match.id} href={`/mecz/${match.id}`} className="group relative block bg-[#0a0a0a] border border-white/5 rounded-3xl p-8 hover:border-[#00ccff]/30 transition-all duration-500 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#00ccff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                
-                                <div className="relative flex items-center justify-between gap-6">
-                                  <div className="flex-1 flex items-center gap-6">
-                                    <Image src={match.homeTeam.logo} alt="" width={64} height={64} className="w-16 h-16 object-contain" />
-                                    <div className="flex flex-col">
-                                      <span className="text-xl font-black uppercase tracking-tight leading-none mb-1">{match.homeTeam.name}</span>
-                                      <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Gospodarz</span>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex flex-col items-center shrink-0 px-8 border-x border-white/5 min-w-[100px]">
-                                    {match.status === 'finished' ? (
-                                      <div className="flex items-center gap-3">
-                                        <span className="text-3xl font-[1000] italic text-[#00ccff]">{match.homeScore}</span>
-                                        <span className="text-white/20 font-black text-xl">-</span>
-                                        <span className="text-3xl font-[1000] italic text-[#00ccff]">{match.awayScore}</span>
-                                      </div>
-                                    ) : (
-                                      <>
-                                        <span className="text-xs font-black text-[#00ccff] italic mb-1 uppercase">{match.time}</span>
-                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{match.date}</span>
-                                      </>
-                                    )}
-                                  </div>
-
-                                  <div className="flex-1 flex items-center justify-end gap-6 text-right">
-                                    <div className="flex flex-col">
-                                      <span className="text-xl font-black uppercase tracking-tight leading-none mb-1">{match.awayTeam.name}</span>
-                                      <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Gość</span>
-                                    </div>
-                                    <Image src={match.awayTeam.logo} alt="" width={64} height={64} className="w-16 h-16 object-contain" />
-                                  </div>
-                                </div>
-
-                                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-                                  <div className="flex flex-col">
-                                    <span className="text-xs font-black text-white/60 uppercase tracking-widest mb-0.5">{match.stadium}</span>
-                                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{match.category}</span>
-                                  </div>
-                                  <div className="px-6 py-2 bg-white/5 group-hover:bg-[#00ccff] group-hover:text-black transition-all rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 group-hover:border-transparent">
-                                    SZCZEGÓŁY
-                                  </div>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : friendlyTab === 'table' ? (
-                  <div className="max-w-7xl mx-auto space-y-12">
-                      {loading ? (
-                        <div className="flex flex-col items-center py-20">
-                          <div className="w-12 h-12 border-4 border-[#00ccff] border-t-transparent rounded-full animate-spin mb-4" />
-                          <span className="text-[#00ccff] font-black uppercase tracking-widest">Pobieranie danych...</span>
-                        </div>
-                      ) : !challongeData ? (
-                        <div className="flex flex-col items-center py-20 bg-white/5 rounded-3xl border border-white/10">
-                          <span className="text-red-500 font-black uppercase tracking-widest mb-4 text-center px-4">Błąd połączenia z bazą danych Replit</span>
-                          <button 
-                            onClick={() => {
-                              setActiveTournament('towarzyskie'); // Trigger reload
-                              window.location.reload();
-                            }}
-                            className="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
-                          >
-                            Spróbuj ponownie
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="space-y-12">
-                          {/* Grupa A */}
-                          {groupA.length > 0 && (
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between px-2">
-                                <h2 className="text-xl font-black uppercase tracking-tight text-white/90">GROUP A</h2>
-                                <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">TOP 2 QUALIFY</span>
-                              </div>
-                              <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
-                                <table className="w-full text-left border-collapse">
-                                  <thead>
-                                    <tr className="border-b border-white/5 bg-white/[0.02]">
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">TEAM</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {groupA.map((row: any, i: number) => (
-                                      <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
-                                        <td className="py-4 px-6">
-                                          <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                          <div className="flex items-center gap-4">
-                                            <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
-                                            <span className={`text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
-                                          </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-white/40">{row.played}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                          <span className={`text-sm font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Fallback Table */}
-                          {groupA.length === 0 && groupB.length === 0 && allStandings.length > 0 && (
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between px-2">
-                                <h2 className="text-xl font-black uppercase tracking-tight text-white/90">TABELA</h2>
-                              </div>
-                              <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
-                                <table className="w-full text-left border-collapse">
-                                  <thead>
-                                    <tr className="border-b border-white/5 bg-white/[0.02]">
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">TEAM</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {allStandings.map((row: any, i: number) => (
-                                      <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group">
-                                        <td className="py-4 px-6">
-                                          <span className="text-sm font-bold text-white/20">{i + 1}</span>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                          <div className="flex items-center gap-4">
-                                            <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
-                                            <span className="text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors text-white/90">{row.team.name}</span>
-                                          </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-white/40">{row.played}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                          <span className="text-sm font-black text-white">{row.pts}</span>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Grupa B */}
-                          {groupB.length > 0 && (
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between px-2">
-                                <h2 className="text-xl font-black uppercase tracking-tight text-white/90">GROUP B</h2>
-                                <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">TOP 2 QUALIFY</span>
-                              </div>
-                              <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
-                                <table className="w-full text-left border-collapse">
-                                  <thead>
-                                    <tr className="border-b border-white/5 bg-white/[0.02]">
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">TEAM</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">MP</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">D</th>
-                                      <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">L</th>
-                                      <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PTS</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {groupB.map((row: any, i: number) => (
-                                      <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
-                                        <td className="py-4 px-6">
-                                          <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                          <div className="flex items-center gap-4">
-                                            <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
-                                            <span className={`text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
-                                          </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-white/40">{row.played}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-center">
-                                          <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                          <span className={`text-sm font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="mt-8 flex items-center gap-8 justify-center">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-[#00ccff] rounded-full shadow-[0_0_8px_rgba(0,204,255,0.6)]" />
-                              <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Awans do fazy pucharowej</span>
-                            </div>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-white/40">{row.played}</span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
+                                    </td>
+                                    <td className="py-4 px-6 text-right">
+                                      <span className={`text-sm font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       )}
-                  </div>
-                ) : friendlyTab === 'knockout' ? (
+
+                      {/* Grupa B */}
+                      {groupB.length > 0 && (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between px-2">
+                            <h2 className="text-xl font-black uppercase tracking-tight text-white/90">GRUPA B</h2>
+                          </div>
+                          <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="border-b border-white/5 bg-white/[0.02]">
+                                  <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">#</th>
+                                  <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30">DRUŻYNA</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">M</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">W</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">R</th>
+                                  <th className="py-5 px-4 text-[11px] font-black uppercase tracking-widest text-white/30 text-center">P</th>
+                                  <th className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-white/30 text-right">PKT</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {groupB.map((row: any, i: number) => (
+                                  <tr key={i} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group ${i < 2 ? "bg-[#00ccff]/5" : ""}`}>
+                                    <td className="py-4 px-6">
+                                      <span className={`text-sm font-bold ${i < 2 ? "text-[#00ccff]" : "text-white/20"}`}>{i + 1}</span>
+                                    </td>
+                                    <td className="py-4 px-6">
+                                      <div className="flex items-center gap-4">
+                                        <Image src={row.team.logo} alt="" width={24} height={24} className="w-6 h-6 object-contain" />
+                                        <span className={`text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors ${i < 2 ? "text-[#00ccff]" : "text-white/90"}`}>{row.team.name}</span>
+                                      </div>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-white/40">{row.played}</span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-[#10b981]">{row.won}</span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-[#facc15]">{row.drawn}</span>
+                                    </td>
+                                    <td className="py-4 px-4 text-center">
+                                      <span className="text-sm font-bold text-[#ef4444]">{row.lost}</span>
+                                    </td>
+                                    <td className="py-4 px-6 text-right">
+                                      <span className={`text-sm font-black ${i < 2 ? "text-[#00ccff]" : "text-white"}`}>{row.pts}</span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            ) : (
+
                   <div className="container mx-auto px-4 py-16 overflow-x-auto scrollbar-hide">
                     {knockoutRounds.length > 0 ? (
                       <div className="min-w-[1000px] flex justify-between gap-12 pb-12 relative">
@@ -1557,7 +1367,7 @@ function TurniejeContent() {
                     <h3 className="text-white font-black text-2xl md:text-4xl uppercase italic tracking-tighter mb-4">TURNIEJ ZABLOKOWANY</h3>
                     <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-center max-w-md px-8">
                       Oficjalne losowanie par Pucharu Powiatu odbędzie się<br/>
-                      <span className="text-red-500 font-black">30 czerwca 2026 o godzinie 14:55</span>
+                      <span className="text-red-500 font-black">30 czerwca 2026 o godzinie 17:00</span>
                     </p>
                   </div>
                 ) : (
