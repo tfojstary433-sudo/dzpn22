@@ -19,7 +19,7 @@ export default function KadraPage() {
   useEffect(() => {
     async function fetchTeam() {
       try {
-        const res = await fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1`);
+        const res = await fetch(`https://league-builder.replit.app/api/teams?season_id=1`);
         const allTeams = await res.json();
         const currentTeam = allTeams.find((t: any) => 
           t.id?.toString() === id || 

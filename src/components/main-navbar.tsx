@@ -50,8 +50,8 @@ export function MainNavbar() {
       setSearching(true);
       try {
         const [teamsRes, playersRes] = await Promise.all([
-          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1`),
-          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/players`)
+          fetch(`https://league-builder.replit.app/api/tables?season_id=1`),
+          fetch(`https://league-builder.replit.app/api/players`)
         ]);
         
         const teamsData = await teamsRes.json();

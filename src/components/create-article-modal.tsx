@@ -63,7 +63,7 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
       const userData = JSON.parse(savedUser);
       if (!userData.username) return;
 
-      const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${userData.username}`);
+      const response = await fetch(`https://league-builder.replit.app/api/players/${userData.username}`);
       if (response.ok) {
         const freshData = await response.json();
         // Update localStorage with fresh roles from DB/Discord
@@ -100,7 +100,7 @@ export function CreateArticleModal({ isOpen, onClose, onSuccess }: CreateArticle
         author: formData.author.trim()
       };
 
-      const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles', {
+      const response = await fetch('https://league-builder.replit.app/api/articles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -325,7 +325,7 @@ export function CreateArticleButton() {
         // Always try to fetch fresh data from API to ensure role wasn't taken away
         if (userData.username) {
           try {
-            const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${userData.username}`);
+            const response = await fetch(`https://league-builder.replit.app/api/players/${userData.username}`);
             if (response.ok) {
               const freshData = await response.json();
               const updatedRoles = freshData.discordRoles || [];

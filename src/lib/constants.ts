@@ -1,4 +1,4 @@
-export const REPLIT_API_BASE_URL = 'https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev';
+export const REPLIT_API_BASE_URL = 'https://league-builder.replit.app';
 export const FIREBASE_BASE_URL = "https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app";
 
 export const API_ENDPOINTS = {

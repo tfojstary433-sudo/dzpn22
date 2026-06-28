@@ -35,7 +35,7 @@ export default function TransferyPage() {
       try {
         const [historyRes, contractsRes] = await Promise.all([
           fetch(API_ENDPOINTS.PLAYERS_HISTORY),
-          fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/contracts')
+          fetch('https://league-builder.replit.app/api/contracts')
         ]);
 
         if (historyRes.ok) {

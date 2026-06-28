@@ -45,7 +45,7 @@ async function fetchAllPlayers(): Promise<any[]> {
     return playersCache;
   }
 
-  const REPLIT_API_BASE_URL = 'https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev';
+  const REPLIT_API_BASE_URL = 'https://league-builder.replit.app';
 
   try {
     const playerMap = new Map<string, any>(); // Keyed by robloxId

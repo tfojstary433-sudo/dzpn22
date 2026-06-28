@@ -71,7 +71,7 @@ export default function ExamPage() {
 
       // 3. Fetch exam data and check authorization
       try {
-        const res = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/exam/data');
+        const res = await fetch('https://league-builder.replit.app/api/exam/data');
         if (!res.ok) throw new Error('Failed to fetch exam data');
         const data: ExamData = await res.json();
         setExamData(data);
@@ -159,7 +159,7 @@ export default function ExamPage() {
 
     // Save to API
     try {
-      await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/exam/questions', {
+      await fetch('https://league-builder.replit.app/api/exam/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result)

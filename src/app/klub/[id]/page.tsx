@@ -125,7 +125,7 @@ export default function KlubPage() {
     async function fetchData() {
       try {
         setLoading(true);
-        const teamsRes = await fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1`);
+        const teamsRes = await fetch(`https://league-builder.replit.app/api/teams?season_id=1`);
         if (!teamsRes.ok) throw new Error('Failed to fetch teams');
         const allTeams: TeamData[] = await teamsRes.json();
 
@@ -140,9 +140,9 @@ export default function KlubPage() {
         if (currentTeam) {
           const teamId = currentTeam.id.toString();
           const [tableRes, statsRes, allMatchesRes] = await Promise.all([
-            fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1`),
-            fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players?season_id=1`),
-            fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1`)
+            fetch(`https://league-builder.replit.app/api/tables?season_id=1`),
+            fetch(`https://league-builder.replit.app/api/stats/players?season_id=1`),
+            fetch(`https://league-builder.replit.app/api/matches?season_id=1`)
           ]);
 
           const tableData = tableRes.ok ? await tableRes.json() : [];

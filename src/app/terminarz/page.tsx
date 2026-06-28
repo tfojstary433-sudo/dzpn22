@@ -80,10 +80,10 @@ export default function TerminarzPage() {
         const canShowCup = new Date() >= drawDate || isFinished;
 
         const [leagueRes, cupRes, teamsRes, liveRes] = await Promise.all([
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/schedule?type=league'),
-          canShowCup ? fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/schedule?type=county_cup') : Promise.resolve({ json: () => ({ matches: [] }) }),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches/live')
+          fetch('https://league-builder.replit.app/api/public/schedule?type=league'),
+          canShowCup ? fetch('https://league-builder.replit.app/api/public/schedule?type=county_cup') : Promise.resolve({ json: () => ({ matches: [] }) }),
+          fetch('https://league-builder.replit.app/api/teams?season_id=1'),
+          fetch('https://league-builder.replit.app/api/matches/live')
         ]);
         const leagueData = await leagueRes.json();
         const cupData = await (cupRes as any).json();

@@ -145,7 +145,7 @@ export function Navbar() {
             const now = Date.now();
             if (lastCheck && now - parseInt(lastCheck) < 5 * 60 * 1000) return;
 
-            const response = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/players/${userData.username}`);
+            const response = await fetch(`https://league-builder.replit.app/api/players/${userData.username}`);
             if (response.ok) {
               const freshData = await response.json();
               const updatedRoles = freshData.discordRoles || [];
@@ -238,7 +238,7 @@ export function Navbar() {
         const playerResponse = await fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`);
         if (playerResponse.ok) {
           const players = await playerResponse.json();
-          const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json').catch(() => null);
+          const historyRes = await fetch('https://league-builder.replit.app/players-history.json').catch(() => null);
           const historyData = historyRes && historyRes.ok ? await historyRes.json() : null;
 
           players.forEach((player: any) => {

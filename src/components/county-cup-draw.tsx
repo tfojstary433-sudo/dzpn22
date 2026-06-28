@@ -68,20 +68,20 @@ export function CountyCupDraw() {
     if (teamObj?.logo_url) return teamObj.logo_url;
     if (!teamId) return 'https://i.ibb.co/gFm0wL5C/IMG-4837-3.png';
     const team = apiTeams.find(t => String(t.team_id || t.id) === String(teamId));
-    return team?.team_logo_url || team?.logo_url || `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+    return team?.team_logo_url || team?.logo_url || `https://league-builder.replit.app/api/teams/${teamId}/logo`;
   };
 
   const startDrawingProcess = async () => {
     setIsDrawing(true);
     try {
       // Fetch teams first for logos from the full teams list
-      const teamsRes = await fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams');
+      const teamsRes = await fetch('https://league-builder.replit.app/api/teams');
       if (teamsRes.ok) {
         const teamsData = await teamsRes.json();
         setApiTeams(Array.isArray(teamsData) ? teamsData : []);
       }
 
-      const res = await fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/brackets/1?type=county_cup');
+      const res = await fetch('https://league-builder.replit.app/api/brackets/1?type=county_cup');
       const data = await res.json();
       
       // Extract all matches from all rounds to show full draw

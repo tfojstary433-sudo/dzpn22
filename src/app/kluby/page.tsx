@@ -23,7 +23,7 @@ export default function KlubyPage() {
   useEffect(() => {
     async function fetchTeams() {
       try {
-        const response = await fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1`);
+        const response = await fetch(`https://league-builder.replit.app/api/teams?season_id=1`);
         if (response.ok) {
           const data = await response.json();
           setTeams(data);

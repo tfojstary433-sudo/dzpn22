@@ -54,7 +54,7 @@ export function SoccerLayout() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles');
+        const response = await fetch('https://league-builder.replit.app/api/articles');
         if (response.ok) {
           const data = await response.json();
           setArticles(data.slice(0, 5));

@@ -30,7 +30,7 @@ import {
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 
-const API_BASE = "https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api";
+const API_BASE = "https://league-builder.replit.app/api";
 const CZAS_POLOWY = 35;
 const TEMATY = [
   "Prośba o nałożenie kary",
@@ -324,7 +324,7 @@ export default function RefereePanelPage() {
         setLineups({ home: homeLineup, away: awayLineup });
       } else {
         // Fallback to public lineups /all.json which is more reliable in this env
-        const lineupsRes = await fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/lineups/all.json`);
+        const lineupsRes = await fetch(`https://league-builder.replit.app/api/public/lineups/all.json`);
         const allLineupsData = await lineupsRes.json();
         const matchEntry = Array.isArray(allLineupsData) 
           ? allLineupsData.find((m: any) => String(m.match_id) === String(matchId))

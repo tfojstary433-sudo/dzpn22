@@ -31,9 +31,9 @@ export default function WynikiPage() {
     async function fetchData() {
       try {
         const [teamsRes, allMatchesRes, tableRes] = await Promise.all([
-          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams?season_id=1`),
-          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1`),
-          fetch(`https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1`)
+          fetch(`https://league-builder.replit.app/api/teams?season_id=1`),
+          fetch(`https://league-builder.replit.app/api/matches?season_id=1`),
+          fetch(`https://league-builder.replit.app/api/tables?season_id=1`)
         ]);
 
         const teams = await teamsRes.json();

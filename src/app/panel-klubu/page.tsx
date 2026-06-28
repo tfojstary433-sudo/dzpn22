@@ -33,7 +33,7 @@ import {
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 
-const API_BASE = "https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api";
+const API_BASE = "https://league-builder.replit.app/api";
 
 const COUNTRIES = [
   "Polska", "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Antigua i Barbuda", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria", "Azerbejdżan",

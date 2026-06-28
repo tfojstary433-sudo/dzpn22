@@ -187,7 +187,7 @@ export default function LeaguePage() {
         
         // Fetch Tournament Full Data
         try {
-          const tournamentRes = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/${tournamentId}/`);
+          const tournamentRes = await fetch(`https://league-builder.replit.app/api/tournament/${tournamentId}/`);
           if (tournamentRes.ok) {
             const tData = await tournamentRes.json();
             setTournamentData(tData);
@@ -205,7 +205,7 @@ export default function LeaguePage() {
         // Fetch Table (only if not already set by tournament data)
         if (currentTable.length === 0) {
           try {
-            const tableRes = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournaments/${tournamentId}/table`);
+            const tableRes = await fetch(`https://league-builder.replit.app/api/tournaments/${tournamentId}/table`);
             if (tableRes.ok) {
               const tableData = await tableRes.json();
               currentTable = Array.isArray(tableData) ? (tableData[0]?.teams || []) : (tableData.table || []);
@@ -217,7 +217,7 @@ export default function LeaguePage() {
         // Fetch Fixtures (only if not already set by tournament data)
         if (currentFixtures.length === 0) {
           try {
-            const fixturesRes = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournaments/${tournamentId}/fixtures`);
+            const fixturesRes = await fetch(`https://league-builder.replit.app/api/tournaments/${tournamentId}/fixtures`);
             if (fixturesRes.ok) {
               currentFixtures = await fixturesRes.json();
               setFixtures(currentFixtures);
@@ -227,7 +227,7 @@ export default function LeaguePage() {
 
         // Fetch Stats
         try {
-          const statsRes = await fetch(`https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/tournament/${tournamentId}/scorers.json`);
+          const statsRes = await fetch(`https://league-builder.replit.app/api/tournament/${tournamentId}/scorers.json`);
           if (statsRes.ok) {
             const statsData = await statsRes.json();
             setStats(statsData);
@@ -239,7 +239,7 @@ export default function LeaguePage() {
         
         // Fetch Achievements
         try {
-          const achievementsRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/achievements');
+          const achievementsRes = await fetch('https://league-builder.replit.app/api/achievements');
           if (achievementsRes.ok) {
             const achData = await achievementsRes.json();
             setAchievements(achData);
@@ -248,7 +248,7 @@ export default function LeaguePage() {
 
         // Fetch News
         try {
-          const newsRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/articles');
+          const newsRes = await fetch('https://league-builder.replit.app/api/articles');
           if (newsRes.ok) {
             const newsData = await newsRes.json();
             const filteredNews = newsData.filter((a: any) => {
@@ -269,9 +269,9 @@ export default function LeaguePage() {
         // Fetch Transfers (Contracts as requested)
         try {
           const [contractsRes, verifiedRes, historyRes] = await Promise.all([
-            fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/api/contracts'),
+            fetch('https://league-builder.replit.app/api/contracts'),
             fetch('https://wlpn-roblox-default-rtdb.europe-west1.firebasedatabase.app/VerifiedPlayers.json'),
-            fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json')
+            fetch('https://league-builder.replit.app/players-history.json')
           ]);
 
           if (contractsRes.ok && verifiedRes.ok && historyRes.ok) {
@@ -353,7 +353,7 @@ export default function LeaguePage() {
 
             // Fetch history for Free Agents
             try {
-              const historyRes = await fetch('https://88602c77-02c7-4b06-8b56-454baca5488c-00-38bejx2g3vlpx.picard.replit.dev/players-history.json');
+              const historyRes = await fetch('https://league-builder.replit.app/players-history.json');
               if (historyRes.ok) {
                 const historyData = await historyRes.json();
                 const players = historyData.players || historyData;

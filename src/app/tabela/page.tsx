@@ -122,7 +122,7 @@ function TabelaContent() {
 
   function getTeamLogoById(teamId: number) {
     const team = tableData.find(t => t.team_id === teamId) || allTeams.find(t => (t.team_id || t.id) === teamId);
-    return team?.team_logo_url || team?.logo_url || `https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams/${teamId}/logo`;
+    return team?.team_logo_url || team?.logo_url || `https://league-builder.replit.app/api/teams/${teamId}/logo`;
   }
 
   function getTeamPositionById(teamId: number) {
@@ -176,17 +176,17 @@ function TabelaContent() {
           countyCupStatsRes,
           teamsRes
         ] = await Promise.all([
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/tables?season_id=1'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1&status=finished'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1&status=scheduled'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/summary'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players?season_id=1'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/players'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/matches?season_id=1'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/stats/players'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/brackets/1?type=county_cup'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/public/cup/stats/players.json'),
-          fetch('https://673a6e75-fccb-4a62-b06b-9bd2ff7d356c-00-pyt4y8q7wly0.kirk.replit.dev/api/teams')
+          fetch('https://league-builder.replit.app/api/tables?season_id=1'),
+          fetch('https://league-builder.replit.app/api/matches?season_id=1&status=finished'),
+          fetch('https://league-builder.replit.app/api/matches?season_id=1&status=scheduled'),
+          fetch('https://league-builder.replit.app/api/stats/summary'),
+          fetch('https://league-builder.replit.app/api/stats/players?season_id=1'),
+          fetch('https://league-builder.replit.app/api/players'),
+          fetch('https://league-builder.replit.app/api/matches?season_id=1'),
+          fetch('https://league-builder.replit.app/api/stats/players'),
+          fetch('https://league-builder.replit.app/api/brackets/1?type=county_cup'),
+          fetch('https://league-builder.replit.app/api/public/cup/stats/players.json'),
+          fetch('https://league-builder.replit.app/api/teams')
         ]);
         
         const tableJson = await tableRes.json();
