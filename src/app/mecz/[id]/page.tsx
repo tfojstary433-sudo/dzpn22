@@ -963,9 +963,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
           <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-10 mt-12 shadow-2xl ring-1 ring-white/5 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <h3 className="text-white/20 text-[10px] font-black uppercase tracking-[0.8em] mb-12 text-center ml-[0.8em]">INFORMACJE O MECZU</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-2xl mx-auto">
-              {(refereeData?.referee?.name || apiData?.referee_name) && (
-                <FooterInfoItem icon={Flag} label="SĘDZIA GŁÓWNY" value={refereeData?.referee?.name || apiData?.referee_name} />
-              )}
+              <FooterInfoItem icon={Flag} label="SĘDZIA GŁÓWNY" value={refereeData?.referee?.name || apiData?.referee_name || "NIEOKREŚLONY"} />
               <FooterInfoItem icon={Sun} label="POGODA" value={`Działdowo: 22°C\nSłonecznie`} />
             </div>
           </div>
