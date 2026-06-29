@@ -263,7 +263,7 @@ export default function TeamPanelPage() {
 
     if (savedToken && savedTeamId) {
       setToken(savedToken);
-      setTeamId(parseInt(savedTeamId));
+      setTeamId(Number(savedTeamId));
       setTeamName(savedTeamName || '');
       setLoading(false);
     } else {
@@ -384,7 +384,7 @@ export default function TeamPanelPage() {
       const res = await fetch(`${API_BASE}/teams?season_id=1`);
       if (res.status === 401) return handleLogout();
       const allTeams = await res.json();
-      const myTeam = allTeams.find((t: any) => t.id === teamId);
+      const myTeam = allTeams.find((t: any) => Number(t.id) === Number(teamId));
       if (myTeam) {
         setPlayers(myTeam.players || []);
         setTeamLogo(myTeam.logo_url || '');
@@ -569,19 +569,28 @@ export default function TeamPanelPage() {
       const res = await fetch(`${API_BASE}/clubs/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team_id: parseInt(loginTeamId), password: loginPassword }),
+        body: JSON.stringify({ team_id: Number(loginTeamId), password: loginPassword }),
       });
 
       if (res.ok) {
-        const { token, team_id, team_name } = await res.json();
-        localStorage.setItem('club_token', token);
-        localStorage.setItem('team_id', team_id.toString());
-        localStorage.setItem('team_name', team_name);
-        setToken(token);
-        setTeamId(team_id);
-        setTeamName(team_name);
+        const data = await res.json();
+        // Snippet uses team_id/team_name, but we support fallback to id/name
+        const token = data.token;
+        const finalTeamId = data.team_id || data.id;
+        const finalTeamName = data.team_name || data.name;
+
+        if (token && finalTeamId) {
+          localStorage.setItem('club_token', token);
+          localStorage.setItem('team_id', finalTeamId.toString());
+          localStorage.setItem('team_name', finalTeamName || '');
+          setToken(token);
+          setTeamId(Number(finalTeamId));
+          setTeamName(finalTeamName || '');
+        } else {
+          setError('Błąd autoryzacji: brak danych w odpowiedzi');
+        }
       } else {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         setError(errData.message || 'Błędny ID drużyny lub hasło');
       }
     } catch (err) {
