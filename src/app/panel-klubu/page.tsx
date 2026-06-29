@@ -658,6 +658,12 @@ export default function TeamPanelPage() {
       const foot = formData.get('preferred_foot');
       const pos = formData.get('position');
 
+      if (!pos) {
+        setError('Musisz wybrać pozycję zawodnika');
+        setAuthLoading(false);
+        return;
+      }
+
       body.title = `Zgłoszenie zawodnika: ${pName}`;
       body.description = `Imię i nazwisko: ${pName}\nData urodzenia: ${bDate}\nNumer na koszulce: ${jNum}\nKraj pochodzenia: ${country}\nPozycja: ${pos}\nWzrost: ${height} cm\nLepsza noga: ${foot === 'right' ? 'Prawa' : (foot === 'left' ? 'Lewa' : 'Obie')}`;
       
@@ -1354,7 +1360,7 @@ function RequestForm({ upcomingMatches, players, requestType, setRequestType, on
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-4">Pozycja</label>
-                <select name="position" className="w-full bg-[#0a0f1d] border border-white/10 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer">
+                <select name="position" required className="w-full bg-[#0a0f1d] border border-white/10 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer">
                   <option value="" className="bg-[#0a0f1d] text-white">Wybierz</option>
                   <option value="GK" className="bg-[#0a0f1d] text-white">Bramkarz</option>
                   <option value="DEF" className="bg-[#0a0f1d] text-white">Obrońca</option>
