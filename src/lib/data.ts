@@ -98,198 +98,129 @@ export interface SneakPeak {
 
 export const teams: Team[] = [
   { 
-    id: 'ZAW', 
-    name: 'Zawisza Bydgoszcz', 
-    shortName: 'Zawisza', 
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/5/55/Herb_Zawiszy_Bydgoszcz.png',
-    color: '#1e40af',
-    founded: '13.12.2025',
-    stadium: 'Stadion Miejski w Bydgoszczy',
-    achievements: {
-      friendlyMatches: {
-        firstPlace: { count: 1, years: '25/26' }
-      }
-    }
+    id: 'BOB', 
+    name: 'CF BOBILAND', 
+    shortName: 'BOBILAND', 
+    logo: 'https://league-builder.replit.app/api/clubs/1/logo',
+    color: '#1e40af'
   } as any,
   { 
-    id: 'ARK', 
-    name: 'Arka Gdynia', 
-    shortName: 'Arka', 
-    logo: 'https://arka.gdynia.pl/files/herb/arka_gdynia_mzks_kolor.png',
-    color: '#facc15',
-    founded: '13.12.2025',
-    stadium: 'Stadion Miejski w Gdyni',
-    achievements: {
-      friendlyMatches: {
-        secondPlace: { count: 1, years: '25/26' }
-      }
-    }
+    id: 'DRM', 
+    name: 'DREAM TEAM', 
+    shortName: 'DREAM', 
+    logo: 'https://league-builder.replit.app/api/clubs/3/logo',
+    color: '#facc15'
   } as any,
   { 
-    id: 'LEG', 
-    name: 'Legia Warszawa', 
-    shortName: 'Legia', 
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Legia_Warsaw_logo.png',
-    color: '#16a34a',
-    founded: '13.12.2025',
-    stadium: 'Stadion Wojska Polskiego w Warszawie'
+    id: 'DZ4', 
+    name: 'DZIAŁÓWKA 420', 
+    shortName: 'DZIAŁÓWKA', 
+    logo: 'https://league-builder.replit.app/api/clubs/4/logo',
+    color: '#16a34a'
   } as any,
   { 
-    id: 'LPO', 
-    name: 'Lech Poznań', 
-    shortName: 'Lech', 
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/KKS_Lech_Pozna%C5%84.svg/960px-KKS_Lech_Pozna%C5%84.svg.png',
-    color: '#1e40af',
-    founded: '14.12.2025',
-    stadium: 'ENEA Stadion w Poznaniu'
+    id: 'BOS', 
+    name: 'FC BOSKI', 
+    shortName: 'BOSKI', 
+    logo: 'https://league-builder.replit.app/api/clubs/5/logo',
+    color: '#1e40af'
   } as any,
   { 
-    id: 'LGD', 
-    name: 'Lechia Gdańsk', 
-    shortName: 'Lechia', 
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b7/Lechia_Gda%C5%84sk_logo.svg/1200px-Lechia_Gda%C5%84sk_logo.svg.png',
-    color: '#16a34a',
-    founded: '14.12.2025',
-    stadium: 'Stadion Energa w Gdańsku',
-    achievements: {
-      friendlyMatches: {
-        thirdPlace: { count: 1, years: '25/26' }
-      }
-    }
+    id: 'DZI', 
+    name: 'FC DZIAŁDOWO', 
+    shortName: 'DZIAŁDOWO', 
+    logo: 'https://league-builder.replit.app/api/clubs/6/logo',
+    color: '#16a34a'
   } as any,
   { 
-    id: 'WID', 
-    name: 'Widzew Łódź', 
-    shortName: 'Widzew', 
-    logo: 'https://i.ibb.co/1fNvYHvf/Widzew-L-dz-logo.png',
-    color: '#dc2626',
-    stadium: 'Stadion Widzewa'
+    id: 'MAK', 
+    name: 'FC MAKOWA', 
+    shortName: 'MAKOWA', 
+    logo: 'https://league-builder.replit.app/api/clubs/7/logo',
+    color: '#dc2626'
   } as any,
   { 
-    id: 'POG', 
-    name: 'Pogoń Szczecin', 
-    shortName: 'Pogoń', 
-    logo: 'https://pogoncdn.stellis.one/imgsize-xs/documents/7740889/44a6ff9f-f346-69e6-890c-c6f10c6e891b',
-    color: '#1e3a8a',
-    founded: '14.12.2025',
-    stadium: 'Stadion Miejski im. Floriana Krygiera w Szczecinie'
+    id: 'ZZB', 
+    name: 'FC ZIELONA ŻABKA', 
+    shortName: 'ŻABKA', 
+    logo: 'https://league-builder.replit.app/api/clubs/8/logo',
+    color: '#1e3a8a'
   } as any,
   { 
-    id: 'ZAG', 
-    name: 'Zagłębie Lubin', 
-    shortName: 'Zagłębie', 
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/20/Zag%C5%82%C4%99bie_Lubin_crest.svg/1200px-Zag%C5%82%C4%99bie_Lubin_crest.svg.png',
-    color: '#f97316',
-    founded: '14.12.2025',
-    stadium: 'Stadion Zagłębia Lubin'
+    id: 'KSP', 
+    name: 'KS PŁOMYK WIERZBOWO', 
+    shortName: 'PŁOMYK', 
+    logo: 'https://league-builder.replit.app/api/clubs/9/logo',
+    color: '#f97316'
   } as any,
   { 
-    id: 'SOK', 
-    name: 'Sokół Olsztyn', 
-    shortName: 'Sokół', 
-    logo: 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png',
-    color: '#00ccff',
-    founded: '29.12.2025',
-    stadium: 'Stadion Miejski w Ostródzie'
+    id: 'PKS', 
+    name: 'PKS PETRYKOZY', 
+    shortName: 'PETRYKOZY', 
+    logo: 'https://league-builder.replit.app/api/clubs/10/logo',
+    color: '#00ccff'
   } as any,
   { 
-    id: 'WIS', 
-    name: 'Wisła Kraków', 
-    shortName: 'Wisła', 
-    logo: 'https://upload.wikimedia.org/wikipedia/en/1/15/Wis%C5%82a_Krak%C3%B3w_logo.svg',
-    color: '#dc2626',
-    founded: '03.01.2026',
-    stadium: 'Stadion Miejski im. Henryka Reymana'
+    id: 'SET', 
+    name: 'SETA DZIAŁDOWO', 
+    shortName: 'SETA', 
+    logo: 'https://league-builder.replit.app/api/clubs/11/logo',
+    color: '#dc2626'
   } as any,
   { 
-    id: 'GOR', 
-    name: 'Górnik Zabrze', 
-    shortName: 'Górnik', 
-    logo: 'https://i.ibb.co/VWrm9ws7/obraz-2026-03-12-125114114-removebg-preview.png',
-    color: '#16a34a',
-    stadium: 'Stadion im. Ernesta Pohla'
+    id: 'SPA', 
+    name: 'SPARTA NARZYM', 
+    shortName: 'SPARTA', 
+    logo: 'https://league-builder.replit.app/api/clubs/12/logo',
+    color: '#16a34a'
   } as any,
   { 
-    id: 'MOT', 
-    name: 'Motor Lublin', 
-    shortName: 'Motor', 
-    logo: 'https://i.ibb.co/bgRJrvnj/Motor-Lublin-S-A-Oficjalny-Herb.png',
-    color: '#facc15',
-    stadium: 'Arena Lublin'
+    id: 'USL', 
+    name: 'USŁUGI WYKOŃCZENIOWE', 
+    shortName: 'USŁUGI', 
+    logo: 'https://league-builder.replit.app/api/clubs/13/logo',
+    color: '#facc15'
   } as any,
   { 
-    id: 'RAK', 
-    name: 'Raków Częstochowa', 
-    shortName: 'Raków', 
-    logo: 'https://i.ibb.co/JWY69LTG/obraz-2026-03-12-125051411-removebg-preview.png',
-    color: '#dc2626',
-    stadium: 'Miejski Stadion Piłkarski Raków'
+    id: 'ZKP', 
+    name: 'ZKP CONDOMIA', 
+    shortName: 'CONDOMIA', 
+    logo: 'https://league-builder.replit.app/api/clubs/14/logo',
+    color: '#1e40af'
   } as any,
   { 
-    id: 'JAG', 
-    name: 'Jagiellonia Białystok', 
-    shortName: 'Jagiellonia', 
-    logo: 'https://i.ibb.co/1JmyhfVn/obraz-2026-01-29-161936924.png',
-    color: '#facc15',
-    stadium: 'Stadion Miejski w Białymstoku'
-  } as any,
-  { 
-    id: 'WPL', 
-    name: 'Wisła Płock', 
-    shortName: 'Wisła Płock', 
-    logo: 'https://i.ibb.co/SX6LkvnR/obraz-2026-02-01-105518416.png',
-    color: '#1e40af',
-    stadium: 'Stadion im. Kazimierza Górskiego'
-  } as any,
-  { 
-    id: 'BBT', 
-    name: 'Bruk-Bet Termalica', 
-    shortName: 'Termalica', 
-    logo: 'https://i.ibb.co/ymPLdBLJ/obraz-2026-03-12-125026443-removebg-preview.png',
-    color: '#f97316',
-    founded: '04.01.2026',
-    stadium: 'Stadion Bruk-Bet w Niecieczy'
+    id: 'CAN', 
+    name: 'CD CANTERA', 
+    shortName: 'CANTERA', 
+    logo: 'https://league-builder.replit.app/api/clubs/2/logo',
+    color: '#f97316'
   } as any,
   {
-    id: 'SED',
+    id: 'REF',
     name: 'Kolegium Sędziowskie',
     shortName: 'Sędziowie',
     logo: 'https://i.ibb.co/5hYr57Mr/obraz-2026-02-01-142942311.png',
-    color: '#ef4444',
-    founded: '01.01.2026',
-    president: 'Zarząd PFF',
-    stadium: 'Stadion PFF Arena'
-  } as any,
-  { 
-    id: 'CRA', 
-    name: 'KS Cracovia', 
-    shortName: 'Cracovia', 
-    logo: 'https://i.ibb.co/fG2cXc2S/cracovia.png',
-    color: '#dc2626',
-    stadium: 'Stadion im. Józefa Piłsudskiego'
+    color: '#ef4444'
   } as any,
 ];
 
 // Map club IDs to Firebase keys
 export const clubToFirebaseKey: { [key: string]: string } = {
-  'ZAW': 'Club 1', // Zawisza Bydgoszcz
-  'ARK': 'Club 2', // Arka Gdynia
-  'LEG': 'Club 3', // Legia Warszawa
-  'LPO': 'Club 4', // Lech Poznań
-  'LGD': 'Club 5', // Lechia Gdańsk
-  'WID': 'Club 6', // Widzew Łódź
-  'POG': 'Club 7', // Pogoń Szczecin
-  'ZAG': 'Club 8', // Zagłębie Lubin
-  'SOK': 'Club 9', // Sokół Olsztyn
-  'WIS': 'Club 10', // Wisła Kraków
-  'GOR': 'Club 12', // Górnik Zabrze
-  'MOT': 'Club 13', // Motor Lublin
-  'RAK': 'Club 14', // Raków Częstochowa
-  'JAG': 'Club 15', // Jagiellonia Białystok
-  'WPL': 'Club 16', // Wisła Płock
-  'BBT': 'Club 17', // Bruk-Bet Termalica
-  'CRA': 'Club 19', // KS Cracovia
-  'SED': 'Referee', // Sędziowie
+  'BOB': 'Club 1',
+  'CAN': 'Club 2',
+  'DRM': 'Club 3',
+  'DZ4': 'Club 4',
+  'BOS': 'Club 5',
+  'DZI': 'Club 6',
+  'MAK': 'Club 7',
+  'ZZB': 'Club 8',
+  'KSP': 'Club 9',
+  'PKS': 'Club 10',
+  'SET': 'Club 11',
+  'SPA': 'Club 12',
+  'USL': 'Club 13',
+  'ZKP': 'Club 14',
+  'REF': 'Referee', // Sędziowie
   'MED': 'Media'     // Media
 };
 

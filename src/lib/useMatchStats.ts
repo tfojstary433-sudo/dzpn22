@@ -35,6 +35,11 @@ export function getTeamLogo(teamId: string | number, teamName?: string): string 
     if (teamByName) return teamByName.logo;
   }
   
+  // Fallback to Replit API if it's a numeric ID
+  if (!isNaN(Number(idStr)) && Number(idStr) > 0) {
+    return `https://league-builder.replit.app/api/clubs/${idStr}/logo`;
+  }
+  
   return 'https://i.ibb.co/23XPPB9m/system-administration-3.png';
 }
 

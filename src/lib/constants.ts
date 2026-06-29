@@ -36,10 +36,9 @@ export const POSITION_MAPPING: Record<string, string> = {
 };
 
 export const TEAM_ID_MAPPING: Record<string, string> = {
-  '1': 'ARK', '2': 'LEG', '3': 'LPO', '4': 'ZAG', '5': 'MOT',
-  '6': 'BBT', '7': 'LGD', '10': 'POG',
-  '11': 'UNI', '12': 'ZAW', '13': 'WIS', '14': 'SOK', '15': 'JAG',
-  '16': 'WPL', '19': 'CRA'
+  '1': 'BOB', '2': 'CAN', '3': 'DRM', '4': 'DZ4', '5': 'BOS',
+  '6': 'DZI', '7': 'MAK', '8': 'ZZB', '9': 'KSP', '10': 'PKS',
+  '11': 'SET', '12': 'SPA', '13': 'USL', '14': 'ZKP'
 };
 
 export const COUNTRY_MAPPING: Record<string, string> = {

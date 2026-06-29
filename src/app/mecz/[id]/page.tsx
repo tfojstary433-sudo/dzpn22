@@ -16,14 +16,24 @@ const playerPlaceholder = 'https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.p
 const leagueLogo = 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png';
 
 const getSafeTeamLogo = (teamId: any, fallback?: string, apiTeams?: any[]) => {
+    const idStr = String(teamId);
+    
+    // Check internal data first
+    const internalTeam = teams.find(t => t.id === idStr || String(t.id) === idStr);
+    if (internalTeam?.logo) return internalTeam.logo;
+
     if (apiTeams && teamId) {
         const team = apiTeams.find(t => String(t.id) === String(teamId));
         if (team?.logo_url) return team.logo_url;
         if (team?.team_logo_url) return team.team_logo_url;
     }
+    
     if (fallback && !fallback.includes('replit.app') && !fallback.includes('replit.dev')) return fallback;
-    if (!teamId) return shieldPlaceholder;
-    return `${REPLIT_API_BASE_URL}/api/teams/${teamId}/logo`;
+    
+    if (!teamId || teamId === 'undefined' || teamId === 'null') return shieldPlaceholder;
+    
+    // Fallback to Replit API with correct endpoint
+    return `${REPLIT_API_BASE_URL}/api/clubs/${teamId}/logo`;
 };
 
 const getSafePlayerPhoto = (player: any) => {
