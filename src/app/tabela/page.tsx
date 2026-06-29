@@ -176,15 +176,15 @@ function TabelaContent() {
           countyCupStatsRes,
           teamsRes
         ] = await Promise.all([
-          fetch('https://league-builder.replit.app/api/tables?season_id=1'),
-          fetch('https://league-builder.replit.app/api/matches?season_id=1&status=finished'),
-          fetch('https://league-builder.replit.app/api/matches?season_id=1&status=scheduled'),
+          fetch('https://league-builder.replit.app/api/tables'),
+          fetch('https://league-builder.replit.app/api/matches'),
+          fetch('https://league-builder.replit.app/api/matches'),
           fetch('https://league-builder.replit.app/api/stats/summary'),
-          fetch('https://league-builder.replit.app/api/stats/players?season_id=1'),
-          fetch('https://league-builder.replit.app/api/players'),
-          fetch('https://league-builder.replit.app/api/matches?season_id=1'),
           fetch('https://league-builder.replit.app/api/stats/players'),
-          fetch('https://league-builder.replit.app/api/brackets/1?type=county_cup'),
+          fetch('https://league-builder.replit.app/api/players'),
+          fetch('https://league-builder.replit.app/api/matches'),
+          fetch('https://league-builder.replit.app/api/stats/players'),
+          fetch('https://league-builder.replit.app/api/brackets/1'),
           fetch('https://league-builder.replit.app/api/public/cup/stats/players.json'),
           fetch('https://league-builder.replit.app/api/teams')
         ]);

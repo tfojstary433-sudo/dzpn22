@@ -294,8 +294,8 @@ export default function RefereePanelPage() {
       }
       
       // Attempt to get logos from teams list if direct id fetch not supported well
-      // Usually fetch(`${API_BASE}/teams?season_id=1`) and find is safer if direct id not supported
-      const teamsRes = await fetch(`${API_BASE}/teams?season_id=1`);
+      // Usually fetch(`${API_BASE}/teams`) and find is safer if direct id not supported
+      const teamsRes = await fetch(`${API_BASE}/teams`);
       if (teamsRes.ok) {
         const allTeams = await teamsRes.json();
         const hTeam = allTeams.find((t: any) => t.id === match.home_team_id);
@@ -514,7 +514,7 @@ export default function RefereePanelPage() {
     return reasons.length > 0 ? reasons : null;
   };
 
-  const matchAction = async (action: 'start' | 'halftime' | 'second-half' | 'second_half' | 'finish') => {
+  const matchAction = async (action: 'start' | 'halftime' | 'second_half' | 'finish') => {
     if (!selectedMatchId) return;
 
     // Check if both lineups are submitted and locked before starting
@@ -529,32 +529,10 @@ export default function RefereePanelPage() {
 
     if (action === 'finish' && !confirm("Czy na pewno zakończyć mecz?")) return;
     
-    // Try both dash and underscore versions for the second half
-    const apiAction = action === 'second-half' ? 'second-half' : (action === 'second_half' ? 'second-half' : action);
-    
     try {
-      const res = await fetch(`${API_BASE}/matches/${selectedMatchId}/${apiAction}`, {
+      const res = await fetch(`${API_BASE}/matches/${selectedMatchId}/${action}`, {
         method: "POST"
       });
-      
-      // If primary action fails, try alternate versions for common endpoints
-      if (!res.ok) {
-        let alternatePath = null;
-        if (apiAction === 'second-half') alternatePath = 'second_half';
-        
-        if (alternatePath) {
-          const retryRes = await fetch(`${API_BASE}/matches/${selectedMatchId}/${alternatePath}`, {
-            method: "POST"
-          });
-          if (retryRes.ok) {
-            setSuccessMessage(`Mecz: akcja wznowienia wykonana`);
-            await fetchMatches();
-            await fetchMatchDetails(selectedMatchId);
-            setTimeout(() => setSuccessMessage(null), 3000);
-            return;
-          }
-        }
-      }
 
       if (res.ok) {
         setSuccessMessage(`Mecz: akcja ${action} wykonana`);

@@ -247,7 +247,7 @@ export default function TeamPanelPage() {
     // Always fetch teams to be sure we have them for the login list
     const fetchTeams = async () => {
       try {
-        const res = await fetch(`${API_BASE}/teams?season_id=1`);
+        const res = await fetch(`${API_BASE}/teams`);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data)) {
@@ -387,7 +387,7 @@ export default function TeamPanelPage() {
   const fetchTeamData = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/teams?season_id=1`);
+      const res = await fetch(`${API_BASE}/teams`);
       if (res.status === 401) return handleLogout();
       const allTeams = await res.json();
       const myTeam = allTeams.find((t: any) => Number(t.id) === Number(teamId));

@@ -81,7 +81,7 @@ export function CountyCupDraw() {
         setApiTeams(Array.isArray(teamsData) ? teamsData : []);
       }
 
-      const res = await fetch('https://league-builder.replit.app/api/brackets/1?type=county_cup');
+      const res = await fetch('https://league-builder.replit.app/api/brackets/1');
       const data = await res.json();
       
       // Extract all matches from all rounds to show full draw
