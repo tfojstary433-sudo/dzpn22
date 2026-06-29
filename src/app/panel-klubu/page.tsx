@@ -302,10 +302,13 @@ export default function TeamPanelPage() {
   const fetchOrganizerMessages = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/messages`, {
+      const res = await fetch(`${API_BASE}/clubs/messages?team_id=${teamId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      if (res.ok) setOrganizerMessages(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setOrganizerMessages(Array.isArray(data) ? data : (data.messages || []));
+      }
     } catch (err) {
       console.error('Error fetching organizer messages:', err);
     }
@@ -314,7 +317,7 @@ export default function TeamPanelPage() {
   const markMessageRead = async (id: number) => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/messages/${id}/read`, {
+      const res = await fetch(`${API_BASE}/clubs/messages/${id}/read?team_id=${teamId}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -327,7 +330,7 @@ export default function TeamPanelPage() {
   const handleReplyOrganizer = async (id: number, text: string) => {
     if (!token || !text.trim()) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/messages/${id}/reply`, {
+      const res = await fetch(`${API_BASE}/clubs/messages/${id}/reply?team_id=${teamId}`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -344,10 +347,13 @@ export default function TeamPanelPage() {
   const fetchPenalties = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/penalties`, {
+      const res = await fetch(`${API_BASE}/clubs/penalties?team_id=${teamId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      if (res.ok) setPenalties(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setPenalties(Array.isArray(data) ? data : (data.penalties || []));
+      }
     } catch (err) {
       console.error('Error fetching penalties:', err);
     }
@@ -411,13 +417,13 @@ export default function TeamPanelPage() {
   const fetchRequests = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests`, {
+      const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
       if (res.status === 401) return handleLogout();
       if (res.ok) {
         const data = await res.json();
-        setRequests(data);
+        setRequests(Array.isArray(data) ? data : (data.requests || []));
       }
     } catch (err) {
       console.error('Error fetching requests:', err);
@@ -427,13 +433,13 @@ export default function TeamPanelPage() {
   const fetchInbox = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/inbox`, {
+      const res = await fetch(`${API_BASE}/clubs/inbox?team_id=${teamId}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
       if (res.status === 401) return handleLogout();
       if (res.ok) {
         const data = await res.json();
-        setInbox(data);
+        setInbox(Array.isArray(data) ? data : (data.inbox || []));
       }
     } catch (err) {
       console.error('Error fetching inbox:', err);
@@ -443,13 +449,13 @@ export default function TeamPanelPage() {
   const fetchMessages = async (requestId: number) => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests/${requestId}/messages`, {
+      const res = await fetch(`${API_BASE}/clubs/requests/${requestId}/messages?team_id=${teamId}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
       if (res.status === 401) return handleLogout();
       if (res.ok) {
         const data = await res.json();
-        setMessages(data);
+        setMessages(Array.isArray(data) ? data : (data.messages || []));
         // Refresh both requests and inbox to update unread badges everywhere
         fetchRequests();
         fetchInbox();
@@ -464,7 +470,7 @@ export default function TeamPanelPage() {
     if (!token || !selectedRequestId || !newMessage.trim()) return;
 
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests/${selectedRequestId}/messages`, {
+      const res = await fetch(`${API_BASE}/clubs/requests/${selectedRequestId}/messages?team_id=${teamId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -487,7 +493,7 @@ export default function TeamPanelPage() {
     setSubmittingId(requestId);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/clubs/postpone/${requestId}/respond`, {
+      const res = await fetch(`${API_BASE}/clubs/postpone/${requestId}/respond?team_id=${teamId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -685,7 +691,7 @@ export default function TeamPanelPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests`, {
+      const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
