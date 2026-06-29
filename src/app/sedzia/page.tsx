@@ -185,7 +185,7 @@ export default function RefereePanelPage() {
     if (activeMatch && activeMatch.status === 'live') {
       setEventMinute(obliczMinute(activeMatch));
     }
-  }, [activeMatch]);
+  }, [activeMatch, obliczMinute]);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('referee_token');
@@ -433,7 +433,7 @@ export default function RefereePanelPage() {
         audio.play().catch(e => console.log("Audio play failed", e));
       }
     }
-  }, [activeMatch]);
+  }, [activeMatch, obliczMinute]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -672,7 +672,7 @@ export default function RefereePanelPage() {
     }
   };
 
-  function obliczMinute(mecz: Match) {
+  const obliczMinute = useCallback((mecz: Match) => {
     if (liveData?.minute !== undefined) return liveData.minute;
     
     const now = Date.now();
@@ -687,7 +687,7 @@ export default function RefereePanelPage() {
       return CZAS_POLOWY + elapsed;
     }
     return CZAS_POLOWY;
-  }
+  }, [liveData]);
 
   function formatExtraTime(mecz: Match) {
     if (mecz.period === 'first_half' && mecz.extra_time_first && mecz.extra_time_first > 0) {

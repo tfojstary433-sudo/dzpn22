@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { 
   Users, 
@@ -289,7 +289,7 @@ export default function TeamPanelPage() {
 
       return () => clearInterval(pollInterval);
     }
-  }, [token, teamId]);
+  }, [token, teamId, fetchTeamData, fetchRequests, fetchInbox, fetchOrganizerMessages, fetchPenalties]);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -297,9 +297,9 @@ export default function TeamPanelPage() {
     // Poll announcements every 30 seconds to catch new ones
     const annInterval = setInterval(fetchAnnouncements, 30000);
     return () => clearInterval(annInterval);
-  }, []);
+  }, [fetchAnnouncements]);
 
-  const fetchOrganizerMessages = async () => {
+  const fetchOrganizerMessages = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/messages?team_id=${teamId}`, {
@@ -312,9 +312,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching organizer messages:', err);
     }
-  };
+  }, [token, teamId]);
 
-  const markMessageRead = async (id: number) => {
+  const markMessageRead = useCallback(async (id: number) => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/messages/${id}/read?team_id=${teamId}`, {
@@ -325,9 +325,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error marking message as read:', err);
     }
-  };
+  }, [token, teamId, fetchOrganizerMessages]);
 
-  const handleReplyOrganizer = async (id: number, text: string) => {
+  const handleReplyOrganizer = useCallback(async (id: number, text: string) => {
     if (!token || !text.trim()) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/messages/${id}/reply?team_id=${teamId}`, {
@@ -342,9 +342,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error replying to organizer message:', err);
     }
-  };
+  }, [token, teamId, fetchOrganizerMessages]);
 
-  const fetchPenalties = async () => {
+  const fetchPenalties = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/penalties?team_id=${teamId}`, {
@@ -357,9 +357,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching penalties:', err);
     }
-  };
+  }, [token, teamId]);
 
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE}/announcements`);
       if (res.ok) {
@@ -370,10 +370,6 @@ export default function TeamPanelPage() {
           const newAnn = data[0]; // Assuming newest is first
           if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
              new Notification("Ogłoszenie od DLPN 1 Liga", { body: newAnn.title });
-          } else {
-             // Fallback for UI if needed, but the user asked for "alerty" 
-             // which often means a browser notification or a toast.
-             // I'll add a small toast-like effect via state if not already there.
           }
         }
         
@@ -382,9 +378,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching announcements:', err);
     }
-  };
+  }, [announcements.length]);
 
-  const fetchTeamData = async () => {
+  const fetchTeamData = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/teams`);
@@ -412,9 +408,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching team data:', err);
     }
-  };
+  }, [token, teamId]);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
@@ -428,9 +424,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching requests:', err);
     }
-  };
+  }, [token, teamId]);
 
-  const fetchInbox = async () => {
+  const fetchInbox = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/inbox?team_id=${teamId}`, {
@@ -444,9 +440,9 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching inbox:', err);
     }
-  };
+  }, [token, teamId]);
 
-  const fetchMessages = async (requestId: number) => {
+  const fetchMessages = useCallback(async (requestId: number) => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/clubs/requests/${requestId}/messages?team_id=${teamId}`, {
@@ -463,7 +459,7 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching messages:', err);
     }
-  };
+  }, [token, teamId, fetchRequests, fetchInbox]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -527,7 +523,7 @@ export default function TeamPanelPage() {
       }, 5000);
     }
     return () => clearInterval(interval);
-  }, [isChatOpen, selectedRequestId]);
+  }, [isChatOpen, selectedRequestId, fetchMessages]);
 
   const handleReleasePlayer = async (player: Player) => {
     const reason = prompt(`Czy na pewno chcesz zwolnić zawodnika ${player.first_name} ${player.last_name}?\n\nPodaj uzasadnienie (opcjonalne):`);
@@ -536,13 +532,14 @@ export default function TeamPanelPage() {
     setAuthLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests`, {
+      const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
+          team_id: teamId,
           type: "player_release",
           title: `Zwolnienie zawodnika: ${player.first_name} ${player.last_name}`,
           description: reason || "Proszę o wykreślenie zawodnika ze składu.",
@@ -1995,11 +1992,7 @@ function LineupProtocol({ token, teamId, teamName, onLogout }: any) {
   const [error, setError] = useState<string | null>(null);
   const [existingLineup, setExistingLineup] = useState(false);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       const [matchesRes, playersRes] = await Promise.all([
@@ -2023,20 +2016,13 @@ function LineupProtocol({ token, teamId, teamName, onLogout }: any) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, onLogout]);
 
   useEffect(() => {
-    if (selectedMatchId) {
-      loadExistingLineup(selectedMatchId);
-    } else {
-      setLineupRoles({});
-      setCaptainId(null);
-      setNotes("");
-      setExistingLineup(false);
-    }
-  }, [selectedMatchId]);
+    loadInitialData();
+  }, [loadInitialData]);
 
-  const loadExistingLineup = async (matchId: number) => {
+  const loadExistingLineup = useCallback(async (matchId: number) => {
     try {
       const res = await fetch(`${API_BASE}/clubs/lineups/match/${matchId}`, {
         headers: { "Authorization": `Bearer ${token}` }
@@ -2065,7 +2051,18 @@ function LineupProtocol({ token, teamId, teamName, onLogout }: any) {
     } catch (err) {
       console.error("Error loading lineup:", err);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (selectedMatchId) {
+      loadExistingLineup(selectedMatchId);
+    } else {
+      setLineupRoles({});
+      setCaptainId(null);
+      setNotes("");
+      setExistingLineup(false);
+    }
+  }, [selectedMatchId, loadExistingLineup]);
 
   const setRole = (playerId: number, role: string | null) => {
     setLineupRoles(prev => {
