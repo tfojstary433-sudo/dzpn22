@@ -379,6 +379,7 @@ export default function TeamPanelPage() {
   };
 
   const fetchTeamData = async () => {
+    if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/teams?season_id=1`);
       if (res.status === 401) return handleLogout();
@@ -387,16 +388,20 @@ export default function TeamPanelPage() {
       if (myTeam) {
         setPlayers(myTeam.players || []);
         setTeamLogo(myTeam.logo_url || '');
+      }
         
-        // Fetch matches to find upcoming - using status=scheduled as per requirements
-        const matchesRes = await fetch(`${API_BASE}/matches?season_id=1&status=scheduled`);
-        const allMatches = await matchesRes.json();
-        const teamMatches = allMatches.filter((m: any) => 
-          (m.home_team_id === teamId || m.away_team_id === teamId)
+      // Use authorized endpoint for matches
+      const matchesRes = await fetch(`${API_BASE}/clubs/matches`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (matchesRes.ok) {
+        const teamMatches = await matchesRes.json();
+        setUpcomingMatches(teamMatches
+          .filter((m: any) => m.status === 'scheduled')
+          .sort((a: any, b: any) => 
+            new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
+          )
         );
-        setUpcomingMatches(teamMatches.sort((a: any, b: any) => 
-          new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
-        ));
       }
     } catch (err) {
       console.error('Error fetching team data:', err);
@@ -568,13 +573,13 @@ export default function TeamPanelPage() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('club_token', data.token);
-        localStorage.setItem('team_id', loginTeamId);
-        localStorage.setItem('team_name', data.team_name);
-        setToken(data.token);
-        setTeamId(parseInt(loginTeamId));
-        setTeamName(data.team_name);
+        const { token, team_id, team_name } = await res.json();
+        localStorage.setItem('club_token', token);
+        localStorage.setItem('team_id', team_id.toString());
+        localStorage.setItem('team_name', team_name);
+        setToken(token);
+        setTeamId(team_id);
+        setTeamName(team_name);
       } else {
         const errData = await res.json();
         setError(errData.message || 'Błędny ID drużyny lub hasło');
