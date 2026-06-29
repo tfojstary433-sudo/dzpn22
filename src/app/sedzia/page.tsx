@@ -1528,7 +1528,7 @@ export default function RefereePanelPage() {
                       <ControlBtn onClick={() => matchAction('halftime')} color="yellow" icon={<Pause />}>Ogłoś przerwę</ControlBtn>
                     )}
                     {activeMatch.status === 'live' && activeMatch.period === 'halftime' && (
-                      <ControlBtn onClick={() => matchAction('second-half')} color="blue" icon={<Play />}>Wznów (2. Połowa)</ControlBtn>
+                      <ControlBtn onClick={() => matchAction('second_half')} color="blue" icon={<Play />}>Wznów (2. Połowa)</ControlBtn>
                     )}
                     {activeMatch.status === 'live' && activeMatch.period === 'second_half' && (
                       <ControlBtn onClick={() => matchAction('finish')} color="red" icon={<CheckCircle />}>Zakończ mecz</ControlBtn>
