@@ -181,6 +181,23 @@ export default function RefereePanelPage() {
   const [eventDescription, setEventDescription] = useState('');
   const [eventMinute, setEventMinute] = useState<number>(0);
 
+  const obliczMinute = useCallback((mecz: Match) => {
+    if (liveData?.minute !== undefined) return liveData.minute;
+    
+    const now = Date.now();
+    if (mecz.period === "first_half" && mecz.start_timestamp) {
+      const min = Math.floor((now - new Date(mecz.start_timestamp).getTime()) / 60000);
+      const extra = mecz.extra_time_first || 0;
+      return Math.min(min, CZAS_POLOWY + extra);
+    }
+    if (mecz.period === "second_half" && mecz.second_half_at) {
+      const elapsed = Math.floor((now - new Date(mecz.second_half_at).getTime()) / 60000);
+      const extra = mecz.extra_time_second || 0;
+      return CZAS_POLOWY + elapsed;
+    }
+    return CZAS_POLOWY;
+  }, [liveData]);
+
   useEffect(() => {
     if (activeMatch && activeMatch.status === 'live') {
       setEventMinute(obliczMinute(activeMatch));
@@ -671,23 +688,6 @@ export default function RefereePanelPage() {
       setError("Błąd usuwania zdarzenia");
     }
   };
-
-  const obliczMinute = useCallback((mecz: Match) => {
-    if (liveData?.minute !== undefined) return liveData.minute;
-    
-    const now = Date.now();
-    if (mecz.period === "first_half" && mecz.start_timestamp) {
-      const min = Math.floor((now - new Date(mecz.start_timestamp).getTime()) / 60000);
-      const extra = mecz.extra_time_first || 0;
-      return Math.min(min, CZAS_POLOWY + extra);
-    }
-    if (mecz.period === "second_half" && mecz.second_half_at) {
-      const elapsed = Math.floor((now - new Date(mecz.second_half_at).getTime()) / 60000);
-      const extra = mecz.extra_time_second || 0;
-      return CZAS_POLOWY + elapsed;
-    }
-    return CZAS_POLOWY;
-  }, [liveData]);
 
   function formatExtraTime(mecz: Match) {
     if (mecz.period === 'first_half' && mecz.extra_time_first && mecz.extra_time_first > 0) {
