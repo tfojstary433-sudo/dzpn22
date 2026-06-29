@@ -165,7 +165,7 @@ export default function KlubPage() {
               goals_for: entry.goals_for || entry.goalsFor || 0,
               goals_against: entry.goals_against || entry.goalsAgainst || 0,
               points: entry.points || 0,
-              team_logo_url: entry.team_logo_url || entry.logo_url || ''
+              team_logo_url: entry.team_logo_url || entry.logo_url || `https://league-builder.replit.app/api/clubs/${entry.team_id || entry.id}/logo`
             });
             setTablePosition(sortedTable.findIndex(t => (t.team_id || t.id)?.toString() === teamId) + 1);
           }
@@ -203,15 +203,15 @@ export default function KlubPage() {
               side,
               home_team_id: m.home_team_id,
               home_team_name: m.home_team_name,
-              home_team_logo: m.home_team_logo || allTeams.find(t => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              home_team_logo: m.home_team_logo || allTeams.find(t => t.id === m.home_team_id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.home_team_id}/logo`,
               away_team_id: m.away_team_id,
               away_team_name: m.away_team_name,
-              away_team_logo: m.away_team_logo || allTeams.find(t => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              away_team_logo: m.away_team_logo || allTeams.find(t => t.id === m.away_team_id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.away_team_id}/logo`,
               home_score: homeScore,
               away_score: awayScore,
               opponent_id: oppId,
               opponent_name: oppName || opponent?.name || 'PRZECIWNIK',
-              opponent_logo: opponent?.logo_url || m.opponent_logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              opponent_logo: opponent?.logo_url || m.opponent_logo || `https://league-builder.replit.app/api/clubs/${oppId}/logo`,
               result,
               match_type: m.match_type || 'league'
             };
@@ -234,15 +234,15 @@ export default function KlubPage() {
               side,
               home_team_id: m.home_team_id,
               home_team_name: m.home_team_name,
-              home_team_logo: m.home_team_logo || allTeams.find(t => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              home_team_logo: m.home_team_logo || allTeams.find(t => t.id === m.home_team_id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.home_team_id}/logo`,
               away_team_id: m.away_team_id,
               away_team_name: m.away_team_name,
-              away_team_logo: m.away_team_logo || allTeams.find(t => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              away_team_logo: m.away_team_logo || allTeams.find(t => t.id === m.away_team_id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.away_team_id}/logo`,
               home_score: null,
               away_score: null,
               opponent_id: oppId,
               opponent_name: oppName || opponent?.name || 'OCZEKIWANIE',
-              opponent_logo: opponent?.logo_url || m.opponent_logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+              opponent_logo: opponent?.logo_url || m.opponent_logo || `https://league-builder.replit.app/api/clubs/${oppId}/logo`,
               result: null,
               match_type: m.match_type || 'league'
             };

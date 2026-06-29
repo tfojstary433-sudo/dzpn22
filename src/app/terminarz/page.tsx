@@ -109,8 +109,8 @@ export default function TerminarzPage() {
           date_formatted: m.scheduled?.date || '',
           time_formatted: m.scheduled?.time || '18:00',
           venue_name: m.venue?.name || '',
-          home_team_logo: m.home_team?.logo_url || teamsData.find((t: any) => t.id === m.home_team?.id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png',
-          away_team_logo: m.away_team?.logo_url || teamsData.find((t: any) => t.id === m.away_team?.id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'
+          home_team_logo: m.home_team?.logo_url || teamsData.find((t: any) => t.id === m.home_team?.id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.home_team?.id}/logo`,
+          away_team_logo: m.away_team?.logo_url || teamsData.find((t: any) => t.id === m.away_team?.id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.away_team?.id}/logo`
         }));
         setAllMatches(mappedMatches);
 
@@ -122,8 +122,8 @@ export default function TerminarzPage() {
             venue_name: scheduleMatch?.venue?.name || '',
             date_formatted: scheduleMatch?.scheduled?.date || '',
             time_formatted: scheduleMatch?.scheduled?.time || '',
-            home_team_logo: teamsData.find((t: any) => t.id === m.home_team_id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png',
-            away_team_logo: teamsData.find((t: any) => t.id === m.away_team_id)?.logo_url || 'https://i.ibb.co/Rkz8MRSy/IMG-4837.png'
+            home_team_logo: teamsData.find((t: any) => t.id === m.home_team_id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.home_team_id}/logo`,
+            away_team_logo: teamsData.find((t: any) => t.id === m.away_team_id)?.logo_url || `https://league-builder.replit.app/api/clubs/${m.away_team_id}/logo`
           };
         }));
       } catch (e) { console.error(e); } finally { setLoading(false); }

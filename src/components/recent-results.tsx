@@ -3,31 +3,43 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { teams as localTeams } from '@/lib/data';
-import { API_ENDPOINTS } from '@/lib/constants';
+import { API_ENDPOINTS, TEAM_ID_MAPPING } from '@/lib/constants';
+import { getTeamLogo, getTeamName } from '@/lib/useMatchStats';
 
-function getTeamFromName(teamName: string) {
-  const teamMapping: Record<string, any> = {
-    'Zagłębie Lubin': { id: '4', name: 'Zagłębie Lubin', shortName: 'ZAG', logo: 'https://i.ibb.co/7xBP97MW/dvyf-Zx2g-Ykwr8-Dur.png', color: '#f97316' },
-    'Legia Warszawa': { id: '2', name: 'Legia Warszawa', shortName: 'LEG', logo: 'https://ext.same-assets.com/1250577607/695801781.png', color: '#dc2626' },
-    'Arka Gdynia': { id: '1', name: 'Arka Gdynia', shortName: 'ARK', logo: 'https://ext.same-assets.com/1250577607/451783410.png', color: '#FFD700' },
-    'Lech Poznań': { id: '3', name: 'Lech Poznań', shortName: 'LEC', logo: 'https://ext.same-assets.com/1250577607/3317158738.png', color: '#1e40af' },
-    'Lechia Gdańsk': { id: '5', name: 'Lechia Gdańsk', shortName: 'LGD', logo: 'https://i.ibb.co/nqBHgwK2/obraz-2026-01-22-143911384.png', color: '#3b82f6' },
-    'Zawisza Bydgoszcz': { id: '12', name: 'Zawisza Bydgoszcz', shortName: 'ZAW', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/55/Herb_Zawiszy_Bydgoszcz.png', color: '#f97316' },
-    'Wisła Kraków': { id: '13', name: 'Wisła Kraków', shortName: 'WIS', logo: 'https://upload.wikimedia.org/wikipedia/en/1/15/Wis%C5%82a_Krak%C3%B3w_logo.svg', color: '#dc2626' },
-    'Motor Lublin': { id: '9', name: 'Motor Lublin', shortName: 'MOT', logo: 'https://i.ibb.co/bgRJrvnj/Motor-Lublin-S-A-Oficjalny-Herb.png', color: '#facc15' },
-    'Pogoń Szczecin': { id: '10', name: 'Pogoń Szczecin', shortName: 'POG', logo: 'https://ext.same-assets.com/1250577607/3079565559.png', color: '#1e3a8a' },
-    'Olimpia Elbląg': { id: '8', name: 'Olimpia Elbląg', shortName: 'OLI', logo: 'https://i.ibb.co/RGsNqf6G/olimpia-elblag.png', color: '#00ccff' },
-    'Chojniczanka Chojnice': { id: '11', name: 'Chojniczanka Chojnice', shortName: 'CHO', logo: 'https://i.ibb.co/m5RzsvnS/obraz-2026-01-22-143945160.png', color: '#3b82f6' },
-    'Grom Nowy Staw': { id: '6', name: 'Grom Nowy Staw', shortName: 'GRO', logo: 'https://i.ibb.co/V0rcs98Q/obraz-2026-01-04-213027745-removebg-preview-4.png', color: '#15803d' },
-    'Sokół Olsztyn': { id: '14', name: 'Sokół Olsztyn', shortName: 'SOK', logo: 'https://i.ibb.co/r2KwDw8h/obraz-2026-01-05-231417131.png', color: '#00ccff' },
-    'Unia Skierniewice': { id: '7', name: 'Unia Skierniewice', shortName: 'UNI', logo: 'https://i.ibb.co/Vp3YY8FY/unia-logo-300x300.png', color: '#facc15' }
-  };
+function getTeamFromName(teamName: string, teamId?: string, apiLogo?: string) {
+  // If we have an ID, use it with the central helper
+  if (teamId) {
+    return {
+      id: teamId,
+      name: teamName,
+      shortName: teamName.substring(0, 3).toUpperCase(),
+      logo: getTeamLogo(teamId, teamName, apiLogo),
+      color: '#3b82f6'
+    };
+  }
 
-  return teamMapping[teamName] || {
+  // Fallback to name search
+  const normalizedName = teamName.toLowerCase();
+  const foundTeam = localTeams.find(t => 
+    t.name.toLowerCase() === normalizedName || 
+    t.shortName.toLowerCase() === normalizedName
+  );
+
+  if (foundTeam) {
+    return {
+      id: foundTeam.id,
+      name: foundTeam.name,
+      shortName: foundTeam.shortName,
+      logo: foundTeam.logo,
+      color: foundTeam.color || '#3b82f6'
+    };
+  }
+
+  return {
     id: 'UNK',
     name: teamName,
     shortName: teamName.substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: apiLogo || `https://league-builder.replit.app/api/clubs/${teamName}/logo`,
     color: '#3b82f6'
   };
 }
@@ -50,8 +62,8 @@ export function RecentResults() {
             .slice(0, 5)
             .map((f: any) => ({
               id: f.id,
-              homeTeam: getTeamFromName(f.teamA),
-              awayTeam: getTeamFromName(f.teamB),
+              homeTeam: getTeamFromName(f.teamA, f.homeTeamId || f.teamAId, f.homeTeamLogo || f.teamALogo),
+              awayTeam: getTeamFromName(f.teamB, f.awayTeamId || f.teamBId, f.awayTeamLogo || f.teamBLogo),
               homeScore: f.scoreA,
               awayScore: f.scoreB,
               date: f.date,

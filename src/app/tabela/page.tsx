@@ -122,7 +122,9 @@ function TabelaContent() {
 
   function getTeamLogoById(teamId: number) {
     const team = tableData.find(t => t.team_id === teamId) || allTeams.find(t => (t.team_id || t.id) === teamId);
-    return team?.team_logo_url || team?.logo_url || `https://league-builder.replit.app/api/teams/${teamId}/logo`;
+    if (team?.team_logo_url && !team.team_logo_url.includes('czarnepff-1.png') && team.team_logo_url.startsWith('http')) return team.team_logo_url;
+    if (team?.logo_url && !team.logo_url.includes('czarnepff-1.png') && team.logo_url.startsWith('http')) return team.logo_url;
+    return `https://league-builder.replit.app/api/clubs/${teamId}/logo`;
   }
 
   function getTeamPositionById(teamId: number) {
@@ -220,7 +222,7 @@ function TabelaContent() {
             goals_for: t.goals_for || 0,
             goals_against: t.goals_against || 0,
             points: t.points || 0,
-            team_logo_url: t.logo_url
+            team_logo_url: t.logo_url || `https://league-builder.replit.app/api/clubs/${t.id}/logo`
           })).sort((a, b) => b.points - a.points));
         }
 

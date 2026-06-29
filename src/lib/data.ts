@@ -266,8 +266,8 @@ export const friendlyMatchesData: any[] = [
     matches: [
       {
         id: 'sf1',
-        homeTeam: teams.find(t => t.id === 'ARK'),
-        awayTeam: teams.find(t => t.id === 'LGD'),
+        homeTeam: teams.find(t => t.id === 'BOB'),
+        awayTeam: teams.find(t => t.id === 'CAN'),
         homeScore: 0,
         awayScore: 0,
         status: 'finished',
@@ -277,8 +277,8 @@ export const friendlyMatchesData: any[] = [
       },
       {
         id: 'sf2',
-        homeTeam: teams.find(t => t.id === 'ZAW'),
-        awayTeam: teams.find(t => t.id === 'SOK'),
+        homeTeam: teams.find(t => t.id === 'DRM'),
+        awayTeam: teams.find(t => t.id === 'DZ4'),
         homeScore: 0,
         awayScore: 0,
         status: 'finished',
@@ -293,8 +293,8 @@ export const friendlyMatchesData: any[] = [
     matches: [
       {
         id: '3rd',
-        homeTeam: teams.find(t => t.id === 'LGD'),
-        awayTeam: teams.find(t => t.id === 'SOK'),
+        homeTeam: teams.find(t => t.id === 'CAN'),
+        awayTeam: teams.find(t => t.id === 'DZ4'),
         homeScore: 6,
         awayScore: 1,
         status: 'finished',
@@ -309,8 +309,8 @@ export const friendlyMatchesData: any[] = [
     matches: [
       {
         id: 'final',
-        homeTeam: teams.find(t => t.id === 'ZAW'),
-        awayTeam: teams.find(t => t.id === 'ARK'),
+        homeTeam: teams.find(t => t.id === 'DRM'),
+        awayTeam: teams.find(t => t.id === 'BOB'),
         homeScore: 3,
         awayScore: 0,
         status: 'finished',

@@ -6,18 +6,23 @@ import { getAllPlayerStats } from './firebase';
 import { API_ENDPOINTS, TEAM_ID_MAPPING } from './constants';
 
 // Helper functions for team logos and colors
-export function getTeamLogo(teamId: string | number, teamName?: string): string {
+export function getTeamLogo(teamId: string | number, teamName?: string, apiLogo?: string): string {
   const idStr = String(teamId);
   
+  // ALWAYS prefer the logo provided directly by the API if it's a valid external URL
+  if (apiLogo && !apiLogo.includes('czarnepff-1.png') && !apiLogo.includes('system-administration') && (apiLogo.startsWith('http') || apiLogo.startsWith('/api'))) {
+    return apiLogo;
+  }
+
   // First try by direct ID (numeric or short)
-  const team = teams.find(t => t.id === idStr || t.shortName === idStr || t.id === TEAM_ID_MAPPING[idStr]);
-  if (team) return team.logo;
+  const team = teams.find(t => t.id === idStr || String(t.id) === idStr || t.shortName === idStr || t.id === TEAM_ID_MAPPING[idStr]);
+  if (team?.logo) return team.logo;
 
   // Then try mapping numeric ID to short name
   const mappedShortName = TEAM_ID_MAPPING[idStr];
   if (mappedShortName) {
     const mappedTeam = teams.find(t => t.id === mappedShortName || t.shortName === mappedShortName);
-    if (mappedTeam) return mappedTeam.logo;
+    if (mappedTeam?.logo) return mappedTeam.logo;
   }
 
   // Then try by name
@@ -32,7 +37,7 @@ export function getTeamLogo(teamId: string | number, teamName?: string): string 
              tName.includes(normalizedName) ||
              (tShort.length > 2 && (normalizedName.includes(tShort) || tShort.includes(normalizedName)));
     });
-    if (teamByName) return teamByName.logo;
+    if (teamByName?.logo) return teamByName.logo;
   }
   
   // Fallback to Replit API if it's a numeric ID
@@ -228,8 +233,8 @@ export function useMatchStats(season: string = 'current') {
             playerId: parseInt(id) || 0,
             name: player.name || "Nieznany",
             teamId: latestTeamId,
-            teamName: getTeamName(latestTeamId),
-            teamLogo: getTeamLogo(latestTeamId, getTeamName(latestTeamId)),
+            teamName: player.teamName || getTeamName(latestTeamId),
+            teamLogo: getTeamLogo(latestTeamId, player.teamName || getTeamName(latestTeamId), player.teamLogo || player.logo || player.logo_url),
             goals,
             assists,
             yellowCards,
@@ -276,7 +281,13 @@ export function useMatchStats(season: string = 'current') {
             timestamp: m.timestamp || new Date().toISOString()
           };
 
-          [teamA, teamB].forEach(tId => {
+          const teamsData = [
+            { id: teamA, logo: m.home_team?.logo_url || m.home_team_logo, name: m.home_team?.name || m.home_team_name },
+            { id: teamB, logo: m.away_team?.logo_url || m.away_team_logo, name: m.away_team?.name || m.away_team_name }
+          ];
+
+          teamsData.forEach(tInfo => {
+            const tId = tInfo.id;
             if (!tId) return;
             if (!teamStatsMap[tId]) {
               const shortName = TEAM_ID_MAPPING[tId] || (typeof tId === 'string' ? tId.substring(0, 3).toUpperCase() : tId);
@@ -294,10 +305,10 @@ export function useMatchStats(season: string = 'current') {
                 points: 0,
                 team: {
                   id: tId,
-                  name: teamData?.name || getTeamName(tId),
+                  name: teamData?.name || tInfo.name || getTeamName(tId),
                   shortName: shortName,
-                  logo: getTeamLogo(tId, teamData?.name),
-                  color: getTeamColor(tId, teamData?.name)
+                  logo: getTeamLogo(tId, tInfo.name || teamData?.name, tInfo.logo),
+                  color: getTeamColor(tId, tInfo.name || teamData?.name)
                 }
               };
             }

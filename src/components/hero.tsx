@@ -82,7 +82,7 @@ interface ApiMatch {
   isActive: boolean;
 }
 
-const getTeamFromName = (teamName: string) => {
+const getTeamFromName = (teamName: string, apiLogo?: string) => {
   const foundTeam = teams.find(t => t.name === teamName || t.shortName === teamName);
   
   if (foundTeam) return foundTeam;
@@ -91,7 +91,7 @@ const getTeamFromName = (teamName: string) => {
     id: 'UNK',
     name: teamName,
     shortName: teamName.substring(0, 3).toUpperCase(),
-    logo: 'https://i.ibb.co/TB027G07/czarnepff-1.png',
+    logo: apiLogo || `https://league-builder.replit.app/api/clubs/${teamName}/logo`,
     color: '#3b82f6'
   };
 };

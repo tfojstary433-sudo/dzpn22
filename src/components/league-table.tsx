@@ -8,7 +8,12 @@ import { useMatchStats } from '@/lib/useMatchStats';
 import { API_ENDPOINTS, TEAM_ID_MAPPING } from '@/lib/constants';
 
 // Centralized helper functions for team logos and colors to ensure consistency
-function getConsistentTeamLogo(teamId: string, teamName?: string): string {
+function getConsistentTeamLogo(teamId: string, teamName?: string, apiLogo?: string): string {
+  // ALWAYS prefer the logo provided directly by the API if it's a valid external URL
+  if (apiLogo && !apiLogo.includes('czarnepff-1.png') && (apiLogo.startsWith('http') || apiLogo.startsWith('/api'))) {
+    return apiLogo;
+  }
+
   if (teamName) {
     const normalizedName = teamName.toLowerCase();
     
@@ -31,8 +36,15 @@ function getConsistentTeamLogo(teamId: string, teamName?: string): string {
   
   // Use mapping or direct ID
   const shortName = TEAM_ID_MAPPING[teamId] || teamId;
-  const team = teams.find(t => t.id === shortName || t.shortName === shortName);
-  return team?.logo || 'https://i.ibb.co/TB027G07/czarnepff-1.png';
+  const team = teams.find(t => t.id === shortName || t.shortName === shortName || t.id === teamId);
+  if (team?.logo) return team.logo;
+
+  // Fallback to Replit API if it looks like a numeric ID
+  if (!isNaN(Number(teamId)) && Number(teamId) > 0) {
+    return `https://league-builder.replit.app/api/clubs/${teamId}/logo`;
+  }
+  
+  return 'https://i.ibb.co/TB027G07/czarnepff-1.png';
 }
 
 function getConsistentTeamColor(teamId: string, teamName?: string): string {
@@ -84,8 +96,8 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
                 id: shortName,
                 name: s.teamId,
                 shortName: shortName.substring(0, 3),
-                logo: getConsistentTeamLogo(teamId),
-                color: getConsistentTeamColor(teamId)
+                logo: getConsistentTeamLogo(teamId, s.team?.name || s.teamName, s.team?.logo || s.teamLogo),
+                color: getConsistentTeamColor(teamId, s.team?.name || s.teamName)
               }
             };
           }));
@@ -161,15 +173,15 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
         id: shortName,
         name: s.teamId, // Fallback name
         shortName: shortName.substring(0, 3),
-        logo: getConsistentTeamLogo(teamId),
-        color: getConsistentTeamColor(teamId)
+        logo: getConsistentTeamLogo(teamId, s.team?.name || s.teamName, s.team?.logo || s.teamLogo),
+        color: getConsistentTeamColor(teamId, s.team?.name || s.teamName)
       }
     };
   }) : defaultStandings.map((s, idx) => ({
     ...s,
     team: {
       ...s.team,
-      logo: getConsistentTeamLogo(s.team.id, s.team.name),
+      logo: getConsistentTeamLogo(s.team.id, s.team.name, s.team.logo),
       color: getConsistentTeamColor(s.team.id, s.team.name)
     }
   }))));
