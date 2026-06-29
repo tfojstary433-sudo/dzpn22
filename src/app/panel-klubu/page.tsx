@@ -271,33 +271,23 @@ export default function TeamPanelPage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (token && teamId) {
-      fetchTeamData();
-      fetchRequests();
-      fetchInbox();
-      fetchOrganizerMessages();
-      fetchPenalties();
-
-      // Add polling for all club management data
-      const pollInterval = setInterval(() => {
-        fetchRequests();
-        fetchInbox();
-        fetchOrganizerMessages();
-        fetchPenalties();
-      }, 10000); // Update every 10 seconds
-
-      return () => clearInterval(pollInterval);
-    }
-  }, [token, teamId, fetchTeamData, fetchRequests, fetchInbox, fetchOrganizerMessages, fetchPenalties]);
-
-  useEffect(() => {
-    fetchAnnouncements();
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('club_token');
+    localStorage.removeItem('team_id');
+    localStorage.removeItem('team_name');
+    setToken(null);
+    setTeamId(null);
+    setTeamName('');
     
-    // Poll announcements every 30 seconds to catch new ones
-    const annInterval = setInterval(fetchAnnouncements, 30000);
-    return () => clearInterval(annInterval);
-  }, [fetchAnnouncements]);
+    // Re-fetch teams for login after logout
+    fetch(`${API_BASE}/teams?season_id=1`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAvailableTeams(data.map((t: any) => ({ id: t.id, name: t.name })));
+        }
+      });
+  }, []);
 
   const fetchOrganizerMessages = useCallback(async () => {
     if (!token) return;
@@ -408,7 +398,7 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching team data:', err);
     }
-  }, [token, teamId]);
+  }, [token, teamId, handleLogout]);
 
   const fetchRequests = useCallback(async () => {
     if (!token) return;
@@ -424,7 +414,7 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching requests:', err);
     }
-  }, [token, teamId]);
+  }, [token, teamId, handleLogout]);
 
   const fetchInbox = useCallback(async () => {
     if (!token) return;
@@ -440,7 +430,7 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching inbox:', err);
     }
-  }, [token, teamId]);
+  }, [token, teamId, handleLogout]);
 
   const fetchMessages = useCallback(async (requestId: number) => {
     if (!token) return;
@@ -459,7 +449,46 @@ export default function TeamPanelPage() {
     } catch (err) {
       console.error('Error fetching messages:', err);
     }
-  }, [token, teamId, fetchRequests, fetchInbox]);
+  }, [token, teamId, fetchRequests, fetchInbox, handleLogout]);
+
+  useEffect(() => {
+    if (token && teamId) {
+      fetchTeamData();
+      fetchRequests();
+      fetchInbox();
+      fetchOrganizerMessages();
+      fetchPenalties();
+
+      // Add polling for all club management data
+      const pollInterval = setInterval(() => {
+        fetchRequests();
+        fetchInbox();
+        fetchOrganizerMessages();
+        fetchPenalties();
+      }, 10000); // Update every 10 seconds
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [token, teamId, fetchTeamData, fetchRequests, fetchInbox, fetchOrganizerMessages, fetchPenalties]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+    
+    // Poll announcements every 30 seconds to catch new ones
+    const annInterval = setInterval(fetchAnnouncements, 30000);
+    return () => clearInterval(annInterval);
+  }, [fetchAnnouncements]);
+
+  useEffect(() => {
+    let interval: any;
+    if (isChatOpen && selectedRequestId) {
+      fetchMessages(selectedRequestId);
+      interval = setInterval(() => {
+        fetchMessages(selectedRequestId);
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [isChatOpen, selectedRequestId, fetchMessages]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -601,24 +630,6 @@ export default function TeamPanelPage() {
     } finally {
       setAuthLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('club_token');
-    localStorage.removeItem('team_id');
-    localStorage.removeItem('team_name');
-    setToken(null);
-    setTeamId(null);
-    setTeamName('');
-    
-    // Re-fetch teams for login after logout
-    fetch(`${API_BASE}/teams?season_id=1`)
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setAvailableTeams(data.map((t: any) => ({ id: t.id, name: t.name })));
-        }
-      });
   };
 
   const submitRequest = async (e: React.FormEvent) => {
