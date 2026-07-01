@@ -973,7 +973,7 @@ const UpcomingView = ({ activeTab, homeTeam, awayTeam, apiTeams, apiData, refere
           <div className="bg-[#0c162d]/60 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-10 mt-12 shadow-2xl ring-1 ring-white/5 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <h3 className="text-white/20 text-[10px] font-black uppercase tracking-[0.8em] mb-12 text-center ml-[0.8em]">INFORMACJE O MECZU</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-2xl mx-auto">
-              <FooterInfoItem icon={Flag} label="SĘDZIA GŁÓWNY" value={refereeData?.referee?.name || apiData?.referee_name || "NIEOKREŚLONY"} />
+              <FooterInfoItem icon={Flag} label="SĘDZIA GŁÓWNY" value={refereeData?.referee?.name || refereeData?.name || apiData?.referee_name || "NIEOKREŚLONY"} />
               <FooterInfoItem icon={Sun} label="POGODA" value={`Działdowo: 22°C\nSłonecznie`} />
             </div>
           </div>
@@ -1196,16 +1196,27 @@ export default function MatchPage() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [scheduleRes, lineupsRes, teamsRes, liveRes, playersRes] = await Promise.all([
+        const [scheduleRes, lineupsRes, teamsRes, liveRes, playersRes, refereesRes] = await Promise.all([
           fetch(`${REPLIT_API_BASE_URL}/api/public/schedule?season_id=1`).catch(() => null),
           fetch(`https://league-builder.replit.app/api/public/lineups/all.json`).catch(() => null),
           fetch(`${REPLIT_API_BASE_URL}/api/teams?season_id=1`).catch(() => null),
           fetch(`${REPLIT_API_BASE_URL}/api/public/matches/${id}/live.json`).catch(() => null),
-          fetch(`https://league-builder.replit.app/api/players`).catch(() => null)
+          fetch(`https://league-builder.replit.app/api/players`).catch(() => null),
+          fetch(`https://league-builder.replit.app/api/public/referees`).catch(() => null)
         ]);
 
         if (playersRes?.ok) {
           setAllPlayers(await playersRes.json());
+        }
+
+        if (refereesRes?.ok) {
+          const refs = await refereesRes.json();
+          if (Array.isArray(refs)) {
+            const matchRef = refs.find((r: any) => String(r.match_id) === String(id));
+            if (matchRef) {
+              setRefereeData(matchRef);
+            }
+          }
         }
 
         if (liveRes?.ok) {
@@ -1222,7 +1233,7 @@ export default function MatchPage() {
         let scheduleMatches = [];
         if (scheduleRes?.ok) {
           const sData = await scheduleRes.json();
-          scheduleMatches = sData.matches || [];
+          scheduleMatches = Array.isArray(sData) ? sData : (sData.matches || []);
           setAllMatches(scheduleMatches);
         }
 
@@ -1257,8 +1268,9 @@ export default function MatchPage() {
             away_score: matchSchedule.score?.away ?? 0,
             date_formatted: matchSchedule.scheduled?.date,
             time_formatted: matchSchedule.scheduled?.time,
-            venue_name: matchSchedule.venue?.name,
-            scheduled_at: matchSchedule.scheduled?.datetime_local
+            referee_name: matchSchedule.referee_name || matchSchedule.referee?.name,
+            venue_name: matchSchedule.venue_name || matchSchedule.venue?.name,
+            scheduled_at: matchSchedule.scheduled_at || matchSchedule.scheduled?.datetime_local
           };
           setApiData(finalApiData);
         } else if (matchLocal) {

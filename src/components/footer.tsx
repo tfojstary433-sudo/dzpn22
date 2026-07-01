@@ -42,23 +42,14 @@ export function Footer() {
             <div>
               <h3 className="font-black text-sm mb-6 text-blue-500 uppercase tracking-widest">MAPA STRONY</h3>
               <ul className="space-y-4 text-sm">
-                <li><Link href="/aktualnosci" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Aktualności
+                <li><Link href="/tabela" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Tabela
                 </Link></li>
                 <li><Link href="/terminarz" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Terminarz
                 </Link></li>
-                <li><Link href="/tabela" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Tabela
-                </Link></li>
-                <li><Link href="/statystyki" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Statystyki
-                </Link></li>
                 <li><Link href="/kluby" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Kluby
-                </Link></li>
-                <li><Link href="/sklep" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
-                  <span className="w-1.5 h-1.5 bg-blue-600 rounded-full scale-0 group-hover:scale-100 transition-transform"></span>Sklep
                 </Link></li>
               </ul>
             </div>

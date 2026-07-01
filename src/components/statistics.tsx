@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { teams, mockPlayersData } from '@/lib/data';
 import { TEAM_ID_MAPPING } from '@/lib/constants';
 import { useMatchStats, getTeamLogo, getTeamName } from '@/lib/useMatchStats';
 import { RobloxAvatar } from './roblox-avatar';
+import { ChevronLeft } from 'lucide-react';
 
 interface StatItem {
   id: string | number;
@@ -89,9 +91,21 @@ const StatCard = ({ title, items, color = "green", isTeam = false }: { title: st
 };
 
 export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
+  return (
+    <Suspense fallback={<div className="text-white">Ładowanie...</div>}>
+      <StatisticsContent isInTab={isInTab} />
+    </Suspense>
+  );
+}
+
+function StatisticsContent({ isInTab = false }: { isInTab?: boolean }) {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('stats_tab');
+  const typeParam = searchParams.get('type');
+
   const { topScorers, standings } = useMatchStats();
-  const [activeType, setActiveType] = useState<'gracze' | 'druzyny'>('gracze');
-  const [selectedLeague, setSelectedLeague] = useState<'Ekstraklasa' | 'Mecze Towarzyskie'>('Mecze Towarzyskie');
+  const [activeType, setActiveType] = useState<'gracze' | 'druzyny'>(typeParam === 'team' ? 'druzyny' : 'gracze');
+  const [selectedLeague, setSelectedLeague] = useState<'Ekstraklasa' | 'Mecze Towarzyskie'>(typeParam === 'league' ? 'Ekstraklasa' : 'Mecze Towarzyskie');
   const [selectedSeason, setSelectedSeason] = useState('2025/2026');
   const [mounted, setMounted] = useState(false);
 
@@ -229,6 +243,127 @@ export function Statistics({ isInTab = false }: { isInTab?: boolean }) {
     teamLogo: t.teamLogo,
     value: t.points
   }));
+
+  if (tabParam) {
+    let title = "Statystyki";
+    let fullItems: StatItem[] = [];
+    let color = "green";
+
+    if (tabParam === 'goals') {
+      title = "Top Strzelcy";
+      fullItems = [...players].sort((a, b) => b.goals - a.goals).filter(p => p.goals > 0).map(p => ({
+        id: p.playerId,
+        name: p.name,
+        teamName: p.teamName,
+        teamLogo: p.teamLogo,
+        value: p.goals
+      }));
+    } else if (tabParam === 'assists') {
+      title = "Top Asystenci";
+      color = "yellow";
+      fullItems = [...players].sort((a, b) => b.assists - a.assists).filter(p => p.assists > 0).map(p => ({
+        id: p.playerId,
+        name: p.name,
+        teamName: p.teamName,
+        teamLogo: p.teamLogo,
+        value: p.assists
+      }));
+    } else if (tabParam === 'canadian') {
+      title = "Gole + Asysty";
+      fullItems = [...players].sort((a, b) => b.points - a.points).filter(p => p.points > 0).map(p => ({
+        id: p.playerId,
+        name: p.name,
+        teamName: p.teamName,
+        teamLogo: p.teamLogo,
+        value: p.points
+      }));
+    } else if (tabParam === 'rating') {
+      title = "Ocena PFF Stats";
+      color = "red";
+      fullItems = [...players].sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating)).map(p => ({
+        id: p.playerId,
+        name: p.name,
+        teamName: p.teamName,
+        teamLogo: p.teamLogo,
+        value: p.rating
+      }));
+    } else if (tabParam === 'minutes') {
+      title = "Rozegrane Minuty";
+      color = "white";
+      fullItems = [...players].sort((a, b) => b.minutes - a.minutes).map(p => ({
+        id: p.playerId,
+        name: p.name,
+        teamName: p.teamName,
+        teamLogo: p.teamLogo,
+        value: p.minutes
+      }));
+    }
+
+    return (
+      <div className="w-full max-w-7xl mx-auto py-12 px-4 relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-blue-600/20 blur-[180px] pointer-events-none -z-10" />
+        
+        <Link href="/tabela" className="flex items-center gap-2 text-white/40 hover:text-white transition-all mb-8 group w-fit">
+          <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em]">Powrót do tabeli</span>
+        </Link>
+
+        <div className="mb-12">
+          <h2 className="text-white text-5xl md:text-7xl font-black uppercase tracking-tighter italic drop-shadow-2xl">
+            {title}
+          </h2>
+          <div className="h-2 w-32 bg-blue-600 mt-4 rounded-full" />
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[3rem] overflow-hidden shadow-2xl">
+          <div className="p-8 md:p-12">
+            <div className="space-y-6">
+              {fullItems.map((item, idx) => (
+                <div key={`${item.id}-${idx}`} className="flex items-center justify-between group/item p-4 hover:bg-white/5 rounded-[2rem] transition-all duration-300">
+                  <div className="flex items-center gap-6 sm:gap-10">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-xl shrink-0 ${
+                      idx === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black scale-110 shadow-yellow-500/30' :
+                      idx === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-black' :
+                      idx === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-black' :
+                      'bg-white/5 text-white/20'
+                    }`}>
+                      {idx + 1}
+                    </div>
+                    
+                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-black/20 border border-white/10 shrink-0 flex items-center justify-center p-2 group-hover/item:scale-105 transition-all duration-500">
+                      <RobloxAvatar
+                        username={item.name}
+                        className="w-full h-full object-cover scale-150 drop-shadow-2xl"
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="text-white font-black text-2xl sm:text-3xl truncate uppercase tracking-tighter italic group-hover/item:text-blue-400 transition-colors">{item.name}</span>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <div className="w-8 h-8 bg-white/5 rounded-lg p-1.5 flex items-center justify-center shrink-0 border border-white/10">
+                          <img src={item.teamLogo} alt={item.teamName} className="w-full h-full object-contain brightness-125" />
+                        </div>
+                        <span className="text-white/40 text-xs sm:text-sm font-black uppercase tracking-widest italic">{item.teamName}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`px-8 py-4 rounded-2xl min-w-[80px] text-center shrink-0 shadow-2xl border border-white/20 ${
+                    color === 'green' ? 'bg-[#22c55e] text-white' : 
+                    color === 'yellow' ? 'bg-[#eab308] text-white' : 
+                    color === 'red' ? 'bg-[#ef4444] text-white' : 
+                    'bg-white/10 backdrop-blur-md text-white'
+                  }`}>
+                    <span className="text-2xl sm:text-4xl font-black italic">{item.value}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (selectedLeague === 'Ekstraklasa') {
     return (

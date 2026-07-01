@@ -3,14 +3,12 @@
 import { useState, useEffect } from "react";
 import { MatchSchedule } from "./match-schedule";
 import { LeagueTable } from "./league-table";
-import { Statistics } from "./statistics";
 
-type Tab = "terminarz" | "tabela" | "statystyki";
+type Tab = "terminarz" | "tabela";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "terminarz", label: "TERMINARZ" },
   { id: "tabela", label: "TABELA" },
-  { id: "statystyki", label: "STATYSTYKI" },
 ];
 
 export function TabsContainer() {
@@ -60,7 +58,6 @@ export function TabsContainer() {
         <div className="mt-8">
           {activeTab === "terminarz" && <MatchSchedule isInTab={true} />}
           {activeTab === "tabela" && <LeagueTable isInTab={true} />}
-          {activeTab === "statystyki" && <Statistics isInTab={true} />}
         </div>
       </div>
     </section>

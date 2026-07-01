@@ -40,12 +40,8 @@ export function getTeamLogo(teamId: string | number, teamName?: string, apiLogo?
     if (teamByName?.logo) return teamByName.logo;
   }
   
-  // Fallback to Replit API if it's a numeric ID
-  if (!isNaN(Number(idStr)) && Number(idStr) > 0) {
-    return `https://league-builder.replit.app/api/clubs/${idStr}/logo`;
-  }
-  
-  return 'https://i.ibb.co/23XPPB9m/system-administration-3.png';
+  // Fallback to a default logo if not found
+  return 'https://i.ibb.co/TB027G07/czarnepff-1.png';
 }
 
 export function getTeamColor(teamId: string | number, teamName?: string): string {

@@ -30,7 +30,7 @@ import {
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 
-const API_BASE = "https://league-builder.replit.app/api";
+const API_BASE = "https://league-builder.replit.app/teams/api";
 const CZAS_POLOWY = 35;
 const TEMATY = [
   "Prośba o nałożenie kary",

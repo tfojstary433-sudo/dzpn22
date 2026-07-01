@@ -96,8 +96,8 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
                 id: shortName,
                 name: s.teamId,
                 shortName: shortName.substring(0, 3),
-                logo: getConsistentTeamLogo(teamId, s.team?.name || s.teamName, s.team?.logo || s.teamLogo),
-                color: getConsistentTeamColor(teamId, s.team?.name || s.teamName)
+                logo: getConsistentTeamLogo(teamId, s.team?.name, s.team?.logo),
+                color: getConsistentTeamColor(teamId, s.team?.name)
               }
             };
           }));
@@ -126,26 +126,26 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
           const tableData = Array.isArray(data) ? data : (data.table || data.standings || []);
           if (Array.isArray(tableData) && tableData.length > 0) {
             const mappedTable = tableData.map((item: any, index: number) => {
-              const teamId = (item.id || item.team_id || item.teamId)?.toString() || `team_${index}`;
-              const shortName = item.short_name || TEAM_ID_MAPPING[teamId] || item.name?.substring(0, 3).toUpperCase() || 'UNK';
+              const teamId = (item.team_id || item.id || item.teamId)?.toString() || `team_${index}`;
+              const shortName = item.short_name || TEAM_ID_MAPPING[teamId] || (item.team_name || item.name)?.substring(0, 3).toUpperCase() || 'UNK';
 
               return {
                 position: index + 1,
                 team: {
                   id: teamId,
-                  name: item.name || `Team ${index + 1}`,
+                  name: item.team_name || item.name || `Team ${index + 1}`,
                   shortName: shortName,
-                  logo: item.team_logo_url || item.logo_url || getConsistentTeamLogo(teamId, item.name),
-                  color: item.color || getConsistentTeamColor(teamId, item.name)
+                  logo: item.team_logo_url || item.logo_url || getConsistentTeamLogo(teamId, item.team_name || item.name),
+                  color: item.color || getConsistentTeamColor(teamId, item.team_name || item.name)
                 },
-                played: item.played || 0,
-                won: item.won || 0,
-                drawn: item.drawn || 0,
-                lost: item.lost || 0,
-                goalsFor: item.goalsFor || 0,
-                goalsAgainst: item.goalsAgainst || 0,
-                goalDifference: item.goalDifference || (item.goalsFor - item.goalsAgainst) || 0,
-                points: item.points || 0
+                played: item.played ?? 0,
+                won: item.won ?? 0,
+                drawn: item.drawn ?? 0,
+                lost: item.lost ?? 0,
+                goalsFor: item.goals_for ?? item.goalsFor ?? 0,
+                goalsAgainst: item.goals_against ?? item.goalsAgainst ?? 0,
+                goalDifference: item.goal_diff ?? item.goalDifference ?? ((item.goals_for || item.goalsFor || 0) - (item.goals_against || item.goalsAgainst || 0)),
+                points: item.points ?? 0
               };
             });
             setApiStandings(mappedTable);
@@ -173,8 +173,8 @@ export function LeagueTable({ isInTab = false, compact = false, highlightId }: {
         id: shortName,
         name: s.teamId, // Fallback name
         shortName: shortName.substring(0, 3),
-        logo: getConsistentTeamLogo(teamId, s.team?.name || s.teamName, s.team?.logo || s.teamLogo),
-        color: getConsistentTeamColor(teamId, s.team?.name || s.teamName)
+        logo: getConsistentTeamLogo(teamId, s.teamId),
+        color: getConsistentTeamColor(teamId, s.teamId)
       }
     };
   }) : defaultStandings.map((s, idx) => ({

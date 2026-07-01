@@ -33,7 +33,7 @@ import {
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 
-const API_BASE = "https://league-builder.replit.app/api";
+const API_BASE = "https://league-builder.replit.app/teams/api";
 
 const COUNTRIES = [
   "Polska", "Afganistan", "Albania", "Algieria", "Andora", "Angola", "Antigua i Barbuda", "Arabia Saudyjska", "Argentyna", "Armenia", "Australia", "Austria", "Azerbejdżan",
@@ -292,7 +292,7 @@ export default function TeamPanelPage() {
   const fetchOrganizerMessages = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/messages?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/messages`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -307,7 +307,7 @@ export default function TeamPanelPage() {
   const markMessageRead = useCallback(async (id: number) => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/messages/${id}/read?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/messages/${id}/read`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -320,7 +320,7 @@ export default function TeamPanelPage() {
   const handleReplyOrganizer = useCallback(async (id: number, text: string) => {
     if (!token || !text.trim()) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/messages/${id}/reply?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/messages/${id}/reply`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -337,7 +337,7 @@ export default function TeamPanelPage() {
   const fetchPenalties = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/penalties?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/penalties`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -403,7 +403,7 @@ export default function TeamPanelPage() {
   const fetchRequests = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/requests`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
       if (res.status === 401) return handleLogout();
@@ -419,7 +419,7 @@ export default function TeamPanelPage() {
   const fetchInbox = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/inbox?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/inbox`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
       if (res.status === 401) return handleLogout();
@@ -435,7 +435,7 @@ export default function TeamPanelPage() {
   const fetchMessages = useCallback(async (requestId: number) => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests/${requestId}/messages?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/requests/${requestId}/messages`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
       if (res.status === 401) return handleLogout();
@@ -495,7 +495,7 @@ export default function TeamPanelPage() {
     if (!token || !selectedRequestId || !newMessage.trim()) return;
 
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests/${selectedRequestId}/messages?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/requests/${selectedRequestId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -518,7 +518,7 @@ export default function TeamPanelPage() {
     setSubmittingId(requestId);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/clubs/postpone/${requestId}/respond?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/postpone/${requestId}/respond`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -561,7 +561,7 @@ export default function TeamPanelPage() {
     setAuthLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -705,7 +705,7 @@ export default function TeamPanelPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/clubs/requests?team_id=${teamId}`, {
+      const res = await fetch(`${API_BASE}/clubs/requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

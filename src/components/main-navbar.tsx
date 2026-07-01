@@ -83,6 +83,7 @@ export function MainNavbar() {
     { href: '/', label: 'STRONA GŁÓWNA' },
     { href: '/tabela', label: 'TABELA' },
     { href: '/terminarz', label: 'TERMINARZ' },
+    { href: '/kluby', label: 'KLUBY' },
     { href: '/tabela?tab=champions_cup', label: 'PUCHAR MISTRZÓW' },
     ...(showCup ? [{ href: '/tabela?tab=county_cup', label: 'PUCHAR POWIATU' }] : []),
   ];

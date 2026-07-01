@@ -101,98 +101,98 @@ export const teams: Team[] = [
     id: 'BOB', 
     name: 'CF BOBILAND', 
     shortName: 'BOBILAND', 
-    logo: 'https://league-builder.replit.app/api/clubs/1/logo',
+    logo: 'https://i.ibb.co/HpV1xXZk/herb-bobilandu-Bolczi-removebg-preview-2-5.png',
     color: '#1e40af'
   } as any,
   { 
     id: 'DRM', 
     name: 'DREAM TEAM', 
     shortName: 'DREAM', 
-    logo: 'https://league-builder.replit.app/api/clubs/3/logo',
+    logo: 'https://i.ibb.co/211VY6Tt/herb-bobilandu-Bolczi-removebg-preview-2-2.png',
     color: '#facc15'
   } as any,
   { 
     id: 'DZ4', 
     name: 'DZIAŁÓWKA 420', 
     shortName: 'DZIAŁÓWKA', 
-    logo: 'https://league-builder.replit.app/api/clubs/4/logo',
+    logo: 'https://i.ibb.co/5gKS8Cgx/dziaodufka-420-gabriel-seweryn.png',
     color: '#16a34a'
   } as any,
   { 
     id: 'BOS', 
     name: 'FC BOSKI', 
     shortName: 'BOSKI', 
-    logo: 'https://league-builder.replit.app/api/clubs/5/logo',
+    logo: 'https://i.ibb.co/ycgWT4yh/herb-bobilandu-Bolczi-removebg-preview-2-3.png',
     color: '#1e40af'
   } as any,
   { 
     id: 'DZI', 
     name: 'FC DZIAŁDOWO', 
     shortName: 'DZIAŁDOWO', 
-    logo: 'https://league-builder.replit.app/api/clubs/6/logo',
+    logo: 'https://i.ibb.co/5gyG34rw/obraz-2026-06-07-214108536-removebg-preview-1-2.png',
     color: '#16a34a'
   } as any,
   { 
     id: 'MAK', 
     name: 'FC MAKOWA', 
     shortName: 'MAKOWA', 
-    logo: 'https://league-builder.replit.app/api/clubs/7/logo',
+    logo: 'https://i.ibb.co/S4hMtjPT/IMG-0626-Nikodem-Samsel-removebg-preview-1-3.png',
     color: '#dc2626'
   } as any,
   { 
     id: 'ZZB', 
     name: 'FC ZIELONA ŻABKA', 
     shortName: 'ŻABKA', 
-    logo: 'https://league-builder.replit.app/api/clubs/8/logo',
+    logo: 'https://i.ibb.co/XrVk0h4C/IMG-0626-Nikodem-Samsel-removebg-preview-1-4.png',
     color: '#1e3a8a'
   } as any,
   { 
     id: 'KSP', 
     name: 'KS PŁOMYK WIERZBOWO', 
     shortName: 'PŁOMYK', 
-    logo: 'https://league-builder.replit.app/api/clubs/9/logo',
+    logo: 'https://i.ibb.co/FbGS5c5d/herb-bobilandu-Bolczi-removebg-preview-2-1.png',
     color: '#f97316'
   } as any,
   { 
     id: 'PKS', 
     name: 'PKS PETRYKOZY', 
     shortName: 'PETRYKOZY', 
-    logo: 'https://league-builder.replit.app/api/clubs/10/logo',
+    logo: 'https://i.ibb.co/qYXGwtBM/obraz-2026-06-07-214108536-removebg-preview-1-3.png',
     color: '#00ccff'
   } as any,
   { 
     id: 'SET', 
     name: 'SETA DZIAŁDOWO', 
     shortName: 'SETA', 
-    logo: 'https://league-builder.replit.app/api/clubs/11/logo',
+    logo: 'https://i.ibb.co/s9NbHtXB/IMG-0626-Nikodem-Samsel-removebg-preview-1-2.png',
     color: '#dc2626'
   } as any,
   { 
     id: 'SPA', 
     name: 'SPARTA NARZYM', 
     shortName: 'SPARTA', 
-    logo: 'https://league-builder.replit.app/api/clubs/12/logo',
+    logo: 'https://i.ibb.co/s9kmkqF7/herb-bobilandu-Bolczi-removebg-preview-2-4.png',
     color: '#16a34a'
   } as any,
   { 
     id: 'USL', 
     name: 'USŁUGI WYKOŃCZENIOWE', 
     shortName: 'USŁUGI', 
-    logo: 'https://league-builder.replit.app/api/clubs/13/logo',
+    logo: 'https://i.ibb.co/Qv6Chmjr/IMG-0626-Nikodem-Samsel-removebg-preview-1.png',
     color: '#facc15'
   } as any,
   { 
     id: 'ZKP', 
     name: 'ZKP CONDOMIA', 
     shortName: 'CONDOMIA', 
-    logo: 'https://league-builder.replit.app/api/clubs/14/logo',
+    logo: 'https://i.ibb.co/NdJxY77m/IMG-0626-Nikodem-Samsel-removebg-preview-2.png',
     color: '#1e40af'
   } as any,
   { 
     id: 'CAN', 
     name: 'CD CANTERA', 
     shortName: 'CANTERA', 
-    logo: 'https://league-builder.replit.app/api/clubs/2/logo',
+    logo: 'https://i.ibb.co/rGJKJsNg/IMG-0626-Nikodem-Samsel-removebg-preview-6.png',
     color: '#f97316'
   } as any,
   {

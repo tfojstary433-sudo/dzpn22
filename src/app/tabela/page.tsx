@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 import { MainNavbar } from '@/components/main-navbar';
 import { Footer } from '@/components/footer';
 import { CountyCupDraw } from '@/components/county-cup-draw';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { Statistics } from '@/components/statistics';
 import { 
   Trophy, Calendar, ChevronRight, Loader2, Goal, Activity, CircleDot, Users,
   Layout, Award, Shield
@@ -96,6 +98,7 @@ export default function TabelaPage() {
 function TabelaContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
+  const statsTab = searchParams.get('stats_tab');
   const [activeTab, setActiveTab] = useState<'league' | 'county_cup' | 'champions_cup'>('league');
   const [showCup, setShowCup] = useState(false);
 
@@ -124,7 +127,7 @@ function TabelaContent() {
     const team = tableData.find(t => t.team_id === teamId) || allTeams.find(t => (t.team_id || t.id) === teamId);
     if (team?.team_logo_url && !team.team_logo_url.includes('czarnepff-1.png') && team.team_logo_url.startsWith('http')) return team.team_logo_url;
     if (team?.logo_url && !team.logo_url.includes('czarnepff-1.png') && team.logo_url.startsWith('http')) return team.logo_url;
-    return `https://league-builder.replit.app/api/clubs/${teamId}/logo`;
+    return 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png';
   }
 
   function getTeamPositionById(teamId: number) {
@@ -178,7 +181,7 @@ function TabelaContent() {
           countyCupStatsRes,
           teamsRes
         ] = await Promise.all([
-          fetch('https://league-builder.replit.app/api/tables'),
+          fetch(API_ENDPOINTS.TABLE),
           fetch('https://league-builder.replit.app/api/matches'),
           fetch('https://league-builder.replit.app/api/matches'),
           fetch('https://league-builder.replit.app/api/stats/summary'),
@@ -243,8 +246,14 @@ function TabelaContent() {
 
         // 3. Other data
         if (Array.isArray(cupMatchesJson)) setCupMatches(cupMatchesJson);
-        if (Array.isArray(matchesJson)) setMatches([...matchesJson].reverse());
-        if (Array.isArray(upcomingJson)) setUpcomingMatches(upcomingJson);
+        if (Array.isArray(matchesJson)) {
+          const finishedMatches = matchesJson.filter((m: any) => m.status === 'finished' || m.home_score !== null);
+          setMatches([...finishedMatches].reverse());
+        }
+        if (Array.isArray(upcomingJson)) {
+          const scheduledMatches = upcomingJson.filter((m: any) => m.status === 'scheduled');
+          setUpcomingMatches(scheduledMatches);
+        }
         if (statsJson) setStats(statsJson);
         
         if (Array.isArray(playersStatsJson) && Array.isArray(playersJson)) {
@@ -305,6 +314,108 @@ function TabelaContent() {
     return (
       <main className="bg-black min-h-screen text-white flex items-center justify-center">
         <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+      </main>
+    );
+  }
+
+  if (statsTab) {
+    const isCup = activeTab === 'county_cup' || activeTab === 'champions_cup';
+    const currentStats = activeTab === 'county_cup' ? countyCupPlayerStats : 
+                        activeTab === 'champions_cup' ? cupPlayerStats : playerStats;
+
+    const sortedStats = [...currentStats].sort((a, b) => {
+      if (statsTab === 'goals') return b.goals - a.goals;
+      if (statsTab === 'assists') return b.assists - a.assists;
+      if (statsTab === 'canadian') return (b.goals + b.assists) - (a.goals + a.assists);
+      return 0;
+    });
+
+    const title = statsTab === 'goals' ? 'PEŁNA KLASYFIKACJA STRZELCÓW' : 
+                 statsTab === 'assists' ? 'PEŁNA KLASYFIKACJA ASYSTENTÓW' : 'PEŁNA PUNKTACJA KANADYJSKA';
+    
+    const icon = statsTab === 'goals' ? <Goal className="w-6 h-6 text-blue-400" /> : 
+                statsTab === 'assists' ? <Users className="w-6 h-6 text-blue-400" /> : <Trophy className="w-6 h-6 text-yellow-500" />;
+
+    return (
+      <main className="bg-black min-h-screen text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative">
+        <MainNavbar />
+        <div className="fixed inset-0 z-0">
+          <Image
+            src="https://i.ibb.co/YCB7X52/obraz-2026-06-13-150303737.png"
+            alt="Stadium Background"
+            fill
+            className="object-cover brightness-[0.7]"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+        </div>
+
+        <div className="container mx-auto px-4 pt-44 pb-24 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <Link 
+              href="/tabela" 
+              className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-8 group uppercase font-black text-[10px] tracking-[0.3em]"
+            >
+              <ChevronRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" />
+              Powrót do tabeli
+            </Link>
+
+            <Card title={title} icon={icon}>
+              <div className="flex flex-col gap-0 -mx-10 -mb-10">
+                {sortedStats.length > 0 ? (
+                  sortedStats.map((p, i) => (
+                    <Link 
+                      key={i} 
+                      href={`/gracz/${p.player_name.replace(/\s+/g, '-').toLowerCase()}`}
+                      className="flex items-center justify-between p-10 px-12 border-b border-white/5 last:border-0 hover:bg-white/[0.04] transition-all group/item"
+                    >
+                      <div className="flex items-center gap-6">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg shrink-0 shadow-xl ${
+                          i === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black scale-110 shadow-yellow-500/30' : 
+                          i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-black' :
+                          i === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-black' :
+                          'bg-white/[0.1] text-white/60 border border-white/10'
+                        }`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <div className="w-16 h-16 relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
+                            <Image 
+                              src={p.photo_url || "https://i.ibb.co/S7RD8ZHj/images-removebg-preview-1.png"} 
+                              alt="" 
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xl font-black text-white group-hover/item:text-blue-400 transition-colors leading-none tracking-tight uppercase italic">{p.player_name}</span>
+                            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mt-2">
+                              {statsTab === 'canadian' ? `${p.goals} GOL + ${p.assists} ASYST` : p.team_name}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={cn(
+                        "flex items-center justify-center border border-white/10 rounded-2xl w-20 h-20 shadow-2xl transition-all duration-500",
+                        statsTab === 'canadian' ? "bg-gradient-to-br from-blue-600 to-blue-800" : "bg-white/[0.04] group-hover/item:bg-blue-600"
+                      )}>
+                        <span className="text-4xl font-black text-white italic tracking-tighter">
+                          {statsTab === 'goals' ? p.goals : statsTab === 'assists' ? p.assists : (p.goals + p.assists)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="py-32 flex flex-col items-center justify-center text-white/10">
+                    <Goal className="w-20 h-20 mb-6 opacity-5" />
+                    <span className="font-black uppercase tracking-[0.4em]">Brak danych do wyświetlenia</span>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+        </div>
+        <Footer />
       </main>
     );
   }
@@ -473,9 +584,9 @@ function TabelaContent() {
                           <span className="text-[9px] font-black text-white/20 tracking-[0.2em]">{getTeamPositionById(upcomingMatches[0].away_team_id)}</span>
                         </div>
                       </div>
-                      <button className="w-full bg-blue-600/10 hover:bg-blue-600 border border-blue-500/20 text-blue-400 hover:text-white font-black py-4 rounded-2xl text-[11px] transition-all uppercase tracking-[0.2em] shadow-lg">
+                      <Link href="/terminarz" className="w-full bg-blue-600/10 hover:bg-blue-600 border border-blue-500/20 text-blue-400 hover:text-white font-black py-4 rounded-2xl text-[11px] transition-all uppercase tracking-[0.2em] shadow-lg flex items-center justify-center">
                         ZOBACZ PEŁNY TERMINARZ
-                      </button>
+                      </Link>
                     </div>
                   ) : (
                     <div className="py-10 flex flex-col items-center justify-center text-white/20">
@@ -491,34 +602,54 @@ function TabelaContent() {
                       <div className="flex flex-col gap-0 -mx-8 -mb-8">
                         {matches.slice(0, 3).map((m, i) => (
                           <div key={i} className="flex flex-col border-b border-white/10 last:border-0 hover:bg-white/[0.02] transition-colors">
-                            <div className="text-[9px] text-white/20 font-black px-8 py-3 uppercase tracking-[0.2em] bg-white/[0.01] flex justify-between">
-                              <span>{new Date(m.scheduled_at).toLocaleDateString('pl-PL')}</span>
-                              <span className="text-green-500/50">ZAKOŃCZONY</span>
+                            <div className="text-[10px] text-white/40 font-black px-8 py-4 uppercase tracking-[0.3em] bg-white/[0.02] flex justify-between items-center border-b border-white/5">
+                              <span className="flex items-center gap-2">
+                                <Calendar className="w-3 h-3 text-blue-500" />
+                                {m.scheduled_at ? new Date(m.scheduled_at).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Brak daty'}
+                              </span>
+                              <span className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-[8px] border border-green-500/20">ZAKOŃCZONY</span>
                             </div>
                             <div className="flex items-center justify-between p-8">
                               <div className="flex flex-col items-center gap-3 flex-1">
-                                <img src={getTeamLogoById(m.home_team_id)} alt="" className="w-10 h-10 object-contain drop-shadow-md" />
+                                <img 
+                                  src={getTeamLogoById(m.home_team_id)} 
+                                  alt="" 
+                                  className="w-10 h-10 object-contain drop-shadow-md" 
+                                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; }}
+                                />
                                 <span className="text-[10px] font-black text-white/60 truncate max-w-[80px]">{m.home_team_name}</span>
                               </div>
                               <div className="flex flex-col items-center mx-4 gap-2">
                                 <div className="w-6 h-6 relative opacity-30">
-                                  <img src={getLeagueLogo(m.match_type)} alt="" className="w-full h-full object-contain" />
+                                  <img 
+                                    src={getLeagueLogo(m.match_type)} 
+                                    alt="" 
+                                    className="w-full h-full object-contain" 
+                                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; }}
+                                  />
                                 </div>
                                 <div className="bg-white/[0.05] border border-white/10 rounded-xl px-4 py-2 shadow-xl group-hover:border-blue-500/30 transition-colors">
-                                  <span className="text-white font-black text-xl italic tracking-tighter">{m.home_score}:{m.away_score}</span>
+                                  <span className="text-white font-black text-xl italic tracking-tighter">
+                                    {m.home_score !== null ? m.home_score : '-'}:{m.away_score !== null ? m.away_score : '-'}
+                                  </span>
                                 </div>
                               </div>
                               <div className="flex flex-col items-center gap-3 flex-1">
-                                <img src={getTeamLogoById(m.away_team_id)} alt="" className="w-10 h-10 object-contain drop-shadow-md" />
+                                <img 
+                                  src={getTeamLogoById(m.away_team_id)} 
+                                  alt="" 
+                                  className="w-10 h-10 object-contain drop-shadow-md" 
+                                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; }}
+                                />
                                 <span className="text-[10px] font-black text-white/60 truncate max-w-[80px]">{m.away_team_name}</span>
                               </div>
                             </div>
                           </div>
                         ))}
                       </div>
-                      <button className="w-full text-blue-400 font-black text-[10px] uppercase tracking-[0.3em] mt-12 hover:text-white transition-all flex items-center justify-center gap-3 group">
+                      <Link href="/terminarz" className="w-full text-blue-400 font-black text-[10px] uppercase tracking-[0.3em] mt-12 hover:text-white transition-all flex items-center justify-center gap-3 group">
                         ZOBACZ WSZYSTKIE WYNIKI <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                      </Link>
                     </>
                   ) : (
                     <div className="py-10 flex flex-col items-center justify-center text-white/20">
@@ -572,7 +703,7 @@ function TabelaContent() {
                         </div>
                       </Link>
                     ))}
-                    <Link href="/statystyki?tab=goals" className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
+                    <Link href={`/tabela?stats_tab=goals&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
                       ZOBACZ PEŁNĄ KLASYFIKACJĘ <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </Link>
                   </div>
@@ -624,7 +755,7 @@ function TabelaContent() {
                         </div>
                       </Link>
                     ))}
-                    <Link href="/statystyki?tab=assists" className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
+                    <Link href={`/tabela?stats_tab=assists&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
                       ZOBACZ PEŁNĄ KLASYFIKACJĘ <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </Link>
                   </div>
@@ -676,7 +807,7 @@ function TabelaContent() {
                         </div>
                       </Link>
                     ))}
-                    <Link href="/statystyki?tab=canadian" className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
+                    <Link href={`/tabela?stats_tab=canadian&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
                       ZOBACZ PEŁNĄ KLASYFIKACJĘ <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </Link>
                   </div>
@@ -739,7 +870,7 @@ function TabelaContent() {
                         </div>
                       </Link>
                     ))}
-                    <Link href={`/statystyki?tab=goals&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
+                    <Link href={`/tabela?stats_tab=goals&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
                       ZOBACZ PEŁNĄ KLASYFIKACJĘ <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </Link>
                   </div>
@@ -791,7 +922,7 @@ function TabelaContent() {
                         </div>
                       </Link>
                     ))}
-                    <Link href={`/statystyki?tab=assists&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
+                    <Link href={`/tabela?stats_tab=assists&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
                       ZOBACZ PEŁNĄ KLASYFIKACJĘ <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </Link>
                   </div>
@@ -843,7 +974,7 @@ function TabelaContent() {
                         </div>
                       </Link>
                     ))}
-                    <Link href={`/statystyki?tab=canadian&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
+                    <Link href={`/tabela?stats_tab=canadian&type=${activeTab}`} className="w-full text-blue-400 font-black text-[11px] uppercase tracking-[0.4em] py-10 hover:text-white transition-all flex items-center justify-center gap-4 group border-t border-white/10 hover:bg-white/[0.02]">
                       ZOBACZ PEŁNĄ KLASYFIKACJĘ <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </Link>
                   </div>
@@ -902,12 +1033,12 @@ function TournamentBracket({ matches, getLogo, getName, type }: { matches: Match
   }
 
   return (
-    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 lg:p-12 shadow-2xl">
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center overflow-x-auto pb-12 px-4 scrollbar-hide py-10">
+    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 lg:p-16 shadow-2xl">
+      <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start justify-center overflow-x-auto pb-12 px-4 scrollbar-hide py-10">
         {rounds.map((round, roundIdx) => (
-          <div key={roundIdx} className="flex flex-col gap-12 min-w-[320px]">
-            <div className="text-center">
-               <span className="text-[12px] font-black text-blue-500 uppercase tracking-[0.5em] italic shrink-0">{round.name}</span>
+          <div key={roundIdx} className="flex flex-col gap-16 min-w-[360px]">
+            <div className="text-center bg-blue-600/10 py-3 rounded-full border border-blue-500/20">
+               <span className="text-[14px] font-black text-blue-400 uppercase tracking-[0.6em] italic shrink-0">{round.name}</span>
             </div>
             
             <div className={cn(
@@ -957,7 +1088,7 @@ function TournamentBracket({ matches, getLogo, getName, type }: { matches: Match
 
                   {/* Horizontal Connector lines - pointing to the right */}
                   {roundIdx < rounds.length - 1 && (
-                    <div className="hidden lg:block absolute -right-8 top-1/2 w-8 h-px bg-white/20" />
+                    <div className="hidden lg:block absolute -right-12 top-1/2 w-12 h-px bg-white/20" />
                   )}
                 </div>
               ))}
@@ -970,28 +1101,40 @@ function TournamentBracket({ matches, getLogo, getName, type }: { matches: Match
 }
 
 function BracketTeam({ name, logo, score, isWinner }: { name: string, logo?: string, score: number, isWinner: boolean }) {
+  const displayName = useMemo(() => {
+    if (!name || name.toLowerCase().includes('null') || name.toLowerCase().includes('undefined')) {
+      return 'OCZEKIWANIE';
+    }
+    return name;
+  }, [name]);
+
   return (
     <div className={cn(
-      "flex items-center justify-between p-4 transition-all duration-500",
-      isWinner ? "bg-blue-600/5" : ""
+      "flex items-center justify-between p-8 transition-all duration-500",
+      isWinner ? "bg-blue-600/20" : "bg-white/[0.04]"
     )}>
-      <div className="flex items-center gap-4 flex-1 min-w-0">
+      <div className="flex items-center gap-8 flex-1 min-w-0">
         <div className={cn(
-          "w-10 h-10 rounded-lg bg-black/40 border p-2 flex items-center justify-center shrink-0 transition-all duration-500",
-          isWinner ? "border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]" : "border-white/5"
+          "w-16 h-16 rounded-2xl bg-black/60 border p-3 flex items-center justify-center shrink-0 transition-all duration-500",
+          isWinner ? "border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-110" : "border-white/10"
         )}>
-          <img src={logo || 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'} alt="" className="w-full h-full object-contain" />
+          <img 
+            src={logo || 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'} 
+            alt="" 
+            className="w-full h-full object-contain" 
+            onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/rK2KV1FN/IMG-4837-1.png'; }}
+          />
         </div>
         <span className={cn(
-          "text-sm font-black uppercase tracking-tight italic truncate transition-all duration-500",
-          isWinner ? "text-white scale-105 origin-left" : "text-white/60"
+          "text-xl font-black uppercase tracking-tight italic truncate transition-all duration-500",
+          isWinner ? "text-white scale-105 origin-left" : "text-white/80"
         )}>
-          {name || 'DRUŻYNA TBD'}
+          {displayName}
         </span>
       </div>
       <div className={cn(
-        "w-12 text-right font-black italic text-xl transition-all duration-500",
-        isWinner ? "text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "text-white/20"
+        "w-24 text-right font-black italic text-4xl transition-all duration-500",
+        isWinner ? "text-blue-400 drop-shadow-[0_0_20px_rgba(59,130,246,0.8)]" : "text-white/40"
       )}>
         {score !== null && score !== undefined ? score : '-'}
       </div>

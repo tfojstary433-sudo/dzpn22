@@ -3,7 +3,7 @@ export const FIREBASE_BASE_URL = "https://wlpn-roblox-default-rtdb.europe-west1.
 
 export const API_ENDPOINTS = {
   STATS: `${REPLIT_API_BASE_URL}/api/stats`,
-  TABLE: `${REPLIT_API_BASE_URL}/api/tables`,
+  TABLE: `${REPLIT_API_BASE_URL}/api/tables.json?season_id=1`,
   SCHEDULE: '/api/schedule',
   EXTERNAL_STATS: `${REPLIT_API_BASE_URL}/api/external/stats`,
   EXTERNAL_TABLE: `${REPLIT_API_BASE_URL}/api/external/table`,
@@ -36,9 +36,20 @@ export const POSITION_MAPPING: Record<string, string> = {
 };
 
 export const TEAM_ID_MAPPING: Record<string, string> = {
-  '1': 'BOB', '2': 'CAN', '3': 'DRM', '4': 'DZ4', '5': 'BOS',
-  '6': 'DZI', '7': 'MAK', '8': 'ZZB', '9': 'KSP', '10': 'PKS',
-  '11': 'SET', '12': 'SPA', '13': 'USL', '14': 'ZKP'
+  '10': 'BOB',
+  '15': 'DRM',
+  '7': 'DZ4',
+  '16': 'BOS',
+  '2': 'DZI',
+  '12': 'MAK',
+  '13': 'ZZB',
+  '14': 'KSP',
+  '4': 'PKS',
+  '11': 'SET',
+  '17': 'SPA',
+  '5': 'USL',
+  '6': 'ZKP',
+  '9': 'CAN'
 };
 
 export const COUNTRY_MAPPING: Record<string, string> = {

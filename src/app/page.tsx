@@ -9,7 +9,6 @@ export default function Home() {
       <MainNavbar />
       <LandingHero />
       <Footer />
-      <CountyCupDraw />
     </main>
   );
 }

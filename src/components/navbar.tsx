@@ -306,7 +306,6 @@ export function Navbar() {
   const navLinks = [
     { href: '/', label: 'Start' },
     { href: '/kluby', label: 'Kluby' },
-    { href: '/sklep', label: 'Sklep' },
     { href: '/o-nas', label: 'O nas' },
   ];
 
